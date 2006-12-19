@@ -1,0 +1,74 @@
+BUGS
+----
+
+split_test_name is detected as a test: rename it
+
+
+Refactor
+--------
+ - Make conf passed not global
+ - Use logging for messaging
+ 
+ X split out test selection into selector class
+   X use in core
+ X move config to own module
+ X move capture to result module
+   X implement in result
+   - remove from core
+   X use text test result in core
+ X use plugins in core
+   X coverage
+ 
+Output capture handling
+-----------------------
+ - Monkeypatch in a new _TextTestResult instead of all of the current chicanery
+
+ 
+Assert introspection
+--------------------
+ - use in assertion error only -- only replace that class (replace the
+   reference(s) in unittest as well)
+ - introspect object instances? what about methods (probably not)
+ - fix the 'EOF in multi-line input' bug
+
+
+Error handling
+--------------
+ - exit on error or fail
+ X pdb on error or fail
+
+ 
+Path handling
+-------------
+ X importer:
+     (all configurable!)
+     * before attempting import, ensure that the path to the module to
+       be imported is in sys.path;
+     * if the module is a file other than __init__.py in a dir containing an
+       __init__.py, walk up to find the root dir (with no __init__.py) and
+       ensure that directory is in sys.path
+     * after import, walk up package to package root and ensure that the
+       package root is in sys.path
+     * investigate Kumar's load/reload bug
+
+     
+Plugins
+-------
+ - test selector: decide if a dir, module, file, class, or function is a
+   wanted test 
+   X doctest
+ - test collector: given a context (module, directory, or file) return tests
+   X doctest
+ - test watcher: before_all, before_test, after_test, after_all ..
+   X coverage
+   - profile
+
+   
+Utilities
+--------
+@raises(*exc) -- assert func call raises exception
+@timed(under, over, exact) -- assert func execs in under, over, exact time
+
+SkipTest exception ... catch in addError, addSkip instead, print skipped in
+output after failed
+Deprecated too?

@@ -1,0 +1,59 @@
+New in version 0.9
+------------------
+
+0.9 Final is here!
+==================
+
+nose 0.9 includes a host of new features, as well as numerous
+backwards-incompatible changes to interfaces and implementation. 
+
+Thanks to the many folks who have contributed patches and ideas and made bug
+reports for the development version of 0.9, especially Mika Eloranta, Jay
+Parlar, Kevin Dangoor, Scot Doyle, Titus Brown and Philip J.Eby.
+
+Here's a quick rundown of what's new in 0.9
+
+- Plugins
+  
+  The most important new feature is support for plugins using setuptools
+  entrypoints. nose plugins can select and load tests (like the builtin
+  doctest plugin), reject tests (like the builtin attrib plugin, contributed
+  by Mika Eloranta, that allows users to select tests by attribute),
+  watch and report on tests (like the builtin coverage and profiler plugins),
+  completely replace test result output (like the html result plugin in the
+  examples directory) or any combination of the above. Writing plugins is
+  simple: subclass nose.plugins.Plugin and implement any of the methods in
+  nose.plugins.IPluginInterface.
+
+- Better compatibility with unittest
+
+  Test loading has been consolidated into a test loader class that is drop-in
+  compatible with unittest.TestLoader. Likewise test result output, including
+  output capture, assert introspection, and support for skipped and deprecated
+  tests, in nose.result.TextTestResult. If you want those features and not the
+  rest of nose, you can use just those classes. nose.main() has also been
+  rewritten to have the same signature as unittest.main().
+
+- Better command line interface
+
+  Command line test selection is more intuitive and powerful, enabling easy
+  and correct running of single tests while ensuring that fixtures (setup and
+  teardown) are correctly executed at all levels. No more -f -m or -o options:
+  now simply specify the tests to run::
+
+    nosetests this/file.py that.module
+
+  Tests may be specified down to the callable::
+
+    nosetests this/file.py:TestClass that.module:this_test
+    nosetests that.module:TestClass.test_method
+
+  There are also new options for dropping into pdb on errors or failures, and
+  stopping the test run on the first error or failure (thanks to Kevin Dangoor
+  for the idea).
+    
+- More!
+
+  Helpful test decorators and functions in nose.tools. Support for generators
+  in test classes. Better import path handling -- that you can shut off!
+  Detailed verbose logging using the logging package. And more...

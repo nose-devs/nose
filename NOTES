@@ -1,0 +1,30 @@
+notes on loading from modules
+
+this pretty much all has to take place inside of the _tests iterator.
+
+
+if the module is wanted
+   run setup
+   load tests (including submodules) and yield each test
+   run teardown
+else if the module is not wanted:
+   * do not import the module *
+   if the module is a package:
+      recurse into the package looking for test modules
+
+
+make suite.TestSuite
+put run, call, setup, teardown, shortdescription there
+
+make LazySuite subclass it
+
+get rid of TestModule
+
+do module import in loadTestsFromModuleName; if an error, pass the error
+to the module suite, whose run() should re-raise the error so that import
+errors are seen only when we actually try to run the tests
+
+make ModuleSuite class with setUp, tearDown doing try_run, it gets
+additional module and error keyword args
+
+rename TestDir to DirectorySuite

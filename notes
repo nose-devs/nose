@@ -1,0 +1,59 @@
+try to make things less stateful
+
+ - conf should be immutable?
+ - certainly conf.working_dir shouldn't change, or if it does it has to be a
+   stack
+ - things that are mutable should be removed from conf and passed separately
+
+tests and working dir should come out of conf and be passed to loader and
+selector
+
+loader.loadTestsFromNames(names, module=None, working_dir=None)
+ -> split and absolutize all of the test names
+ -> give them to the selector (self.selector.tests = names)
+ -> start walking at working_dir
+ -> sort dirnames into test-last order
+ -> yield loadFromName for wanted files
+    -> ModuleSuite
+ -> for directories:
+    - keep descending if wanted and not a package
+    - remove from list if not wanted
+    - if a package, yield loadFromName for package
+      -> ModuleSuite
+      -> since module has a path, we need to restart the walk
+         and call loadTestsFromNames with the path end as the working dir
+         but we want to do that lazily, so we need to bundle up the
+         needed information into a callable and a LazySuite
+
+loader.collectTests(working_dir, names=[]):
+ -> yield each test suite as found
+
+
+suites:
+
+ModuleSuite
+ClassSuite
+TestCaseSuite
+GeneratorSuite
+GeneratorMethodSuite
+
+
+*
+proxy suite may need to be mixed in by the collector when running under test
+or, suite base class has a testProxy property, which if not None is called to
+proxy the test
+
+*
+module isolation plugin will break under depth-first loading. how to restore
+it:
+
+preImport hook
+ - snapshot sys.modules: this is what to restore AFTER processing of the
+   test module is complete
+postImport hook
+ - snapshot sys.modules: this is what to restore BEFORE running module tests
+startTest
+ - if isa module, restore postImport sys.modules snapshot
+stopTest
+ - if isa module, restore preImport sys.modules snapshot
+ 
