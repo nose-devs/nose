@@ -18,8 +18,8 @@
 - Fixed bug where -vvvv turned off verbose logging instead of making it even 
   more verbose. Thanks to Ian Bicking for the bug report.
 - Fixed bug where assert inspection would fail when the trailing """ of a 
-  docstring was one of the inspected lines. Thanks to cito@online.de for the 
-  bug report.
+  docstring was one of the inspected lines. Thanks to cito at online dot de 
+  for the bug report.
 
 0.9.1
 

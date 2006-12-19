@@ -157,11 +157,11 @@
       <p>Sign up to receive email announcements
         of new releases</p>
 
-      <h2><a href="http://nose.python-hosting.com/">Trac</a></h2>
+      <h2><a href="http://code.google.com/p/python-nose/">Tracker</a></h2>
       <p>Report bugs, request features, wik the wiki, browse source.</p>
 
       <h2>Get the code</h2>
-      <p><tt>svn co http://svn.nose.python-hosting.com/trunk</tt></p>      
+      <p><tt>svn co http://python-nose.googlecode.com/svn/trunk/ nose</tt></p>      
       
       <h2>Other links</h2>
       <ul>
@@ -208,7 +208,9 @@
 
       %(tools)s
 
-      <p><b>FIXME:</b> use pudge to generate rst docs for all tools funcs</p>
+	<p>Coming soon: documentation for all functions in nose.tools</p>
+
+      <!-- <p><b>FIXME:</b> use pudge to generate rst docs for all tools funcs</p> -->
       
       <h2><a name="commands"></a>nosetests setuptools command</h2>
 
@@ -221,15 +223,15 @@
       <h2>Bug reports</h2>
 
       <p>Please report bugs and make feature
-      requests <a href="http://nose.python-hosting.com">here</a>.</p>
+      requests <a href="http://code.google.com/p/python-nose/">here</a>.</p>
       
       <h2>Hack</h2>
 
-      <p><a href="http://nose.python-hosting.com/wiki/WritingPlugins">Write
+      <p><a href="http://code.google.com/p/python-nose/wiki/WritingPlugins">Write
           plugins!</a> It's easy and fun.</p>
       
       <p>Get the code:
-        <pre>svn co http://svn.nose.python-hosting.com/trunk</pre>
+        <pre>svn checkout http://python-nose.googlecode.com/svn/trunk/ nose</pre>
       </p>
 
       <p><a href="mailto:jpellerin+nose@gmail.com">Patches are
@@ -239,8 +241,7 @@
           tree easily.
       </p>
       
-      <p>Thanks to the great folks at python hosting for providing the
-      subversion repository and trac instance.</p>
+      <p>Thanks to Google for providing the Google code hosting service.</p>
       
       <h2><a name="changelog"></a>Changelog</h2>
       %(changelog)s
