@@ -1,0 +1,19 @@
+New in version 0.9.1
+--------------------
+
+Nose 0.9.1 is mainly a bug-fix release, but it does contain a few new
+features.
+
+* The --where (-w), --include and --exclude arguments may now all appear
+  multiple times in a single command line, allowing easier running of
+  multiple test suites and test suites with more diverse layouts.
+* For programmatic use, nose.runmodule() was added. Similar to
+  doctest.runmodule() and unittest.main(), nose.runmodule() will load and run
+  tests in the current module, which defaults to __main__.
+* A number of changes to plugins and plugin hooks make current plugins work
+  better and allow more interesting plugins to be written.
+
+Just about everything in this release was driven by requests from
+users. Thanks to the many folks who filed bug reports and suggested features,
+ideas and solutions to thorny problems.
+     

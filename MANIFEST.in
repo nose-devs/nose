@@ -1,0 +1,10 @@
+include AUTHORS
+include ez_setup.py
+include unit_tests/*/*.py
+include unit_tests/*/*/*.py
+include unit_tests/*/*/*/*.py
+include unit_tests/*/*/*/*/*.py
+include CHANGELOG
+include NEWS
+include README.txt
+include lgpl.txt

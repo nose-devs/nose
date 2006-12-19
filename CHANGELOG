@@ -1,0 +1,266 @@
+0.9.2
+
+- Added make_decorator function to nose.tools. Used to construct decorator
+  functions that are well-behaved and preserve as much of the original
+  function's metadata as possible. Thanks to Antoine Pitrou for the patch.
+- Added nose.twistedtools, contributed by Antoine Pitrou. This module adds
+  @deferred decorator that makes it simple to write deferred tests, with or
+  without timeouts.
+- Added nosetests setuptools command. Now you can run python setup.py
+  nosetests and have access to all nose features and plugins. Thanks to James
+  Casbon for the patch.
+- Added monkeypatch to doctests that keeps doctest from stepping on coverage 
+  when the two plugins are used together. Thanks to David Avraamides for the 
+  bug report.
+- Added isolation plugin. Use this plugin to automatically restore sys.modules
+  after each test module or package. Thanks to Michal Kwiatkowski for the 
+  feature request.
+- Fixed bug where -vvvv turned off verbose logging instead of making it even 
+  more verbose. Thanks to Ian Bicking for the bug report.
+- Fixed bug where assert inspection would fail when the trailing """ of a 
+  docstring was one of the inspected lines. Thanks to cito@online.de for the 
+  bug report.
+
+0.9.1
+
+- New function nose.runmodule() finds and runs tests only in a 
+  single module, which defaults to __main__ (like unittest.main() or 
+  doctest.runmodule()). Thanks Greg Wilson for the suggestion.
+- Multiple -w (--where) arguments can now be used in one command line,
+  to find and run tests in multiple locations. Thanks Titus Brown for
+  the suggestion.
+- Multiple --include and --exclude arguments are now accepted in one command 
+  line. Thanks Michal Kwiatkowski for the feature request.
+- Coverage will now include modules not imported by any test when
+  using the new --cover-inclusive switch. Thanks James Casbon for the
+  patch.
+- module:TestClass test selections now properly select all tests in the test 
+  class.
+- startTest and stopTest are now called in plugins at the beginning and end of
+  test suites, including test modules, as well as individual tests. Thanks 
+  Michal Kwiatkowski for the suggestion.
+- Fix bug in test selection when run as ``python setup.py test``: 'test' was 
+  passing through and being used as the test name selection. Thanks Kumar 
+  McMillan for the bug report.
+- Fix bug in handling of -x/--stop option where the test run would stop on
+  skipped or deprecated tests. Thanks Kumar McMillan for the bug report.
+- Fix bug in loading tests from projects with layouts that place modules in
+  /lib or /src dirs and tests in a parallel /tests dir.
+- Fix bug in python version detection. Thanks Kevin Dangoor for the bug report 
+  and fix.
+- Fix log message in selector that could raise IndexError. Thanks Kumar 
+  McMillan for the bug report and patch.
+- Fix bug in handling doctest extension arguments specified in environment and
+  on command line. Thanks Ian Bicking for the bug report.
+- Fix bug in running fixtures (setup/teardown) that are not functions, and
+  report a better error message when a fixture is not callable. Thanks Ian
+  Bicking for the bug report.
+  
+0.9.0
+
+- More unit tests and better test coverage. Numerous bugfixes deriving from
+  same.
+- Make --exe option do what it says, and turn it on by default on
+  Windows. Add --noexe option so windows users can turn if off.Thanks
+  richard at artsalliancemedia dot com for the bug reports.  
+- Handle a working directory that happens to be in the middle of a package
+  more gracefully. Thanks Max Ischenko for the bug report and test case.
+- Fix bugs in test name comparison when a test module is specified whose name
+  overlaps that of a non-test module. Thanks Max Ischenko for the bug report
+  and test case.
+- Fix warning spam when a non-existent test file is requested on the command
+  line. Thanks Max Ischenko for the bug report.
+
+0.9.0b2
+
+- Allow --debug to set any logger to DEBUG. Thanks to casbon at gmail dot com for
+  the patch. 
+- Fix doctest help, which was missing notes about the environment variables
+  that it accepts. Thanks to Kumar McMillan for the patch.
+- Restore sys.stdout after run() in nose.core. Thanks to Titus Brown for the
+  bug report. 
+- Correct handling of trailing comma in attrib plugin args. Thanks Titus Brown
+  for the patch.
+
+0.9.0b1
+
+- Fix bug in handling of OR conditions in attrib plugin. Thanks to Titus
+  Brown for the bug report.
+- Fix bug in nose.importer that would cause an attribute error when a local
+  module shadowed a builtin, or other object in sys.modules, without a
+  __file__ attribute. Thanks to casbon at gmail dot com for the bug report.
+- Fix bug in nose.tools decorators that would cause decorated tests to appear
+  with incorrect names in result output.   
+
+0.9.0a2
+
+- In TestLoader, use inspect's isfunction() and ismethod() to filter functions
+  and methods, instead of callable(). Thanks to Kumar McMillan for reporting
+  the bug.
+- Fix doctest plugin: return an empty iterable when no tests are found in a
+  directory instead of None. Thanks to Kumar McMillan for the bug report and
+  patch.
+- Ignore executable python modules, unless run with --exe file. This is a
+  partial defense against nose causing trouble by loading python modules that
+  are not import-safe. The full defense: don't write modules that aren't
+  import safe!
+- Catch and warn about errors on plugin load instead of dying.
+- Renamed builtin profile module from nose.plugins.profile to
+  nose.plugins.prof to avoid shadowing stdlib profile.py module.
+
+0.9.0a1
+
+- Add support for plugins, with hooks for selecting, loading and reporting on
+  tests. Doctest and coverage are now plugins.
+- Add builtin plugins for profiling with hotshot, selecting tests by
+  attribute (contributed by Mika Eloranta), and warning of missed tests
+  specified on command line. 
+- Change command line test selection syntax to match unittest. Thanks to Titus
+  Brown for the suggestion.
+- Option to drop into pdb on error or failure.
+- Option to stop running on first error or failure. Thanks to Kevin Dangoor
+  for the suggestion.
+- Support for doctests in files other than python modules (python 2.4 only)
+- Reimplement base test selection as single self-contained class.
+- Reimplement test loading as unittest-compatible TestLoader class.
+- Remove all monkeypatching.
+- Reimplement output capture and assert introspection support in
+  unittest-compatible Result class.
+- Better support for multiline constructions in assert introspection.
+- More context output with assert introspections.
+- Refactor setuptools test command support to use proxied result, which
+  enables output capture and assert introspection support without
+  monkeypatching. Thanks to Philip J. Eby for the suggestion and skeleton
+  implementation.
+- Add support for generators in test classes. Thanks to Jay Parlar for the
+  suggestion and patch.
+- Add nose.tools package with some helpful test-composition functions and
+  decorators, including @raises, contributed by Scot Doyle.
+- Reimplement nose.main (TestProgram) to have unittest-compatible signature.
+- All-new import path handling. You can even turn it off! (If you don't,
+  nose will ensure that all directories from which it imports anything are on
+  sys.path before the import.)
+- Logging package used for verbose logging.
+- Support for skipped and deprecated tests.
+- Configuration is no longer global.
+
+0.8.7
+
+- Add support for py.test-style test generators. Thanks to Jay Parlar for
+  the suggestion.
+- Fix bug in doctest discovery. Thanks to Richard Cooper for the bug report.
+- Fix bug in output capture being appended to later exceptions. Thanks to
+  Titus Brown for the patch that uncovered the bug.
+- Fix bug(?) in Exception patch that caused masked hasattr/__getattr__ loops
+  to either become actual infinite loops, or at least take so long to finally
+  error out that they might as well be infinite.
+- Add -m option to restrict test running to only tests in a particular package
+  or module. Like the -f option, -m does not restrict test *loading*, only
+  test *execution*.
+- When loading and running a test module, ensure that the module's path is in
+  sys.path for the duration of the run, not just while importing the module.
+- Add id() method to all callable test classes, for greater unittest
+  compatibility.
+  
+0.8.6
+
+- Fix bug with coverage output when sys.modules contains entries without
+  __file__ attributes
+- Added -p (--cover-packages) switch that may be used to restrict coverage
+  report to modules in the indicated package(s)
+
+0.8.5
+
+- Output capture and verbose assertion errors now work when run like
+  'python setup.py test', as advertised.
+- Code coverage improvements: now coverage will be output for all modules
+  imported by any means that were not in sys.modules at the start of the test
+  run. By default, test modules will be excluded from the coverage report, but
+  you can include them with the -t (--cover-tests) option.
+
+0.8.4
+
+- Fix bugs in handling of setup/teardown fixtures that could cause TypeError
+  exceptions in fixtures to be silently ignored, or multiple fixtures of the
+  same type to run. Thanks to Titus Brown for the bug report.
+
+0.8.3
+
+- Add -V (--version) switch to nosetests
+- Fix bug where sys.path would not be set up correctly when running some
+  tests, producing spurious import errors (Thanks to Titus Brown and Mike
+  Thomson for the bug reports)
+- For test classses not derived from unittest.TestCase, output (module.Class)
+  "doc string" as test description, when method doc string is available
+  (Thanks to David Keeney for the suggestion, even if this isn't quite what he
+  meant)
+
+0.8.2
+
+- Revise import to bypass sys.path and manipulate sys.modules more
+  intelligently, ensuring that the test module we think we are loading is the
+  module we actually load, and that modules loaded by other imports are not
+  reloaded without cause
+- Allow test directories inside of packages. Formerly directories matching
+  testMatch but lacking an __init__.py would cause an ImportError when located
+  inside of packages
+- Fix bugs in different handling of -f switch in combination with -w and -o
+
+0.8.1
+
+- Fix bug in main() that resulted in incorrect exit status for nosetests
+  script when tests fail
+- Add missing test files to MANIFEST.in
+- Miscellaneous pylint cleanups
+
+0.8
+
+- Add doctest support
+- Add optional code coverage support, using Ned Batchelder's coverage.py;
+  activate with --coverage switch or NOSE_COVERAGE environment variable
+- More informative error message on import error 
+- Fix bug where module setup could be called twice and teardown skipped
+  for certain setup method names.
+- main() returns success value, does not exit. run_exit() added to support
+  old behavior; nosetests script now calls nose.run_exit()
+ 
+0.7.5
+
+- Fix bus error on exit
+- Discover tests inside of non-TestCase classes that match testMatch
+- Reorganize selftest: now selftest tests the output of a full nose run
+- Add test_with_setup.py contributed by Kumar McMillan
+ 
+0.7.2
+
+- Refactor and correct bugs in discovery and test loading
+- Reorganize and expand documentation
+- Add -f (run this test file only) switch
+
+0.7.1
+
+- Bugfix release: test files in root of working directory were not being
+  stripped of file extension before import.
+  
+0.7
+
+- Change license to LGPL
+- Major rework of output capture and assert introspection
+- Improve test discovery: now finds tests in packages
+- Replace -n switch ('no cwd') with -w switch ('look here')
+
+0.6
+
+- New nosetests script
+- Allow specification of names on command line that are loadable but not
+  directly loadable as modules (eg nosetests -o path/to/tests.py)
+- Add optional py.test-like assert introspection. Thanks to Kevin Dangoor
+  for the suggestion.
+- Improvements to selftest
+ 
+0.5.1
+
+- Increased compatibility with python 2.3 (and maybe earlier)
+- Increased compatibility with tests written for py.test: now calls
+  module.setup_module(module) if module.setup_module() fails
+
