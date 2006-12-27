@@ -35,20 +35,20 @@ to load the plugin.
 Defining options
 ================
 
-All plugins must implement the methods `add_options(self, parser, env)`
-and `configure(self, options, conf)`. Subclasses of nose.plugins.Plugin
+All plugins must implement the methods ``add_options(self, parser, env)``
+and ``configure(self, options, conf)``. Subclasses of nose.plugins.Plugin
 that want the standard options should call the superclass methods.
 
 nose uses optparse.OptionParser from the standard library to parse
-arguments. A plugin's add_options() method receives a parser
+arguments. A plugin's `add_options()` method receives a parser
 instance. It's good form for a plugin to use that instance only to add
 additional arguments that take only long arguments (--like-this). Most
 of nose's built-in arguments get their default value from an environment
 variable. This is a good practice because it allows options to be
 utilized when run through some other means than the nosetests script.
 
-A plugin's configure() receives the parsed OptionParser options object,
-as well as the current config object. Plugins should configure their
+A plugin's `configure()` method receives the parsed OptionParser options 
+object, as well as the current config object. Plugins should configure their
 behavior based on the user-selected settings, and may raise exceptions
 if the configured behavior is nonsensical.
 
@@ -75,10 +75,10 @@ Recipes
 
  * Writing a plugin that loads tests from files other than python modules
 
-   Implement wantFile and loadTestsFromPath. In wantFile, return True
-   for files that you want to examine for tests. In loadTestsFromPath,
+   Implement `wantFile` and `loadTestsFromPath`. In `wantFile`, return True
+   for files that you want to examine for tests. In `loadTestsFromPath`,
    for those files, return a TestSuite or other iterable containing
-   TestCases. loadTestsFromPath may also be a generator.
+   TestCases. `loadTestsFromPath` may also be a generator.
  
    Example: nose.plugins.doctests
 
@@ -91,7 +91,7 @@ Recipes
 
  * Writing a plugin that selects or rejects tests
 
-   Implement any or all want* methods. Return False to reject the test
+   Implement any or all `want*` methods. Return False to reject the test
    candidate, True to accept it -- which  means that the test candidate
    will pass through the rest of the system, so you must be prepared to
    load tests from it if tests can't be loaded by the core loader or

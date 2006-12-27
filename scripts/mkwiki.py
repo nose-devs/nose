@@ -22,6 +22,13 @@ def section(doc, name):
     raise Exception('Section %s not found' % name)
 
 def wikirst(doc):
+
+
+    # TODO
+    # make an rst->wiki basic writer
+    # instantiate here and pass to publish_string, returning the
+    # output with the warning attached at the end
+
     #
     # module -> page links (will be subbed into each page's string)
     #
