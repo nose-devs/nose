@@ -18,7 +18,7 @@ class WikiVisitor(SparseNodeVisitor):
         SparseNodeVisitor.__init__(self, document)
         self.list_depth = 0
         self.list_item_prefix = None
-        self.indent = ''
+        self.indent = self.old_indent = ''
         self.output = []
         self.preformat = False
         
@@ -29,6 +29,8 @@ class WikiVisitor(SparseNodeVisitor):
         #print "Text", node
         data = node.astext()
         if not self.preformat:
+            data = data.lstrip('\n\r')
+            data = data.replace('\r', '')
             data = data.replace('\n', ' ')
         self.output.append(data)
 
@@ -65,9 +67,13 @@ class WikiVisitor(SparseNodeVisitor):
         self.output.append('\n\n')
                            
     def visit_list_item(self, node):
+        self.old_indent = self.indent
         self.indent = self.list_item_prefix
 #    def depart_list_item(self, node):
 #        self.indent = ''
+
+    def depart_list_item(self, node):
+        self.indent = self.old_indent
         
     def visit_literal_block(self, node):
         self.output.extend(['{{{', '\n'])
@@ -118,13 +124,17 @@ class WikiVisitor(SparseNodeVisitor):
 
     def depart_subtitle(self, node):
         self.output.append(' ===\n\n')
-
+        self.list_depth = 0
+        self.indent = ''
+        
     def visit_title(self, node):
         self.output.append('== ')
 
     def depart_title(self, node):
         self.output.append(' ==\n\n')
-
+        self.list_depth = 0
+        self.indent = ''
+        
     def visit_title_reference(self, node):
         #        print "title reference", node
         self.output.append("`") # + node.astext() + "`")
@@ -149,7 +159,7 @@ class WikiVisitor(SparseNodeVisitor):
 def main(source):
     output = publish_string(source, writer=WikiWriter())
     print output
-    print publish_string(source)
+    # print publish_string(source)
     
 if __name__ == '__main__':
     main(sys.stdin.read())

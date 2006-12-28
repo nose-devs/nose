@@ -1,17 +1,17 @@
-"""nose plugins
-
-nose supports setuptools entry point plugins for test collection,
-selection, observation and reporting.
-
-Writing Plugins
+"""Writing Plugins
 ---------------
 
-Plugin classes should subclass nose.plugins.Plugin.
+nose supports setuptools_ entry point plugins for test collection,
+selection, observation and reporting. There are two basic rules for plugins:
 
-Plugins may implement any of the methods described in the class
-PluginInterface in nose.plugins.base. Please note that this class is for
-documentary purposes only; plugins may not subclass PluginInterface.
+ * Plugin classes should subclass `nose.plugins.Plugin`_.
+ * Plugins may implement any of the methods described in the class
+   PluginInterface in nose.plugins.base. Please note that this class is for
+   documentary purposes only; plugins may not subclass PluginInterface.
 
+.. _setuptools: http://peak.telecommunity.com/DevCenter/setuptools
+.. _nose.plugins.Plugin: http://python-nose.googlecode.com/svn/trunk/nose/plugins/base.py
+   
 Registering
 ===========
 
@@ -40,14 +40,14 @@ and ``configure(self, options, conf)``. Subclasses of nose.plugins.Plugin
 that want the standard options should call the superclass methods.
 
 nose uses optparse.OptionParser from the standard library to parse
-arguments. A plugin's `add_options()` method receives a parser
+arguments. A plugin's ``add_options()`` method receives a parser
 instance. It's good form for a plugin to use that instance only to add
 additional arguments that take only long arguments (--like-this). Most
 of nose's built-in arguments get their default value from an environment
 variable. This is a good practice because it allows options to be
 utilized when run through some other means than the nosetests script.
 
-A plugin's `configure()` method receives the parsed OptionParser options 
+A plugin's ``configure()`` method receives the parsed ``OptionParser`` options 
 object, as well as the current config object. Plugins should configure their
 behavior based on the user-selected settings, and may raise exceptions
 if the configured behavior is nonsensical.
@@ -56,55 +56,64 @@ Logging
 =======
 
 nose uses the logging classes from the standard library. To enable users
-to view debug messages easily, plugins should use logging.getLogger() to
-acquire a logger in the 'nose.plugins' namespace.
+to view debug messages easily, plugins should use ``logging.getLogger()`` to
+acquire a logger in the ``nose.plugins`` namespace.
 
 Recipes
 =======
 
  * Writing a plugin that monitors or controls test result output
 
-   Implement any or all of addError, addFailure, etc., to monitor test
+   Implement any or all of ``addError``, ``addFailure``, etc., to monitor test
    results. If you also want to monitor output, implement
-   setOutputStream and keep a reference to the output stream. If you
-   want to prevent the builtin TextTestResult output, implement
-   setOutputSteam and return a dummy stream and send your desired output
-   to the real stream.
+   ``setOutputStream`` and keep a reference to the output stream. If you
+   want to prevent the builtin ``TextTestResult`` output, implement
+   ``setOutputSteam`` and *return a dummy stream*. The default output will go
+   to the dummy stream, while you send your desired output to the real stream.
  
-   Example: examples/html_plugin/htmlplug.py
+   Example: `examples/html_plugin/htmlplug.py`_
 
  * Writing a plugin that loads tests from files other than python modules
 
-   Implement `wantFile` and `loadTestsFromPath`. In `wantFile`, return True
-   for files that you want to examine for tests. In `loadTestsFromPath`,
+   Implement ``wantFile`` and ``loadTestsFromPath``. In ``wantFile``, return
+   True for files that you want to examine for tests. In ``loadTestsFromPath``,
    for those files, return a TestSuite or other iterable containing
-   TestCases. `loadTestsFromPath` may also be a generator.
+   TestCases. ``loadTestsFromPath`` may also be a generator.
  
-   Example: nose.plugins.doctests
+   Example: `nose.plugins.doctests`_
 
  * Writing a plugin that prints a report
 
    Implement begin if you need to perform setup before testing
-   begins. Implement report and output your report to the provided stream.
+   begins. Implement ``report`` and output your report to the provided stream.
  
-   Examples: nose.plugins.cover, nose.plugins.profile, nose.plugins.missed
+   Examples: `nose.plugins.cover`_, `nose.plugins.profile`_, `nose.plugins.missed`_
 
  * Writing a plugin that selects or rejects tests
 
-   Implement any or all `want*` methods. Return False to reject the test
+   Implement any or all ``want*``  methods. Return False to reject the test
    candidate, True to accept it -- which  means that the test candidate
    will pass through the rest of the system, so you must be prepared to
    load tests from it if tests can't be loaded by the core loader or
    another plugin -- and None if you don't care.
 
-   Examples: nose.plugins.attrib, nose.plugins.doctests
-   
+   Examples: `nose.plugins.attrib`_, `nose.plugins.doctests`_
+
 Examples
 ========
 
-See nose.plugins.attrib, nose.plugins.cover, nose.plugins.doctests and
-nose.plugins.profile for examples. Further examples may be found the
-examples directory in the nose source distribution.
+See `nose.plugins.attrib`_, `nose.plugins.cover`_, `nose.plugins.doctests`_
+and `nose.plugins.profile`_ for examples. Further examples may be found the
+examples_ directory in the nose source distribution.
+
+.. _examples/html_plugin/htmlplug.py: http://python-nose.googlecode.com/svn/trunk/examples/html_plugin/htmlplug.py
+.. _examples: http://python-nose.googlecode.com/svn/trunk/examples
+.. _nose.plugins.attrib: http://python-nose.googlecode.com/svn/trunk/nose/plugins/attrib.py
+.. _nose.plugins.cover: http://python-nose.googlecode.com/svn/trunk/nose/plugins/cover.py
+.. _nose.plugins.doctests: http://python-nose.googlecode.com/svn/trunk/nose/plugins/doctests.py
+.. _nose.plugins.missed: http://python-nose.googlecode.com/svn/trunk/nose/plugins/missed.py
+.. _nose.plugins.profile: http://python-nose.googlecode.com/svn/trunk/nose/plugins/profile.py
+
 """
 import logging
 import pkg_resources
