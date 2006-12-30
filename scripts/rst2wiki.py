@@ -33,30 +33,10 @@ class WikiVisitor(SparseNodeVisitor):
             data = data.replace('\r', '')
             data = data.replace('\n', ' ')
         self.output.append(data)
-
-#     def output_paragraph(self, node, prefix=''):
-#         out = [prefix]
-#         for n in node.children:
-#             if isinstance(n, emphasis):
-#                 out.extend(['*', n.astext(), '*'])
-#             elif isinstance(n, title_reference):
-#                 out.extend(['`', n.astext(), '`'])
-#             else:
-#                 out.append(n.astext())
-#             out.append(' ')
-#         return ''.join(out)
     
-    # FIXME need to put `this`around inline literals
-    # FIXME need to indent paragraphs after first within list items
     def visit_bullet_list(self, node):
         self.list_depth += 1
         self.list_item_prefix = (' ' * self.list_depth) + '* '
-#         for n in node.children:
-#             print "bullet list child %s" % n
-            
-#             for nn in n.children:
-#                 print "  child child %s" % nn
-#         self.output.extend([ ' * ' + n.astext() for n in node.children ])
 
     def depart_bullet_list(self, node):
         self.list_depth -= 1
@@ -69,8 +49,6 @@ class WikiVisitor(SparseNodeVisitor):
     def visit_list_item(self, node):
         self.old_indent = self.indent
         self.indent = self.list_item_prefix
-#    def depart_list_item(self, node):
-#        self.indent = ''
 
     def depart_list_item(self, node):
         self.indent = self.old_indent
@@ -78,7 +56,6 @@ class WikiVisitor(SparseNodeVisitor):
     def visit_literal_block(self, node):
         self.output.extend(['{{{', '\n'])
         self.preformat = True
-        #self.output.extend(['', '{{{', node.astext(), '}}}', ''])
 
     def depart_literal_block(self, node):
         self.output.extend(['\n', '}}}', '\n\n'])
@@ -86,26 +63,12 @@ class WikiVisitor(SparseNodeVisitor):
         
     def visit_paragraph(self, node):
         self.output.append(self.indent)
-        # Collapse newlines
-        #for n in node.children:
-        #    try:
-        #        n.replace('\n', ' ')
-        #    except (AttributeError, ValueError):
-        #        pass
         
     def depart_paragraph(self, node):
-        #self.output.append(self.output_paragraph(node, self.indent))
         self.output.append('\n\n')
         if self.indent == self.list_item_prefix:
             # we're in a sub paragraph of a list item
             self.indent = ' ' * self.list_depth
-            
-#         print "--- paragraph start ---"
-#         for n in node.children:
-#             print "paragraph child %s (%s)" % (n, n.__class__)
-#             print dir(n)
-#         self.output.append(node.astext())
-#         print "--- paragraph end ---"
         
     def visit_reference(self, node):
         if node.has_key('refuri'):
@@ -136,8 +99,7 @@ class WikiVisitor(SparseNodeVisitor):
         self.indent = ''
         
     def visit_title_reference(self, node):
-        #        print "title reference", node
-        self.output.append("`") # + node.astext() + "`")
+        self.output.append("`")
 
     def depart_title_reference(self, node):
         self.output.append("`")
@@ -149,7 +111,6 @@ class WikiVisitor(SparseNodeVisitor):
         self.output.append('*')
         
     def visit_literal(self, node):
-        # print "A literal %s" % node.astext()
         self.output.append('`')
         
     def depart_literal(self, node):
@@ -159,7 +120,6 @@ class WikiVisitor(SparseNodeVisitor):
 def main(source):
     output = publish_string(source, writer=WikiWriter())
     print output
-    # print publish_string(source)
     
 if __name__ == '__main__':
     main(sys.stdin.read())
