@@ -166,7 +166,7 @@ def plugin_interface():
     mdoc = []
     for m in methods:
         mdoc.append('*%s%s*\n\n' %  (m.name, m.formatargs()))
-        mdoc.append(m.doc())
+        mdoc.append(' ' + m.doc().replace('\n', '\n '))
         mdoc.append('\n\n')
     doc = doc + ''.join(mdoc)
     return doc
@@ -213,7 +213,7 @@ def mkwiki(path):
 
 
 class Wiki(object):
-    doc_re = re.compile(r'(.*?)' + div, re.DOTALL)
+    doc_re = re.compile(r'(#.*\n\n)?(.*?)' + div, re.DOTALL)
     
     def __init__(self, path):
         self.path = path
@@ -242,9 +242,13 @@ class Wiki(object):
             new_src = wikified + warning
             print "! Adding new page"
         else:
-            if self.doc_re.search(page_src):
+            m = self.doc_re.search(page_src)
+            if m:
                 print "! Updating doc section"
                 new_src = self.doc_re.sub(wikified, page_src, 1)
+                # Restore any headers (lines marked by # at start of file)
+                if m.groups()[0] is not None:
+                    new_src = ''.join([m.groups()[0], new_src])
             else:
                 print "! Adding new doc section"
                 new_src = wikified + page_src

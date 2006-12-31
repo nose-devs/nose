@@ -83,16 +83,16 @@ class IPluginInterface(object):
     `enabled` and `name`. 
     
     Plugins may implement any or all of the methods documented
-    below. Please note that they `must not` subclass PluginInterface;
+    below. Please note that they *must not* subclass PluginInterface;
     PluginInterface is a only description of the plugin API.
 
     When plugins are called, the first plugin that implements a method
     and returns a non-None value wins, and plugin processing ends. The
-    only exceptions to are `loadTestsFromModule`, `loadTestsFromName`,
+    exceptions to this are `loadTestsFromModule`, `loadTestsFromName`,
     and `loadTestsFromPath`, which allow multiple plugins to load and
     return tests.
 
-    In general, plugin methods correspond directly to the methods of
+    In general, plugin methods correspond directly to methods of
     nose.selector.Selector, nose.loader.TestLoader and
     nose.result.TextTestResult are called by those methods when they are
     called. In some cases, the plugin hook doesn't neatly match the
@@ -105,19 +105,21 @@ class IPluginInterface(object):
     Selecting and loading tests
     ===========================
 
-    To alter test selection behavior, implement any necessary want*
+    To alter test selection behavior, implement any necessary `want*`
     methods as outlined below. Keep in mind, though, that when your
-    plugin returns True from a want* method, you will send the requested
+    plugin returns True from a `want*` method, you will send the requested
     object through the normal test collection process. If the object
     represents something from which normal tests can't be collected, you
     must also implement a loader method to load the tests.
 
     Examples:
+    
      * The builtin doctests plugin, for python 2.4 only, implements
        `wantFile` to enable loading of doctests from files that are not
        python modules. It also implements `loadTestsFromModule` to load
        doctests from python modules, and `loadTestsFromPath` to load tests
        from the non-module files selected by `wantFile`.
+       
      * The builtin attrib plugin implements `wantFunction` and
        `wantMethod` so that it can reject tests that don't match the
        specified attributes.
@@ -131,9 +133,11 @@ class IPluginInterface(object):
     correspond to TextTestResult methods.
 
     Examples:
+    
      * The builtin cover plugin implements `begin` and `report` to
        capture and report code coverage metrics for all or selected modules
        loaded during testing.
+       
      * The builtin profile plugin implements `begin`, `prepareTest` and
        `report` to record and output profiling information. In this
        case, the plugin's `prepareTest` method constructs a function that
@@ -303,7 +307,7 @@ class IPluginInterface(object):
     def setOutputStream(self, stream):
         """Called before test output begins. To direct test output to a
         new stream, return a stream object, which must implement a
-        write(msg) method. If you only want to note the stream, not
+        `write(msg)` method. If you only want to note the stream, not
         capture or redirect it, then return None.
 
         Parameters:

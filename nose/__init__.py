@@ -250,10 +250,11 @@ About the name
 Contact the author
 ------------------
 
-To report bugs, ask questions, or request features, please use the trac
-instance provided by the great folks at python hosting, here:
-http://nose.python-hosting.com. Or, email the author at
-jpellerin+nose at gmail dot com. Patches are welcome!
+Youcan email me at jpellerin+nose at gmail dot com.
+
+To report bugs, ask questions, or request features, please use *issues* tab at
+the Google code site: http://code.google.com/p/python-nose/issues/list.
+Patches are welcome!
 
 Similar test runners
 --------------------

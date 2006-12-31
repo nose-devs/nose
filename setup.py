@@ -21,10 +21,16 @@ setup(
                         'whose names include "test". nose also supports '
                         'doctest tests and may optionally provide a '
                         'test coverage report.\n\n'
+                        'nose is highly adaptable and customizable through '
+                        'the use of plugins. More information about writing '
+                        'plugins may be found on the wiki, here: '
+                        'http://code.google.com/p/python-nose/wiki/'
+                        'WritingPlugins.\n\n'
                         'If you have recently reported a bug marked as fixed, '
                         'or have a craving for the very latest, you may want '
                         'the development version instead: '
-                        'http://svn.nose.python-hosting.com/trunk#egg=nose-dev'
+                        'http://python-nose.googlecode.com/svn/trunk'
+                        '#egg=nose-dev'
                         ),
     license = 'GNU LGPL',
     keywords = 'test unittest doctest automatic discovery',
