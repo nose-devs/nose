@@ -274,6 +274,20 @@ class TestAttribPlugin(unittest.TestCase):
         assert plug.wantFunction(f) is not False
         assert not plug.wantFunction(g)
 
+    def test_class_attr(self):
+        class TestP:
+            foo = True
+            def h():
+                pass
+
+        def i():
+            pass
+        
+        plug = AttributeSelector()
+        plug.attribs = [[('foo', True)]]
+        assert plug.wantMethod(TestP.h) is not False
+        assert plug.wantFunction(i) is False
+        
     def test_eval_attr(self):
         if not compat_24:
             warn("No support for eval attributes in python versions older"

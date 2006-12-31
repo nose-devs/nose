@@ -20,7 +20,9 @@
 - Fixed bug where assert inspection would fail when the trailing """ of a 
   docstring was one of the inspected lines. Thanks to cito at online dot de 
   for the bug report.
-
+- Updated attrib plugin to allow selection of test methods by attributes of
+  the test case class. Thanks to Jason Hildebrand for the patch.
+  
 0.9.1
 
 - New function nose.runmodule() finds and runs tests only in a 
