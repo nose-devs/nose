@@ -1,5 +1,7 @@
 """Implements nose test program and collector.
 """
+from __future__ import generators
+
 import logging
 import os
 import re

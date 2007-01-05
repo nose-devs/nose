@@ -14,6 +14,8 @@ course of running a test.
 
 .. _doctest: http://docs.python.org/lib/module-doctest.html
 """
+from __future__ import generators
+
 import doctest
 import logging
 import os

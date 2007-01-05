@@ -115,6 +115,8 @@ examples_ directory in the nose source distribution.
 .. _nose.plugins.profile: http://python-nose.googlecode.com/svn/trunk/nose/plugins/profile.py
 
 """
+from __future__ import generators
+
 import logging
 import pkg_resources
 from warnings import warn

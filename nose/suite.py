@@ -2,6 +2,8 @@
 classes and directories, and provide suite-level fixtures (setUp/tearDown
 methods).
 """
+from __future__ import generators
+
 import logging
 import sys
 import unittest
