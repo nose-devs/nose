@@ -23,7 +23,9 @@
 - Updated attrib plugin to allow selection of test methods by attributes of
   the test case class. Thanks to Jason Hildebrand for the patch.
 - Improved compatibility with python 2.2. Thanks to Chad Whitacre for the patch.
-  
+- Fixed bug in handling of options from setup.cfg. Thanks to Kumar McMillan for
+  the patch.
+
 0.9.1
 
 - New function nose.runmodule() finds and runs tests only in a 

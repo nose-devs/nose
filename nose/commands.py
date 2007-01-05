@@ -109,9 +109,13 @@ class nosetests(Command):
 
 def flag(val):
     """Does the value look like an on/off flag?"""
+    if type(val)==type(1):
+        val = str(val)
     if len(val) > 5:
         return False
     return val.upper() in ('1', '0', 'F', 'T', 'TRUE', 'FALSE', 'ON', 'OFF')
 
 def _bool(val):
+    if type(val) != str:
+        val = str(val)
     return val.upper() in ('1', 'T', 'TRUE', 'ON')
