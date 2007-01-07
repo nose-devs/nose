@@ -91,12 +91,15 @@ class FunctionTestCase(unittest.TestCase):
 class MethodTestCase(unittest.TestCase):
     """Test case that wraps one method in a test class.
     """    
-    def __init__(self, cls, method, method_desc=None, *arg):
+    def __init__(self, cls, method, method_desc=None, case=None, *arg):
         self.cls = cls
         self.method = method
         self.method_desc = method_desc
         self.testInstance = self.cls()
-        self.testCase = getattr(self.testInstance, method)
+        if case is None:
+            self.testCase = getattr(self.testInstance, method)
+        else:
+            self.testCase = case
         self.arg = arg
         log.debug('Test case: %s%s', self.testCase, self.arg)        
         unittest.TestCase.__init__(self)

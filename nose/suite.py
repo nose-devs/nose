@@ -93,11 +93,14 @@ class GeneratorMethodTestSuite(LazySuite):
             except ValueError:
                 test_method, arg = test[0], tuple()
             log.debug('test_method: %s, arg: %s', test_method, arg)
+            case = None
             if callable(test_method):
                 name = test_method.__name__
+                case = test_method
             else:
                 name = test_method
-            yield MethodTestCase(self.cls, name, self.method, *arg)
+            yield MethodTestCase(
+                self.cls, name, self.method, case, *arg)
 
             
 class TestClass(LazySuite):

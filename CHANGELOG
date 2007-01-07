@@ -25,6 +25,9 @@
 - Improved compatibility with python 2.2. Thanks to Chad Whitacre for the patch.
 - Fixed bug in handling of options from setup.cfg. Thanks to Kumar McMillan for
   the patch.
+- Fixed bug in generator methods, where a generator method using an inline
+  funciton would result in an AttributeError. Thanks to Antoine Pitrou for the
+  bug report.
 
 0.9.1
 
