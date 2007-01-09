@@ -280,15 +280,15 @@ class Wiki(object):
             if m:
                 print "! Updating doc section"
                 new_src = self.doc_re.sub(wikified, page_src, 1)
-                # Restore any headers (lines marked by # at start of file)
-                if headers:
-                    new_src = '\n'.join(headers + [new_src])
             else:
                 print "! Adding new doc section"
                 new_src = wikified + page_src
         if new_src == page_src:
             print "! No changes"
-            return
+            return        
+        # Restore any headers (lines marked by # at start of file)
+        if headers:
+            new_src = ''.join(headers) + '\n' + new_src
         fh = file(self.filename(page), 'w')
         fh.write(new_src)
         fh.close()
