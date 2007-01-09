@@ -234,7 +234,7 @@ class TestProgram(unittest.TestProgram):
         self.success = result.wasSuccessful()
         return self.success
 
-def get_parser(env=None):
+def get_parser(env=None, builtin_only=False):
     parser = OptionParser(TestProgram.__doc__)
     parser.add_option("-V","--version",action="store_true",
                       dest="version",default=False,
@@ -310,7 +310,7 @@ def get_parser(env=None):
     # add opts from plugins
     all_plugins = []
     # when generating the help message, load only builtin plugins
-    for plugcls in load_plugins():
+    for plugcls in load_plugins(others=not builtin_only):
         plug = plugcls()
         try:
             plug.add_options(parser, env)
@@ -330,7 +330,7 @@ def configure(argv=None, env=None, help=False, disable_plugins=None):
         env = os.environ
     
     conf = Config()
-    parser = get_parser(env=env)
+    parser = get_parser(env=env, builtin_only=help)
         
     options, args = parser.parse_args(argv)
     if help:

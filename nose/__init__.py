@@ -35,6 +35,39 @@ and the test output.
 Features
 --------
 
+Writing tests is easier
+=======================
+
+nose collects tests from unittest.TestCase subclasses, of course. But you can
+also write simple test functions, and test classes that are not subclasses of
+unittest.TestCase. nose also supplies a number of helpful functions for
+writing timed tests, testing for exceptions, and other common use cases. See
+`Writing tests`_ and `Testing tools`_ for more.
+
+Running tests is easier
+=======================
+
+nose collects tests automatically, as long as you follow some simple guidelines
+for organizing your library and test code. There's no need to manually collect
+test cases into test suites. See `Finding and running tests`_ for more.
+
+Setting up your test environment is easier
+==========================================
+
+nose supports fixtures at the package, module, and test case level, so
+expensive initialization can be done as infrequently as possible. See
+Fixtures_ for more.
+
+Doing what you want to do is easier
+===================================
+
+nose has plugin hooks for loading, running, watching and reporting on tests
+and test runs. If you don't like the default collection scheme, or it doesn't
+suit the layout of your project, or you need reports in a format different
+from the unittest standard, or you need to collect some additional information
+about tests (like code coverage or profiling data), you can write a plugin to
+do so. See `Writing plugins`_ for more.
+
 Run as collect
 ==============
 
@@ -102,6 +135,7 @@ using the setup.cfg file. See nose.commands_ for more information about the
 
 .. _setuptools: http://peak.telecommunity.com/DevCenter/setuptools
 .. _nose.commands: #commands
+.. _Writing plugins: http://code.google.com/p/python-nose/wiki/WritingPlugins
 
 Writing tests
 -------------
@@ -235,9 +269,49 @@ generator returns.
 For generator methods, the setUp and tearDown methods of the class (if any)
 will be run before and after each generated test case.
 
-Please note that method generators `are not` supported in unittest.TestCase
+Please note that method generators *are not* supported in unittest.TestCase
 subclasses.
-      
+
+Finding and running tests
+-------------------------
+
+nose, by default, follows a few simple rules for test discovery.
+
+* If it looks like a test, it's a test. Names of directories, modules,
+  classes and functions are compared against the testMatch regular
+  expression, and those that match are considered tests. Any class that is a
+  unittest.TestCase subclass is also collected, so long as it is inside of a
+  module that looks like a test.
+   
+* Directories that don't look like tests and aren't packages are not
+  inspected.
+
+* Packages are always inspected, but they are only collected if they look
+  like tests. This means that you can include your tests inside of your
+  packages (somepackage/tests) and nose will collect the tests without
+  running package code inappropriately.
+
+* When a project appears to have library and test code organized into
+  separate directories, library directories are examined first.
+
+* When nose imports a module, it adds that module's directory to sys.path;
+  when the module is inside of a package, like package.module, it will be
+  loaded as package.module and the directory of *package* will be added to
+  sys.path.
+
+Be aware that plugins and command line options can change any of those rules.   
+   
+Testing tools
+-------------
+
+The nose.tools module provides a number of testing aids that you may find
+useful, including decorators for restricting test execution time and testing
+for exceptions, and all of the same assertX methods found in unittest.TestCase
+(only spelled in pep08 fashion, so assert_equal rather than assertEqual). See
+`nose.tools`_ for a complete list.
+
+.. _nose.tools: http://code.google.com/p/python-nose/wiki/TestingTools
+
 About the name
 --------------
 
@@ -250,10 +324,10 @@ About the name
 Contact the author
 ------------------
 
-Youcan email me at jpellerin+nose at gmail dot com.
+You can email me at jpellerin+nose at gmail dot com.
 
-To report bugs, ask questions, or request features, please use *issues* tab at
-the Google code site: http://code.google.com/p/python-nose/issues/list.
+To report bugs, ask questions, or request features, please use the *issues*
+tab at the Google code site: http://code.google.com/p/python-nose/issues/list.
 Patches are welcome!
 
 Similar test runners

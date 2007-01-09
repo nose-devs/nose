@@ -125,6 +125,11 @@
       margin-bottom: 0px;
       }
 
+      p.note {
+      background: #fed;
+      border: 1px solid black;
+      padding: 6px;
+      }
     </style>
   </head>
   <body>
@@ -191,6 +196,11 @@
 
       <h2>Install</h2>
 
+      <p class="note">
+        On most UNIX-like systems, you'll probably need to run these commands
+        as root or using sudo.
+      </p>
+
       <p>Install nose using setuptools:
         <pre>easy_install nose</pre>
       </p>
@@ -201,16 +211,26 @@
 
         <pre>python setup.py install</pre>
       </p>
-      
+
+      <p>If you have an older version of setuptools installed, you may see an
+        error like this:
+        
+        <pre>The required version of setuptools (>=0.6c2) is not available, and
+          can't be installed while this script is running. Please install
+          a more recent version first.
+        </pre>
+        
+        In that case, you'll need to update your setuptools install first,
+        either by running:
+
+        <pre>easy_install -U setuptools</pre>
+
+        or:
+
+        <pre>python ez_setup.py</pre>
+      </p>
+        
       %(body)s
-
-      <h2><a name="tools"></a>nose.tools</h2>
-
-      %(tools)s
-
-	<p>Coming soon: documentation for all functions in nose.tools</p>
-
-      <!-- <p><b>FIXME:</b> use pudge to generate rst docs for all tools funcs</p> -->
       
       <h2><a name="commands"></a>nosetests setuptools command</h2>
 

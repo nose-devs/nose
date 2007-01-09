@@ -195,6 +195,9 @@ def mkwiki(path):
         'NoseFeatures': wikirst(section(nose.__doc__, 'Features')),
         'WritingPlugins': wikirst(nose.plugins.__doc__),
         'PluginInterface': plugin_interface(),
+        'TestingTools': wikirst(nose.tools.__doc__),
+        'FindingAndRunningTests': wikirst(
+            section(nose.__doc__, 'Finding and running tests'))
         # FIXME finish example plugin doc... add some explanation
         'ExamplePlugin': example_plugin(),
         
