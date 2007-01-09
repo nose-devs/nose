@@ -3,6 +3,7 @@
 from commands import getstatusoutput
 from docutils.core import publish_string, publish_parts
 from docutils.nodes import SparseNodeVisitor
+from docutils.readers.standalone import Reader
 from docutils.writers import Writer
 import nose
 import os
@@ -22,6 +23,24 @@ generated and edits above this line will be discarded.*
 = Comments =
 """
 
+def ucfirst(s):
+    return s[0].upper() + s[1:].lower()
+
+def words(s):
+    return s.split(' ')
+        
+def wiki_word(node):
+    print "Unknown ref %s" % node.astext()    
+    node['refuri'] = ''.join(map(ucfirst, words(node.astext())))
+    del node['refname']
+    node.resolved = True
+    return True
+wiki_word.priority = 100
+
+class WWReader(Reader):
+    unknown_reference_resolvers = (wiki_word,)
+
+    
 class WikiWriter(Writer):
     def translate(self):
         visitor = WikiVisitor(self.document)
@@ -149,7 +168,7 @@ def section(doc, name):
 
 
 def wikirst(doc):
-    return publish_string(doc, writer=WikiWriter())
+    return publish_string(doc, reader=WWReader(), writer=WikiWriter())
 
 
 def plugin_interface():
@@ -197,7 +216,7 @@ def mkwiki(path):
         'PluginInterface': plugin_interface(),
         'TestingTools': wikirst(nose.tools.__doc__),
         'FindingAndRunningTests': wikirst(
-            section(nose.__doc__, 'Finding and running tests'))
+            section(nose.__doc__, 'Finding and running tests')),
         # FIXME finish example plugin doc... add some explanation
         'ExamplePlugin': example_plugin(),
         
@@ -216,7 +235,7 @@ def mkwiki(path):
 
 
 class Wiki(object):
-    doc_re = re.compile(r'(#.*\n\n)?(.*?)' + div, re.DOTALL)
+    doc_re = re.compile(r'(.*?)' + div, re.DOTALL)
     
     def __init__(self, path):
         self.path = path
@@ -230,16 +249,28 @@ class Wiki(object):
         return page
         
     def get_page(self, page):
+        headers = []
+        content = []
+
         try:
             fh = file(self.filename(page), 'r')
-            content = fh.read()
-            fh.close()
-            return content
+            in_header = True
+            for line in fh:
+                if in_header:
+                    if line.startswith('#'):
+                        headers.append(line)
+                    else:
+                        in_header = False
+                        content.append(line)
+                else:
+                    content.append(line)
+            fh.close()            
+            return (headers, ''.join(content))
         except IOError:
             self.newpages.append(page)
             return ''
 
-    def set_docs(self, page, page_src, docs):
+    def set_docs(self, page, headers, page_src, docs):
         wikified = docs + div
         if not page_src:
             new_src = wikified + warning
@@ -250,8 +281,8 @@ class Wiki(object):
                 print "! Updating doc section"
                 new_src = self.doc_re.sub(wikified, page_src, 1)
                 # Restore any headers (lines marked by # at start of file)
-                if m.groups()[0] is not None:
-                    new_src = ''.join([m.groups()[0], new_src])
+                if headers:
+                    new_src = '\n'.join(headers + [new_src])
             else:
                 print "! Adding new doc section"
                 new_src = wikified + page_src
@@ -263,8 +294,8 @@ class Wiki(object):
         fh.close()
         
     def update_docs(self, page, doc):
-        current = self.get_page(page)
-        self.set_docs(page, current, doc)
+        headers, current = self.get_page(page)
+        self.set_docs(page, headers, current, doc)
         if page in self.newpages:
             runcmd('svn add %s' % self.filename(page))
 

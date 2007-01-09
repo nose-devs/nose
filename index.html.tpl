@@ -215,10 +215,11 @@
       <p>If you have an older version of setuptools installed, you may see an
         error like this:
         
-        <pre>The required version of setuptools (>=0.6c2) is not available, and
+        <blockquote>
+          <tt>The required version of setuptools (>=0.6c2) is not available, and
           can't be installed while this script is running. Please install
-          a more recent version first.
-        </pre>
+          a more recent version first.</tt>
+        </blockquote>
         
         In that case, you'll need to update your setuptools install first,
         either by running:

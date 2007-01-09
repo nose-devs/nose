@@ -273,7 +273,7 @@ Please note that method generators *are not* supported in unittest.TestCase
 subclasses.
 
 Finding and running tests
-=========================
+-------------------------
 
 nose, by default, follows a few simple rules for test discovery.
 
@@ -302,7 +302,7 @@ nose, by default, follows a few simple rules for test discovery.
 Be aware that plugins and command line options can change any of those rules.   
    
 Testing tools
-=============
+-------------
 
 The nose.tools module provides a number of testing aids that you may find
 useful, including decorators for restricting test execution time and testing
