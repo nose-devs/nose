@@ -22,12 +22,16 @@
   for the bug report.
 - Updated attrib plugin to allow selection of test methods by attributes of
   the test case class. Thanks to Jason Hildebrand for the patch.
-- Improved compatibility with python 2.2. Thanks to Chad Whitacre for the patch.
+- Improved compatibility with python 2.2. Thanks to Chad Whitacre for the 
+  patch.
 - Fixed bug in handling of options from setup.cfg. Thanks to Kumar McMillan for
   the patch.
 - Fixed bug in generator methods, where a generator method using an inline
   funciton would result in an AttributeError. Thanks to Antoine Pitrou for the
   bug report.
+- Updated coverage plugin to ignore lines tagged with #pragma: no cover, 
+  matching the behavior of coverage.py on the command line. Thanks to Bill 
+  Zingler for the bug report.
 
 0.9.1
 
