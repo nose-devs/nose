@@ -1,0 +1,206 @@
+.TH NOSETESTS "1" "October 2006" "nosetests version 0.9.0" "User Commands"
+.SH NAME
+nosetests \- unit testing for Python software
+.SH SYNOPSIS
+\fBnosetests\fP [\fIoptions\fP] [\fInames\fP]
+.SH DESCRIPTION
+nose provides an alternate test discovery and running process for
+unittest, one that is intended to mimic the behavior of py.test as much as
+is reasonably possible without resorting to magic.
+
+nose collects tests automatically from python source files,
+directories and packages found in its working directory (which
+defaults to the current working directory). Any python source file,
+directory or package that matches the testMatch regulat expression
+(by default: (?:^|[\eb_\e.\-])[Tt]est) will be collected as a test (or
+source for collection of tests). In addition, all other packages
+found in the working directory are examined for python source files
+or directories that match testMatch. Package discovery descends all
+the way down the tree, so package.tests and package.sub.tests and
+package.sub.sub2.tests will all be collected.
+
+Within a test directory or package, any python source file matching
+testMatch will be examined for test cases. Within a test file,
+functions and classes whose names match testMatch and TestCase
+subclasses with any name will be loaded and executed as tests. Tests
+may use the assert keyword or raise AssertionErrors to indicate test
+failure. TestCase subclasses may do the same or use the various
+TestCase methods available.
+
+Tests may raise nose.SkipTest to indicate that they should be
+skipped or nose.DeprecatedTest to indicate that they are
+deprecated. Skipped and deprecated tests do not count as failures,
+but details on them are printed at the end of the test run along
+with any failures and errors.
+
+.B Selecting Tests
+
+To specify which tests to run, pass test names on the command line:
+
+nosetests only_test_this.py
+
+Test names specified may be file or module names, and may optionally
+indicate the test case to run by separating the module or file name
+from the test case name with a colon. Filenames may be relative or
+absolute. Examples:
+
+nosetests test.module
+nosetests another.test:TestCase.test_method
+nosetests a.test:TestCase
+nosetests /path/to/test/file.py:test_function
+
+Note however that specifying a test name will *not* cause nose to run
+a test that it does not discover. Test names specified are compared
+against tests discovered, and only the requested tests are
+run. Setup and teardown methods are run at all stages. That means
+that if you run:
+
+nosetests some.tests.test_module:test_function
+
+And have defined setup or teardown methods in tests and test_module,
+those setup methods will run before the test_function test, and
+teardown after, just as if you were running all tests.
+
+You may also change the working directory where nose looks for tests,
+use the \fB\-w\fR switch:
+
+nosetests \fB\-w\fR /path/to/tests
+
+Further customization of test selection and loading is possible
+through the use of plugins.
+
+Test result output is identical to that of unittest, except for the
+additional features (output capture, assert introspection, and any plugins
+that control or produce output) detailed in the options below.
+.SH OPTIONS
+.TP
+\fB\-h\fR, \fB\-\-help\fR
+show this help message and exit
+.TP
+\fB\-V\fR, \fB\-\-version\fR
+Output nose version and exit
+.TP
+\fB\-v\fR, \fB\-\-verbose\fR
+Be more verbose. [NOSE_VERBOSE]
+.TP
+\fB\-l\fR DEBUG, \fB\-\-debug\fR=\fIDEBUG\fR
+Activate debug logging for one or more systems.
+Available debug loggers: nose, nose.importer,
+nose.inspector, nose.plugins, nose.result and
+nose.selector. Separate multiple names with a comma.
+.TP
+\fB\-\-debug\-log\fR=\fIDEBUG_LOG\fR
+Log debug messages to this file (default: sys.stderr)
+.HP
+\fB\-q\fR, \fB\-\-quiet\fR
+.TP
+\fB\-w\fR WHERE, \fB\-\-where\fR=\fIWHERE\fR
+Look for tests in this directory [NOSE_WHERE]
+.TP
+\fB\-e\fR EXCLUDE, \fB\-\-exclude\fR=\fIEXCLUDE\fR
+Don't run tests that match regular expression
+[NOSE_EXCLUDE]
+.TP
+\fB\-i\fR INCLUDE, \fB\-\-include\fR=\fIINCLUDE\fR
+Also run tests that match regular expression
+[NOSE_INCLUDE]
+.TP
+\fB\-s\fR, \fB\-\-nocapture\fR
+Don't capture stdout (any stdout output will be
+printed immediately) [NOSE_NOCAPTURE]
+.TP
+\fB\-d\fR, \fB\-\-detailed\-errors\fR
+Add detail to error output by attempting to evaluate
+failed asserts [NOSE_DETAILED_ERRORS]
+.TP
+\fB\-\-pdb\fR
+Drop into debugger on errors
+.TP
+\fB\-\-pdb\-failures\fR
+Drop into debugger on failures
+.TP
+\fB\-x\fR, \fB\-\-stop\fR
+Stop running tests after the first error or failure
+.TP
+\fB\-P\fR, \fB\-\-no\-path\-adjustment\fR
+Don't make any changes to sys.path when loading tests
+[NOSE_NOPATH]
+.TP
+\fB\-\-exe\fR
+Look for tests in python modules that are executable.
+Normal behavior is to exclude executable modules,
+since they may not be import\-safe [NOSE_INCLUDE_EXE]
+.TP
+\fB\-\-noexe\fR
+DO NOT look for tests in python modules that are
+executable. (The default on the windows platform is to
+do so.)
+.TP
+\fB\-a\fR ATTR, \fB\-\-attr\fR=\fIATTR\fR
+Run only tests that have attributes specified by ATTR
+[NOSE_ATTR]
+.TP
+\fB\-A\fR EXPR, \fB\-\-eval\-attr\fR=\fIEXPR\fR
+Run only tests for whose attributes the Python
+expression EXPR evaluates to True [NOSE_EVAL_ATTR]
+.TP
+\fB\-\-with\-doctest\fR
+Enable plugin Doctest:  Activate doctest plugin to
+find and run doctests in non\-test modules.
+[NOSE_WITH_DOCTEST]
+.TP
+\fB\-\-doctest\-tests\fR
+Also look for doctests in test modules
+[NOSE_DOCTEST_TESTS]
+.TP
+\fB\-\-doctest\-extension\fR=\fIDOCTESTEXTENSION\fR
+Also look for doctests in files with this extension
+[NOSE_DOCTEST_EXTENSION]
+.TP
+\fB\-\-with\-coverage\fR
+Enable plugin Coverage:  If you have Ned Batchelder's
+coverage module installed, you may activate a coverage
+report. The coverage report will cover any python
+source module imported after the start of the test
+run, excluding modules that match testMatch. If you
+want to include those modules too, use the \fB\-\-covertests\fR switch, or set the NOSE_COVER_TESTS environment
+variable to a true value. To restrict the coverage
+report to modules from a particular package or
+packages, use the \fB\-\-cover\-packages\fR switch or the
+NOSE_COVER_PACKAGES environment variable.
+[NOSE_WITH_COVERAGE]
+.TP
+\fB\-\-cover\-package\fR=\fICOVER_PACKAGES\fR
+Restrict coverage output to selected packages
+[NOSE_COVER_PACKAGE]
+.TP
+\fB\-\-cover\-erase\fR
+Erase previously collected coverage statistics before
+run
+.TP
+\fB\-\-cover\-tests\fR
+Include test modules in coverage report
+[NOSE_COVER_TESTS]
+.TP
+\fB\-\-with\-missed\-tests\fR
+Enable plugin MissedTests:  Enable to get a warning
+when tests specified on the command line are not found
+during the test run.  [NOSE_WITH_MISSED\-TESTS]
+.SH AUTHOR
+.B nose
+is written by Jason Pellerin. This manpage was adapted from the output
+of the
+.B help2man(1)
+program by Gustavo Noronha Silva for the Debian GNU/Linux system, but
+may be used by others.
+.SH COPYRIGHT
+Copyright (C) 2005-2006 Jason Pellerin
+
+This is free software.  You may redistribute copies of it under the
+terms of the GNU Lesser General Public License
+<http://www.gnu.org/licenses/lgpl.html>.  There is NO WARRANTY, to the
+extent permitted by law.
+.SH SEE ALSO
+The project website is at
+.B http://somethingaboutorange.com/mrl/projects/nose/
+.

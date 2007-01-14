@@ -38,6 +38,7 @@ setup(
     download_url = \
     'http://somethingaboutorange.com/mrl/projects/nose/nose-%s.tar.gz' \
     % VERSION,
+    data_files = [('man/man2', ['nosetests.1'])],
     package_data = {'': ['*.txt']},
     packages = find_packages(),
     entry_points = {        
