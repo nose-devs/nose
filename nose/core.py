@@ -392,8 +392,8 @@ def configure(argv=None, env=None, help=False, disable_plugins=None):
             log.info("Looking for tests in %s", abs_path)
             if conf.addPaths and \
                     os.path.exists(os.path.join(abs_path, '__init__.py')):
-                log.info("Working directory %s is a package; "
-                         "adding to sys.path" % abs_path)
+                log.info("Working directory %s is inside of a package; "
+                         "adding package root to sys.path" % abs_path)
                 add_path(abs_path)
                 
     if options.include:

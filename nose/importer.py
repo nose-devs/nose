@@ -14,6 +14,7 @@ from imp import find_module, load_module, acquire_lock, release_lock
 log = logging.getLogger(__name__)
 _modules = {}
 
+
 def add_path(path):
     """Ensure that the path, or the root of the current package (if
     path is in a package) is in sys.path.
@@ -28,6 +29,7 @@ def add_path(path):
     elif not path in sys.path:
         log.debug("insert %s into sys.path", path)
         sys.path.insert(0, path)
+
         
 def _import(name, path, conf):
     """Import a module *only* from path, ignoring sys.path and
