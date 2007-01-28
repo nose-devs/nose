@@ -47,9 +47,11 @@ writing timed tests, testing for exceptions, and other common use cases. See
 Running tests is easier
 =======================
 
-nose collects tests automatically, as long as you follow some simple guidelines
-for organizing your library and test code. There's no need to manually collect
-test cases into test suites. See `Finding and running tests`_ for more.
+nose collects tests automatically, as long as you follow some simple
+guidelines for organizing your library and test code. There's no need to
+manually collect test cases into test suites. Running tests is also more
+responsive, since nose begins running tests as soon as the first test module
+is loaded. See `Finding and running tests`_ for more.
 
 Setting up your test environment is easier
 ==========================================
@@ -67,12 +69,6 @@ suit the layout of your project, or you need reports in a format different
 from the unittest standard, or you need to collect some additional information
 about tests (like code coverage or profiling data), you can write a plugin to
 do so. See `Writing plugins`_ for more.
-
-Run as collect
-==============
-
-nose begins running tests as soon as the first test module is loaded, it
-does not wait to collect all tests before running the first.
 
 Output capture
 ==============
@@ -105,6 +101,9 @@ You will get output like::
         assert a == 4, "assert 2 is 4"
   AssertionError: assert 2 is 4
     >>  assert 2 == 4, "assert 2 is 4"
+
+Please note that dotted names are not expanded, and callables are not called
+in the expansion.
     
 Setuptools integration
 ======================
@@ -345,7 +344,7 @@ arguments for the respective tools.
 License and copyright
 ---------------------
 
-nose is copyright Jason Pellerin 2005-2006
+nose is copyright Jason Pellerin 2005-2007
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of the GNU Lesser General Public License as published by

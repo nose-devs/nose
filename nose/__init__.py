@@ -220,7 +220,7 @@ the same setup, is to use the provided with_setup decorator::
   def teardown_func():
       # ...
 
-  @with_setup(setup_func,teardown_func)
+  @with_setup(setup_func, teardown_func)
   def test():
       # ...
 
@@ -229,7 +229,7 @@ so::
 
   def test():
       # ...
-  test = with_setup(setup_func,teardown_func)(test)
+  test = with_setup(setup_func, teardown_func)(test)
 
 or by direct assignment::
 

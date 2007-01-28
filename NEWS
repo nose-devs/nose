@@ -1,19 +1,20 @@
-New in version 0.9.1
+New in version 0.9.2
 --------------------
 
-Nose 0.9.1 is mainly a bug-fix release, but it does contain a few new
-features.
+Nose 0.9.2 includes quite a few bug fixes and new features. The most
+significant are the new nosetests setuptools command, contributed by
+James Casbon, better support for python 2.2 thanks to a patch from
+Chad Whitacre, and some useful utilities for testing Twisted programs
+and writing decorators contributed by Antoine Pitrou. Thanks to them
+all, and the many other folks who contributed patches and filed bug
+reports and feature requests.
 
-* The --where (-w), --include and --exclude arguments may now all appear
-  multiple times in a single command line, allowing easier running of
-  multiple test suites and test suites with more diverse layouts.
-* For programmatic use, nose.runmodule() was added. Similar to
-  doctest.runmodule() and unittest.main(), nose.runmodule() will load and run
-  tests in the current module, which defaults to __main__.
-* A number of changes to plugins and plugin hooks make current plugins work
-  better and allow more interesting plugins to be written.
+Nose's project home has also moved from python hosting to Google
+code. Please update your svn checkouts and bookmarks. To check out the
+current trunk: svn co http://python-nose.googlecode.com/svn/trunk. To
+file issues, go to the `new issues page`_. To read up on features,
+writing plugins, and other topics, visit the `new wiki`_.
 
-Just about everything in this release was driven by requests from
-users. Thanks to the many folks who filed bug reports and suggested features,
-ideas and solutions to thorny problems.
-     
+.. _`new issues page`: http://code.google.com/p/python-nose/issues/list
+.. _`new wiki`: http://code.google.com/p/python-nose/w/list
+
