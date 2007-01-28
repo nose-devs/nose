@@ -107,7 +107,7 @@ class TextTestRunner(unittest.TextTestRunner):
 
     
 class TestProgram(unittest.TestProgram):
-    """usage: %prog [options] [names]
+    r"""usage: %prog [options] [names]
     
     nose provides an alternate test discovery and running process for
     unittest, one that is intended to mimic the behavior of py.test as much as
@@ -117,7 +117,7 @@ class TestProgram(unittest.TestProgram):
     directories and packages found in its working directory (which
     defaults to the current working directory). Any python source file,
     directory or package that matches the testMatch regular expression
-    (by default: (?:^|[\\b_\\.-])[Tt]est) will be collected as a test (or
+    (by default: (?:^|[\b_\.-])[Tt]est) will be collected as a test (or
     source for collection of tests). In addition, all other packages
     found in the working directory are examined for python source files
     or directories that match testMatch. Package discovery descends all
@@ -234,8 +234,10 @@ class TestProgram(unittest.TestProgram):
         self.success = result.wasSuccessful()
         return self.success
 
-def get_parser(env=None, builtin_only=False):
-    parser = OptionParser(TestProgram.__doc__)
+def get_parser(env=None, builtin_only=False, doc=None):
+    if doc is None:
+        doc = TestProgram.__doc__
+    parser = OptionParser(doc)
     parser.add_option("-V","--version",action="store_true",
                       dest="version",default=False,
                       help="Output nose version and exit")

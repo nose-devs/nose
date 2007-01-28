@@ -204,6 +204,30 @@ def example_plugin():
     return wik % ('setup.py', setup) + wik % ('plug.py', plug)
 
 
+def tools():
+    top = wikirst(nose.tools.__doc__)
+    b = pudge.browser.Browser(['nose.tools'], None)
+    m = b.modules()[0]
+    funcs = [ (f.name, f.formatargs().replace('(self, ', '('), f.doc())
+              for f in m.routines() ]
+    funcs.sort()
+    mdoc = [top, '\n\n']
+    for name, args, doc in funcs:
+        mdoc.append("*%s%s*\n\n" % (name, args))
+        mdoc.append(' ' + doc.replace('\n', '\n '))
+        mdoc.append('\n\n')
+    return ''.join(mdoc)
+
+
+def usage():
+    doc = nose.core.TestProgram.__doc__.replace("\\", "\\\\")
+    parser = nose.core.get_parser(env={}, builtin_only=True, doc=doc)
+    out = '{{{\n' + \
+          parser.format_help().replace('mkwiki.py', 'nosetests') + \
+          '\n}}}\n'
+    return out
+
+
 def mkwiki(path):
     #
     # Pages to publish and the docstring(s) to load for that page
@@ -214,15 +238,13 @@ def mkwiki(path):
         'NoseFeatures': wikirst(section(nose.__doc__, 'Features')),
         'WritingPlugins': wikirst(nose.plugins.__doc__),
         'PluginInterface': plugin_interface(),
-        'TestingTools': wikirst(nose.tools.__doc__),
+        'TestingTools': tools(),
         'FindingAndRunningTests': wikirst(
             section(nose.__doc__, 'Finding and running tests')),
         # FIXME finish example plugin doc... add some explanation
         'ExamplePlugin': example_plugin(),
         
-        'NosetestsUsage': '\n{{{\n' +
-        nose.configure(help=True).replace('mkwiki.py', 'nosetests') +
-        '\n}}}\n'
+        'NosetestsUsage': usage(),
         }
 
     current = os.getcwd()
