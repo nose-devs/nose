@@ -344,7 +344,7 @@ arguments for the respective tools.
 License and copyright
 ---------------------
 
-nose is copyright Jason Pellerin 2005-2006
+nose is copyright Jason Pellerin 2005-2007
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of the GNU Lesser General Public License as published by
