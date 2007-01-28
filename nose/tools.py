@@ -57,13 +57,16 @@ def make_decorator(func):
     (namely, setup and teardown).
     """
     def decorate(newfunc):
-        name = func.__name__
+        if hasattr(func, 'compat_func_name'):
+            name = func.compat_func_name
+        else:
+            name = func.__name__
+        newfunc.__dict__ = func.__dict__
+        newfunc.__doc__ = func.__doc__
+        newfunc.__module__ = func.__module__
+        if not hasattr(newfunc, 'compat_co_firstlineno'):
+            newfunc.compat_co_firstlineno = func.func_code.co_firstlineno
         try:
-            newfunc.__dict__ = func.__dict__
-            newfunc.__doc__ = func.__doc__
-            newfunc.__module__ = func.__module__
-            if not hasattr(newfunc, 'compat_co_firstlineno'):
-                newfunc.compat_co_firstlineno = func.func_code.co_firstlineno
             newfunc.__name__ = name
         except TypeError:
             # can't set func name in 2.3

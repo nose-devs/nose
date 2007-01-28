@@ -32,24 +32,27 @@ log = logging.getLogger(__name__)
 # The monkeypatch is based on this zope patch:
 # http://svn.zope.org/Zope3/trunk/src/zope/testing/doctest.py?rev=28679&r1=28703&r2=28705
 #
-_orp = doctest._OutputRedirectingPdb
+try:
+    _orp = doctest._OutputRedirectingPdb
 
-class NoseOutputRedirectingPdb(_orp):
-    def __init__(self, out):
-        self.__debugger_used = False
-        _orp.__init__(self, out)
+    class NoseOutputRedirectingPdb(_orp):
+        def __init__(self, out):
+            self.__debugger_used = False
+            _orp.__init__(self, out)
 
-    def set_trace(self):
-        self.__debugger_used = True
-        _orp.set_trace(self)
+        def set_trace(self):
+            self.__debugger_used = True
+            _orp.set_trace(self)
 
-    def set_continue(self):
-        # Calling set_continue unconditionally would break unit test coverage
-        # reporting, as Bdb.set_continue calls sys.settrace(None).
-        if self.__debugger_used:
-            _orp.set_continue(self)
-doctest._OutputRedirectingPdb = NoseOutputRedirectingPdb
-
+        def set_continue(self):
+            # Calling set_continue unconditionally would break unit test 
+            # coverage reporting, as Bdb.set_continue calls sys.settrace(None).
+            if self.__debugger_used:
+                _orp.set_continue(self)
+    doctest._OutputRedirectingPdb = NoseOutputRedirectingPdb
+except AttributeError:
+    # Python 2.3: no support
+    pass
 
 class Doctest(Plugin):
     """
