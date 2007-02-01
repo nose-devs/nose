@@ -4,14 +4,15 @@
 # create and upload a release
 import os
 import nose
+import sys
 from commands import getstatusoutput
 
 success = 0
 
 current = os.getcwd()
 
-here = os.path.dirname(os.path.dirname(__file__))
-svnroot = os.path.abspath(os.path.join(here, '..', '..', 'nose_svn'))
+here = os.path.abspath(os.path.dirname(os.path.dirname(__file__)))
+svnroot = os.path.abspath(os.path.dirname(here))
 svntrunk = os.path.join(svnroot, 'trunk')
 
 def runcmd(cmd):
