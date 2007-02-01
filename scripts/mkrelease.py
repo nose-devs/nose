@@ -13,6 +13,8 @@ current = os.getcwd()
 
 here = os.path.abspath(os.path.dirname(os.path.dirname(__file__)))
 svnroot = os.path.abspath(os.path.dirname(here))
+branchroot = os.path.join(svnroot, 'branches')
+tagroot = os.path.join(svnroot, 'tags')x
 svntrunk = os.path.join(svnroot, 'trunk')
 
 def runcmd(cmd):
@@ -70,9 +72,13 @@ print "cd %s" % tag
 runcmd('svn rm setup.cfg --force') # remove dev tag from setup
 
 # check in
-os.chdir(svnroot)
-print "cd %s" % svnroot
-runcmd("svn ci -m 'Release branch/tag for %s'" % version)
+os.chdir(branchroot)
+print "cd %s" % branchroot
+runcmd("svn ci -m 'Release branch for %s'" % version)
+
+os.chdir(tagroot)
+print "cd %s" % tagroot
+runcmd("svn ci -m 'Release tag for %s'" % version)
 
 # make docs
 os.chdir(tag)
