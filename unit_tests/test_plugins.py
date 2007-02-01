@@ -119,6 +119,8 @@ class TestDoctestPlugin(unittest.TestCase):
             assert len(parser.opts) == 2
 
     def test_config(self):
+        if not compat_24:
+            return
         # test that configuration works properly when both environment
         # and command line specify a doctest extension
         parser = OptionParser()

@@ -1,6 +1,9 @@
+import sys
 import time
 import unittest
 from nose.tools import *
+
+compat_24 =  sys.version_info >= (2, 4)
 
 class TestTools(unittest.TestCase):
 
@@ -142,8 +145,9 @@ class TestTools(unittest.TestCase):
         
         # FIXME: not sure which of these are in all supported
         # versions of python
-        assert 'assert_true' in tc_asserts
         assert 'assert_raises' in tc_asserts
+        if compat_24:
+            assert 'assert_true' in tc_asserts
 
             
 if __name__ == '__main__':

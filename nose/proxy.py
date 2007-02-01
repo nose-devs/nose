@@ -71,7 +71,12 @@ class ResultProxy(Result):
 class ResultProxySuite(unittest.TestSuite):
     """Test suite that supports output capture, etc, by wrapping each test in
     a TestProxy.
-    """    
+    """
+
+    def __iter__(self):
+        # Needed for 2.3 compatibility
+        return iter(self._tests)
+    
     def addTest(self, test):
         """Add test, first wrapping in TestProxy"""
         self._tests.append(TestProxy(test))

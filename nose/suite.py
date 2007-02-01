@@ -29,6 +29,9 @@ class LazySuite(unittest.TestSuite):
             conf = Config()
         self.conf = conf
 
+    def __iter__(self):
+        return iter(self._tests)
+        
     def loadtests(self):
         for test in self._loadtests():
             yield test
