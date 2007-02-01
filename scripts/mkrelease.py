@@ -14,7 +14,7 @@ current = os.getcwd()
 here = os.path.abspath(os.path.dirname(os.path.dirname(__file__)))
 svnroot = os.path.abspath(os.path.dirname(here))
 branchroot = os.path.join(svnroot, 'branches')
-tagroot = os.path.join(svnroot, 'tags')x
+tagroot = os.path.join(svnroot, 'tags')
 svntrunk = os.path.join(svnroot, 'trunk')
 
 def runcmd(cmd):
