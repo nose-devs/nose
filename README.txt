@@ -38,9 +38,9 @@ Features
 Writing tests is easier
 =======================
 
-nose collects tests from unittest.TestCase subclasses, of course. But you can
+nose collects tests from `unittest.TestCase` subclasses, of course. But you can
 also write simple test functions, and test classes that are not subclasses of
-unittest.TestCase. nose also supplies a number of helpful functions for
+`unittest.TestCase`. nose also supplies a number of helpful functions for
 writing timed tests, testing for exceptions, and other common use cases. See
 `Writing tests`_ and `Testing tools`_ for more.
 
@@ -139,15 +139,15 @@ using the setup.cfg file. See nose.commands_ for more information about the
 Writing tests
 -------------
 
-As with py.test, nose tests need not be subclasses of TestCase. Any function
-or class that matches the configured testMatch regular expression
-('(?:^|[\b_\.-])[Tt]est)'' by default) and lives in a module that also
-matches that expression will be run as a test. For the sake of compatibility
-with legacy unittest test cases, nose will also load tests from
-unittest.TestCase subclasses just like unittest does. Like py.test, functional
-tests will be run in the order in which they appear in the module
-file. TestCase derived tests and other test classes are run in alphabetical
-order.
+As with py.test, nose tests need not be subclasses of
+`unittest.TestCase`. Any function or class that matches the configured
+testMatch regular expression (`(?:^|[\b_\.-])[Tt]est)` by default)
+and lives in a module that also matches that expression will be run as
+a test. For the sake of compatibility with legacy unittest test cases,
+nose will also load tests from `unittest.TestCase` subclasses just like
+unittest does. Like py.test, functional tests will be run in the order
+in which they appear in the module file. TestCase derived tests and
+other test classes are run in alphabetical order.
 
 Fixtures
 ========
@@ -168,9 +168,9 @@ and remove it in package teardown once per test run, rather than having to
 create and tear it down once per test module or test case.
 
 To create package-level setup and teardown methods, define setup and/or
-teardown functions in the __init__.py of a test package. Setup methods may
-be named 'setup', 'setup_package', 'setUp',or 'setUpPackage'; teardown may
-be named 'teardown', 'teardown_package', 'tearDown' or 'tearDownPackage'.
+teardown functions in the `__init__.py` of a test package. Setup methods may
+be named `setup`, `setup_package`, `setUp`, or `setUpPackage`; teardown may
+be named `teardown`, `teardown_package`, `tearDown` or `tearDownPackage`.
 Execution of tests in a test package begins as soon as the first test
 module is loaded from the test package.
 
@@ -179,26 +179,26 @@ Test modules
 
 A test module is a python module that matches the testMatch regular
 expression. Test modules offer module-level setup and teardown; define the
-method 'setup', 'setup_module', 'setUp' or 'setUpModule' for setup,
-'teardown', 'teardown_module', or 'tearDownModule' for teardown. Execution
+method `setup`, `setup_module`, `setUp` or `setUpModule` for setup,
+`teardown`, `teardown_module`, or `tearDownModule` for teardown. Execution
 of tests in a test module begins after all tests are collected.
 
 Test classes
 ============
 
 A test class is a class defined in a test module that is either a subclass
-of unittest.TestCase, or matches testMatch. Test classes that don't
-descend from unittest.TestCase are run in the same way as those that do:
+of `unittest.TestCase`, or matches testMatch. Test classes that don't
+descend from `unittest.TestCase` are run in the same way as those that do:
 methods in the class that match testMatch are discovered, and a test case
 constructed to run each with a fresh instance of the test class. Like
-unittest.TestCase subclasses, other test classes may define setUp and
+`unittest.TestCase` subclasses, other test classes may define setUp and
 tearDown methods that will be run before and after each test method.
 
 Test functions
 ==============
 
 Any function in a test module that matches testMatch will be wrapped in a
-FunctionTestCase and run as a test. The simplest possible failing test is
+`FunctionTestCase` and run as a test. The simplest possible failing test is
 therefore::
 
   def test():
@@ -220,7 +220,7 @@ the same setup, is to use the provided with_setup decorator::
   def teardown_func():
       # ...
 
-  @with_setup(setup_func,teardown_func)
+  @with_setup(setup_func, teardown_func)
   def test():
       # ...
 
@@ -229,7 +229,7 @@ so::
 
   def test():
       # ...
-  test = with_setup(setup_func,teardown_func)(test)
+  test = with_setup(setup_func, teardown_func)(test)
 
 or by direct assignment::
 
@@ -268,7 +268,7 @@ generator returns.
 For generator methods, the setUp and tearDown methods of the class (if any)
 will be run before and after each generated test case.
 
-Please note that method generators *are not* supported in unittest.TestCase
+Please note that method generators *are not* supported in `unittest.TestCase`
 subclasses.
 
 Finding and running tests
@@ -279,7 +279,7 @@ nose, by default, follows a few simple rules for test discovery.
 * If it looks like a test, it's a test. Names of directories, modules,
   classes and functions are compared against the testMatch regular
   expression, and those that match are considered tests. Any class that is a
-  unittest.TestCase subclass is also collected, so long as it is inside of a
+  `unittest.TestCase` subclass is also collected, so long as it is inside of a
   module that looks like a test.
    
 * Directories that don't look like tests and aren't packages are not
@@ -298,16 +298,16 @@ nose, by default, follows a few simple rules for test discovery.
   loaded as package.module and the directory of *package* will be added to
   sys.path.
 
-Be aware that plugins and command line options can change any of those rules.   
+Be aware that plugins and command line options can change any of those rules.
    
 Testing tools
 -------------
 
-The nose.tools module provides a number of testing aids that you may find
-useful, including decorators for restricting test execution time and testing
-for exceptions, and all of the same assertX methods found in unittest.TestCase
-(only spelled in pep08 fashion, so assert_equal rather than assertEqual). See
-`nose.tools`_ for a complete list.
+The nose.tools module provides a number of testing aids that you may
+find useful, including decorators for restricting test execution time
+and testing for exceptions, and all of the same assertX methods found
+in `unittest.TestCase` (only spelled in pep08 fashion, so assert_equal
+rather than assertEqual). See `nose.tools`_ for a complete list.
 
 .. _nose.tools: http://code.google.com/p/python-nose/wiki/TestingTools
 

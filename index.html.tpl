@@ -216,7 +216,7 @@
         error like this:
         
         <blockquote>
-          <tt>The required version of setuptools (>=0.6c2) is not available, and
+          <tt>The required version of setuptools (>=0.6c5) is not available, and
           can't be installed while this script is running. Please install
           a more recent version first.</tt>
         </blockquote>
