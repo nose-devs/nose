@@ -131,6 +131,7 @@ class TestFixtureContext(unittest.TestCase):
         assert mod.state == ['setUp', 'tearDown']
 
         # multiple test cases from the module
+        result = unittest.TestResult()
         mod.state = []
         cx = Context()
         in_context = cx.add(mod, case)
@@ -152,7 +153,68 @@ class TestFixtureContext(unittest.TestCase):
         self.assertEqual(fail.state, ['setUp', 'failTest', 'tearDown'])
         self.assertEqual(mod.state, ['setUp', 'tearDown'])
 
+        # submodule
+        submod = imp.new_module('test_module.more_tests')
+        submod.state = []
+        submod.setup = setup
+        submod.teardown = teardown
+        submod.TC = TC
+        mod.more_tests = submod
+
+        mod.state = []
+        result = unittest.TestResult()
+        cx = Context()
+        mod_case = mod.TC()
+        mod_err = mod.TC('errTest')
+        mod_fail = mod.TC('failTest')
+        mod_in_context = cx.add(mod, mod_case)
+        mod_err_context = cx.add(mod, mod_err)
+        mod_fail_context = cx.add(mod, mod_fail)
+
+        submod_case = submod.TC()
+        submod_err = submod.TC('errTest')
+        submod_fail = submod.TC('failTest')
+        submod_in_context = cx.add(submod, submod_case)
+        submod_err_context = cx.add(submod, submod_err)
+        submod_fail_context = cx.add(submod, submod_fail)        
+
+        # run the submodule tests first
+        submod_in_context(result)
+        assert not result.errors, result.errors        
+        self.assertEqual(submod_case.state, ['setUp', 'runTest', 'tearDown'])
+        self.assertEqual(submod.state, ['setUp'])
+        self.assertEqual(mod.state, ['setUp'])
+
+        submod_err_context(result)
+        assert result.errors
+        self.assertEqual(submod_err.state, ['setUp', 'errTest', 'tearDown'])
+        self.assertEqual(submod.state, ['setUp'])
+        self.assertEqual(mod.state, ['setUp'])
         
+        submod_fail_context(result)
+        assert result.failures
+        self.assertEqual(submod_fail.state, ['setUp', 'failTest', 'tearDown'])
+        self.assertEqual(submod.state, ['setUp', 'tearDown'])        
+        self.assertEqual(mod.state, ['setUp'])
+
+        # then the module tests
+        mod_in_context(result)
+        assert result.errors
+        self.assertEqual(mod_case.state, ['setUp', 'runTest', 'tearDown'])
+        self.assertEqual(mod.state, ['setUp'])
+        self.assertEqual(submod.state, ['setUp', 'tearDown'])        
+
+        mod_err_context(result)
+        assert result.errors
+        self.assertEqual(mod_err.state, ['setUp', 'errTest', 'tearDown'])
+        self.assertEqual(mod.state, ['setUp'])
+        self.assertEqual(submod.state, ['setUp', 'tearDown'])
+        
+        mod_fail_context(result)
+        assert result.failures
+        self.assertEqual(mod_fail.state, ['setUp', 'failTest', 'tearDown'])
+        self.assertEqual(mod.state, ['setUp', 'tearDown'])        
+        self.assertEqual(submod.state, ['setUp', 'tearDown'])
         
 if __name__ == '__main__':
     unittest.main()
