@@ -1,3 +1,65 @@
+-- 2/3/07
+
+is the selector useful? can it die, if we assume a more directed loading
+approach?
+
+The loader is the heart of the discovery system. It should be simple, clear,
+and close to unittest's loader whereever possible. The complication comes from
+supporting proper fixture setup and teardown when the test name requested is a
+or is inside of a dotted module. Say we run like this:
+
+nosetests foo/bar/baz.py
+
+that should look in foo for setup, then baz for setup, but only after
+importing the target module (baz) and finding any tests therein. If baz has
+tests, then foo.setup runs, bar.setup runs, baz.setup runs, baz's tests run,
+then baz.teardown, bar.teardown, foo.teardown.
+
+nosetests w/o argument is identical in meaning to nosetests .
+-> loader.loadTestsFromNames(names=[.])
+
+nosetests foo and nosetests -w foo are identical in meaning
+-> loader.loadTestsFromNames(names=['foo'])
+
+loadTestsFromName(name, module=None):
+    if module is None:
+        module, name = importable module parts of name, the rest
+        or, name is a dir
+    if module:
+        find name within the module
+        find all tests in that object (could be the module itself)
+        return a suite
+    elif dir:
+        find all the names in the dir that look like test modules
+        recurse into load tests from names with that name list
+
+loadTestsFromNames(names, module=None):
+    for name in names:
+        yield self.suiteClass(self.loadTestsFromName(name, module))
+
+responsibility for proper setup/teardown lies in the runner, or the suite
+class?
+
+how do they know the running context?
+
+the loader returns tests wrapped in a Context() closure
+the Context() keeps track of what fixtures have been run and what fixtures
+need to be run at setup and teardown
+
+setup is easy -- the first test triggers a cascade of setup calls up to the
+package level
+
+but how can we know when to run teardowns? the last test in a module, the last
+test in a package should trigger the teardowns at that level... it's not clear
+how to know what test is the last?
+
+we know what's last because tests for a given package don't start running
+until they have all been collected.
+
+
+the process of 
+        
+-- old
 notes on loading from modules
 
 this pretty much all has to take place inside of the _tests iterator.

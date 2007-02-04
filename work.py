@@ -177,6 +177,24 @@ class TestLoader:
                 print "  ", test
         return []
 
+    def loadTestsFromName(self, name, module=None):
+        if module not is None:
+            # assume all names are relative to the module
+            pass
+        # if the name is a directory... findTests in that directory
+
+        # if the name is a module name ... import the module
+        # and load its tests (depth first), returning a suite
+        # may have to backtrack to ensure that any package-level
+        # setup is run, or is that someone else's problem?
+
+        # if the name is a file ... figure out what module it is
+        # and load tests from that module
+        
+    def loadTestsFromNames(self, names, module=None):
+        for name in names:
+            yield self.loadTestsFromName(name, module)
+    
 if __name__ == '__main__':
     import sys
     l = TestLoader()

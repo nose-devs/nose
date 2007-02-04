@@ -192,36 +192,41 @@ class TestLoader(unittest.TestLoader):
                 for test in plug.loadTestsFromName(name, module, importPath):
                     yield test
 
-    def loadTestsFromNames(self, names, module=None):
+    def loadTestsFromNames(self, names=None, module=None):
         """Load tests from names. Behavior is compatible with unittest:
         if module is specified, all names are translated to be relative
         to that module; the tests are appended to conf.tests, and
         loadTestsFromModule() is called. Otherwise, the names are
         loaded one by one using loadTestsFromName.
-        """                    
-        def rel(name, mod):
-            if not name.startswith(':'):
-                name = ':' + name
-            return "%s%s" % (mod, name)
+        """
+        if names is None:
+            names = [ self.cwd() ]
+        for name in names:
+            yield self.loadTestsFromName(name, module)
+            
+#         def rel(name, mod):
+#             if not name.startswith(':'):
+#                 name = ':' + name
+#             return "%s%s" % (mod, name)
         
-        if module:
-            log.debug("load tests from module %r" % module)
-            # configure system to load only requested tests from module
-            if names:
-                self.conf.tests.extend([ rel(n, module.__name__)
-                                         for n in names ])
-            try:
-                mpath = os.path.dirname(module.__path__[0])
-            except AttributeError:
-                mpath = os.path.dirname(module.__file__)
+#         if module:
+#             log.debug("load tests from module %r" % module)
+#             # configure system to load only requested tests from module
+#             if names:
+#                 self.conf.tests.extend([ rel(n, module.__name__)
+#                                          for n in names ])
+#             try:
+#                 mpath = os.path.dirname(module.__path__[0])
+#             except AttributeError:
+#                 mpath = os.path.dirname(module.__file__)
                 
-            return self.loadTestsFromModule(module, importPath=mpath)
-        else:
-            tests = []
-            for name in names:
-                for test in self.loadTestsFromName(name):
-                    tests.append(test)
-        return self.suiteClass(tests)
+#             return self.loadTestsFromModule(module, importPath=mpath)
+#         else:
+#             tests = []
+#             for name in names:
+#                 for test in self.loadTestsFromName(name):
+#                     tests.append(test)
+#         return self.suiteClass(tests)
 
     def loadTestsFromPath(self, path, module=None, importPath=None):
         """Load tests from file or directory at path.
