@@ -1,4 +1,5 @@
 import imp
+import sys
 import unittest
 from fixtr import Context
 
@@ -113,6 +114,7 @@ class TestFixtureContext(unittest.TestCase):
                 self.state += ['testSomething']        
                 
         mod = imp.new_module('test_module')
+        sys.modules['test_module'] = mod
         mod.state = []
         mod.setup = setup
         mod.teardown = teardown
@@ -155,6 +157,7 @@ class TestFixtureContext(unittest.TestCase):
 
         # submodule
         submod = imp.new_module('test_module.more_tests')
+        sys.modules['test_module.more_tests'] = submod
         submod.state = []
         submod.setup = setup
         submod.teardown = teardown

@@ -1,8 +1,13 @@
+import sys
 import unittest
+
 
 class Context(object):
 
     def __init__(self):
+        # FIXME the names modules and tests are reversed
+        # modules is a list of tests per module and tests is
+        # a list of modules per test
         self.modules = {}
         self.tests = {}
         self.setup_fired = {}
@@ -13,43 +18,66 @@ class Context(object):
     # has to reference every module up the chain, and be popped off of all
     # of those lists when it hits teardown
     def add(self, module, test):
-        if isinstance(module, basestring):
-            module = __import__(module)
-        self.modules.setdefault(module, []).append(test)
-        self.tests[test] = module
+        for part in self._parts(module):           
+            self.tests.setdefault(part, []).append(test)
+            self.modules.setdefault(test, []).append(part)
         return Case(self, test)
 
     def setup(self, test):
         # if this is the first for any surrounding package or module of
         # this test, fire the package and  module setup; record that it
         # was fired
-        mod = self.tests.get(test)
-        if not mod:
-            # not my test?
-            raise Exception("Module for test %s not found in context")
-        if self.setup_fired.get(mod):
-            return
-        self.setup_fired[mod] = True
-        if hasattr(mod, 'setup'):
-            mod.setup(mod) # FIXME -- try all the names, etc
-        self.setup_ok[mod] = True
+        for mod in self.modules.get(test):
+            if self.setup_fired.get(mod):
+                continue
+            self.setup_fired[mod] = True
+            if hasattr(mod, 'setup'):
+                mod.setup(mod) # FIXME -- try all the names, etc
+            self.setup_ok[mod] = True
             
     def teardown(self, test):
         # if this is the last for an surrounding package or module, and setup
         # fired for that module or package, fire teardown for the module
         # /package too. otherwise pop off of the stack for that module/
         # package
-        mod = self.tests.get(test)
-        if not mod:
-            # not my test?
-            raise Exception("Module for test %s not found in context")
-        self.modules[mod].remove(test)
-        if (not self.modules[mod] 
-            and self.setup_ok.get(mod) 
-            and hasattr(mod, 'teardown')):
-            mod.teardown(mod)
+        for mod in self.modules.get(test):
+            self.tests[mod].remove(test)
+            if (not self.tests[mod] 
+                and self.setup_ok.get(mod) 
+                and hasattr(mod, 'teardown')):
+                mod.teardown(mod)
 
-            
+    def _find_module(self, name):
+        try:
+            return sys.modules[name]
+        except KeyError:
+            mod = __import__(name)
+            components = name.split('.')
+            for comp in components[1:]:
+                mod = getattr(mod, comp)
+            return mod
+
+    def _parts(self, module):
+        try:
+            module_name = module.__name__
+        except AttributeError:
+            # FIXME won't work for dotteds
+            module_name, module = module, self._find_module(module)
+        name = []
+        parts = []
+        for part in module_name.split('.'):
+            name.append(part)
+            part_name = '.'.join(name)
+            if part_name == module_name:
+                parts.append(module)
+            else:
+                parts.append(self._find_module('.'.join(name)))
+        # We want the module parts in order from most to least
+        # specific (foo.bar before foo)
+        parts.reverse()
+        return parts
+
+
 class Case(unittest.TestCase):
 
     def __init__(self, context, test):
