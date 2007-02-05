@@ -5,18 +5,11 @@ import unittest
 class Context(object):
 
     def __init__(self):
-        # FIXME the names modules and tests are reversed
-        # modules is a list of tests per module and tests is
-        # a list of modules per test
         self.modules = {}
         self.tests = {}
         self.setup_fired = {}
         self.setup_ok = {}
 
-    # FIXME this won't work unless there are tests in the top-level package
-    # and each of the intermediary levels... the test has to be added and
-    # has to reference every module up the chain, and be popped off of all
-    # of those lists when it hits teardown
     def add(self, module, test):
         for part in self._parts(module):           
             self.tests.setdefault(part, []).append(test)
@@ -61,7 +54,6 @@ class Context(object):
         try:
             module_name = module.__name__
         except AttributeError:
-            # FIXME won't work for dotteds
             module_name, module = module, self._find_module(module)
         name = []
         parts = []
