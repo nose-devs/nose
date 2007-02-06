@@ -302,7 +302,7 @@ class TestLoader(unittest.TestLoader):
         if cls in (object, type):
             return collected
         for item in dir(cls):
-            attr = getattr(cls, item)
+            attr = getattr(cls, item, None)
             log.debug("Check if selector wants %s (%s)", attr, cls)
             if ismethod(attr) and self.selector.wantMethod(attr):
                 collected.append(item)                
