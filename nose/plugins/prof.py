@@ -48,11 +48,7 @@ class Profile(Plugin):
         if options.profile_stats_file:
             self.pfile = options.profile_stats_file
         else:
-            fileno, filename = tempfile.mkstemp()
-            # close the open handle immediately, hotshot needs to open
-            # the file itself
-            os.close(fileno)
-            self.pfile = filename
+            self.fileno, self.pfile = tempfile.mkstemp()
         self.sort = options.profile_sort
         self.restrict = tolist(options.profile_restrict)
             
@@ -77,3 +73,11 @@ class Profile(Plugin):
                 stats.print_stats()
         finally:
             sys.stdout = tmp
+            try:
+                os.close(self.fileno)
+            except OSError:
+                pass
+            try:
+                os.unlink(self.pfile)
+            except OSError:
+                pass
