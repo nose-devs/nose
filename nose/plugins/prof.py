@@ -47,8 +47,10 @@ class Profile(Plugin):
 
         if options.profile_stats_file:
             self.pfile = options.profile_stats_file
+            self.clean_stats_file = False
         else:
             self.fileno, self.pfile = tempfile.mkstemp()
+            self.clean_stats_file = True
         self.sort = options.profile_sort
         self.restrict = tolist(options.profile_restrict)
             
@@ -73,11 +75,12 @@ class Profile(Plugin):
                 stats.print_stats()
         finally:
             sys.stdout = tmp
-            try:
-                os.close(self.fileno)
-            except OSError:
-                pass
-            try:
-                os.unlink(self.pfile)
-            except OSError:
-                pass
+            if self.clean_stats_file:
+                try:
+                    os.close(self.fileno)
+                except OSError:
+                    pass
+                try:
+                    os.unlink(self.pfile)
+                except OSError:
+                    pass
