@@ -8,6 +8,36 @@ from nose.util import try_run
 
 log = logging.getLogger(__name__)
 
+
+class Test(unittest.TestCase):
+    
+    def __init__(self, context, test):
+        print "Test %s %s" % (context, test)
+        self.context = context
+        self.test = test
+        unittest.TestCase.__init__(self)
+        
+    def __call__(self, *arg, **kwarg):
+        print "Test call %s %s %s" % (self, arg, kwarg)
+        return self.run(*arg, **kwarg)
+
+    def setUp(self):
+        print "Test setup %s" % self
+        self.context.setup(self.test)
+
+    def run(self, result):
+        self.result = result
+        unittest.TestCase.run(self, result)
+        
+    def runTest(self):
+        self.test(self.result)
+
+    def tearDown(self):
+        print "Test teardown %s" % self
+        self.context.teardown(self.test)
+
+
+# old
 class FunctionTestCase(unittest.TestCase):
     """TestCase wrapper for functional tests.
 

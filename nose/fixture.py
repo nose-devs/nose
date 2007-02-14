@@ -1,6 +1,5 @@
 import sys
-import unittest
-
+from nose.case import Test
 
 class Context(object):
 
@@ -14,7 +13,7 @@ class Context(object):
         for part in self._parts(module):           
             self.tests.setdefault(part, []).append(test)
             self.modules.setdefault(test, []).append(part)
-        return Case(self, test)
+        return Test(self, test)
 
     def setup(self, test):
         # if this is the first for any surrounding package or module of
@@ -68,30 +67,3 @@ class Context(object):
         # specific (foo.bar before foo)
         parts.reverse()
         return parts
-
-
-class Case(unittest.TestCase):
-
-    def __init__(self, context, test):
-        print "Case %s %s" % (context, test)
-        self.context = context
-        self.test = test
-        unittest.TestCase.__init__(self)
-        
-    def __call__(self, *arg, **kwarg):
-        print "call %s %s %s" % (self, arg, kwarg)
-        return self.run(*arg, **kwarg)
-
-    def setUp(self):
-        print "setup %s" % self
-        self.context.setup(self.test)
-
-    def run(self, result):
-        self.result = result
-        unittest.TestCase.run(self, result)
-        
-    def runTest(self):
-        self.test(self.result)
-
-    def tearDown(self):
-        self.context.teardown(self.test)

@@ -1,7 +1,7 @@
 import imp
 import sys
 import unittest
-from fixtr import Context
+from nose.fixture import Context
 
 class TestFixtureContext(unittest.TestCase):
 
