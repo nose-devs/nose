@@ -5,7 +5,8 @@ import sys
 import unittest
 from nose.config import Config
 from nose.plugins import call_plugins
-from nose.util import absfile, file_like, split_test_name, src, test_address
+from nose.util import absfile, file_like, split_test_name, src, test_address, \
+     module_for_filename
 
 log = logging.getLogger(__name__)
 
@@ -290,6 +291,8 @@ class TestAddress(object):
             if not os.path.isabs(self.filename):
                 self.filename = os.path.abspath(os.path.join(working_dir,
                                                              self.filename))
+            if self.module is None:
+                self.module = module_for_filename(self.filename)
 
     def __str__(self):
         return self.name

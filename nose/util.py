@@ -89,6 +89,56 @@ def is_generator(func):
     except AttributeError:
         return False
 
+def is_package(path):
+    """
+    Is this path a package directory?
+
+    >>> is_package('nose')
+    True
+    >>> is_package('unit_tests')
+    False
+    >>> is_package('nose/plugins')
+    True
+    >>> is_package('nose/loader.py')
+    False
+    """
+    if os.path.isdir(path):        
+        init = [e for e in os.listdir(path)
+                if os.path.isfile(os.path.join(path, e))
+                and src(e) == '__init__.py']
+        if init:
+            return True
+    return False
+
+def module_for_filename(filename):
+    """
+    Find the module name for a given python source file name. Returns
+    None if the file is not a python source file.
+    
+    >>> module_for_filename('foo.py')
+    'foo'
+    >>> module_for_filename('biff/baf.py')
+    'baf'
+    >>> module_for_filename('nose/util.py')
+    'nose.util'
+    """
+    src_file = src(filename)
+    if not src_file.endswith('.py'):
+        return None
+    base, ext = os.path.splitext(os.path.basename(src_file))
+    parts = filter(lambda p: p != '', os.path.split(src_file))
+    mod_parts = []
+    mod_path = []
+    for part in parts[:-1]:
+        if (os.path.isdir(part)
+            and is_package(os.path.join(*(mod_path+[part])))):
+            mod_path.append(part)
+            mod_parts.append(part)
+        else:
+            break
+    mod_parts.append(base)
+    return '.'.join(mod_parts)
+
     
 def split_test_name(test):
     """Split a test name into a 3-tuple containing file, module, and callable
@@ -219,6 +269,7 @@ def src(filename):
     if ext in ('.pyc', '.pyo', '.py'):
         return '.'.join((base, 'py'))
     return filename
+
         
 def tolist(val):
     """Convert a value that may be a list or a (possibly comma-separated)
@@ -238,3 +289,8 @@ def tolist(val):
     except TypeError:
         # who knows... 
         return list(val)
+
+
+if __name__ == '__main__':
+    import doctest
+    doctest.testmod()
