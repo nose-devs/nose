@@ -9,6 +9,9 @@ class Context(object):
         self.setup_fired = {}
         self.setup_ok = {}
 
+    def __call__(self, test):
+        return self.add(test.__module__, test)
+
     def add(self, module, test):
         for part in self._parts(module):           
             self.tests.setdefault(part, []).append(test)

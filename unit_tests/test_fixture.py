@@ -26,6 +26,23 @@ class TestFixtureContext(unittest.TestCase):
         print result.errors
         self.assertEqual(case.state, ['setUp', 'runTest', 'tearDown'])
 
+    def test_call(self):
+        class TC(unittest.TestCase):
+            state = None
+            def setUp(self):
+                self.state = ['setUp']
+            def tearDown(self):
+                self.state += ['tearDown']
+            def testSomething(self):
+                self.state += ['testSomething']
+        case = TC('testSomething')
+        cx = Context()
+        in_context = cx(case)
+        result = unittest.TestResult()
+        in_context(result)
+        print result.errors
+        self.assertEqual(case.state, ['setUp', 'testSomething', 'tearDown'])
+
     def test_case_proxy_test_method(self):
         class TC(unittest.TestCase):
             state = None

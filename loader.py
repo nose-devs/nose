@@ -2,15 +2,18 @@ import os
 import unittest
 from nose.fixture import Context
 from nose.selector import TestAddress
-from suite import LazySuite
+from suite import LazySuite, ContextSuiteFactory
 
 class TestLoader(unittest.TestLoader):
 
     def __init__(self, context=None):
+        # FIXME would get workingdir too
+        # FIXME would get selector too? or can selector die?
         if context is None:
             context = Context()
         self.context = context
-        unittest.TestLoader.__init__(self)
+        self.suiteClass = ContextSuiteFactory(context)
+        unittest.TestLoader.__init__(self)        
 
     def loadTestsFromDir(self, path):
         print "load from dir %s" % path
@@ -31,8 +34,10 @@ class TestLoader(unittest.TestLoader):
         pass
                                                
     def loadTestsFromName(self, name, module=None):
+        # FIXME would pass working dir too
         addr = TestAddress(name)
         print "load from %s (%s)" % (name, addr)
+        # FIXME these are all valid only if module is None
         if addr.module:
             module = __import__(addr.module)
             return self.loadTestsFromModule(module)
@@ -43,7 +48,8 @@ class TestLoader(unittest.TestLoader):
             elif os.path.isfile(path):
                 return LazySuite(lambda: self.loadTestsFromFile(path))
         else:
-            # just a function? what to do?
+            # just a function? what to do? I think it can only be
+            # handled when module is not None
             pass
                 
     def loadTestsFromNames(self, names, module=None):
