@@ -83,23 +83,49 @@ def file_like(name):
             or not ident_re.match(os.path.splitext(name)[0]))
 
 
-def is_generator(func):
+def cmp_lineno(a, b):
+    """Compare functions by their line numbers.
+    >>> cmp_lineno(isgenerator, ispackage)
+    -1
+    >>> cmp_lineno(ispackage, isgenerator)
+    1
+    >>> cmp_lineno(isgenerator, isgenerator)
+    0
+    """
+    return cmp(func_lineno(a), func_lineno(b))
+
+
+def func_lineno(func):
+    """Get the line number of a function. First looks for
+    compat_co_firstlineno, then func_code.co_first_lineno.
+    """
+    try:
+        return func.compat_co_firstlineno
+    except AttributeError:
+        try:
+            return func.func_code.co_firstlineno
+        except AttributeError:
+            return -1
+
+
+def isgenerator(func):
     try:
         return func.func_code.co_flags & CO_GENERATOR != 0
     except AttributeError:
         return False
 
-def is_package(path):
+
+def ispackage(path):
     """
     Is this path a package directory?
 
-    >>> is_package('nose')
+    >>> ispackage('nose')
     True
-    >>> is_package('unit_tests')
+    >>> ispackage('unit_tests')
     False
-    >>> is_package('nose/plugins')
+    >>> ispackage('nose/plugins')
     True
-    >>> is_package('nose/loader.py')
+    >>> ispackage('nose/loader.py')
     False
     """
     if os.path.isdir(path):        
@@ -110,16 +136,16 @@ def is_package(path):
             return True
     return False
 
-def module_for_filename(filename):
+def getpackage(filename):
     """
-    Find the module name for a given python source file name. Returns
-    None if the file is not a python source file.
+    Find the full dotted package name for a given python source file
+    name. Returns None if the file is not a python source file.
     
-    >>> module_for_filename('foo.py')
+    >>> getpackage('foo.py')
     'foo'
-    >>> module_for_filename('biff/baf.py')
+    >>> getpackage('biff/baf.py')
     'baf'
-    >>> module_for_filename('nose/util.py')
+    >>> getpackage('nose/util.py')
     'nose.util'
     """
     src_file = src(filename)
@@ -131,7 +157,7 @@ def module_for_filename(filename):
     mod_path = []
     for part in parts[:-1]:
         if (os.path.isdir(part)
-            and is_package(os.path.join(*(mod_path+[part])))):
+            and ispackage(os.path.join(*(mod_path+[part])))):
             mod_path.append(part)
             mod_parts.append(part)
         else:

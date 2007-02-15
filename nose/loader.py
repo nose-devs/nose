@@ -14,7 +14,7 @@ from nose.plugins import call_plugins
 from nose.selector import defaultSelector
 from nose.suite import ModuleSuite, TestClass, TestDir, \
     GeneratorMethodTestSuite
-from nose.util import is_generator, split_test_name, try_run
+from nose.util import isgenerator, split_test_name, try_run
 
 log = logging.getLogger(__name__)
 
@@ -270,15 +270,6 @@ class TestLoader(unittest.TestLoader):
         classes that descend from unittest.TestCase, return all found
         (properly wrapped) as tests.
         """
-        def cmp_line(a, b):
-            """Compare functions by their line numbers
-            """
-            try:
-                a_ln = a.func_code.co_firstlineno
-                b_ln = b.func_code.co_firstlineno
-            except AttributeError:
-                return 0
-            return cmp(a_ln, b_ln)
         
         entries = dir(module)
         tests = []
@@ -297,7 +288,7 @@ class TestLoader(unittest.TestLoader):
                     continue
                 # might be a generator
                 # FIXME LazySuite w/ generate...?
-                if is_generator(test):
+                if isgenerator(test):
                     log.debug("test %s is a generator", test)
                     func_tests.extend(self.generateTests(test))
                 else:
@@ -368,7 +359,7 @@ def method_test_case(cls):
         generator method test suite, if the test case is a generator.
         """
         attr = getattr(cls, test_name)
-        if is_generator(attr):
+        if isgenerator(attr):
             return GeneratorMethodTestSuite(cls, test_name)
         else:
             return MethodTestCase(cls, test_name)

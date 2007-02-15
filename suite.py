@@ -5,6 +5,12 @@ class LazySuite(unittest.TestSuite):
     def __init__(self, test_generator):
         self._tests = test_generator
 
+    def __repr__(self):
+        return "<%s tests=generator (%s)>" % (
+            unittest._strclass(self.__class__), id(self))
+    
+    __str__ = __repr__
+
     def _get_tests(self):
         for test in self.test_generator():
             yield test
@@ -33,7 +39,10 @@ class ContextSuite(LazySuite):
         
     def _get_tests_with_context(self):
         for test in self._get_tests():
-            yield self.context(test)
+            if hasattr(test, 'context'):
+                yield test
+            else:
+                yield self.context(test)
 
     _tests = property(_get_tests_with_context, LazySuite._set_tests, None,
                       "Access the tests in this suite. Tests are returned "

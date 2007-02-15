@@ -10,7 +10,8 @@ log = logging.getLogger(__name__)
 
 
 class Test(unittest.TestCase):
-    
+    """The universal contextualized test case wrapper.
+    """
     def __init__(self, context, test):
         print "Test %s %s" % (context, test)
         self.context = context
@@ -37,7 +38,6 @@ class Test(unittest.TestCase):
         self.context.teardown(self.test)
 
 
-# old
 class FunctionTestCase(unittest.TestCase):
     """TestCase wrapper for functional tests.
 
@@ -66,13 +66,13 @@ class FunctionTestCase(unittest.TestCase):
     """
     _seen = {}
     
-    def __init__(self, testFunc, setUp=None, tearDown=None, description=None,
-                 fromDirectory=None):
+    def __init__(self, testFunc, setUp=None, tearDown=None, description=None):
         self.testFunc = testFunc
         self.setUpFunc = setUp
         self.tearDownFunc = tearDown
         self.description = description
-        self.fromDirectory = fromDirectory
+        # FIXME restore the 'fromDirectory' setting -- fine the base
+        # of the package containing the module containing the testFunc
         unittest.TestCase.__init__(self)
         
     def id(self):
@@ -100,6 +100,7 @@ class FunctionTestCase(unittest.TestCase):
             try_run(self.testFunc, names)
         
     def __str__(self):
+        self.fromDirectory = 'FIXME'
         if hasattr(self.testFunc, 'compat_func_name'):
             name = self.testFunc.compat_func_name
         else:
@@ -115,9 +116,13 @@ class FunctionTestCase(unittest.TestCase):
     __repr__ = __str__
     
     def shortDescription(self):
-        pass # FIXME
+        doc = getattr(self.testFunc, '__doc__', None)
+        if not doc:
+            doc = str(self)
+        return doc
 
-        
+
+# old
 class MethodTestCase(unittest.TestCase):
     """Test case that wraps one method in a test class.
     """    

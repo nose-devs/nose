@@ -3,14 +3,10 @@ import os
 import sys
 import unittest
 from loader import TestLoader
-import loader # so we can set its __import__
 
-# Mock the filesystem access so we don't have to maintain
-# a support dir with real files
-_listdir = os.listdir
-_isdir = os.path.isdir
-_isfile = os.path.isfile
-_import = __import__
+# FIXME replace with nose importer eventually
+import loader # so we can set its __import__
+from nose import fixture  # so we can set its __import__
 
 #
 # Setting up the fake modules that we'll use for testing
@@ -21,22 +17,40 @@ module = imp.new_module('module')
 
 # a unittest testcase subclass
 class TC(unittest.TestCase):
-    def test(self):
+    def runTest(self):
         pass
 
 class TC2(unittest.TestCase):
-    def test(self):
+    def runTest(self):
         pass
-# FIXME test function
+    
+# test function
+def test_func():
+    pass
+
 # FIXME non-testcase-subclass test class
 
 test_module.TC = TC
-TC.__module__ = test_module
+TC.__module__ = 'test_module'
+test_module.test_func = test_func
+test_func.__module__ = 'test_module'
 module.TC2 = TC2
-TC2.__module__ = module
+TC2.__module__ = 'module'
 del TC
 del TC2
+del test_func
 
+# Mock the filesystem access so we don't have to maintain
+# a support dir with real files
+_listdir = os.listdir
+_isdir = os.path.isdir
+_isfile = os.path.isfile
+_import = __import__
+
+
+#
+# Mock functions
+#
 def mock_listdir(path):
     return ['.', '..', 'test_module.py', 'module.py']
 
@@ -69,20 +83,22 @@ def mock_import(modname, gl=None, lc=None, fr=None):
     except KeyError:
         raise ImportError("No '%s' in fake module list" % modname)
     
-
+#
+# Tests
+#
 class TestTestLoader(unittest.TestCase):
 
     def setUp(self):
         os.listdir = mock_listdir
         os.path.isdir = mock_isdir
         os.path.isfile = mock_isfile
-        loader.__import__ = mock_import
+        loader.__import__ = fixture.__import__ = mock_import
         
     def tearDown(self):
         os.listdir = _listdir
         os.path.isdir = _isdir
         os.path.isfile = _isfile
-        loader.__import__ = __import__
+        loader.__import__ = fixture.__import__ = __import__
 
     def test_lint(self):
         """Test that main API functions exist
@@ -142,6 +158,12 @@ class TestTestLoader(unittest.TestCase):
         tests = [t for t in suite]
         for test in tests:
             assert hasattr(test, 'context'), "Test %s has no context" % test
+
+    def test_load_test_func(self):
+        l = TestLoader()
+        suite = l.loadTestsFromName('test_module')
+        tests = [t for t in suite]
+        self.assertEqual(len(tests), 2, "Wanted 2 tests, got %s" % tests)
         
 if __name__ == '__main__':
     unittest.main()

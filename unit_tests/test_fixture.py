@@ -236,5 +236,6 @@ class TestFixtureContext(unittest.TestCase):
         self.assertEqual(mod.state, ['setUp', 'tearDown'])        
         self.assertEqual(submod.state, ['setUp', 'tearDown'])
         
+        
 if __name__ == '__main__':
     unittest.main()
