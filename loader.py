@@ -20,24 +20,6 @@ class TestLoader(unittest.TestLoader):
         self.suiteClass = ContextSuiteFactory(context)
         unittest.TestLoader.__init__(self)        
 
-    def loadTests(self, obj, parent=None):
-        suite = self.suiteClass
-        if isinstance(obj, unittest.TestCase):
-            return suite([obj])
-        elif isclass(obj):
-            return self.loadTestsFromTestCase(obj)
-        elif ismethod(obj):
-            # FIXME Generators
-            return suite([parent(obj.__name__)])
-        elif isfunction(obj):
-            # FIXME Generators
-            return suite([FunctionTestCase(obj)])
-        else:
-            # FIXME give plugins a chance
-            return suite(
-                [Failure(ValueError,
-                         "%s is not a function or method" % obj)])
-
     def loadTestsFromDir(self, path):
         print "load from dir %s" % path
 
@@ -95,7 +77,7 @@ class TestLoader(unittest.TestLoader):
                 test_funcs.append(test)
         test_classes.sort(lambda a, b: cmp(a.__name__, b.__name__))
         test_funcs.sort(cmp_lineno)
-        tests = map(self.loadTests, test_classes + test_funcs)
+        tests = map(self.makeSuite, test_classes + test_funcs)
 
         # Now, descend into packages
         paths = getattr(module, '__path__', [])
@@ -124,7 +106,7 @@ class TestLoader(unittest.TestLoader):
             if addr.call:
                 name = addr.call
             parent, obj = self.resolve(name, module)
-            return self.loadTests(obj, parent)
+            return self.makeSuite(obj, parent)
         else:
             if addr.module:
                 # FIXME use nose importer; obviously this won't
@@ -136,7 +118,7 @@ class TestLoader(unittest.TestLoader):
                     raise
                 except:
                     exc = sys.exc_info()
-                    return self.loadTests(Failure(*exc))
+                    return self.makeSuite(Failure(*exc))
                 if addr.call:
                     return self.loadTestsFromName(addr.call, module)
                 else:
@@ -161,9 +143,27 @@ class TestLoader(unittest.TestLoader):
             else:
                 # just a function? what to do? I think it can only be
                 # handled when module is not None
-                return self.loadTests(
+                return self.makeSuite(
                     Failure(ValueError, "Unresolvable test name %s" % name))
         # FIXME give plugins a chance?
+
+    def makeSuite(self, obj, parent=None):
+        suite = self.suiteClass
+        if isinstance(obj, unittest.TestCase):
+            return suite([obj])
+        elif isclass(obj):
+            return self.loadTestsFromTestCase(obj)
+        elif ismethod(obj):
+            # FIXME Generators
+            return suite([parent(obj.__name__)])
+        elif isfunction(obj):
+            # FIXME Generators
+            return suite([FunctionTestCase(obj)])
+        else:
+            # FIXME give plugins a chance
+            return suite(
+                [Failure(ValueError,
+                         "%s is not a function or method" % obj)])
 
     def resolve(self, name, module):
         obj = module
