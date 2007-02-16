@@ -12,8 +12,16 @@ from nose import fixture  # so we can set its __import__
 # Setting up the fake modules that we'll use for testing
 # test loading
 #
-test_module = imp.new_module('test_module')
-module = imp.new_module('module')
+M = {}
+M['test_module'] = imp.new_module('test_module')
+M['module'] = imp.new_module('module')
+M['package'] = imp.new_module('package')
+M['package'].__path__ = ['/package']
+M['package'].__file__ = '/package/__init__.py'
+M['package.subpackage'] = imp.new_module('package.subpackage')
+M['package'].subpackage = M['package.subpackage']
+M['package.subpackage'].__path__ = ['/package/subpackage']
+M['package.subpackage'].__file__ = '/package/subpackage/__init__.py'
 
 # a unittest testcase subclass
 class TC(unittest.TestCase):
@@ -30,11 +38,11 @@ def test_func():
 
 # FIXME non-testcase-subclass test class
 
-test_module.TC = TC
+M['test_module'].TC = TC
 TC.__module__ = 'test_module'
-test_module.test_func = test_func
+M['test_module'].test_func = test_func
 test_func.__module__ = 'test_module'
-module.TC2 = TC2
+M['module'].TC2 = TC2
 TC2.__module__ = 'module'
 del TC
 del TC2
@@ -52,11 +60,16 @@ _import = __import__
 # Mock functions
 #
 def mock_listdir(path):
+    if path.endswith('/package'):
+        return ['.', '..', 'subpackage', '__init__.py']
+    elif path.endswith('/subpackage'):
+        return ['.', '..', '__init__.py']
     return ['.', '..', 'test_module.py', 'module.py']
 
 
 def mock_isdir(path):
-    if path == '/a/dir/path':
+    print "is dir '%s'?" % path
+    if path in ('/a/dir/path', '/package', '/package/subpackage'):
         return True
     return False
 
@@ -69,16 +82,20 @@ def mock_isfile(path):
 
 def mock_import(modname, gl=None, lc=None, fr=None):
     if gl is None:
-        gl = globals()
+        gl = M
     if lc is None:
         lc = locals()
     try:
-        return sys.modules[modname]
+        mod = sys.modules[modname]
     except KeyError:
         pass
     try:
-        mod = gl[modname]
-        sys.modules[modname] = mod
+        pname = []
+        for part in modname.split('.'):
+            pname.append(part)
+            mname = '.'.join(pname)
+            mod = gl[mname]
+            sys.modules[mname] = mod
         return mod
     except KeyError:
         raise ImportError("No '%s' in fake module list" % modname)
@@ -108,11 +125,12 @@ class TestTestLoader(unittest.TestCase):
         l.loadTestsFromModule
         l.loadTestsFromName
         l.loadTestsFromNames
-        
-    def test_load_from_names_is_lazy(self):
-        l = TestLoader()
-        l.loadTestsFromName = lambda self, name, module: self.fail('not lazy')
-        l.loadTestsFromNames(['a', 'b', 'c'])
+
+# No longer valid
+#     def test_load_from_names_is_lazy(self):
+#         l = TestLoader()
+#         l.loadTestsFromName = lambda self, name, module: self.fail('not lazy')
+#         l.loadTestsFromNames(['a', 'b', 'c'])
 
     def test_loader_has_context(self):
         l = TestLoader()
@@ -147,11 +165,57 @@ class TestTestLoader(unittest.TestCase):
 
     def test_load_from_name_method(self):        
         l = TestLoader()
-        suite = l.loadTestsFromName(':TC.test')
+        suite = l.loadTestsFromName(':TC.runTest')
         tests = [t for t in suite]
         assert tests
 
+    def test_load_from_name_module_class(self):
+        l = TestLoader()
+        suite = l.loadTestsFromName('test_module:TC')
+        tests = [t for t in suite]
+        assert tests
+        assert len(tests) == 1, \
+               "Should have loaded 1 test, but got %s" % tests
+
+    def test_load_from_name_module_func(self):
+        l = TestLoader()
+        suite = l.loadTestsFromName('test_module:test_func')
+        tests = [t for t in suite]
+        assert tests
+        assert len(tests) == 1, \
+               "Should have loaded 1 test, but got %s" % tests
+
+    def test_load_from_name_module_method(self):
+        l = TestLoader()
+        suite = l.loadTestsFromName('test_module:TC.runTest')
+        tests = [t for t in suite]
+        assert tests
+        assert len(tests) == 1, \
+               "Should have loaded 1 test, but got %s" % tests
+
+    def test_load_from_name_module_missing_class(self):
+        l = TestLoader()
+        suite = l.loadTestsFromName('test_module:TC2')
+        tests = [t for t in suite]
+        assert len(tests) == 0, \
+               "Should have loaded 0 tests, but got %s" % tests
+
+    def test_load_from_name_module_missing_func(self):
+        l = TestLoader()
+        suite = l.loadTestsFromName('test_module:test_func2')
+        tests = [t for t in suite]
+        assert len(tests) == 0, \
+               "Should have loaded 0 tests, but got %s" % tests
+
+    def test_load_from_name_module_missing_method(self):
+        l = TestLoader()
+        suite = l.loadTestsFromName('test_module:TC.testThat')
+        tests = [t for t in suite]
+        assert len(tests) == 0, \
+               "Should have loaded 0 tests, but got %s" % tests
+
     def test_cases_from_testcase_have_context(self):
+        test_module = M['test_module']
         l = TestLoader()
         suite = l.loadTestsFromTestCase(test_module.TC)
         print suite
@@ -164,6 +228,22 @@ class TestTestLoader(unittest.TestCase):
         suite = l.loadTestsFromName('test_module')
         tests = [t for t in suite]
         self.assertEqual(len(tests), 2, "Wanted 2 tests, got %s" % tests)
+
+    def test_load_from_name_package_root_path(self):
+        l = TestLoader()
+        suite = l.loadTestsFromName('/package')
+        print suite
+        tests = [t for t in suite]
+        assert len(tests) == 1, "Expected one test, got %s" % tests
+        tests = list(tests[0])
+        assert not tests, "The full test list %s was not empty" % tests
+
+    def test_load_from_name_subpackage_path(self):
+        l = TestLoader()
+        suite = l.loadTestsFromName('/package/subpackage')
+        print suite
+        tests = [t for t in suite]
+        assert len(tests) == 0, "Expected no tests, got %s" % tests
         
 if __name__ == '__main__':
     unittest.main()

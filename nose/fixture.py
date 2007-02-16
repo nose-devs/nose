@@ -46,6 +46,7 @@ class Context(object):
         try:
             return sys.modules[name]
         except KeyError:
+            print "--> Context import %s" % name
             mod = __import__(name)
             components = name.split('.')
             for comp in components[1:]:

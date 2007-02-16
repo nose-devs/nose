@@ -147,22 +147,33 @@ def getpackage(filename):
     'baf'
     >>> getpackage('nose/util.py')
     'nose.util'
+
+    Works for directories too.
+
+    >>> getpackage('nose')
+    'nose'
+    >>> getpackage('nose/plugins')
+    'nose.plugins'
+
+    Absolute paths also work.
+
+    >>> path = os.path.abspath(os.path.join('nose', 'plugins'))
+    >>> getpackage(path)
+    'nose.plugins'
     """
     src_file = src(filename)
-    if not src_file.endswith('.py'):
+    if not src_file.endswith('.py') and not ispackage(src_file):
         return None
     base, ext = os.path.splitext(os.path.basename(src_file))
-    parts = filter(lambda p: p != '', os.path.split(src_file))
-    mod_parts = []
-    mod_path = []
-    for part in parts[:-1]:
-        if (os.path.isdir(part)
-            and ispackage(os.path.join(*(mod_path+[part])))):
-            mod_path.append(part)
+    mod_parts = [base]
+    path, part = os.path.split(os.path.split(src_file)[0])
+    while part:
+        if ispackage(os.path.join(path, part)):
             mod_parts.append(part)
         else:
             break
-    mod_parts.append(base)
+        path, part = os.path.split(path)
+    mod_parts.reverse()
     return '.'.join(mod_parts)
 
     
