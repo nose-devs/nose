@@ -166,9 +166,10 @@ class TextTestResult(Result, _TextTestResult):
             
     def addFailure(self, test, err):
         Result.addFailure(self, test, err)
-        self.failures.append((test,
-                              self._exc_info_to_string(err, test) + self.tbinfo,
-                              self.capt))
+        self.failures.append(
+            (test,
+             self._exc_info_to_string(err, test) + self.tbinfo,
+             self.capt))
         self.writeRes('FAIL','F')
         
     def addSkip(self, test):

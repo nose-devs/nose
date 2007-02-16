@@ -13,6 +13,9 @@ from nose.suite import TestSuite
 
 log = logging.getLogger(__name__)
 
+# FIXME move these to Test in cases, make that the only way
+# any of the capture, etc, works
+
 class ResultProxy(Result):
     """Result proxy. Performs nose-specific result operations, such as
     handling output capture, inspecting assertions and calling plugins,

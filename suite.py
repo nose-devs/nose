@@ -22,6 +22,11 @@ class LazySuite(unittest.TestSuite):
                       "Access the tests in this suite. Access is through a "
                       "generator, so iteration may not be repeatable.")
 
+#
+# FIXME these may need to hang on to and pass around a full environment
+# (config, etc) not just the context, to get capture settings etc in
+# each test
+#
 
 class ContextSuiteFactory(object):
     def __init__(self, context):
