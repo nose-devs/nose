@@ -7,6 +7,7 @@ from loader import TestLoader
 # FIXME replace with nose importer eventually
 import loader # so we can set its __import__
 from nose import fixture  # so we can set its __import__
+import nose.case
 
 #
 # Setting up the fake modules that we'll use for testing
@@ -155,7 +156,7 @@ class TestTestLoader(unittest.TestCase):
         l = TestLoader()
         suite = l.loadTestsFromName('test_module')
         tests = [t for t in suite]
-        assert tests
+        assert tests            
 
     def test_load_from_name_nontest_module(self):        
         l = TestLoader()
@@ -163,11 +164,15 @@ class TestTestLoader(unittest.TestCase):
         tests = [t for t in suite]
         assert tests
 
-    def test_load_from_name_method(self):        
+    def test_load_from_name_method(self):
+        res = unittest.TestResult()
         l = TestLoader()
         suite = l.loadTestsFromName(':TC.runTest')
         tests = [t for t in suite]
         assert tests
+        for test in tests:
+            test(res)
+        assert not res.errors, "Got errors %s running tests" % res.errors
 
     def test_load_from_name_module_class(self):
         l = TestLoader()
@@ -176,6 +181,7 @@ class TestTestLoader(unittest.TestCase):
         assert tests
         assert len(tests) == 1, \
                "Should have loaded 1 test, but got %s" % tests
+        assert filter(lambda t: t.context, tests)
 
     def test_load_from_name_module_func(self):
         l = TestLoader()
@@ -184,6 +190,8 @@ class TestTestLoader(unittest.TestCase):
         assert tests
         assert len(tests) == 1, \
                "Should have loaded 1 test, but got %s" % tests
+        assert isinstance(tests[0].test, nose.case.FunctionTestCase), \
+               "Expected FunctionTestCase not %s" % tests[0].test
 
     def test_load_from_name_module_method(self):
         l = TestLoader()
@@ -194,25 +202,44 @@ class TestTestLoader(unittest.TestCase):
                "Should have loaded 1 test, but got %s" % tests
 
     def test_load_from_name_module_missing_class(self):
+        res = unittest.TestResult()
         l = TestLoader()
         suite = l.loadTestsFromName('test_module:TC2')
         tests = [t for t in suite]
-        assert len(tests) == 0, \
-               "Should have loaded 0 tests, but got %s" % tests
+        assert len(tests) == 1, \
+               "Should have loaded 1 test, but got %s" % tests
+        tests[0](res)
+        assert res.errors, "Expected missing class test to raise exception"
 
     def test_load_from_name_module_missing_func(self):
+        res = unittest.TestResult()
         l = TestLoader()
         suite = l.loadTestsFromName('test_module:test_func2')
         tests = [t for t in suite]
-        assert len(tests) == 0, \
-               "Should have loaded 0 tests, but got %s" % tests
+        assert len(tests) == 1, \
+               "Should have loaded 0 test, but got %s" % tests
+        tests[0](res)
+        assert res.errors, "Expected missing func test to raise exception"
 
     def test_load_from_name_module_missing_method(self):
+        res = unittest.TestResult()
         l = TestLoader()
         suite = l.loadTestsFromName('test_module:TC.testThat')
         tests = [t for t in suite]
-        assert len(tests) == 0, \
-               "Should have loaded 0 tests, but got %s" % tests
+        assert len(tests) == 1, \
+               "Should have loaded 1 test, but got %s" % tests
+        tests[0](res)
+        assert res.errors, "Expected missing method test to raise exception"
+
+    def test_load_from_name_missing_module(self):
+        res = unittest.TestResult()
+        l = TestLoader()
+        suite = l.loadTestsFromName('other_test_module')
+        tests = [t for t in suite]
+        assert len(tests) == 1, \
+               "Should have loaded 1 test, but got %s" % tests
+        tests[0](res)
+        assert res.errors, "Expected missing module test to raise exception"
 
     def test_cases_from_testcase_have_context(self):
         test_module = M['test_module']
@@ -228,6 +255,21 @@ class TestTestLoader(unittest.TestCase):
         suite = l.loadTestsFromName('test_module')
         tests = [t for t in suite]
         self.assertEqual(len(tests), 2, "Wanted 2 tests, got %s" % tests)
+        assert filter(lambda t: t.context, tests)
+        class_tests = [t for t in tests[0]]
+        func_tests = [t for t in tests[1]]
+        assert len(class_tests) == 1, \
+               "Expected 1 class test got %s" % class_tests
+        assert len(func_tests) == 1, \
+               "Expected 1 func test got %s" % func_tests
+        for test in class_tests:
+            assert test.context
+            assert isinstance(test.test, unittest.TestCase), \
+                   "Expected TestCase npt %s" % tests[0].test
+        for test in func_tests:
+            assert test.context
+            assert isinstance(test.test, nose.case.FunctionTestCase), \
+                   "Expected FunctionTestCase not %s" % tests[1].test
 
     def test_load_from_name_package_root_path(self):
         l = TestLoader()

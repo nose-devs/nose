@@ -1,7 +1,8 @@
 import os
+import sys
 import unittest
 from inspect import isclass, isfunction, ismethod
-from nose.case import FunctionTestCase
+from nose.case import Failure, FunctionTestCase
 from nose.fixture import Context
 from nose.selector import TestAddress
 from nose.util import cmp_lineno, getpackage, isgenerator, ispackage
@@ -18,6 +19,24 @@ class TestLoader(unittest.TestLoader):
         self.context = context
         self.suiteClass = ContextSuiteFactory(context)
         unittest.TestLoader.__init__(self)        
+
+    def loadTests(self, obj, parent=None):
+        suite = self.suiteClass
+        if isinstance(obj, unittest.TestCase):
+            return suite([obj])
+        elif isclass(obj):
+            return self.loadTestsFromTestCase(obj)
+        elif ismethod(obj):
+            # FIXME Generators
+            return suite([parent(obj.__name__)])
+        elif isfunction(obj):
+            # FIXME Generators
+            return suite([FunctionTestCase(obj)])
+        else:
+            # FIXME give plugins a chance
+            return suite(
+                [Failure(ValueError,
+                         "%s is not a function or method" % obj)])
 
     def loadTestsFromDir(self, path):
         print "load from dir %s" % path
@@ -62,7 +81,7 @@ class TestLoader(unittest.TestLoader):
         print "Load from module %s" % module.__name__
         tests = []
         test_classes = []
-        func_tests = []
+        test_funcs = []
         for item in dir(module):
             test = getattr(module, item, None)
             print "Check %s (%s) in %s" % (item, test, module.__name__)
@@ -73,68 +92,51 @@ class TestLoader(unittest.TestLoader):
                     test_classes.append(test)
             elif isfunction(test):
                 # FIXME use selector
-                func_tests.append(test)
-        func_tests.sort(cmp_lineno)
-        if func_tests:
-            # FIXME check for generators
-            tests.append(self.suiteClass(map(FunctionTestCase, func_tests)))
-        if test_classes:
-            # FIXME this won't pick up non unittest classes correctly
-            # FIXME this won't pick up generators correctly
-            tests.append(self.suiteClass(map(self.loadTestsFromTestCase,
-                                             test_classes)))
+                test_funcs.append(test)
+        test_classes.sort(lambda a, b: cmp(a.__name__, b.__name__))
+        test_funcs.sort(cmp_lineno)
+        tests = map(self.loadTests, test_classes + test_funcs)
+
         # Now, descend into packages
-        # FIXME except this causes infinite recursion...
         paths = getattr(module, '__path__', [])
         for path in paths:
-            # FIXME this isn't right... loading from packages is different
-            # isn't it? or does loadTestsFromName squish the differences?
             tests.extend(self.loadTestsFromDir(path))
         # FIXME give plugins a chance
         return self.suiteClass(tests)
-                                               
+    
     def loadTestsFromName(self, name, module=None):
+        # FIXME refactor this method into little bites
         # FIXME would pass working dir too
         addr = TestAddress(name)
         print "load from %s (%s) (%s)" % (name, addr, module)
         print addr.filename, addr.module, addr.call
         
         if module:
-            # the name has been split, so if we got a full callable name
-            # only, the split will be wrong, and we want the full name. If
-            # we got a bucket:callable name, we only want the part after
-            # the :
+            # Two cases:
+            #  name is class.foo
+            #    The addr will be incorrect, since it thinks class.foo is
+            #    a dotted module name. It's actually a dotted attribute
+            #    name. In this case we want to use the full submitted
+            #    name as the name to load from the module.
+            #  name is module:class.foo
+            #    The addr will be correct. The part we want is the part after
+            #    the :, which is in addr.call.
             if addr.call:
                 name = addr.call
-            obj = module
-            parts = name.split('.')
-            for part in parts:
-                parent, obj = obj, getattr(obj, part, None)
-            if obj is None:
-                # no such test
-                raise ValueError("No such test %s" % name)
-            else:
-                # load tests from the object, whether it's a class,
-                # method or function
-                # FIXME generator support -- this is going to recapitulate
-                # a lot in load tests from module, it should be abstracted
-                if isclass(obj):
-                    return self.loadTestsFromTestCase(obj)
-                elif ismethod(obj):
-                    test = parent(obj.__name__)
-                elif isfunction(obj):
-                    test = obj
-                else:
-                    # give plugins a chance
-                    raise ValueError("%s is not a function or method",
-                                     obj)
-                return self.suiteClass([obj])
+            parent, obj = self.resolve(name, module)
+            return self.loadTests(obj, parent)
         else:
             if addr.module:
                 # FIXME use nose importer; obviously this won't
                 # work for dotted names as written; plus it needs to do the
                 # import only from the parent dir, and handle sys.modules
-                module = __import__(addr.module)
+                try:
+                    module = __import__(addr.module)
+                except KeyboardInterrupt, SystemExit:
+                    raise
+                except:
+                    exc = sys.exc_info()
+                    return self.loadTests(Failure(*exc))
                 if addr.call:
                     return self.loadTestsFromName(addr.call, module)
                 else:
@@ -159,9 +161,20 @@ class TestLoader(unittest.TestLoader):
             else:
                 # just a function? what to do? I think it can only be
                 # handled when module is not None
-                raise Exception("Bare function test name!")
+                return self.loadTests(
+                    Failure(ValueError, "Unresolvable test name %s" % name))
         # FIXME give plugins a chance?
-                
+
+    def resolve(self, name, module):
+        obj = module
+        parts = name.split('.')
+        for part in parts:
+            parent, obj = obj, getattr(obj, part, None)
+        if obj is None:
+            # no such test
+            obj = Failure(ValueError, "No such test %s" % name)
+        return parent, obj
+
 #     def loadTestsFromNames(self, names, module=None):
 #         def load():
 #             # FIXME this can break the fixture context

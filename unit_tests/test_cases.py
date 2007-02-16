@@ -49,6 +49,12 @@ class TestNoseCases(unittest.TestCase):
         assert 'st' in called
         assert 'func' in called
         assert 'td' in called
+
+    def test_failure_case(self):
+        res = unittest.TestResult()
+        f = nose.case.Failure(ValueError, "a is not b")
+        f(res)
+        assert res.errors
         
 if __name__ == '__main__':
     unittest.main()

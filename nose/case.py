@@ -9,6 +9,20 @@ from nose.util import try_run
 log = logging.getLogger(__name__)
 
 
+class Failure(unittest.TestCase):
+    def __init__(self, exc_class, exc_val, tb=None):
+        self.exc_class = exc_class
+        self.exc_val = exc_val
+        self.tb = tb
+        unittest.TestCase.__init__(self)
+
+    def runTest(self):
+        if self.tb:
+            raise self.exc_class, self.exc_val, self.tb
+        else:
+            raise self.exc_class(self.exc_val)
+
+
 class Test(unittest.TestCase):
     """The universal contextualized test case wrapper.
     """
