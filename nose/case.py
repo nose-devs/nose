@@ -26,6 +26,8 @@ class Failure(unittest.TestCase):
 class Test(unittest.TestCase):
     """The universal contextualized test case wrapper.
     """
+    # FIXME implement startTest and stopTest so those can be passed
+    # to plugins and output capture can be started and stopped
     def __init__(self, context, test):
         print "Test %s %s" % (context, test)
         self.context = context
@@ -41,6 +43,8 @@ class Test(unittest.TestCase):
         self.context.setup(self.test)
 
     def run(self, result):
+        # FIXME wrap result in my configured result proxy
+        # to capture stdout, etc
         self.result = result
         unittest.TestCase.run(self, result)
         

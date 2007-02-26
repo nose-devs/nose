@@ -23,6 +23,8 @@ M['package.subpackage'] = imp.new_module('package.subpackage')
 M['package'].subpackage = M['package.subpackage']
 M['package.subpackage'].__path__ = ['/package/subpackage']
 M['package.subpackage'].__file__ = '/package/subpackage/__init__.py'
+M['test_module_with_generators'] = imp.new_module('test_module_with_generators')
+
 
 # a unittest testcase subclass
 class TC(unittest.TestCase):
@@ -37,17 +39,46 @@ class TC2(unittest.TestCase):
 def test_func():
     pass
 
-# FIXME non-testcase-subclass test class
+# non-testcase-subclass test class
+class TestClass:
+    def test_func(self):
+        pass
+    def test_generator_inline(self):
+        def test_odd(v):
+            assert v % 2
+        for i in range(0, 4):
+            yield test_odd, i
+    def test_generator_method(self):
+        for i in range(0, 4):
+            yield self.try_odd, i
+    def test_generator_method_name(self):
+        for i in range(0, 4):
+            yield 'try_odd', i
+    def try_odd(self, v):
+        assert v % 2
 
+# test function that is generator
+def test_func_generator():
+    def test_odd():
+        assert v % 2
+    for i in range(0, 4):
+        yield test_odd, i
+        
 M['test_module'].TC = TC
 TC.__module__ = 'test_module'
 M['test_module'].test_func = test_func
 test_func.__module__ = 'test_module'
 M['module'].TC2 = TC2
 TC2.__module__ = 'module'
+M['test_module_with_generators'].TestClass = TestClass
+TestClass.__module__ = 'test_module_with_generators'
+M['test_module_with_generators'].test_func_generator = test_func_generator
+test_func_generator.__module__ = 'test_module_with_generators'
 del TC
 del TC2
 del test_func
+del TestClass
+del test_func_generator
 
 # Mock the filesystem access so we don't have to maintain
 # a support dir with real files
@@ -286,6 +317,13 @@ class TestTestLoader(unittest.TestCase):
         print suite
         tests = [t for t in suite]
         assert len(tests) == 0, "Expected no tests, got %s" % tests
+
+    def test_load_generators(self):
+        test_module_with_generators = M['test_module_with_generators']
+        l = TestLoader()
+        suite = l.loadTestsFromModule(test_module_with_generators)
+        tests = [t for t in suite]
+        print tests
         
 if __name__ == '__main__':
     unittest.main()

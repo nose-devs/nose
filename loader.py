@@ -70,7 +70,7 @@ class TestLoader(unittest.TestLoader):
             if isclass(test):
                 # FIXME use a selector
                 if (issubclass(test, unittest.TestCase)
-                    or test.lower().startswith('test')):
+                    or test.__name__.lower().startswith('test')):
                     test_classes.append(test)
             elif isfunction(test):
                 # FIXME use selector
@@ -152,9 +152,13 @@ class TestLoader(unittest.TestLoader):
         if isinstance(obj, unittest.TestCase):
             return suite([obj])
         elif isclass(obj):
+            # FIXME load non-unittest.TestCase classes differently
             return self.loadTestsFromTestCase(obj)
         elif ismethod(obj):
             # FIXME Generators
+            # FIXME this won't work for non unittest.TestCase subclasses
+            # this should return a MethodTestCase instead if parent
+            # is not a unittest.TestCase subclass
             return suite([parent(obj.__name__)])
         elif isfunction(obj):
             # FIXME Generators
