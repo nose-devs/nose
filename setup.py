@@ -45,14 +45,6 @@ setup(
         'console_scripts': [
             'nosetests = nose:run_exit'
             ],
-        'nose.plugins': [
-            'coverage = nose.plugins.cover:Coverage',
-            'doctest = nose.plugins.doctests:Doctest',
-            'profile = nose.plugins.prof:Profile',
-            'attrib = nose.plugins.attrib:AttributeSelector',
-            'missed = nose.plugins.missed:MissedTests',
-            'isolation = nose.plugins.isolate:IsolationPlugin'
-            ],
         'distutils.commands': [
             ' nosetests = nose.commands:nosetests'
             ],

@@ -119,9 +119,11 @@ from __future__ import generators
 
 import logging
 import pkg_resources
+from inspect import isclass
 from warnings import warn
 from nose.plugins.base import *
 
+builtin_plugins = ('attrib', 'cover', 'doctests', 'isolate', 'missed', 'prof')
 log = logging.getLogger(__name__)
 
 def call_plugins(plugins, method, *arg, **kw):
@@ -141,6 +143,28 @@ def call_plugins(plugins, method, *arg, **kw):
 def load_plugins(builtin=True, others=True):
     """Load plugins, either builtin, others, or both.
     """
+    loaded = []
+    if builtin:
+        for name in builtin_plugins:
+            try:
+                parent = __import__(__name__, globals(), locals(), [name])
+                pmod = getattr(parent, name)
+                for entry in dir(pmod):
+                    obj = getattr(pmod, entry)
+                    if (isclass(obj)
+                        and issubclass(obj, Plugin)
+                        and obj is not Plugin
+                        and not obj in loaded):
+                        log.debug("load builtin plugin %s (%s)" % (name, obj))
+                        yield obj
+                        loaded.append(obj)
+            except KeyboardInterrupt:
+                raise
+            except Exception, e:
+                warn("Unable to load builtin plugin %s: %s" % (name, e),
+                     RuntimeWarning)
+    if not others:
+        return
     for ep in pkg_resources.iter_entry_points('nose.plugins'):
         log.debug("load plugin %s" % ep)
         try:
@@ -154,9 +178,10 @@ def load_plugins(builtin=True, others=True):
             warn("Unable to load plugin %s: %s" % (ep, e), RuntimeWarning)
             continue
         if plug.__module__.startswith('nose.plugins'):
-            if builtin:
-                yield plug
-        elif others:
+            # already loaded as a builtin
+            pass
+        elif plug not in loaded:
             yield plug
+            loaded.append(plug)
 
 

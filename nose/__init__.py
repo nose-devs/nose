@@ -371,7 +371,7 @@ from nose.tools import with_setup # backwards compatibility
 from nose.util import file_like, split_test_name, test_address
 
 __author__ = 'Jason Pellerin'
-__versioninfo__ = (0, 9, 2)
+__versioninfo__ = (0, 9, 3)
 __version__ = '.'.join(map(str, __versioninfo__))
 
 __all__ = [ 

@@ -61,6 +61,9 @@ class TestBuiltinPlugins(unittest.TestCase):
     def test_failing_load(self):
         tmp = nose.plugins.pkg_resources
         nose.plugins.pkg_resources = ErrPkgResources()
+        class Dummy:
+            pass
+        nose.plugins.Plugin = Dummy
         try:
             # turn off warnings
             filterwarnings('ignore', category=RuntimeWarning)
@@ -68,6 +71,7 @@ class TestBuiltinPlugins(unittest.TestCase):
             self.assertEqual(plugs, [])
         finally:
             nose.plugins.pkg_resources = tmp
+            nose.plugins.Plugin = Plugin
             resetwarnings()
             
     def test_add_options(self):

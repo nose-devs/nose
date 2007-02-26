@@ -99,6 +99,9 @@ class Doctest(Plugin):
         try:
             doctests = doctest.DocTestSuite(module)
         except ValueError:
+            # FIXME this doesn't mean "no tests" it means "unable to load
+            # tests" -- it should be returned as a pseudo-suite that
+            # has a single 'test' that re-raises the exception
             log.debug("No doctests in %s", module)
             return
         else:
