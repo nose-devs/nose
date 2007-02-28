@@ -34,7 +34,12 @@ class ContextSuiteFactory(object):
 
     def __call__(self, tests):
         print "Building a context suite for %s" % tests
-        return ContextSuite(lambda: tests, self.context)
+        if callable(tests):
+            suite = tests
+        else:
+            suite = lambda: tests
+        print "Suite is %s" % suite
+        return ContextSuite(suite, self.context)
 
 
 class ContextSuite(LazySuite):

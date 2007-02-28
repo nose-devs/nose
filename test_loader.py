@@ -41,28 +41,61 @@ def test_func():
 
 # non-testcase-subclass test class
 class TestClass:
+    setup = None
+    teardown = None
+
+    def setup_class(cls):
+        cls.setup = 1
+        cls.teardown = 0
+    setup_class = classmethod(setup_class)
+
+    def teardown_class(cls):
+        cls.teardown = 1
+    teardown_class = classmethod(teardown_class)
+    
     def test_func(self):
         pass
+    
     def test_generator_inline(self):
+        """docstring for test generator inline
+        """
         def test_odd(v):
             assert v % 2
         for i in range(0, 4):
             yield test_odd, i
+            
     def test_generator_method(self):
+        """docstring for test generator method
+        """
         for i in range(0, 4):
             yield self.try_odd, i
+            
     def test_generator_method_name(self):
+        """docstring for test generator method name
+        """
         for i in range(0, 4):
             yield 'try_odd', i
+            
     def try_odd(self, v):
         assert v % 2
 
 # test function that is generator
 def test_func_generator():
-    def test_odd():
+    """docstring for test func generator
+    """
+    def test_odd(v):
         assert v % 2
     for i in range(0, 4):
         yield test_odd, i
+
+def test_func_generator_name():
+    """docstring for test func generator name
+    """
+    for i in range(0, 4):
+        yield 'try_odd', i
+
+def try_odd(v):
+    assert v % 2
         
 M['test_module'].TC = TC
 TC.__module__ = 'test_module'
@@ -73,7 +106,12 @@ TC2.__module__ = 'module'
 M['test_module_with_generators'].TestClass = TestClass
 TestClass.__module__ = 'test_module_with_generators'
 M['test_module_with_generators'].test_func_generator = test_func_generator
+M['test_module_with_generators'].test_func_generator_name = \
+    test_func_generator_name
+M['test_module_with_generators'].try_odd = try_odd
+test_func_generator_name.__module__ = 'test_module_with_generators'
 test_func_generator.__module__ = 'test_module_with_generators'
+try_odd.__module__ = 'test_module_with_generators'
 del TC
 del TC2
 del test_func
@@ -287,10 +325,11 @@ class TestTestLoader(unittest.TestCase):
         tests = [t for t in suite]
         self.assertEqual(len(tests), 2, "Wanted 2 tests, got %s" % tests)
         assert filter(lambda t: t.context, tests)
-        class_tests = [t for t in tests[0]]
-        func_tests = [t for t in tests[1]]
-        assert len(class_tests) == 1, \
-               "Expected 1 class test got %s" % class_tests
+        print tests
+        class_tests = tests[0]
+        func_tests = tests[1:]
+        assert class_tests, \
+               "Expected class suite got %s" % class_tests
         assert len(func_tests) == 1, \
                "Expected 1 func test got %s" % func_tests
         for test in class_tests:
@@ -323,7 +362,49 @@ class TestTestLoader(unittest.TestCase):
         l = TestLoader()
         suite = l.loadTestsFromModule(test_module_with_generators)
         tests = [t for t in suite]
-        print tests
+
+        for t in tests:
+            assert isinstance(t, unittest.TestSuite), \
+                   "Test %s is not a suite" % t
+
+        # FIXME the first item is a class, skip that for now
+
+        # 2nd item is generated from test_func_generator
+        count = 0
+        for t in tests[1]:
+            print "generated test %s" % t
+            print t.shortDescription()
+            assert isinstance(t, nose.case.Test), \
+                   "Test %s is not a Test?" % t
+            assert isinstance(t.test, nose.case.FunctionTestCase), \
+                   "Test %s is not a FunctionTestCase" % t.test
+            assert 'test_func_generator' in str(t), \
+                   "Bad str val '%s' for test" % str(t)
+            assert 'docstring for test func generator' \
+                   in t.shortDescription(), \
+                   "Bad shortDescription '%s' for test %s" % \
+                   (t.shortDescription(), t)
+            count += 1
+        assert count == 4, \
+               "Expected to generate 4 tests, but got %s" % count
+
+        count = 0
+        for t in tests[2]:
+            print "generated test %s" % t
+            print t.shortDescription()
+            assert isinstance(t, nose.case.Test), \
+                   "Test %s is not a Test?" % t
+            assert isinstance(t.test, nose.case.FunctionTestCase), \
+                   "Test %s is not a FunctionTestCase" % t.test
+            assert 'test_func_generator_name' in str(t), \
+                   "Bad str val '%s' for test" % str(t)
+            assert 'docstring for test func generator name' \
+                   in t.shortDescription(), \
+                   "Bad shortDescription '%s' for test %s" % \
+                   (t.shortDescription(), t)
+            count += 1
+        assert count == 4, \
+               "Expected to generate 4 tests, but got %s" % count
         
 if __name__ == '__main__':
     unittest.main()

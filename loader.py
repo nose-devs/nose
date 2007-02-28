@@ -2,7 +2,7 @@ import os
 import sys
 import unittest
 from inspect import isclass, isfunction, ismethod
-from nose.case import Failure, FunctionTestCase
+from nose.case import Failure, FunctionTestCase, MethodTestCase
 from nose.fixture import Context
 from nose.selector import TestAddress
 from nose.util import cmp_lineno, getpackage, isgenerator, ispackage
@@ -20,6 +20,24 @@ class TestLoader(unittest.TestLoader):
         self.suiteClass = ContextSuiteFactory(context)
         unittest.TestLoader.__init__(self)        
 
+    def loadTestsFromTestClass(self, cls):
+        """Load tests from a test class that is *not* a unittest.TestCase
+        subclass.
+
+        In this case, we can't depend on the class's `__init__` taking method
+        name arguments, so we have to compose a MethodTestCase for each
+        method in the class that looks testlike.        
+        """
+        tests = []
+        for entry in dir(cls):
+            # FIXME use a selector
+            if not entry.startswith('test'):
+                continue
+            item = getattr(cls, entry, None)
+            if ismethod(item):
+                tests.append(self.makeTest(item, cls))
+        return self.suiteClass(tests)
+
     def loadTestsFromDir(self, path):
         print "load from dir %s" % path
 
@@ -28,7 +46,7 @@ class TestLoader(unittest.TestLoader):
             if entry.startswith('.') or entry.startswith('_'):
                 continue
             print "at %s" % entry
-            # FIXME package support here: always descend into packages
+
             entry_path = os.path.abspath(os.path.join(path, entry))
             is_test = entry.startswith('test')
             is_file = os.path.isfile(entry_path)
@@ -59,6 +77,24 @@ class TestLoader(unittest.TestLoader):
         # FIXME give plugins a chance
         pass
 
+    def loadTestsFromGenerator(self, generator, parent):
+        """Lazy-load tests from a generator.
+        """
+        # FIXME this won't work properly for generators
+        # in test classes
+        def generate(g=generator, p=parent):
+            for test in g():
+                try:
+                    test_func, arg = (test[0], test[1:])
+                except ValueError:
+                    test_func, arg = test[0], tuple()
+                if not callable(test_func):
+                    test_func = getattr(p, test_func)
+                def run():
+                    test_func(*arg)
+                yield FunctionTestCase(run, description=(g, arg))
+        return self.suiteClass(generate)
+
     def loadTestsFromModule(self, module):
         print "Load from module %s" % module.__name__
         tests = []
@@ -72,12 +108,13 @@ class TestLoader(unittest.TestLoader):
                 if (issubclass(test, unittest.TestCase)
                     or test.__name__.lower().startswith('test')):
                     test_classes.append(test)
-            elif isfunction(test):
+            elif isfunction(test) and item.lower().startswith('test'):
                 # FIXME use selector
                 test_funcs.append(test)
         test_classes.sort(lambda a, b: cmp(a.__name__, b.__name__))
         test_funcs.sort(cmp_lineno)
-        tests = map(self.makeSuite, test_classes + test_funcs)
+        tests = map(lambda t: self.makeTest(t, parent=module),
+                    test_classes + test_funcs)
 
         # Now, descend into packages
         paths = getattr(module, '__path__', [])
@@ -89,6 +126,7 @@ class TestLoader(unittest.TestLoader):
     def loadTestsFromName(self, name, module=None):
         # FIXME refactor this method into little bites
         # FIXME would pass working dir too
+        suite = self.suiteClass
         addr = TestAddress(name)
         print "load from %s (%s) (%s)" % (name, addr, module)
         print addr.filename, addr.module, addr.call
@@ -106,7 +144,7 @@ class TestLoader(unittest.TestLoader):
             if addr.call:
                 name = addr.call
             parent, obj = self.resolve(name, module)
-            return self.makeSuite(obj, parent)
+            return suite([self.makeTest(obj, parent)])
         else:
             if addr.module:
                 # FIXME use nose importer; obviously this won't
@@ -118,7 +156,7 @@ class TestLoader(unittest.TestLoader):
                     raise
                 except:
                     exc = sys.exc_info()
-                    return self.makeSuite(Failure(*exc))
+                    return suite([Failure(*exc)])
                 if addr.call:
                     return self.loadTestsFromName(addr.call, module)
                 else:
@@ -143,31 +181,38 @@ class TestLoader(unittest.TestLoader):
             else:
                 # just a function? what to do? I think it can only be
                 # handled when module is not None
-                return self.makeSuite(
-                    Failure(ValueError, "Unresolvable test name %s" % name))
+                return suite([
+                    Failure(ValueError, "Unresolvable test name %s" % name)])
         # FIXME give plugins a chance?
 
-    def makeSuite(self, obj, parent=None):
-        suite = self.suiteClass
+    def makeTest(self, obj, parent=None):
+        """Given a test object and its parent, return a unittest.TestCase
+        instance that can be run as a test.
+        """
         if isinstance(obj, unittest.TestCase):
-            return suite([obj])
+            return obj
         elif isclass(obj):
-            # FIXME load non-unittest.TestCase classes differently
-            return self.loadTestsFromTestCase(obj)
+            if issubclass(obj, unittest.TestCase):
+                return self.loadTestsFromTestCase(obj)
+            else:
+                return self.loadTestsFromTestClass(obj)
         elif ismethod(obj):
-            # FIXME Generators
-            # FIXME this won't work for non unittest.TestCase subclasses
-            # this should return a MethodTestCase instead if parent
-            # is not a unittest.TestCase subclass
-            return suite([parent(obj.__name__)])
+            if parent is None:
+                parent = obj.__class__
+            if issubclass(parent, unittest.TestCase):
+                return parent(obj.__name__)
+            else:
+                # FIXME Generators
+                return MethodTestCase(parent, obj)
         elif isfunction(obj):
-            # FIXME Generators
-            return suite([FunctionTestCase(obj)])
+            if isgenerator(obj):
+                return self.loadTestsFromGenerator(obj, parent)
+            else:
+                return FunctionTestCase(obj)
         else:
             # FIXME give plugins a chance
-            return suite(
-                [Failure(ValueError,
-                         "%s is not a function or method" % obj)])
+            return Failure(TypeError,
+                           "Can't make a test from %s" % obj)
 
     def resolve(self, name, module):
         obj = module
@@ -178,15 +223,3 @@ class TestLoader(unittest.TestLoader):
             # no such test
             obj = Failure(ValueError, "No such test %s" % name)
         return parent, obj
-
-#     def loadTestsFromNames(self, names, module=None):
-#         def load():
-#             # FIXME this can break the fixture context
-#             # say we get 2 names : foo:bar and foo:baz
-#             # foo:bar will execute before foo:baz is loaded
-#             # so foo:baz will not be run in the correct context
-#             # this suggests that discovery has to proceed through
-#             # *all* names before tests can start running
-#             for test in self.loadTestsFromName(name, module):
-#                 yield test
-#         return LazySuite(load)

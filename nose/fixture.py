@@ -1,6 +1,8 @@
 import sys
 from nose.case import Test
 
+# FIXME support class-level fixtures here too (setup_class, teardown_class)
+# possibly change terminology from module to more generic 'parent'?
 class Context(object):
 
     def __init__(self):
@@ -39,7 +41,7 @@ class Context(object):
             self.tests[mod].remove(test)
             if (not self.tests[mod] 
                 and self.setup_ok.get(mod) 
-                and hasattr(mod, 'teardown')):
+                and hasattr(mod, 'teardown')): # FIXME other func names
                 mod.teardown(mod)
 
     def _find_module(self, name):
