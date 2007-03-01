@@ -365,7 +365,16 @@ class TestTestLoader(unittest.TestCase):
         for gen in gens:
             assert isinstance(gen, unittest.TestSuite), \
                    "Expected a generator test suite, but got %s" % gen
-
+            count = 0
+            for t in gen:
+                print "generated test %s" % t
+                print t.shortDescription()
+                assert isinstance(t, nose.case.Test), \
+                       "Test %s is not a test?" % t
+                count += 1
+            self.assertEqual(count, 4, "Expected to generate 4 tests, but "
+                             "got %s from %s" % (count, gen))
+            
         # 2nd item is generated from test_func_generator
         count = 0
         for t in tests[1]:

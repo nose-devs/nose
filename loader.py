@@ -77,23 +77,62 @@ class TestLoader(unittest.TestLoader):
         # FIXME give plugins a chance
         pass
 
-    def loadTestsFromGenerator(self, generator, parent):
-        """Lazy-load tests from a generator.
+    def loadTestsFromGenerator(self, generator, module):
+        """Lazy-load tests from a generator function. The generator function
+        may yield either:
+
+        * a callable, or
+        * a function name resolvable within the same module
         """
-        # FIXME this won't work properly for generators
-        # in test classes
-        def generate(g=generator, p=parent):
+        def generate(g=generator, m=module):
             for test in g():
                 try:
                     test_func, arg = (test[0], test[1:])
                 except ValueError:
                     test_func, arg = test[0], tuple()
                 if not callable(test_func):
-                    test_func = getattr(p, test_func)
-                def run():
-                    test_func(*arg)
-                yield FunctionTestCase(run, description=(g, arg))
+                    test_func = getattr(m, test_func)
+                yield FunctionTestCase(test_func, arg=arg, descriptor=g)
         return self.suiteClass(generate)
+
+    def loadTestsFromGeneratorMethod(self, generator, cls):
+        """Lazy-load tests from a generator method.
+
+        This is more complicated than loading from a generator function,
+        since a generator method may yield:
+
+        * a function
+        * an unbound method, or
+        * a method name
+        """
+        # convert the unbound generator method
+        # into a bound method so it can be called below
+        cls = generator.im_class
+        inst = cls()
+        method = generator.__name__
+        generator = getattr(inst, method)
+
+        def generate(g=generator, c=cls):
+            for test in g():
+                try:
+                    test_func, arg = (test[0], test[1:])
+                except ValueError:
+                    test_func, arg = test[0], tuple()
+                if not callable(test_func):
+                    test_func = getattr(c, test_func)
+                if ismethod(test_func):
+                    yield MethodTestCase(test_func, arg=arg, descriptor=g)
+                elif isfunction(test_func):
+                    # In this case we're forcing the 'MethodTestCase'
+                    # to run the inline function as its test call,
+                    # but using the generator method as the 'method of
+                    # record' (so no need to pass it as the descriptor)
+                    yield MethodTestCase(g, func=test_func, arg=arg)
+                else:
+                    yield Failure(TypeError,
+                                  "%s is not a function or method" % test_func)
+        return self.suiteClass(generate)
+
 
     def loadTestsFromModule(self, module):
         print "Load from module %s" % module.__name__
@@ -202,8 +241,10 @@ class TestLoader(unittest.TestLoader):
             if issubclass(parent, unittest.TestCase):
                 return parent(obj.__name__)
             else:
-                # FIXME Generators
-                return MethodTestCase(obj)
+                if isgenerator(obj):
+                    return self.loadTestsFromGeneratorMethod(obj, parent)
+                else:
+                    return MethodTestCase(obj)
         elif isfunction(obj):
             if isgenerator(obj):
                 return self.loadTestsFromGenerator(obj, parent)
