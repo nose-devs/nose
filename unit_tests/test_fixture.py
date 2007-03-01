@@ -107,7 +107,17 @@ class TestFixtureContext(unittest.TestCase):
         assert case.state == ['setUp']
         
     def test_module_setup(self):
-        
+        """Test that module fixtures execute at proper times.
+
+        This includes packages and subpackages; the fixtures for pack.sub
+        should execute according to the package hierarchy::
+
+          pack.setup()
+            pack.sub.setup()
+              pack.sub tests
+            pack.sub.teardown()
+          pack.teardown()        
+        """
         def setup(m):
             m.state += ['setUp']
         def teardown(m):
@@ -235,7 +245,57 @@ class TestFixtureContext(unittest.TestCase):
         self.assertEqual(mod_fail.state, ['setUp', 'failTest', 'tearDown'])
         self.assertEqual(mod.state, ['setUp', 'tearDown'])        
         self.assertEqual(submod.state, ['setUp', 'tearDown'])
+
+
+    def test_class_setup(self):
+        """Test that per-class and per-instance fixtures execute correctly.
+
+        Fixtures are supported at the class and instance level for test
+        classes. They should execute in the following order::
+
+          Class.setup_class()
+            instance.setup()
+              instance test
+            instance.teardown()
+            ...
+          Class.teardown_class()
+        """
+        from nose.case import MethodTestCase
         
-        
+        inst_setup = []
+        inst_teardown = []
+        class TestClass:
+            setup = None
+            teardown = None
+
+            def setup(self):
+                inst_setup.append(self)
+
+            def teardown(self):
+                inst_teardown.append(self)
+
+            def setup_class(cls):
+                cls.setup = 1
+                cls.teardown = 0
+            setup_class = classmethod(setup_class)
+
+            def teardown_class(cls):
+                cls.teardown = 1
+            teardown_class = classmethod(teardown_class)
+
+            def test_method(self):
+                pass
+
+        context = Context()
+        case = MethodTestCase(TestClass.test_method)
+        in_context = context(case)
+        result = unittest.TestResult()
+        in_context(result)
+
+        assert TestClass.setup == 1, "Class setup_class was not called"
+        assert TestClass.teardown == 1, "Class teardown_class was not called"
+        assert inst_setup, "Instance setup was not called"
+        assert inst_teardown, "Instance teardown was not called"
+
 if __name__ == '__main__':
     unittest.main()

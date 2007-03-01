@@ -41,17 +41,6 @@ def test_func():
 
 # non-testcase-subclass test class
 class TestClass:
-    setup = None
-    teardown = None
-
-    def setup_class(cls):
-        cls.setup = 1
-        cls.teardown = 0
-    setup_class = classmethod(setup_class)
-
-    def teardown_class(cls):
-        cls.teardown = 1
-    teardown_class = classmethod(teardown_class)
     
     def test_func(self):
         pass
@@ -367,7 +356,15 @@ class TestTestLoader(unittest.TestCase):
             assert isinstance(t, unittest.TestSuite), \
                    "Test %s is not a suite" % t
 
-        # FIXME the first item is a class, skip that for now
+        # the first item is a class, with both normal and generator methods
+        count = 0
+        cl_tests = [t for t in tests[0]]
+        normal, gens = cl_tests[0], cl_tests[1:]
+        assert isinstance(normal, nose.case.Test), \
+               "Expected a test case but got %s" % normal
+        for gen in gens:
+            assert isinstance(gen, unittest.TestSuite), \
+                   "Expected a generator test suite, but got %s" % gen
 
         # 2nd item is generated from test_func_generator
         count = 0

@@ -203,7 +203,7 @@ class TestLoader(unittest.TestLoader):
                 return parent(obj.__name__)
             else:
                 # FIXME Generators
-                return MethodTestCase(parent, obj)
+                return MethodTestCase(obj)
         elif isfunction(obj):
             if isgenerator(obj):
                 return self.loadTestsFromGenerator(obj, parent)

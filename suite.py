@@ -34,7 +34,7 @@ class ContextSuiteFactory(object):
 
     def __call__(self, tests):
         print "Building a context suite for %s" % tests
-        if callable(tests):
+        if callable(tests) and not isinstance(tests, unittest.TestCase):
             suite = tests
         else:
             suite = lambda: tests

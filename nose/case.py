@@ -175,12 +175,16 @@ class FunctionTestCase(unittest.TestCase):
 
 
 # FIXME this is just a minimal working version
+# need to add fixture support
 class MethodTestCase(unittest.TestCase):
 
-    def __init__(self, cls, method):
-        self.cls = cls
+    def __init__(self, method):
+        self.cls = method.__class__
         self.method = method
-        self._TestCase__testMethodName = method.__name__
+        unittest.TestCase.__init__(self)
+
+    def runTest(self):
+        self.method()
 
         
 
