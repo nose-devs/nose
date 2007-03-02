@@ -127,7 +127,7 @@ class TestLoader(unittest.TestLoader):
                     # to run the inline function as its test call,
                     # but using the generator method as the 'method of
                     # record' (so no need to pass it as the descriptor)
-                    yield MethodTestCase(g, func=test_func, arg=arg)
+                    yield MethodTestCase(g, test=test_func, arg=arg)
                 else:
                     yield Failure(TypeError,
                                   "%s is not a function or method" % test_func)
@@ -264,3 +264,5 @@ class TestLoader(unittest.TestLoader):
             # no such test
             obj = Failure(ValueError, "No such test %s" % name)
         return parent, obj
+
+defaultTestLoader = TestLoader

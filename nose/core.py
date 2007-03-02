@@ -12,7 +12,6 @@ from nose.plugins import load_plugins, call_plugins
 from nose.result import start_capture, end_capture, TextTestResult
 from nose.config import Config
 from nose.loader import defaultTestLoader
-from nose.proxy import ResultProxySuite
 from nose.result import Result
 from nose.suite import LazySuite
 from nose.util import absdir, tolist

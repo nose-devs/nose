@@ -1,4 +1,4 @@
-from suite import LazySuite, ContextSuite, ContextSuiteFactory
+from nose.suite import LazySuite, ContextSuite, ContextSuiteFactory
 from nose.fixture import Context
 import unittest
 

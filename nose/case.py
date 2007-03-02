@@ -8,9 +8,10 @@ from nose.util import try_run
 
 log = logging.getLogger(__name__)
 
-
+# FIXME probably not the best name, since it is mainly used for errors
 class Failure(unittest.TestCase):
     def __init__(self, exc_class, exc_val, tb=None):
+        print "A failure! %s %s" % (exc_class, exc_val)
         self.exc_class = exc_class
         self.exc_val = exc_val
         self.tb = tb
@@ -53,11 +54,16 @@ class Test(unittest.TestCase):
 
     def run(self, result):
         # FIXME wrap result in my configured result proxy
-        # to capture stdout, etc
+        # to capture stdout, etc. The result proxy also needs
+        # to differentiate between nose.case.Test and other test types
+        # since result.startTest, etc, are all going to be called
+        # multiple times for each test.
         self.result = result
         unittest.TestCase.run(self, result)
         
     def runTest(self):
+        # FIXME pass in a result with mock start/stop since
+        # start/stop has already been called by self
         self.test(self.result)
 
     def shortDescription(self):
@@ -66,7 +72,6 @@ class Test(unittest.TestCase):
     def tearDown(self):
         print "Test teardown %s" % self
         self.context.teardown(self.test)
-
         
 
 class FunctionTestCase(unittest.TestCase):
@@ -97,9 +102,9 @@ class FunctionTestCase(unittest.TestCase):
     """
     _seen = {}
     
-    def __init__(self, testFunc, setUp=None, tearDown=None, arg=tuple(),
+    def __init__(self, test, setUp=None, tearDown=None, arg=tuple(),
                  descriptor=None):
-        self.testFunc = testFunc
+        self.test = test
         self.setUpFunc = setUp
         self.tearDownFunc = tearDown
         self.arg = arg
@@ -112,7 +117,7 @@ class FunctionTestCase(unittest.TestCase):
         return str(self)
     
     def runTest(self):
-        self.testFunc(*self.arg)
+        self.test(*self.arg)
         
     def setUp(self):
         """Run any setup function attached to the test function
@@ -121,7 +126,7 @@ class FunctionTestCase(unittest.TestCase):
             self.setUpFunc()
         else:
             names = ('setup', 'setUp', 'setUpFunc')
-            try_run(self.testFunc, names)
+            try_run(self.test, names)
 
     def tearDown(self):
         """Run any teardown function attached to the test function
@@ -130,7 +135,7 @@ class FunctionTestCase(unittest.TestCase):
             self.tearDownFunc()
         else:
             names = ('teardown', 'tearDown', 'tearDownFunc')
-            try_run(self.testFunc, names)
+            try_run(self.test, names)
         
     def __str__(self):
         func, arg = self._descriptors()
@@ -169,14 +174,14 @@ class FunctionTestCase(unittest.TestCase):
         if self.descriptor:
             return self.descriptor, self.arg
         else:            
-            return self.testFunc, self.arg
+            return self.test, self.arg
 
 
 # FIXME this is just a minimal working version
 # need to add fixture support
 class MethodTestCase(unittest.TestCase):
 
-    def __init__(self, method, func=None, arg=tuple(), descriptor=None):
+    def __init__(self, method, test=None, arg=tuple(), descriptor=None):
         """Initialize the MethodTestCase.
 
         Required argument:
@@ -187,7 +192,7 @@ class MethodTestCase(unittest.TestCase):
 
         Optional arguments:
 
-        * func -- the test function to call. If this is passed, it will be
+        * test -- the test function to call. If this is passed, it will be
         called instead of getting a new bound method of the same name as the
         desired method from the test instance. This is to support generator
         methods that yield inline functions.
@@ -195,19 +200,25 @@ class MethodTestCase(unittest.TestCase):
         """
         print "Make a MethodTestCase for %s" % method
         self.method = method
-        self.func = func
+        self.test = test
         self.arg = arg
         self.descriptor = descriptor
         self.cls = method.im_class
         self.inst = self.cls()
-        if self.func is None:
+        if self.test is None:
             method_name = self.method.__name__
-            self.func = getattr(self.inst, method_name)            
+            self.test = getattr(self.inst, method_name)            
         unittest.TestCase.__init__(self)
 
+    def setUp(self):
+        try_run(self.inst, ('setup', 'setUp'))
+        
     def runTest(self):
-        self.func(*self.arg)
+        self.test(*self.arg)
 
+    def tearDown(self):
+        try_run(self.inst, ('teardown', 'tearDown'))
+        
     def _descriptors(self):
         """Get the descriptors of the test method: the method and
         arguments that will be used to construct the test name. In

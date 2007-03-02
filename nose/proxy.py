@@ -9,7 +9,6 @@ TestLoader.
 import logging
 import unittest
 from nose.result import Result, ln
-from nose.suite import TestSuite
 
 log = logging.getLogger(__name__)
 
@@ -70,15 +69,6 @@ class ResultProxy(Result):
         self.result.shouldStop = val
         
     shouldStop = property(_get_shouldStop, _set_shouldStop)
-
-    
-class ResultProxySuite(TestSuite):
-    """Test suite that supports output capture, etc, by wrapping each test in
-    a TestProxy.
-    """    
-    def addTest(self, test):
-        """Add test, first wrapping in TestProxy"""
-        self._tests.append(TestProxy(test))
 
         
 class TestProxy(unittest.TestCase):

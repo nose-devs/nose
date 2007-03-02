@@ -82,7 +82,7 @@ class TestFixtureContext(unittest.TestCase):
         result = unittest.TestResult()
         in_context(result)        
         assert result.errors
-        assert case.state == ['setUp', 'runTest', 'tearDown']
+        self.assertEqual(case.state, ['setUp', 'runTest', 'tearDown'])
 
     def test_case_setup_error(self):
         class TC(unittest.TestCase):
@@ -104,7 +104,7 @@ class TestFixtureContext(unittest.TestCase):
         result = unittest.TestResult()
         in_context(result)        
         assert result.errors
-        assert case.state == ['setUp']
+        self.assertEqual(case.state, ['setUp'])
         
     def test_module_setup(self):
         """Test that module fixtures execute at proper times.

@@ -2,10 +2,10 @@ import imp
 import os
 import sys
 import unittest
-from loader import TestLoader
+from nose.loader import TestLoader
 
 # FIXME replace with nose importer eventually
-import loader # so we can set its __import__
+from nose import loader # so we can set its __import__
 from nose import fixture  # so we can set its __import__
 import nose.case
 
