@@ -5,7 +5,8 @@ from inspect import isclass, isfunction, ismethod
 from nose.case import Failure, FunctionTestCase, MethodTestCase
 from nose.fixture import Context
 from nose.selector import TestAddress
-from nose.util import cmp_lineno, getpackage, isgenerator, ispackage
+from nose.util import cmp_lineno, getpackage, isgenerator, ispackage, \
+    resolve_name
 from suite import LazySuite, ContextSuiteFactory
 
 class TestLoader(unittest.TestLoader):
@@ -256,6 +257,7 @@ class TestLoader(unittest.TestLoader):
                            "Can't make a test from %s" % obj)
 
     def resolve(self, name, module):
+#        parent, obj = resolve_name(name, module)
         obj = module
         parts = name.split('.')
         for part in parts:

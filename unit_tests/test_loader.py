@@ -7,6 +7,7 @@ from nose.loader import TestLoader
 # FIXME replace with nose importer eventually
 from nose import loader # so we can set its __import__
 from nose import fixture  # so we can set its __import__
+from nose import util # so we can set its __import__
 import nose.case
 
 #
@@ -85,7 +86,9 @@ def test_func_generator_name():
 
 def try_odd(v):
     assert v % 2
-        
+
+M['nose'] = nose
+M['__main__'] = sys.modules['__main__']
 M['test_module'].TC = TC
 TC.__module__ = 'test_module'
 M['test_module'].test_func = test_func
@@ -106,6 +109,8 @@ del TC2
 del test_func
 del TestClass
 del test_func_generator
+
+# sys.modules.update(M)
 
 # Mock the filesystem access so we don't have to maintain
 # a support dir with real files
@@ -168,13 +173,13 @@ class TestTestLoader(unittest.TestCase):
         os.listdir = mock_listdir
         os.path.isdir = mock_isdir
         os.path.isfile = mock_isfile
-        loader.__import__ = fixture.__import__ = mock_import
+        loader.__import__ = fixture.__import__ = util.__import__ = mock_import
         
     def tearDown(self):
         os.listdir = _listdir
         os.path.isdir = _isdir
         os.path.isfile = _isfile
-        loader.__import__ = fixture.__import__ = __import__
+        loader.__import__ = fixture.__import__ = util.__import__ = __import__
 
     def test_lint(self):
         """Test that main API functions exist

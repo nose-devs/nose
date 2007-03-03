@@ -176,7 +176,36 @@ def getpackage(filename):
     mod_parts.reverse()
     return '.'.join(mod_parts)
 
-    
+
+def resolve_name(name, module=None):
+    """Resolve a dotted name to a module and its parts. This is stolen
+    wholesale from unittest.TestLoader.loadTestByName.
+
+    >>> resolve_name('nose.util')
+    <Module nose.util...>
+    >>> resolve_name('nose.util.resolve_name')
+    <Function nose.util.resolve_name...>
+    """
+    parts = name.split('.')
+    parts_copy = parts[:]
+    if module is None:
+        while parts_copy:
+            try:
+                print " --> Context import %s" % name
+                module = __import__('.'.join(parts_copy))
+                break
+            except ImportError:
+                del parts_copy[-1]
+                if not parts_copy:
+                    raise
+        parts = parts[1:]
+    obj = module
+    print "resolve: ", parts, name, obj, module
+    for part in parts:
+        parent, obj = obj, getattr(obj, part)
+    return obj
+
+
 def split_test_name(test):
     """Split a test name into a 3-tuple containing file, module, and callable
     names, any of which (but not all) may be blank.

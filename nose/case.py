@@ -211,12 +211,15 @@ class MethodTestCase(unittest.TestCase):
         unittest.TestCase.__init__(self)
 
     def setUp(self):
+        print "MethodTestCase.setUp(%s)" % self
         try_run(self.inst, ('setup', 'setUp'))
         
     def runTest(self):
+        print "MethodTestCase.runTest(%s)" % self
         self.test(*self.arg)
 
     def tearDown(self):
+        print "MethodTestCase.tearDown(%s)" % self
         try_run(self.inst, ('teardown', 'tearDown'))
         
     def _descriptors(self):

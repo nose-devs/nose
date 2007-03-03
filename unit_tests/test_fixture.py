@@ -261,41 +261,53 @@ class TestFixtureContext(unittest.TestCase):
           Class.teardown_class()
         """
         from nose.case import MethodTestCase
-        
-        inst_setup = []
-        inst_teardown = []
+
         class TestClass:
-            setup = None
-            teardown = None
+            class_setup = None
+            class_teardown = None
+            inst_setup = []
+            inst_teardown = []
 
             def setup(self):
-                inst_setup.append(self)
+                print "TestClass.setup"
+                self.inst_setup.append(self)
 
             def teardown(self):
-                inst_teardown.append(self)
+                print "TestClass.teardown"
+                self.inst_teardown.append(self)
 
             def setup_class(cls):
-                cls.setup = 1
-                cls.teardown = 0
+                cls.class_setup = 1
+                cls.class_teardown = 0
             setup_class = classmethod(setup_class)
 
             def teardown_class(cls):
-                cls.teardown = 1
+                cls.class_teardown = 1
             teardown_class = classmethod(teardown_class)
 
             def test_method(self):
                 pass
 
+        # Inner classes aren't supported, so make it look like
+        # a module-level class
+        mod = imp.new_module('mod')
+        mod.TestClass = TestClass
+        TestClass.__module__ = 'mod'
+        sys.modules['mod'] = mod
+        
         context = Context()
         case = MethodTestCase(TestClass.test_method)
         in_context = context(case)
         result = unittest.TestResult()
         in_context(result)
 
-        assert TestClass.setup == 1, "Class setup_class was not called"
-        assert TestClass.teardown == 1, "Class teardown_class was not called"
-        assert inst_setup, "Instance setup was not called"
-        assert inst_teardown, "Instance teardown was not called"
+        assert not result.errors, result.errors
+        
+        assert TestClass.class_setup == 1, "Class setup_class was not called"
+        assert TestClass.class_teardown == 1, \
+            "Class teardown_class was not called"
+        assert TestClass.inst_setup, "Instance setup was not called"
+        assert TestClass.inst_teardown, "Instance teardown was not called"
 
 if __name__ == '__main__':
     unittest.main()
