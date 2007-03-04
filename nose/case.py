@@ -229,8 +229,6 @@ class FunctionTestCase(unittest.TestCase):
             return self.test, self.arg
 
 
-# FIXME this is just a minimal working version
-# need to add fixture support
 class MethodTestCase(unittest.TestCase):
 
     def __init__(self, method, test=None, arg=tuple(), descriptor=None):
@@ -262,6 +260,23 @@ class MethodTestCase(unittest.TestCase):
             self.test = getattr(self.inst, method_name)            
         unittest.TestCase.__init__(self)
 
+    def __str__(self):
+        func, arg = self._descriptors()
+        if hasattr(func, 'compat_func_name'):
+            name = func.compat_func_name
+        else:
+            name = func.__name__
+        name = "%s.%s.%s" % (func.__module__,
+                             self.cls.__name__,
+                             name)
+        if arg:
+            name = "%s%s" % (name, arg)
+        return name
+    __repr__ = __str__
+
+    def id(self):
+        return str(self)
+
     def setUp(self):
         print "MethodTestCase.setUp(%s)" % self
         try_run(self.inst, ('setup', 'setUp'))
@@ -273,6 +288,14 @@ class MethodTestCase(unittest.TestCase):
     def tearDown(self):
         print "MethodTestCase.tearDown(%s)" % self
         try_run(self.inst, ('teardown', 'tearDown'))
+
+    def shortDescription(self):
+        # FIXME this is exactly the same as func test case above!
+        func, arg = self._descriptors()
+        doc = getattr(func, '__doc__', None)
+        if not doc:
+            doc = str(self)
+        return doc.split("\n")[0].strip()
         
     def _descriptors(self):
         """Get the descriptors of the test method: the method and
