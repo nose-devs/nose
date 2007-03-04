@@ -27,11 +27,11 @@ class Failure(unittest.TestCase):
 class Test(unittest.TestCase):
     """The universal contextualized test case wrapper.
 
-    When you see a test, as a runner or a plugin, you will always see
-    an instance of this class.
+    When a plugin sees a test, it will always see an instance of this
+    class. To access the actual test case that will be run, access the
+    test property of the nose.case.Test instance.    
     """
-    # FIXME implement startTest and stopTest so those can be passed
-    # to plugins and output capture can be started and stopped
+
     def __init__(self, context, test):
         print "Test %s %s" % (context, test)
         self.context = context
@@ -45,6 +45,20 @@ class Test(unittest.TestCase):
     def __str__(self):
         return str(self.test)
 
+    def afterTest(self, result):
+        # FIXME call plugins
+        try:
+            result.afterTest(self)
+        except AttributeError:
+            pass
+
+    def beforeTest(self, result):
+        # FIXME call plugins
+        try:
+            result.beforeTest(self)
+        except AttributeError:
+            pass
+
     def id(self):
         return self.test.id()
 
@@ -53,17 +67,56 @@ class Test(unittest.TestCase):
         self.context.setup(self.test)
 
     def run(self, result):
-        # FIXME it would be best to spool the run out here so that
-        # we can control calls to the result so they are not duplicated
+        """Modified run for the test wrapper.
+
+        From here we don't call result.startTest or stopTest or
+        addSuccess.  The wrapper calls addError/addFailure only if its
+        own setup or teardown fails, or running the wrapped test fails
+        (eg, if the wrapped"test" is not callable).
+
+        Two additional methods are called, beforeTest and
+        afterTest. These give plugins a chance to modify the wrapped
+        test before it is called and do cleanup after it is
+        called. They are called unconditionally.
+        """
+
+        # If I'm supposed to be proxying results (which I usually am),
+        # install the result proxy. self is passed so that the proxy can
+        # use it to call plugins with me (the wrapper) rather than the
+        # test case the result will see (my wrapped test case)
         if self.context.result_proxy is not None:
-            result = self.context.result_proxy(result)
-        self.result = result
-        unittest.TestCase.run(self, result)
+            result = self.context.result_proxy(result, self)
         
-    def runTest(self):
-        # FIXME pass in a result with mock start/stop since
-        # start/stop has already been called by self
-        self.test(self.result)
+        self.beforeTest(result)
+        try:
+            try:
+                # Run context setup
+                self.setUp()
+            except KeyboardInterrupt:
+                raise
+            except:
+                result.addError(self, self.exc_info())
+            try:
+                # Run the wrapped test case, including its setup and teardown
+                self.runTest(result)
+            except KeyboardInterrupt:
+                raise
+            except self.failureException:
+                result.addFailure(self. self.exc_info())
+            except:
+                result.addError(self, self.exc_info())
+            try:
+                # Run context teardown
+                self.tearDown()
+            except KeyboardInterrupt:
+                raise
+            except:
+                result.addError(self, self.exc_info())
+        finally:
+            self.afterTest(result)
+        
+    def runTest(self, result):
+        self.test(result)
 
     def shortDescription(self):
         return self.test.shortDescription()

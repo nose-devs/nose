@@ -121,28 +121,50 @@ class TestNoseTestWrapper(unittest.TestCase):
             def runTest(self):
                 raise Exception("error")
             
+        class ResPrxFactory:
+            def __call__(self, result, test):
+                return ResPrx(result, test)
 
         class ResPrx:
-            def __init__(self):
-                self.called = []
-            def __call__(self, result):
-                print "Called %s" % result
+            called = []
+            def __init__(self, result, test):
                 self.result = result
-                return self
+                self.test = test
+                assert isinstance(test, nose.case.Test), \
+                       "%s (%s) is not a nose.case.Test" % (test, type(test))
             def startTest(self, test):
                 print "proxy startTest"
+                assert test is self.test.test, \
+                       "%s<%s:%s> is not %s<%s:%s>" \
+                       % (test, test.__class__, id(test),
+                          self.test.test,
+                          self.test.test.__class__,
+                          id(self.test.test))
                 self.called.append(('startTest', test))
             def stopTest(self, test):
                 print "proxy stopTest"
+                assert test is self.test.test, \
+                       "%s<%s:%s> is not %s<%s:%s>" \
+                       % (test, test.__class__, id(test),
+                          self.test.test,
+                          self.test.test.__class__,
+                          id(self.test.test))
                 self.called.append(('stopTest', test))
             def addError(self, test, err):
                 print "proxy addError"
+                assert test is self.test.test, \
+                       "%s<%s:%s> is not %s<%s:%s>" \
+                       % (test, test.__class__, id(test),
+                          self.test.test,
+                          self.test.test.__class__,
+                          id(self.test.test))
                 self.called.append(('addError', test, err))
             def addSuccess(self, test):
-                pass                     
+                assert False, \
+                       "addSuccess was called for %s (%s)" % test
                 
         res = unittest.TestResult()
-        proxy = ResPrx()
+        proxy = ResPrxFactory()
         context = FixtureContext(result_proxy=proxy)
         case = context(TC())
 
@@ -152,7 +174,7 @@ class TestNoseTestWrapper(unittest.TestCase):
 
         # NOTE this is currently failiing because the wrapper is
         # issuing duplicate calls to the result.
-        calls = [ c[0] for c in proxy.called ]
+        calls = [ c[0] for c in ResPrx.called ]
         self.assertEqual(calls, ['startTest', 'addError', 'stopTest'])
 
         
