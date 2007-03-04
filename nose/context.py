@@ -5,9 +5,10 @@ from nose.util import resolve_name, try_run
 
 # FIXME support class-level fixtures here too (setup_class, teardown_class)
 # possibly change terminology from module to more generic 'parent'?
-class Context(object):
+class FixtureContext(object):
 
-    def __init__(self):
+    def __init__(self, result_proxy=None):
+        self.result_proxy = result_proxy
         self.parents = {}
         self.tests = {}
         self.setup_fired = {}

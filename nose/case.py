@@ -53,11 +53,10 @@ class Test(unittest.TestCase):
         self.context.setup(self.test)
 
     def run(self, result):
-        # FIXME wrap result in my configured result proxy
-        # to capture stdout, etc. The result proxy also needs
-        # to differentiate between nose.case.Test and other test types
-        # since result.startTest, etc, are all going to be called
-        # multiple times for each test.
+        # FIXME it would be best to spool the run out here so that
+        # we can control calls to the result so they are not duplicated
+        if self.context.result_proxy is not None:
+            result = self.context.result_proxy(result)
         self.result = result
         unittest.TestCase.run(self, result)
         

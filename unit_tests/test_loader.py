@@ -6,7 +6,7 @@ from nose.loader import TestLoader
 
 # FIXME replace with nose importer eventually
 from nose import loader # so we can set its __import__
-from nose import fixture  # so we can set its __import__
+from nose import context  # so we can set its __import__
 from nose import util # so we can set its __import__
 import nose.case
 
@@ -173,13 +173,13 @@ class TestTestLoader(unittest.TestCase):
         os.listdir = mock_listdir
         os.path.isdir = mock_isdir
         os.path.isfile = mock_isfile
-        loader.__import__ = fixture.__import__ = util.__import__ = mock_import
+        loader.__import__ = context.__import__ = util.__import__ = mock_import
         
     def tearDown(self):
         os.listdir = _listdir
         os.path.isdir = _isdir
         os.path.isfile = _isfile
-        loader.__import__ = fixture.__import__ = util.__import__ = __import__
+        loader.__import__ = context.__import__ = util.__import__ = __import__
 
     def test_lint(self):
         """Test that main API functions exist
@@ -189,12 +189,6 @@ class TestTestLoader(unittest.TestCase):
         l.loadTestsFromModule
         l.loadTestsFromName
         l.loadTestsFromNames
-
-# No longer valid
-#     def test_load_from_names_is_lazy(self):
-#         l = TestLoader()
-#         l.loadTestsFromName = lambda self, name, module: self.fail('not lazy')
-#         l.loadTestsFromNames(['a', 'b', 'c'])
 
     def test_loader_has_context(self):
         l = TestLoader()

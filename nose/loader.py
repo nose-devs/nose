@@ -3,7 +3,7 @@ import sys
 import unittest
 from inspect import isclass, isfunction, ismethod
 from nose.case import Failure, FunctionTestCase, MethodTestCase
-from nose.fixture import Context
+from nose.context import FixtureContext
 from nose.selector import TestAddress
 from nose.util import cmp_lineno, getpackage, isgenerator, ispackage, \
     resolve_name
@@ -16,7 +16,7 @@ class TestLoader(unittest.TestLoader):
         # FIXME would get workingdir too
         # FIXME would get selector too
         if context is None:
-            context = Context()
+            context = FixtureContext()
         self.context = context
         self.suiteClass = ContextSuiteFactory(context)
         unittest.TestLoader.__init__(self)        

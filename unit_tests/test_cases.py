@@ -2,6 +2,7 @@ import unittest
 import pdb
 import sys
 import nose.case
+from nose.context import FixtureContext
 
 class TestNoseCases(unittest.TestCase):
 
@@ -90,17 +91,13 @@ class TestNoseCases(unittest.TestCase):
         f(res)
         assert res.errors
 
+
+class TestNoseTestWrapper(unittest.TestCase):
     def test_context_case_fixtures(self):
         """Instance fixtures are properly called for wrapped tests"""
         res = unittest.TestResult()
         called = []
-        
-        class FakeContext:
-            def setup(self, test):
-                print "Context setup for %s" % test
-            def teardown(self, test):
-                print "Context teardown for %s" % test
-                
+                        
         class TC(unittest.TestCase):
             def setUp(self):
                 print "TC setUp %s" % self
@@ -112,9 +109,52 @@ class TestNoseCases(unittest.TestCase):
                 print "TC tearDown %s" % self
                 called.append('tearDown')
 
-        case = nose.case.Test(FakeContext(), TC())
+        context = FixtureContext()
+        case = context(TC())
         case(res)
+        assert not res.errors, res.errors
+        assert not res.failures, res.failures
         self.assertEqual(called, ['setUp', 'runTest', 'tearDown'])
+
+    def test_context_case_result_proxy(self):
+        class TC(unittest.TestCase):
+            def runTest(self):
+                raise Exception("error")
+            
+
+        class ResPrx:
+            def __init__(self):
+                self.called = []
+            def __call__(self, result):
+                print "Called %s" % result
+                self.result = result
+                return self
+            def startTest(self, test):
+                print "proxy startTest"
+                self.called.append(('startTest', test))
+            def stopTest(self, test):
+                print "proxy stopTest"
+                self.called.append(('stopTest', test))
+            def addError(self, test, err):
+                print "proxy addError"
+                self.called.append(('addError', test, err))
+            def addSuccess(self, test):
+                pass                     
                 
+        res = unittest.TestResult()
+        proxy = ResPrx()
+        context = FixtureContext(result_proxy=proxy)
+        case = context(TC())
+
+        case(res)
+        assert not res.errors, res.errors
+        assert not res.failures, res.failures
+
+        # NOTE this is currently failiing because the wrapper is
+        # issuing duplicate calls to the result.
+        calls = [ c[0] for c in proxy.called ]
+        self.assertEqual(calls, ['startTest', 'addError', 'stopTest'])
+
+        
 if __name__ == '__main__':
     unittest.main()

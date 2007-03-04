@@ -2,15 +2,21 @@ import sys
 import unittest
 import nose.result
 from nose.config import Config
+from nose.fixture import Context
 from nose.exc import DeprecatedTest, SkipTest
 from nose.result import start_capture, end_capture
 
 class TestResult(unittest.TestCase):
 
-    class T(unittest.TestCase):
+    class _T(unittest.TestCase):
         def runTest(self):
             pass
 
+    def T(self):
+        ctx = Context()
+        case = self._T()
+        return ctx(case)
+        
     def setUp(self):
         self.buf = []
         class dummy:

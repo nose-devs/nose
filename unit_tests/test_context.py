@@ -1,7 +1,7 @@
 import imp
 import sys
 import unittest
-from nose.fixture import Context
+from nose.context import FixtureContext
 
 class TestFixtureContext(unittest.TestCase):
 
@@ -18,7 +18,7 @@ class TestFixtureContext(unittest.TestCase):
                 self.state += ['testSomething']
         
         case = TC()
-        cx = Context()
+        cx = FixtureContext()
         in_context = cx.add(__name__, case)
         
         result = unittest.TestResult()
@@ -36,7 +36,7 @@ class TestFixtureContext(unittest.TestCase):
             def testSomething(self):
                 self.state += ['testSomething']
         case = TC('testSomething')
-        cx = Context()
+        cx = FixtureContext()
         in_context = cx(case)
         result = unittest.TestResult()
         in_context(result)
@@ -54,7 +54,7 @@ class TestFixtureContext(unittest.TestCase):
                 self.state += ['testSomething']
                 
         case = TC('testSomething')
-        cx = Context()
+        cx = FixtureContext()
         in_context = cx.add(__name__, case)
         result = unittest.TestResult()
         in_context(result)
@@ -76,7 +76,7 @@ class TestFixtureContext(unittest.TestCase):
                 self.state += ['testSomething']
         
         case = TC()
-        cx = Context()
+        cx = FixtureContext()
         in_context = cx.add(__name__, case)
         
         result = unittest.TestResult()
@@ -98,7 +98,7 @@ class TestFixtureContext(unittest.TestCase):
                 self.state += ['testSomething']
         
         case = TC()
-        cx = Context()
+        cx = FixtureContext()
         in_context = cx.add(__name__, case)
         
         result = unittest.TestResult()
@@ -151,7 +151,7 @@ class TestFixtureContext(unittest.TestCase):
         fail = mod.TC('failTest')
 
         # module with only one test collected
-        cx = Context()
+        cx = FixtureContext()
         in_context = cx.add(mod, case)
         result = unittest.TestResult()
         in_context(result)
@@ -162,7 +162,7 @@ class TestFixtureContext(unittest.TestCase):
         # multiple test cases from the module
         result = unittest.TestResult()
         mod.state = []
-        cx = Context()
+        cx = FixtureContext()
         in_context = cx.add(mod, case)
         err_context = cx.add(mod, err)
         fail_context = cx.add(mod, fail)
@@ -193,7 +193,7 @@ class TestFixtureContext(unittest.TestCase):
 
         mod.state = []
         result = unittest.TestResult()
-        cx = Context()
+        cx = FixtureContext()
         mod_case = mod.TC()
         mod_err = mod.TC('errTest')
         mod_fail = mod.TC('failTest')
@@ -295,7 +295,7 @@ class TestFixtureContext(unittest.TestCase):
         TestClass.__module__ = 'mod'
         sys.modules['mod'] = mod
         
-        context = Context()
+        context = FixtureContext()
         case = MethodTestCase(TestClass.test_method)
         in_context = context(case)
         result = unittest.TestResult()
@@ -308,6 +308,6 @@ class TestFixtureContext(unittest.TestCase):
             "Class teardown_class was not called"
         assert TestClass.inst_setup, "Instance setup was not called"
         assert TestClass.inst_teardown, "Instance teardown was not called"
-
+        
 if __name__ == '__main__':
     unittest.main()

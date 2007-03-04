@@ -1,5 +1,5 @@
 from nose.suite import LazySuite, ContextSuite, ContextSuiteFactory
-from nose.fixture import Context
+from nose.context import FixtureContext
 import unittest
 
 class TestLazySuite(unittest.TestCase):
@@ -33,7 +33,7 @@ class TestContextSuite(unittest.TestCase):
 
     def test_tests_get_context(self):
         """Tests in a context suite have a context"""
-        ctx = Context()
+        ctx = FixtureContext()
         suite = ContextSuite(
             lambda: [self.TC('test_one'), self.TC('test_two')],
             ctx)
@@ -42,7 +42,7 @@ class TestContextSuite(unittest.TestCase):
 
     def test_nested_context_suites(self):
         """Nested suites don't recontextualize"""
-        ctx = Context()
+        ctx = FixtureContext()
         suite = ContextSuite(
             lambda: [self.TC('test_one'), self.TC('test_two')],
             ctx)
