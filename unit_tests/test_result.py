@@ -2,7 +2,7 @@ import sys
 import unittest
 import nose.result
 from nose.config import Config
-from nose.fixture import Context
+from nose.context import FixtureContext
 from nose.exc import DeprecatedTest, SkipTest
 from nose.result import start_capture, end_capture
 
@@ -13,7 +13,7 @@ class TestResult(unittest.TestCase):
             pass
 
     def T(self):
-        ctx = Context()
+        ctx = FixtureContext()
         case = self._T()
         return ctx(case)
         

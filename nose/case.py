@@ -3,7 +3,9 @@ classes when writing tests; they are used internally by nose.loader.TestLoader
 to create test cases from test functions and methods in test classes.
 """
 import logging
+import sys
 import unittest
+from nose.result import start_capture, end_capture
 from nose.util import try_run
 
 log = logging.getLogger(__name__)
@@ -11,7 +13,7 @@ log = logging.getLogger(__name__)
 # FIXME probably not the best name, since it is mainly used for errors
 class Failure(unittest.TestCase):
     def __init__(self, exc_class, exc_val, tb=None):
-        print "A failure! %s %s" % (exc_class, exc_val)
+        log.debug("A failure! %s %s", exc_class, exc_val)
         self.exc_class = exc_class
         self.exc_val = exc_val
         self.tb = tb
@@ -31,39 +33,54 @@ class Test(unittest.TestCase):
     class. To access the actual test case that will be run, access the
     test property of the nose.case.Test instance.    
     """
-
     def __init__(self, context, test):
-        print "Test %s %s" % (context, test)
+        log.debug("Test %s %s", context, test)
         self.context = context
         self.test = test
+        self.captured_output = None
+        self.assert_info = None
         unittest.TestCase.__init__(self)
         
     def __call__(self, *arg, **kwarg):
-        print "Test call %s %s %s" % (self, arg, kwarg)
+        log.debug("Test call %s %s %s", self, arg, kwarg)
         return self.run(*arg, **kwarg)
 
     def __str__(self):
         return str(self.test)
 
     def afterTest(self, result):
+        log.debug("Test afterTest %s", self)
         # FIXME call plugins
+        if self.context.config.capture:
+            end_capture()
         try:
             result.afterTest(self)
         except AttributeError:
             pass
 
     def beforeTest(self, result):
+        log.debug("Test beforeTest %s", self)
+        if self.context.config.capture:
+            start_capture()        
         # FIXME call plugins
         try:
             result.beforeTest(self)
         except AttributeError:
             pass
 
+    def exc_info(self):
+        """Extract exception info into a useable form, including
+        appending captured output and assert introspection information, if
+        so configured.
+        """
+        # FIXME
+        raise NotImplementedError("exc_info")
+        
     def id(self):
         return self.test.id()
 
     def setUp(self):
-        print "Test setup %s" % self
+        log.debug("Test setup %s", self)
         self.context.setup(self.test)
 
     def run(self, result):
@@ -79,7 +96,6 @@ class Test(unittest.TestCase):
         test before it is called and do cleanup after it is
         called. They are called unconditionally.
         """
-
         # If I'm supposed to be proxying results (which I usually am),
         # install the result proxy. self is passed so that the proxy can
         # use it to call plugins with me (the wrapper) rather than the
@@ -122,11 +138,29 @@ class Test(unittest.TestCase):
         return self.test.shortDescription()
 
     def tearDown(self):
-        print "Test teardown %s" % self
+        log.debug("Test teardown %s", self)
         self.context.teardown(self.test)
         
 
-class FunctionTestCase(unittest.TestCase):
+class TestBase(unittest.TestCase):
+    """Common functionality for FunctionTestCase and MethodTestCase.
+    """
+    def id(self):
+        return str(self)
+        
+    def runTest(self):
+        log.debug("%s.runTest(%s)", self.__class__.__name__, self)
+        self.test(*self.arg)
+    
+    def shortDescription(self):
+        func, arg = self._descriptors()
+        doc = getattr(func, '__doc__', None)
+        if not doc:
+            doc = str(self)
+        return doc.split("\n")[0].strip()
+
+    
+class FunctionTestCase(TestBase):
     """TestCase wrapper for functional tests.
 
     Don't use this class directly; it is used internally in nose to
@@ -152,7 +186,6 @@ class FunctionTestCase(unittest.TestCase):
             # ...
 
     """
-    _seen = {}
     
     def __init__(self, test, setUp=None, tearDown=None, arg=tuple(),
                  descriptor=None):
@@ -161,15 +194,7 @@ class FunctionTestCase(unittest.TestCase):
         self.tearDownFunc = tearDown
         self.arg = arg
         self.descriptor = descriptor
-        # FIXME restore the 'fromDirectory' setting -- find the base
-        # of the package containing the module containing the testFunc
         unittest.TestCase.__init__(self)
-        
-    def id(self):
-        return str(self)
-    
-    def runTest(self):
-        self.test(*self.arg)
         
     def setUp(self):
         """Run any setup function attached to the test function
@@ -191,7 +216,6 @@ class FunctionTestCase(unittest.TestCase):
         
     def __str__(self):
         func, arg = self._descriptors()
-        self.fromDirectory = 'FIXME'
         if hasattr(func, 'compat_func_name'):
             name = func.compat_func_name
         else:
@@ -199,22 +223,12 @@ class FunctionTestCase(unittest.TestCase):
         name = "%s.%s" % (func.__module__, name)
         if arg:
             name = "%s%s" % (name, arg)
-
-        if self._seen.has_key(name) and self.fromDirectory is not None:
-            # already seen this exact test name; put the
-            # module dir in front to disambiguate the tests
-            name = "%s: %s" % (self.fromDirectory, name)
-        self._seen[name] = True
+        # FIXME need to include the full dir path to disambiguate
+        # in cases where test module of the same name was seen in
+        # another directory (old fromDirectory)
         return name 
     __repr__ = __str__
     
-    def shortDescription(self):
-        func, arg = self._descriptors()
-        doc = getattr(func, '__doc__', None)
-        if not doc:
-            doc = str(self)
-        return doc.split("\n")[0].strip()
-
     def _descriptors(self):
         """Get the descriptors of the test function: the function and
         arguments that will be used to construct the test name. In
@@ -229,7 +243,7 @@ class FunctionTestCase(unittest.TestCase):
             return self.test, self.arg
 
 
-class MethodTestCase(unittest.TestCase):
+class MethodTestCase(TestBase):
 
     def __init__(self, method, test=None, arg=tuple(), descriptor=None):
         """Initialize the MethodTestCase.
@@ -243,12 +257,17 @@ class MethodTestCase(unittest.TestCase):
         Optional arguments:
 
         * test -- the test function to call. If this is passed, it will be
-        called instead of getting a new bound method of the same name as the
-        desired method from the test instance. This is to support generator
-        methods that yield inline functions.
+          called instead of getting a new bound method of the same name as the
+          desired method from the test instance. This is to support generator
+          methods that yield inline functions.
 
+        * arg -- arguments to pass to the test function. This is to support
+          generator methods that yield arguments.
+
+        * descriptor -- the function, other than the test, that should be used
+          to construct the test name. This is to support generator methods.
         """
-        print "Make a MethodTestCase for %s" % method
+        log.debug("MethodTestCase for %s", method)
         self.method = method
         self.test = test
         self.arg = arg
@@ -274,28 +293,13 @@ class MethodTestCase(unittest.TestCase):
         return name
     __repr__ = __str__
 
-    def id(self):
-        return str(self)
-
     def setUp(self):
-        print "MethodTestCase.setUp(%s)" % self
+        log.debug("MethodTestCase.setUp(%s)", self)
         try_run(self.inst, ('setup', 'setUp'))
-        
-    def runTest(self):
-        print "MethodTestCase.runTest(%s)" % self
-        self.test(*self.arg)
 
     def tearDown(self):
-        print "MethodTestCase.tearDown(%s)" % self
+        log.debug("MethodTestCase.tearDown(%s)", self)
         try_run(self.inst, ('teardown', 'tearDown'))
-
-    def shortDescription(self):
-        # FIXME this is exactly the same as func test case above!
-        func, arg = self._descriptors()
-        doc = getattr(func, '__doc__', None)
-        if not doc:
-            doc = str(self)
-        return doc.split("\n")[0].strip()
         
     def _descriptors(self):
         """Get the descriptors of the test method: the method and
@@ -310,62 +314,5 @@ class MethodTestCase(unittest.TestCase):
         else:
             return self.method, self.arg
         
-
-# old
-## class MethodTestCase(unittest.TestCase):
-##     """Test case that wraps one method in a test class.
-##     """    
-##     def __init__(self, cls, method, method_desc=None, *arg):
-##         self.cls = cls
-##         self.method = method
-##         self.method_desc = method_desc
-##         self.testInstance = self.cls()
-##         self.testCase = getattr(self.testInstance, method)
-##         self.arg = arg
-##         log.debug('Test case: %s%s', self.testCase, self.arg)        
-##         unittest.TestCase.__init__(self)
-        
-##     def __str__(self):
-##         return self.id()
-
-##     def desc(self):
-##         if self.method_desc is not None:
-##             desc = self.method_desc
-##         else:
-##             desc = self.method
-##         if self.arg:
-##             desc = "%s:%s" % (desc, self.arg)
-##         return desc
-
-##     def id(self):
-##         return "%s.%s.%s" % (self.cls.__module__,
-##                              self.cls.__name__,
-##                              self.desc())
-
-##     def setUp(self):
-##         """Run any setup method declared in the test class to which this
-##         method belongs
-##         """
-##         names = ('setup', 'setUp')
-##         try_run(self.testInstance, names)
-
-##     def runTest(self):
-##         self.testCase(*self.arg)
-        
-##     def tearDown(self):
-##         """Run any teardown method declared in the test class to which
-##         this method belongs
-##         """
-##         if self.testInstance is not None:
-##             names = ('teardown', 'tearDown')
-##             try_run(self.testInstance, names)
-
-##     def shortDescription(self):
-##         # FIXME ... diff output if is TestCase subclass, for back compat
-##         if self.testCase.__doc__ is not None:            
-##             return '(%s.%s) "%s"' % (self.cls.__module__,
-##                                      self.cls.__name__,
-##                                      self.testCase.__doc__)
-##         return None
         
         

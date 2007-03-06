@@ -1,24 +1,38 @@
+import logging
 import sys
 from inspect import isclass, ismodule
+from nose.config import Config
 from nose.case import Test
 from nose.util import resolve_name, try_run
 
-# FIXME support class-level fixtures here too (setup_class, teardown_class)
-# possibly change terminology from module to more generic 'parent'?
+log = logging.getLogger(__name__)
+
 class FixtureContext(object):
 
-    def __init__(self, result_proxy=None):
+    def __init__(self, config=None, result_proxy=None):
+        """Initialize a FixtureContext for a test run.
+
+        Optional arguments:
+        
+        * config: the configuration of this test run. If no config is passed,
+          a default config will be used.
+        
+        * result_proxy: a callable that may be passed a result and test, and
+          returns a proxy object that will mediate between the test wrapper
+          and.
+        """
+        if config is None:
+            config = Config()
+        self.config = config
         self.result_proxy = result_proxy
         self.parents = {}
         self.tests = {}
         self.setup_fired = {}
         self.setup_ok = {}
-        
+
     def __call__(self, test):
         # FIXME may be more efficient to pass the actual class?
-        # FIXME this doesn't work for classes that are not
-        # defined at module top level
-        print "Add context for test %s" % test
+        log.debug("Add context for test %s", test)
         if hasattr(test, 'cls'):
             cls, module = test.cls, test.cls.__module__
             parent = "%s.%s" % (module, cls.__name__)
@@ -29,15 +43,18 @@ class FixtureContext(object):
         return self.add(parent, test)
 
     def add(self, parent, test):
-        for part in self._parts(parent):           
+        log.debug("Add %s to parent %s", test, parent)
+        for part in self._parts(parent):
             self.tests.setdefault(part, []).append(test)
             self.parents.setdefault(test, []).append(part)
         return Test(self, test)
 
     def setup(self, test):
-        # if this is the first for any surrounding package or module of
-        # this test, fire the package and  module setup; record that it
-        # was fired
+        """Context setup. If this is the first for any surrounding package or
+        module or class of this test, fire the parent object setup; record
+        that it was fired
+        """
+        log.debug("Context setup for %s", test)
         for obj in self.parents.get(test):
             if self.setup_fired.get(obj):
                 continue
@@ -51,10 +68,12 @@ class FixtureContext(object):
             self.setup_ok[obj] = True
             
     def teardown(self, test):
-        # if this is the last for an surrounding package or module, and setup
-        # fired for that module or package, fire teardown for the module
-        # /package too. otherwise pop off of the stack for that module/
-        # package
+        """Context teardown. If this is the last for an surrounding package
+        or module, and setup fired for that module or package, fire teardown
+        for the module/package/class too. otherwise pop off of the stack for
+        thatmodule/package/class.
+        """
+        log.debug("Context teardown for %s", test)
         for obj in self.parents.get(test):
             self.tests[obj].remove(test)
             if (not self.tests[obj]

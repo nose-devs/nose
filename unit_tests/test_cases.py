@@ -2,6 +2,7 @@ import unittest
 import pdb
 import sys
 import nose.case
+from nose.config import Config
 from nose.context import FixtureContext
 
 class TestNoseCases(unittest.TestCase):
