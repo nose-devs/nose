@@ -33,7 +33,60 @@ class ResultProxy(object):
         self.config = config
         self.result = result
         self.test = test
-        
+
+    def __repr__(self):
+        return repr(self.result)
+
+    def afterTest(self, test):
+        try:
+            self.result.beforeTest(test)
+        except AttributeError:
+            pass
+
+    def beforeTest(self, test):
+        try:
+            self.result.afterTest(test)
+        except AttributeError:
+            pass
+    
+    def addDeprecated(self, test):
+        try:
+            self.result.addDeprecated(test)
+        except AttributeError:
+            pass
+    
+    def addError(self, test, err):
+        self.result.addError(test, err)
+
+    def addFailure(self, test, err):
+        self.result.addFailure(test, err)
+
+    def addSkip(self, test):
+        try:
+            self.result.addSkip(test)
+        except AttributeError:
+            pass
+    
+    def addSuccess(self, test):
+        self.result.addSuccess(test)
+
+    def startTest(self, test):
+        self.result.startTest(test)
+    
+    def stop(self):
+        self.result.stop()
+    
+    def stopTest(self, test):
+        self.result.stopTest(test)
+    
+    def get_shouldStop(self):
+        return self.result.shouldStop
+
+    def set_shouldStop(self, shouldStop):
+        self.result.shouldStop = shouldStop
+
+    shouldStop = property(get_shouldStop, set_shouldStop, None,
+                          """Should the test run stop?""")
     
 # old
 
