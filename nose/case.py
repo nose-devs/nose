@@ -161,10 +161,10 @@ class TestBase(unittest.TestCase):
 
     
 class FunctionTestCase(TestBase):
-    """TestCase wrapper for functional tests.
+    """TestCase wrapper for test functions.
 
     Don't use this class directly; it is used internally in nose to
-    create test cases for functional tests.
+    create test cases for test functions.
     
     This class is very similar to unittest.FunctionTestCase, with a few
     extensions:
@@ -244,7 +244,11 @@ class FunctionTestCase(TestBase):
 
 
 class MethodTestCase(TestBase):
+    """Test case wrapper for test methods.
 
+    Don't use this class directly; it is used internally in nose to
+    create test cases for test methods.
+    """
     def __init__(self, method, test=None, arg=tuple(), descriptor=None):
         """Initialize the MethodTestCase.
 
@@ -313,6 +317,5 @@ class MethodTestCase(TestBase):
             return self.descriptor, self.arg
         else:
             return self.method, self.arg
-        
         
         

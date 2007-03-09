@@ -4,6 +4,9 @@ necessary because test modules in different directories frequently have the
 same names, which means that the first loaded would mask the rest when using
 the builtin importer.
 """
+
+# FIXME use imputil? This is almost exactly _FileSystemImport.import_from_dir
+
 import logging
 import os
 import sys
