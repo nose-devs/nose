@@ -32,15 +32,28 @@ class Importer(object):
         self._modules = {}
 
     def import_from_path(self, path, fqname):
-        finfo = os.stat(path)
+        try:
+            finfo = os.stat(path)
+        except OSError, e:
+            raise ImportError(
+                "Unable to import %s from %s: %s" % (fqname, path, e))
         # ensure that the parent path is on sys.path
         if self.config.addPaths:
             add_path(os.path.dirname(path))
+        pkgpath = None
+        if os.path.isdir(path):
+            pkgpath = path
+            path = os.path.join(path, '__init__.py')
         result = imputil.py_suffix_importer(path, finfo, fqname)
         if result:
+            if pkgpath is not None:
+                ispkg, code, values = result
+                values['__path__'] = [ pkgpath ]
+                result = (1, code, values)
             return self._imp._process_result(result, fqname)
         raise ImportError("Unable to import %s from %s" % (fqname, path))
-        
+
+    # FIXME not sure this method is needed
     def import_from_dir(self, dir, fqname):
         dir = os.path.abspath(dir)
         cache = self._modules.setdefault(dir, {})

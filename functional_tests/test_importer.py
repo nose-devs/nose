@@ -39,8 +39,40 @@ class TestImporter(unittest.TestCase):
         self.assertNotEqual(p1.__file__, p2.__file__)
 
     def test_import_from_path(self):
-        raise NotImplementedError("Import from path not implemented!")
+        imp = self.imp
 
+        jn = os.path.join
+        d1 = jn(self.dir, 'dir1')
+        d2 = jn(self.dir, 'dir2')
+        
+        # simple name        
+        m1 = imp.import_from_path(jn(d1, 'mod.py'), 'mod')
+        m2 = imp.import_from_path(jn(d2, 'mod.py'), 'mod')
+        self.assertNotEqual(m1, m2)
+        self.assertNotEqual(m1.__file__, m2.__file__)
+
+        # dotted name
+        p1 = imp.import_from_path(jn(d1, 'pak', 'mod.py'), 'pak.mod')
+        p2 = imp.import_from_path(jn(d2, 'pak', 'mod.py'), 'pak.mod')
+        self.assertNotEqual(p1, p2)
+        self.assertNotEqual(p1.__file__, p2.__file__)
+
+        # simple name -- package
+        sp1 = imp.import_from_path(jn(d1, 'pak'), 'pak')
+        sp2 = imp.import_from_path(jn(d2, 'pak'), 'pak')
+        self.assertNotEqual(sp1, sp2)
+        assert sp1.__path__
+        assert sp2.__path__
+        self.assertNotEqual(sp1.__path__, sp2.__path__)
+
+        # dotted name -- package
+        dp1 = imp.import_from_path(jn(d1, 'pak', 'sub'), 'pak.sub')
+        dp2 = imp.import_from_path(jn(d2, 'pak', 'sub'), 'pak.sub')
+        self.assertNotEqual(dp1, dp2)
+        assert dp1.__path__
+        assert dp2.__path__
+        self.assertNotEqual(dp1.__path__, dp2.__path__)
+        
     def test_cached_no_reload(self):
         imp = self.imp
 

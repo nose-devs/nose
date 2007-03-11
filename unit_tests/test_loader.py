@@ -4,11 +4,14 @@ import sys
 import unittest
 from nose.loader import TestLoader
 
-# FIXME replace with nose importer eventually
+# FIXME need a mock Importer!
+
 from nose import loader # so we can set its __import__
 from nose import context  # so we can set its __import__
 from nose import util # so we can set its __import__
 import nose.case
+
+
 
 #
 # Setting up the fake modules that we'll use for testing
