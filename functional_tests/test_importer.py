@@ -38,6 +38,9 @@ class TestImporter(unittest.TestCase):
         self.assertNotEqual(p1, p2)
         self.assertNotEqual(p1.__file__, p2.__file__)
 
+    def test_import_from_path(self):
+        raise NotImplementedError("Import from path not implemented!")
+
     def test_cached_no_reload(self):
         imp = self.imp
 

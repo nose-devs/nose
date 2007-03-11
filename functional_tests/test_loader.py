@@ -1,11 +1,22 @@
-from nose import loader
 import os
+import sys
 import unittest
-
+from nose import loader
 
 support = os.path.join(os.path.dirname(__file__), 'support')
 
 class TestNoseTestLoader(unittest.TestCase):
+
+    def setUp(self):
+        self._mods = sys.modules.copy()
+
+    def tearDown(self):
+        to_del = [ m for m in sys.modules.keys() if
+                   m not in self._mods ]
+        if to_del:
+            for mod in to_del:
+                del sys.modules[mod]
+        sys.modules.update(self._mods)
 
     def test_load_from_name_file(self):
         res = unittest.TestResult()
@@ -31,4 +42,6 @@ class TestNoseTestLoader(unittest.TestCase):
         assert not res.failures, res.failures
 
 if __name__ == '__main__':
+    import logging
+    logging.basicConfig(level=logging.DEBUG)
     unittest.main()

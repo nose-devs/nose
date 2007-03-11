@@ -6,10 +6,10 @@ class TestExampleFunction_TestCase(unittest.TestCase):
         self.assertEqual(example.times_two(2), 4)
 
 
-class TestExampleFunction(self):
+class TestExampleFunction:
     def test_times_two(self):
-        self.assertEqual(example.times_two(2), 4)
+        assert example.times_two(2) == 4
 
 
 def test_times_two():
-    self.assertEqual(example.times_two(2), 4)
+    assert example.times_two(2) == 4

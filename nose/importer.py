@@ -21,10 +21,10 @@ log = logging.getLogger(__name__)
 
 class Importer(object):
     
-    def __init__(self, conf=None):
-        if conf is None:
-            conf = Config()
-        self.conf = conf
+    def __init__(self, config=None):
+        if config is None:
+            config = Config()
+        self.config = config
         if not imputil._os_stat:
             imputil._os_bootstrap()
         self._imp = imputil._FilesystemImporter()
@@ -32,8 +32,14 @@ class Importer(object):
         self._modules = {}
 
     def import_from_path(self, path, fqname):
-        # FIXME import the fqname module from the given path
-        raise NotImplementedError("import_from_path not implemented")
+        finfo = os.stat(path)
+        # ensure that the parent path is on sys.path
+        if self.config.addPaths:
+            add_path(os.path.dirname(path))
+        result = imputil.py_suffix_importer(path, finfo, fqname)
+        if result:
+            return self._imp._process_result(result, fqname)
+        raise ImportError("Unable to import %s from %s" % (fqname, path))
         
     def import_from_dir(self, dir, fqname):
         dir = os.path.abspath(dir)
@@ -57,16 +63,27 @@ def add_path(path):
     """Ensure that the path, or the root of the current package (if
     path is in a package) is in sys.path.
     """
-    log.debug('Add path %s' % path)
+
+    # FIXME add any src-looking dirs seen too... need to get config for that
+    
+    log.debug('Add path %s' % path)    
     if not path:
-        return
+        return []
+    added = []
     parent = os.path.dirname(path)
     if (parent
         and os.path.exists(os.path.join(path, '__init__.py'))):
-        add_path(parent)
+        added.extend(add_path(parent))
     elif not path in sys.path:
         log.debug("insert %s into sys.path", path)
         sys.path.insert(0, path)
+        added.append(path)
+    return added
+
+def remove_path(path):
+    log.debug('Remove path %s' % path)
+    if path in sys.path:
+        sys.path.remove(path)
 
 
 # def load_source(name, path, conf):

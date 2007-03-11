@@ -5,6 +5,7 @@ from inspect import isclass, isfunction, ismethod
 from nose.case import Failure, FunctionTestCase, MethodTestCase
 from nose.config import Config
 from nose.context import FixtureContext
+from nose.importer import Importer, add_path, remove_path
 from nose.selector import TestAddress
 from nose.util import cmp_lineno, getpackage, isgenerator, ispackage, \
     resolve_name
@@ -12,17 +13,23 @@ from suite import LazySuite, ContextSuiteFactory
 
 class TestLoader(unittest.TestLoader):
 
-    def __init__(self, config=None, context=None, working_dir=None):
+    def __init__(self, config=None, context=None, importer=None,
+                 working_dir=None):
         # FIXME would get selector too
         if config is None:
             config = Config()
         if context is None:
             context = FixtureContext()
+        if importer is None:
+            importer = Importer(config=config)
         if working_dir is None:
             working_dir = os.getcwd()
         self.config = config
         self.context = context
+        self.importer = importer
         self.working_dir = working_dir
+        if config.addPaths:
+            add_path(working_dir)        
         self.suiteClass = ContextSuiteFactory(context)
         unittest.TestLoader.__init__(self)        
 
@@ -47,7 +54,9 @@ class TestLoader(unittest.TestLoader):
     def loadTestsFromDir(self, path):
         print "load from dir %s" % path
 
-        # FIXME push dir onto sys.path
+        if self.config.addPaths:
+            paths_added = add_path(path)
+            
         for entry in os.listdir(path):
             if entry.startswith('.') or entry.startswith('_'):
                 continue
@@ -80,6 +89,10 @@ class TestLoader(unittest.TestLoader):
         # a generator will be called often enough to do the pop
         
         # FIXME give plugins a chance?
+
+        # pop paths
+        if self.config.addPaths:
+            map(remove_path, paths_added)
 
     def loadTestsFromFile(self, filename):
         # only called for non-module files
@@ -195,11 +208,9 @@ class TestLoader(unittest.TestLoader):
             return suite([self.makeTest(obj, parent)])
         else:
             if addr.module:
-                # FIXME use nose importer; obviously this won't
-                # work for dotted names as written; plus it needs to do the
-                # import only from the parent dir, and handle sys.modules
                 try:
-                    module = __import__(addr.module)
+                    module = self.importer.import_from_path(
+                        addr.filename, addr.module)
                 except KeyboardInterrupt, SystemExit:
                     raise
                 except:
