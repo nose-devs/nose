@@ -19,6 +19,9 @@ class Failure(unittest.TestCase):
         self.tb = tb
         unittest.TestCase.__init__(self)
 
+    def __str__(self):
+        return "Failure: %s(%s)" % (self.exc_class, self.exc_val)
+
     def runTest(self):
         if self.tb:
             raise self.exc_class, self.exc_val, self.tb

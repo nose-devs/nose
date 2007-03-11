@@ -3,6 +3,7 @@ import sys
 import unittest
 from inspect import isclass, isfunction, ismethod
 from nose.case import Failure, FunctionTestCase, MethodTestCase
+from nose.config import Config
 from nose.context import FixtureContext
 from nose.selector import TestAddress
 from nose.util import cmp_lineno, getpackage, isgenerator, ispackage, \
@@ -11,13 +12,17 @@ from suite import LazySuite, ContextSuiteFactory
 
 class TestLoader(unittest.TestLoader):
 
-    def __init__(self, context=None):
-        # FIXME would get config too
-        # FIXME would get workingdir too
+    def __init__(self, config=None, context=None, working_dir=None):
         # FIXME would get selector too
+        if config is None:
+            config = Config()
         if context is None:
             context = FixtureContext()
+        if working_dir is None:
+            working_dir = os.getcwd()
+        self.config = config
         self.context = context
+        self.working_dir = working_dir
         self.suiteClass = ContextSuiteFactory(context)
         unittest.TestLoader.__init__(self)        
 
@@ -49,7 +54,7 @@ class TestLoader(unittest.TestLoader):
             print "at %s" % entry
 
             entry_path = os.path.abspath(os.path.join(path, entry))
-            is_test = entry.startswith('test')
+            is_test = entry.startswith('test') # FIXME use selector
             is_file = os.path.isfile(entry_path)
             if is_file:
                 is_dir = False
@@ -57,12 +62,15 @@ class TestLoader(unittest.TestLoader):
                 is_dir = os.path.isdir(entry_path)
             is_package = ispackage(entry_path)
             if is_test and is_file and entry.endswith('.py'):
-                yield self.loadTestsFromName(entry)
+                # FIXME this needs to be a full path name?
+                yield self.loadTestsFromName(entry_path)
             elif is_dir:
                 if is_package:
                     # Load the entry as a package: given the full path,
                     # loadTestsFromName() will figure it out
-                    yield self.loadTestsFromName(getpackage(entry_path))
+                    # FIXME should pass the full path name here and
+                    # let TestAddress figure it out?
+                    yield self.loadTestsFromName(entry_path)
                 elif is_test:
                     # Another test dir in this one: recurse lazily
                     yield LazySuite(
@@ -167,7 +175,7 @@ class TestLoader(unittest.TestLoader):
         # FIXME refactor this method into little bites
         # FIXME would pass working dir too
         suite = self.suiteClass
-        addr = TestAddress(name)
+        addr = TestAddress(name, working_dir=self.working_dir)
         print "load from %s (%s) (%s)" % (name, addr, module)
         print addr.filename, addr.module, addr.call
         

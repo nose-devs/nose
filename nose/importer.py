@@ -30,6 +30,10 @@ class Importer(object):
         self._imp = imputil._FilesystemImporter()
         self._imp.add_suffix('.py', imputil.py_suffix_importer)
         self._modules = {}
+
+    def import_from_path(self, path, fqname):
+        # FIXME import the fqname module from the given path
+        raise NotImplementedError("import_from_path not implemented")
         
     def import_from_dir(self, dir, fqname):
         dir = os.path.abspath(dir)

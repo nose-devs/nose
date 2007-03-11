@@ -194,7 +194,7 @@ class TestTestLoader(unittest.TestCase):
         l = TestLoader()
         assert l.context
 
-        l = TestLoader('whatever')
+        l = TestLoader(context='whatever')
         self.assertEqual(l.context, 'whatever')
 
     def test_load_from_name_dir_abs(self):
