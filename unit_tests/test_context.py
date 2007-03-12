@@ -308,6 +308,39 @@ class TestFixtureContext(unittest.TestCase):
             "Class teardown_class was not called"
         assert TestClass.inst_setup, "Instance setup was not called"
         assert TestClass.inst_teardown, "Instance teardown was not called"
+
+    def test_context_setup_err(self):
+
+        def setup():
+            raise Exception("Oh no! setup failed.")
         
+        def test_a():
+            pass
+
+        def test_b():
+            raise Exception("Should not be run")
+
+        mod = imp.new_module('mod_setup_err')
+        mod.setup = setup
+        setup.__module__ = 'mod_setup_err'
+        mod.test_a = test_a
+        test_a.__module__ = 'mod_setup_err'
+        mod.test_b = test_b
+        test_b.__module = 'mod_setup_err'
+        sys.modules['mod_setup_err'] = mod
+
+        context = FixtureContext()
+        a = FunctionTestCase(mod.test_a)
+        b = FunctionTestCase(mod.test_b)
+
+        case_a = context(a)
+        case_b = context(b)
+
+        res = unittest.TestResult()
+        case_a(res)
+        assert res.errors
+        assert len(res.errors) == 1
+        
+
 if __name__ == '__main__':
     unittest.main()

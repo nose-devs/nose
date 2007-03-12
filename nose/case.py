@@ -23,7 +23,7 @@ class Failure(unittest.TestCase):
         return "Failure: %s(%s)" % (self.exc_class, self.exc_val)
 
     def runTest(self):
-        if self.tb:
+        if self.tb is not None:
             raise self.exc_class, self.exc_val, self.tb
         else:
             raise self.exc_class(self.exc_val)
@@ -76,15 +76,16 @@ class Test(unittest.TestCase):
         appending captured output and assert introspection information, if
         so configured.
         """
-        # FIXME
-        raise NotImplementedError("exc_info")
+        # FIXME add in the stdout capture and such
+        exc, exv, tb = sys.exc_info()
+        return (exc, exv, tb)
         
     def id(self):
         return self.test.id()
 
-    def setUp(self):
-        log.debug("Test setup %s", self)
-        self.context.setup(self.test)
+#     def setUp(self):
+#         log.debug("Test setup %s", self)
+#         self.context.setup(self.test)
 
     def run(self, result):
         """Modified run for the test wrapper.
@@ -140,9 +141,9 @@ class Test(unittest.TestCase):
     def shortDescription(self):
         return self.test.shortDescription()
 
-    def tearDown(self):
-        log.debug("Test teardown %s", self)
-        self.context.teardown(self.test)
+#     def tearDown(self):
+#         log.debug("Test teardown %s", self)
+#         self.context.teardown(self.test)
         
 
 class TestBase(unittest.TestCase):

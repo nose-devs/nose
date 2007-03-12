@@ -30,7 +30,7 @@ class TestLoader(unittest.TestLoader):
         self.working_dir = working_dir
         if config.addPaths:
             add_path(working_dir)        
-        self.suiteClass = ContextSuiteFactory(context)
+        self.suiteClass = ContextSuiteFactory(context, config=config)
         unittest.TestLoader.__init__(self)        
 
     def loadTestsFromTestClass(self, cls):
@@ -49,7 +49,7 @@ class TestLoader(unittest.TestLoader):
             item = getattr(cls, entry, None)
             if ismethod(item):
                 tests.append(self.makeTest(item, cls))
-        return self.suiteClass(tests)
+        return self.suiteClass(tests, parent=cls)
 
     def loadTestsFromDir(self, path):
         print "load from dir %s" % path
@@ -155,7 +155,6 @@ class TestLoader(unittest.TestLoader):
                                   "%s is not a function or method" % test_func)
         return self.suiteClass(generate)
 
-
     def loadTestsFromModule(self, module):
         print "Load from module %s" % module.__name__
         tests = []
@@ -182,7 +181,7 @@ class TestLoader(unittest.TestLoader):
         for path in paths:
             tests.extend(self.loadTestsFromDir(path))
         # FIXME give plugins a chance
-        return self.suiteClass(tests)
+        return self.suiteClass(tests, parent=module)
     
     def loadTestsFromName(self, name, module=None):
         # FIXME refactor this method into little bites
@@ -205,7 +204,7 @@ class TestLoader(unittest.TestLoader):
             if addr.call:
                 name = addr.call
             parent, obj = self.resolve(name, module)
-            return suite([self.makeTest(obj, parent)])
+            return suite([self.makeTest(obj, parent)], parent=module)
         else:
             if addr.module:
                 try:

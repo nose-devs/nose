@@ -3,7 +3,7 @@ import os
 import sys
 import unittest
 from nose.loader import TestLoader
-
+from mock import MockContext
 
 from nose import context  # so we can set its __import__
 from nose import util # so we can set its __import__
@@ -163,7 +163,7 @@ def mock_import(modname, gl=None, lc=None, fr=None):
             sys.modules[mname] = mod
         return mod
     except KeyError:
-        raise ImportError("No '%s' in fake module list" % modname)
+        raise ImportError("No '%s' in fake module list" % modname)    
 
 
 class MockImporter:
@@ -185,7 +185,7 @@ class TestTestLoader(unittest.TestCase):
         os.path.isdir = mock_isdir
         os.path.isfile = mock_isfile
         context.__import__ = util.__import__ = mock_import
-        self.l = TestLoader(importer=MockImporter())
+        self.l = TestLoader(importer=MockImporter(), context=MockContext)
         
     def tearDown(self):
         os.listdir = _listdir
