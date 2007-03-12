@@ -99,41 +99,39 @@ class Test(unittest.TestCase):
         afterTest. These give plugins a chance to modify the wrapped
         test before it is called and do cleanup after it is
         called. They are called unconditionally.
-        """
-        # If I'm supposed to be proxying results (which I usually am),
-        # install the result proxy. self is passed so that the proxy can
-        # use it to call plugins with me (the wrapper) rather than the
-        # test case the result will see (my wrapped test case)
-        if self.context.result_proxy is not None:
-            result = self.context.result_proxy(result, self)
-        
+        """        
         self.beforeTest(result)
         try:
-            try:
-                # Run context setup
-                self.setUp()
-            except KeyboardInterrupt:
-                raise
-            except:
-                result.addError(self, self.exc_info())
-            try:
-                # Run the wrapped test case, including its setup and teardown
-                self.runTest(result)
-            except KeyboardInterrupt:
-                raise
-            except self.failureException:
-                result.addFailure(self. self.exc_info())
-            except:
-                result.addError(self, self.exc_info())
-            try:
-                # Run context teardown
-                self.tearDown()
-            except KeyboardInterrupt:
-                raise
-            except:
-                result.addError(self, self.exc_info())
+            self.runTest(result)
         finally:
             self.afterTest(result)
+            
+#         try:
+#             try:
+#                 # Run context setup
+#                 self.setUp()
+#             except KeyboardInterrupt:
+#                 raise
+#             except:
+#                 result.addError(self, self.exc_info())
+#             try:
+#                 # Run the wrapped test case, including its setup and teardown
+#                 self.runTest(result)
+#             except KeyboardInterrupt:
+#                 raise
+#             except self.failureException:
+#                 result.addFailure(self. self.exc_info())
+#             except:
+#                 result.addError(self, self.exc_info())
+#             try:
+#                 # Run context teardown
+#                 self.tearDown()
+#             except KeyboardInterrupt:
+#                 raise
+#             except:
+#                 result.addError(self, self.exc_info())
+#         finally:
+#             self.afterTest(result)
         
     def runTest(self, result):
         self.test(result)

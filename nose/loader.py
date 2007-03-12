@@ -19,7 +19,7 @@ class TestLoader(unittest.TestLoader):
         if config is None:
             config = Config()
         if context is None:
-            context = FixtureContext()
+            context = FixtureContext
         if importer is None:
             importer = Importer(config=config)
         if working_dir is None:

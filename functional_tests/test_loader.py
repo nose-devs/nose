@@ -41,7 +41,21 @@ class TestNoseTestLoader(unittest.TestCase):
         assert not res.errors, res.errors
         assert not res.failures, res.failures
 
+    def test_fixture_context(self):
+        res = unittest.TestResult()
+        wd = os.path.join(support, 'package2')
+        l = loader.TestLoader(working_dir=wd)
+        dir_suite = l.loadTestsFromName('.')
+        dir_suite(res)
+
+        m = sys.modules['test_pak']
+        print "test pak state", m.state
+
+        assert not res.errors, res.errors
+        assert not res.failures, res.failures
+        self.assertEqual(res.testsRun, 5)
+
 if __name__ == '__main__':
-    import logging
-    logging.basicConfig(level=logging.DEBUG)
+    #import logging
+    #logging.basicConfig(level=logging.DEBUG)
     unittest.main()
