@@ -4,9 +4,7 @@ import sys
 import unittest
 from nose.loader import TestLoader
 
-# FIXME need a mock Importer!
 
-from nose import loader # so we can set its __import__
 from nose import context  # so we can set its __import__
 from nose import util # so we can set its __import__
 import nose.case
@@ -166,6 +164,16 @@ def mock_import(modname, gl=None, lc=None, fr=None):
         return mod
     except KeyError:
         raise ImportError("No '%s' in fake module list" % modname)
+
+
+class MockImporter:
+    def import_from_path(self, path, fqname):
+        try:
+            m = M[fqname]
+        except KeyError:
+            raise ImportError(fqname)
+        sys.modules[fqname] = m
+        return m
     
 #
 # Tests
@@ -176,57 +184,58 @@ class TestTestLoader(unittest.TestCase):
         os.listdir = mock_listdir
         os.path.isdir = mock_isdir
         os.path.isfile = mock_isfile
-        loader.__import__ = context.__import__ = util.__import__ = mock_import
+        context.__import__ = util.__import__ = mock_import
+        self.l = TestLoader(importer=MockImporter())
         
     def tearDown(self):
         os.listdir = _listdir
         os.path.isdir = _isdir
         os.path.isfile = _isfile
-        loader.__import__ = context.__import__ = util.__import__ = __import__
+        context.__import__ = util.__import__ = __import__
 
     def test_lint(self):
         """Test that main API functions exist
         """
-        l = TestLoader()
+        l = self.l
         l.loadTestsFromTestCase
         l.loadTestsFromModule
         l.loadTestsFromName
         l.loadTestsFromNames
 
     def test_loader_has_context(self):
-        l = TestLoader()
+        l = self.l
         assert l.context
 
         l = TestLoader(context='whatever')
         self.assertEqual(l.context, 'whatever')
 
     def test_load_from_name_dir_abs(self):
-        l = TestLoader()
+        l = self.l
         suite = l.loadTestsFromName('/a/dir/path')
         tests = [t for t in suite]
         self.assertEqual(len(tests), 1)
 
     def test_load_from_name_module_filename(self):
-        l = TestLoader()
+        l = self.l
         suite = l.loadTestsFromName('test_module.py')
         tests = [t for t in suite]
         assert tests
 
     def test_load_from_name_module(self):
-        l = TestLoader()
+        l = self.l
         suite = l.loadTestsFromName('test_module')
         tests = [t for t in suite]
         assert tests            
 
     def test_load_from_name_nontest_module(self):        
-        l = TestLoader()
+        l = self.l
         suite = l.loadTestsFromName('module')
         tests = [t for t in suite]
         assert tests
 
     def test_load_from_name_method(self):
         res = unittest.TestResult()
-        l = TestLoader()
+        l = self.l
         suite = l.loadTestsFromName(':TC.runTest')
         tests = [t for t in suite]
         assert tests
@@ -235,7 +244,7 @@ class TestTestLoader(unittest.TestCase):
         assert not res.errors, "Got errors %s running tests" % res.errors
 
     def test_load_from_name_module_class(self):
-        l = TestLoader()
+        l = self.l
         suite = l.loadTestsFromName('test_module:TC')
         tests = [t for t in suite]
         assert tests
@@ -244,7 +253,7 @@ class TestTestLoader(unittest.TestCase):
         assert filter(lambda t: t.context, tests)
 
     def test_load_from_name_module_func(self):
-        l = TestLoader()
+        l = self.l
         suite = l.loadTestsFromName('test_module:test_func')
         tests = [t for t in suite]
         assert tests
@@ -254,7 +263,7 @@ class TestTestLoader(unittest.TestCase):
                "Expected FunctionTestCase not %s" % tests[0].test
 
     def test_load_from_name_module_method(self):
-        l = TestLoader()
+        l = self.l
         suite = l.loadTestsFromName('test_module:TC.runTest')
         tests = [t for t in suite]
         assert tests
@@ -263,7 +272,7 @@ class TestTestLoader(unittest.TestCase):
 
     def test_load_from_name_module_missing_class(self):
         res = unittest.TestResult()
-        l = TestLoader()
+        l = self.l
         suite = l.loadTestsFromName('test_module:TC2')
         tests = [t for t in suite]
         assert len(tests) == 1, \
@@ -273,7 +282,7 @@ class TestTestLoader(unittest.TestCase):
 
     def test_load_from_name_module_missing_func(self):
         res = unittest.TestResult()
-        l = TestLoader()
+        l = self.l
         suite = l.loadTestsFromName('test_module:test_func2')
         tests = [t for t in suite]
         assert len(tests) == 1, \
@@ -283,7 +292,7 @@ class TestTestLoader(unittest.TestCase):
 
     def test_load_from_name_module_missing_method(self):
         res = unittest.TestResult()
-        l = TestLoader()
+        l = self.l
         suite = l.loadTestsFromName('test_module:TC.testThat')
         tests = [t for t in suite]
         assert len(tests) == 1, \
@@ -293,7 +302,7 @@ class TestTestLoader(unittest.TestCase):
 
     def test_load_from_name_missing_module(self):
         res = unittest.TestResult()
-        l = TestLoader()
+        l = self.l
         suite = l.loadTestsFromName('other_test_module')
         tests = [t for t in suite]
         assert len(tests) == 1, \
@@ -303,7 +312,7 @@ class TestTestLoader(unittest.TestCase):
 
     def test_cases_from_testcase_have_context(self):
         test_module = M['test_module']
-        l = TestLoader()
+        l = self.l
         suite = l.loadTestsFromTestCase(test_module.TC)
         print suite
         tests = [t for t in suite]
@@ -311,7 +320,7 @@ class TestTestLoader(unittest.TestCase):
             assert hasattr(test, 'context'), "Test %s has no context" % test
 
     def test_load_test_func(self):
-        l = TestLoader()
+        l = self.l
         suite = l.loadTestsFromName('test_module')
         tests = [t for t in suite]
         self.assertEqual(len(tests), 2, "Wanted 2 tests, got %s" % tests)
@@ -333,7 +342,7 @@ class TestTestLoader(unittest.TestCase):
                    "Expected FunctionTestCase not %s" % tests[1].test
 
     def test_load_from_name_package_root_path(self):
-        l = TestLoader()
+        l = self.l
         suite = l.loadTestsFromName('/package')
         print suite
         tests = [t for t in suite]
@@ -342,7 +351,7 @@ class TestTestLoader(unittest.TestCase):
         assert not tests, "The full test list %s was not empty" % tests
 
     def test_load_from_name_subpackage_path(self):
-        l = TestLoader()
+        l = self.l
         suite = l.loadTestsFromName('/package/subpackage')
         print suite
         tests = [t for t in suite]
@@ -350,7 +359,7 @@ class TestTestLoader(unittest.TestCase):
 
     def test_load_generators(self):
         test_module_with_generators = M['test_module_with_generators']
-        l = TestLoader()
+        l = self.l
         suite = l.loadTestsFromModule(test_module_with_generators)
         tests = [t for t in suite]
 
