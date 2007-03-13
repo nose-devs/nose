@@ -5,7 +5,7 @@ to create test cases from test functions and methods in test classes.
 import logging
 import sys
 import unittest
-from nose.result import start_capture, end_capture
+from nose.proxy import ResultProxyFactory
 from nose.util import try_run
 
 log = logging.getLogger(__name__)
@@ -36,10 +36,13 @@ class Test(unittest.TestCase):
     class. To access the actual test case that will be run, access the
     test property of the nose.case.Test instance.    
     """
-    def __init__(self, context, test):
+    def __init__(self, context, test, result_proxy=None):
         log.debug("Test %s %s", context, test)
         self.context = context
         self.test = test
+        if result_proxy is None:
+            result_proxy = ResultProxyFactory(context.config)
+        self.result_proxy = result_proxy
         self.captured_output = None
         self.assert_info = None
         unittest.TestCase.__init__(self)
@@ -53,21 +56,15 @@ class Test(unittest.TestCase):
 
     def afterTest(self, result):
         log.debug("Test afterTest %s", self)
-        # FIXME call plugins
-        if self.context.config.capture:
-            end_capture()
         try:
-            result.afterTest(self)
+            result.afterTest(self.test)
         except AttributeError:
             pass
 
     def beforeTest(self, result):
         log.debug("Test beforeTest %s", self)
-        if self.context.config.capture:
-            start_capture()        
-        # FIXME call plugins
         try:
-            result.beforeTest(self)
+            result.beforeTest(self.test)
         except AttributeError:
             pass
 
@@ -83,10 +80,6 @@ class Test(unittest.TestCase):
     def id(self):
         return self.test.id()
 
-#     def setUp(self):
-#         log.debug("Test setup %s", self)
-#         self.context.setup(self.test)
-
     def run(self, result):
         """Modified run for the test wrapper.
 
@@ -100,49 +93,18 @@ class Test(unittest.TestCase):
         test before it is called and do cleanup after it is
         called. They are called unconditionally.
         """
-        # FIXME get a result proxy from the context?
+        result = self.result_proxy(result, self)
         self.beforeTest(result)
         try:
             self.runTest(result)
         finally:
             self.afterTest(result)
-            
-#         try:
-#             try:
-#                 # Run context setup
-#                 self.setUp()
-#             except KeyboardInterrupt:
-#                 raise
-#             except:
-#                 result.addError(self, self.exc_info())
-#             try:
-#                 # Run the wrapped test case, including its setup and teardown
-#                 self.runTest(result)
-#             except KeyboardInterrupt:
-#                 raise
-#             except self.failureException:
-#                 result.addFailure(self. self.exc_info())
-#             except:
-#                 result.addError(self, self.exc_info())
-#             try:
-#                 # Run context teardown
-#                 self.tearDown()
-#             except KeyboardInterrupt:
-#                 raise
-#             except:
-#                 result.addError(self, self.exc_info())
-#         finally:
-#             self.afterTest(result)
         
     def runTest(self, result):
         self.test(result)
 
     def shortDescription(self):
         return self.test.shortDescription()
-
-#     def tearDown(self):
-#         log.debug("Test teardown %s", self)
-#         self.context.teardown(self.test)
         
 
 class TestBase(unittest.TestCase):

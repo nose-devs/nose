@@ -94,7 +94,7 @@ class TestNoseCases(unittest.TestCase):
 
 
 class TestNoseTestWrapper(unittest.TestCase):
-    def test_context_case_fixtures(self):
+    def test_case_fixtures_called(self):
         """Instance fixtures are properly called for wrapped tests"""
         res = unittest.TestResult()
         called = []
@@ -117,7 +117,8 @@ class TestNoseTestWrapper(unittest.TestCase):
         assert not res.failures, res.failures
         self.assertEqual(called, ['setUp', 'runTest', 'tearDown'])
 
-    def test_context_case_result_proxy(self):
+    def test_result_proxy_used(self):
+        """A result proxy is used to wrap the result for all tests"""
         class TC(unittest.TestCase):
             def runTest(self):
                 raise Exception("error")
@@ -165,8 +166,9 @@ class TestNoseTestWrapper(unittest.TestCase):
                        "addSuccess was called for %s (%s)" % test
                 
         res = unittest.TestResult()
+        config = Config()
         proxy = ResPrxFactory()
-        context = FixtureContext(result_proxy=proxy)
+        context = FixtureContext(config=config, result_proxy=proxy)
         case = context(TC())
 
         case(res)

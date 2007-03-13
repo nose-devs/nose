@@ -30,6 +30,8 @@ class Config(object):
         self.update(kw)
         self._orig = self.__dict__.copy()
 
+    # FIXME maybe kill all this and instantiate a new config for each
+    # working dir
     def get_where(self):
         return self._where
 

@@ -58,8 +58,10 @@ class TestLoader(unittest.TestLoader):
 
         if self.config.addPaths:
             paths_added = add_path(path)
-            
-        for entry in os.listdir(path):
+
+        entries = os.listdir(path)
+        entries.sort()
+        for entry in entries:
             if entry.startswith('.') or entry.startswith('_'):
                 continue
             print "at %s" % entry

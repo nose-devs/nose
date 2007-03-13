@@ -110,6 +110,7 @@ import logging
 import pkg_resources
 from warnings import warn
 from nose.plugins.base import *
+from nose.plugins.manager import PluginManager
 
 log = logging.getLogger(__name__)
 
@@ -117,6 +118,7 @@ def call_plugins(plugins, method, *arg, **kw):
     """Call all method on plugins in list, that define it, with provided
     arguments. The first response that is not None is returned.
     """
+    raise Exception("DEPRECATED")
     for plug in plugins:
         func = getattr(plug, method, None)
         if func is None:
@@ -130,6 +132,8 @@ def call_plugins(plugins, method, *arg, **kw):
 def load_plugins(builtin=True, others=True):
     """Load plugins, either builtin, others, or both.
     """
+    raise Exception("DEPRECATED")
+
     for ep in pkg_resources.iter_entry_points('nose.plugins'):
         log.debug("load plugin %s" % ep)
         try:

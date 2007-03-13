@@ -1,3 +1,4 @@
+import sys
 import unittest
 from inspect import ismethod
 from nose.config import Config
@@ -39,16 +40,20 @@ class TestResultProxy(unittest.TestCase):
         class TC(unittest.TestCase):
             def runTest(self):
                 pass
+        try:
+            raise Exception("exception")
+        except:
+            err = sys.exc_info()
         context = FixtureContext()
         test = TC()
         case = context(test)
         res = Dummy()
         proxy = ResultProxy(res, test=case)
-        proxy.addError(test, (1, 2, 3))
-        proxy.addFailure(test, (1, 2, 3))
+        proxy.addError(test, err)
+        proxy.addFailure(test, err)
         proxy.addSuccess(test)
-        proxy.addSkip(test)
-        proxy.addDeprecated(test)
+        proxy.addSkip(test, err)
+        proxy.addDeprecated(test, err)
         proxy.startTest(test)
         proxy.stopTest(test)
         proxy.beforeTest(test)
@@ -70,8 +75,8 @@ class TestResultProxy(unittest.TestCase):
         case = context(test)
         res = unittest.TestResult()
         proxy = ResultProxy(res, case)
-        proxy.addSkip(test)
-        proxy.addDeprecated(test)
+        proxy.addSkip(test, None)
+        proxy.addDeprecated(test, None)
         proxy.beforeTest(test)
         proxy.afterTest(test)
         
@@ -86,9 +91,7 @@ class TestResultProxy(unittest.TestCase):
                 self.fail()
         config = Config()
         config.capture = True
-
-        factory = ResultProxyFactory(config)
-        context = FixtureContext(config=config, result_proxy=factory)
+        context = FixtureContext(config=config)
         case = context(TC('test_fail'))
 
         case(res)

@@ -31,7 +31,7 @@ class Result(object):
     tbinfo = None
     shouldStop = False
     
-    def addDeprecated(self, test):
+    def addDeprecated(self, test, err):
         self.resetBuffer()
         call_plugins(self.conf.plugins, 'addDeprecated', test)
         
@@ -75,7 +75,7 @@ class Result(object):
         if self.conf.stopOnError:
             self.shouldStop = True
         
-    def addSkip(self, test):
+    def addSkip(self, test, err):
         self.resetBuffer()
         call_plugins(self.conf.plugins, 'addSkip', test)
 

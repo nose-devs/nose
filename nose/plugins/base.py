@@ -142,7 +142,18 @@ class IPluginInterface(object):
     def __new__(cls, *arg, **kw):
         raise TypeError("IPluginInterface class is for documentation only")
 
-    def addDeprecated(self, test):
+    def addOptions(self, parser, env=os.environ):
+        """Called to allow plugin to register command line
+        options with the parser.
+
+        Do *not* return a value from this method unless you want to stop
+        all other plugins from setting their options.
+        """
+        pass
+
+    # FIXME beforeTest, afterTest
+
+    def addDeprecated(self, test, err):
         """Called when a deprecated test is seen. DO NOT return a value
         unless you want to stop other plugins from seeing the deprecated
         test.
@@ -184,7 +195,7 @@ class IPluginInterface(object):
         """
         pass
 
-    def addSkip(self, test):
+    def addSkip(self, test, err):
         """Called when a test is skipped. DO NOT return a value unless
         you want to stop other plugins from seeing the skipped test.
 
@@ -212,6 +223,17 @@ class IPluginInterface(object):
         """
         pass
 
+    def configure(self, options, conf):
+        """Called after the command line has been parsed, with the
+        parsed options and the config container. Here, implement any
+        config storage or changes to state or operation that are set
+        by command line options.
+
+        Do *not* return a value from this method unless you want to
+        stop all other plugins from being configured.
+        """
+        pass
+
     def finalize(self, result):
         """Called after all report output, including output from all plugins,
         has been sent to the stream. Use this to print final test
@@ -219,6 +241,8 @@ class IPluginInterface(object):
         printing, any other value to stop them.
         """
         pass
+
+    # FIXME loadTestsFromClass, loadTestsFromDir
     
     def loadTestsFromModule(self, module):
         """Return iterable of tests in a module. May be a
@@ -231,6 +255,7 @@ class IPluginInterface(object):
            The module object
         """
         pass
+    loadTestsFromModule.generative = True
     
     def loadTestsFromName(self, name, module=None, importPath=None):
         """Return tests in this file or module. Return None if you are not able
@@ -244,9 +269,11 @@ class IPluginInterface(object):
          * module:
            Module in which the file is found
          * importPath:
-           Path from which file (must be a python module) was found        
+           Path from which file (must be a python module) was found
+           DEPRECATED: this argument will NOT be passed.
         """
         pass
+    loadTestsFromName.generative = True
 
     def loadTestsFromPath(self, path, module=None, importPath=None):
         """Return tests in this file or directory. Return None if you are not
@@ -262,6 +289,8 @@ class IPluginInterface(object):
            Path from which file (must be a python module) was found        
         """
         pass
+    loadTestsFromPath.generative = True
+    loadTestsFromFile = loadTestsFromPath
     
     def loadTestsFromTestCase(self, cls):
         """Return tests in this test case class. Return None if you are
@@ -273,6 +302,7 @@ class IPluginInterface(object):
            The test case class
         """
         pass
+    loadTestsFromTestCase.generative = True
     
     def prepareTest(self, test):
         """Called before the test is run by the test runner. Please note
@@ -288,6 +318,8 @@ class IPluginInterface(object):
            the test case
         """
         pass
+
+    # FIXME prepareTestCase
     
     def report(self, stream):
         """Called after all error output has been printed. Print your

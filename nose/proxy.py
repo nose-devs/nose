@@ -10,12 +10,21 @@ import logging
 import sys
 import unittest
 from nose.config import Config
-from nose.result import ln
+from nose.inspector import inspect_traceback
+from nose.result import ln, start_capture, end_capture
+
+try:
+    from cStringIO import StringIO
+except ImportError:
+    from StringIO import StringIO
+
 
 log = logging.getLogger(__name__)
 
 class ResultProxyFactory(object):
-
+    """Factory for result proxies. Generates a ResultProxy bound to each test
+    and the result passed to the test.
+    """
     def __init__(self, config=None):
         if config is None:
             config = Config()
@@ -26,51 +35,114 @@ class ResultProxyFactory(object):
 
 
 class ResultProxy(object):
+    """Proxy to TestResults (or other results handler).
 
+    One ResultProxy is created for each nose.case.Test. The result proxy
+    handles processing the output capture and assert introspection duties,
+    as well as calling plugins with the nose.case.Test instance (instead of the
+    wrapped test case) as each result call is made. Finally, the real result
+    method is called with the wrapped test.
+    """
+    
     def __init__(self, result, test, config=None):
         if config is None:
             config = Config()
         self.config = config
         self.result = result
+        self.stdout = [] # stack of stdout patches
         self.test = test
 
     def __repr__(self):
         return repr(self.result)
 
+    def assertMyTest(self, test):
+        assert test is self.test.test, \
+               "ResultProxy for %s (%s) was called with test %s (%s)" \
+               % (self.test.test, id(self.test.test), test, id(test))
+
     def afterTest(self, test):
+        self.assertMyTest(test)
         try:
             self.result.beforeTest(test)
         except AttributeError:
             pass
+        # FIXME call plugins
+        if self.config.capture:
+            end_capture()
 
     def beforeTest(self, test):
+        self.assertMyTest(test)
         try:
             self.result.afterTest(test)
         except AttributeError:
             pass
+        if self.config.capture:
+            start_capture()
+        # FIXME call plugins
     
-    def addDeprecated(self, test):
+    def addDeprecated(self, test, err):
+        self.assertMyTest(test)
         try:
-            self.result.addDeprecated(test)
+            self.result.addDeprecated(test, err)
         except AttributeError:
             pass
     
     def addError(self, test, err):
+        self.assertMyTest(test)
+        # call plugins
+        # extract capture and assert information
+        err = self.formatErr(err)
         self.result.addError(test, err)
 
     def addFailure(self, test, err):
+        self.assertMyTest(test)
+        # call plugins
+        # extract capture and assert information
+        err = self.formatErr(err, inspect_tb=True)
         self.result.addFailure(test, err)
 
-    def addSkip(self, test):
+    def addSkip(self, test, err):
+        self.assertMyTest(test)
         try:
-            self.result.addSkip(test)
+            self.result.addSkip(test, err)
         except AttributeError:
             pass
     
     def addSuccess(self, test):
+        self.assertMyTest(test)
         self.result.addSuccess(test)
 
+    def endCapture(self):
+        try:
+            capt = sys.stdout.getvalue()
+        except AttributeError:
+            capt = ''
+        if self.stdout:
+            sys.stdout = self.stdout.pop()
+        self.test.captured_output = capt
+        return capt
+
+    def formatErr(self, err, inspect_tb=False):
+        capt = self.config.capture
+        if not capt and not inspect_tb:
+            return err
+        ec, ev, tb = err
+        if capt:
+            output = self.endCapture()
+            self.startCapture()
+            ev = '\n'.join([str(ev) , ln('>> begin captured stdout <<'),
+                            output, ln('>> end captured stdout <<')])
+        if inspect_tb:
+            tbinfo = inspect_traceback(tb)
+            ev = '\n'.join([str(ev), tbinfo])
+        return (ec, ev, tb)
+
+    def startCapture(self):
+        self.stdout.append(sys.stdout)
+        sys.stdout = StringIO()
+
     def startTest(self, test):
+        self.assertMyTest(test)
         self.result.startTest(test)
     
     def stop(self):

@@ -9,7 +9,7 @@ log = logging.getLogger(__name__)
 
 class FixtureContext(object):
 
-    def __init__(self, parent=None, config=None):
+    def __init__(self, parent=None, config=None, result_proxy = None):
         """Initialize a FixtureContext for a test run.
 
         Optional arguments:
@@ -25,6 +25,7 @@ class FixtureContext(object):
         if config is None:
             config = Config()
         self.config = config
+        self.result_proxy = result_proxy
         self.was_setup = False
         self.was_torndown = False
 
@@ -34,7 +35,7 @@ class FixtureContext(object):
 
     def add(self, test):
         log.debug("Add %s to parent %s", test, self.parent)
-        return Test(self, test)
+        return Test(self, test, result_proxy=self.result_proxy)
 
     def setup(self):
         """Context setup. If this is the first for any surrounding package or
@@ -45,6 +46,8 @@ class FixtureContext(object):
         if self.was_setup:
             return
         parent = self.parent
+        if parent is None:
+            return
         if isclass(parent):
             names = ('setup_class',)
         else:
@@ -63,6 +66,8 @@ class FixtureContext(object):
         if not self.was_setup or self.was_torndown:
             return
         parent = self.parent
+        if parent is None:
+            return
         if isclass(parent):
             names = ('teardown_class',)
         else:
