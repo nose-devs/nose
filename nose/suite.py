@@ -67,9 +67,8 @@ class LazySuite(unittest.TestSuite):
         
 
 #
-# FIXME these may need to hang on to and pass around a full environment
-# (config, etc) not just the context, to get capture settings etc in
-# each test
+# FIXME how to get the result proxy in there? Does it make sense
+# to put that into the context?
 #
 
 class ContextSuiteFactory(object):
@@ -80,12 +79,6 @@ class ContextSuiteFactory(object):
         self.config = config
 
     def __call__(self, tests, parent=None):
-        print "Building a context suite for %s" % tests
-        #if callable(tests) and not isinstance(tests, unittest.TestCase):
-        #    suite = tests
-        #else:
-        #    suite = lambda: tests
-        #print "Suite is %s" % suite
         context = self.context(parent, config=self.config)
         return ContextSuite(tests, context)
 
@@ -134,7 +127,7 @@ class ContextSuite(LazySuite):
                 result.addError(self, self.exc_info())
 
     def setUp(self):
-        print "suite setUp called, tests: %s" % self._tests
+        log.debug("suite setUp called, tests: %s", self._tests)
         if self:
             self.context.setup()
             self.was_setup = True

@@ -55,6 +55,31 @@ class TestNoseTestLoader(unittest.TestCase):
         assert not res.failures, res.failures
         self.assertEqual(res.testsRun, 5)
 
+        # Expected order of calls
+        expect = ['test_pak.setup',
+                  'test_pak.test_mod.setup',
+                  'test_pak.test_mod.test_add',
+                  'test_pak.test_mod.test_minus',
+                  'test_pak.test_mod.teardown',
+                  'test_pak.test_sub.setup',
+                  'test_pak.test_sub.test_mod.setup',
+                  'test_pack.test_sub.test_mod.TestMaths.setup_class',
+                  'test_pack.test_sub.test_mod.TestMaths.setup',
+                  'test_pack.test_sub.test_mod.TestMaths.test_div',
+                  'test_pack.test_sub.test_mod.TestMaths.teardown',
+                  'test_pack.test_sub.test_mod.TestMaths.setup',
+                  'test_pack.test_sub.test_mod.TestMaths.test_two_two',
+                  'test_pack.test_sub.test_mod.TestMaths.teardown',
+                  'test_pack.test_sub.test_mod.TestMaths.teardown_class',
+                  'test_pak.test_sub.test_mod.test',
+                  'test_pak.test_sub.test_mod.teardown',
+                  'test_pak.test_sub.teardown',
+                  'test_pak.teardown']
+        self.assertEqual(len(m.state), len(expect))
+        for item in m.state:
+            self.assertEqual(item, expect.pop(0))
+            
+        
 if __name__ == '__main__':
     #import logging
     #logging.basicConfig(level=logging.DEBUG)

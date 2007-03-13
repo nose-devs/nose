@@ -99,7 +99,8 @@ class Test(unittest.TestCase):
         afterTest. These give plugins a chance to modify the wrapped
         test before it is called and do cleanup after it is
         called. They are called unconditionally.
-        """        
+        """
+        # FIXME get a result proxy from the context?
         self.beforeTest(result)
         try:
             self.runTest(result)

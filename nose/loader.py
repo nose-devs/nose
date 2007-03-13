@@ -12,12 +12,14 @@ from nose.util import cmp_lineno, getpackage, isgenerator, ispackage, \
 from suite import LazySuite, ContextSuiteFactory
 
 class TestLoader(unittest.TestLoader):
-
+    
     def __init__(self, config=None, context=None, importer=None,
                  working_dir=None):
         # FIXME would get selector too
         if config is None:
             config = Config()
+        # NOTE in cases where a native result object isn't available,
+        # the caller should pass in a context with a result proxy
         if context is None:
             context = FixtureContext
         if importer is None:
@@ -162,7 +164,7 @@ class TestLoader(unittest.TestLoader):
         test_funcs = []
         for item in dir(module):
             test = getattr(module, item, None)
-            print "Check %s (%s) in %s" % (item, test, module.__name__)
+            # print "Check %s (%s) in %s" % (item, test, module.__name__)
             if isclass(test):
                 # FIXME use a selector
                 if (issubclass(test, unittest.TestCase)
