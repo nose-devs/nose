@@ -2,6 +2,7 @@ import os
 import re
 import sys
 
+
 class Config(object):
     """nose configuration. For internal use only.
     """
@@ -20,7 +21,7 @@ class Config(object):
                              re.compile(r'^setup\.py$')
                              ]
         self.include = None
-        self.plugins = []
+        self.plugins = NoPlugins()
         self.srcDirs = ['lib', 'src']
         self.stopOnError = False
         self.tests = []
@@ -70,3 +71,12 @@ class Config(object):
     working_dir = property(get_working_dir, set_working_dir, None,
                            "The current working directory (the root "
                            "directory of the current test run).")
+
+
+class NoPlugins(object):
+
+    def __getattr__(self, call):
+        return self
+
+    def __call__(self, *arg, **kw):
+        return

@@ -2,27 +2,25 @@ import unittest
 from nose import case
 from nose.plugins import Plugin, PluginManager
 
-class Plug(Plugin):
 
+class Plug(Plugin):
     def loadTestsFromFile(self, path):
         class TC(unittest.TestCase):
             def test(self):
                 pass
         return [TC('test')]
-
     def addError(self, test, err):
         return True
 
 class Plug2(Plugin):
-
     def loadTestsFromFile(self, path):
         class TCT(unittest.TestCase):
             def test_2(self):
                 pass
         return [TCT('test_2')]
-
     def addError(self, test, err):
         assert False, "Should not have been called"
+
 
 class TestPluginManager(unittest.TestCase):
 
@@ -39,6 +37,13 @@ class TestPluginManager(unittest.TestCase):
             all.append(res)
         self.assertEqual(len(all), 2)
 
+    def test_iter(self):
+        expect = [Plug(), Plug2()]
+        man = PluginManager(plugins=expect)
+        for plug in man:
+            self.assertEqual(plug, expect.pop(0))
+        assert not expect, \
+               "Some plugins were not found by iteration: %s" % expect
 
 if __name__ == '__main__':
     unittest.main()

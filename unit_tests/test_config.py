@@ -32,5 +32,12 @@ class TestNoseConfig(unittest.TestCase):
         conf = configure(['--include=b'])
         self.assertEqual(conf.include, [re.compile('b')])
 
+    def test_plugins(self):
+        c = nose.config.Config()
+        assert c.plugins
+
+        # default no-plugins state allows any call
+        c.plugins.whatever()
+
 if __name__ == '__main__':
     unittest.main()

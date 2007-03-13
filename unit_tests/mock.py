@@ -23,3 +23,25 @@ class MockContext:
         print "Context teardown called"
         if self.parent is not None:
             self.parent.teardown()
+
+
+class RecordingPluginManager(object):
+
+    def __init__(self):
+        self.reset()
+
+    def __getattr__(self, call):
+        return RecordingPluginProxy(self, call)
+
+    def reset(self):
+        self.called = {}
+
+
+class RecordingPluginProxy(object):
+
+    def __init__(self, manager, call):
+        self.man = manager
+        self.call = call
+        
+    def __call__(self, *arg, **kw):
+        self.man.called.setdefault(self.call, []).append((arg, kw))

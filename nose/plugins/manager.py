@@ -18,6 +18,9 @@ class PluginManager(object):
     def __getattr__(self, call):
         return PluginProxy(call, self._plugins)
 
+    def __iter__(self):
+        return iter(self.plugins)
+
     def addPlugin(self, plug):
         self._plugins.append(plug)
 
@@ -48,7 +51,6 @@ class PluginProxy(object):
     def __init__(self, call, plugins):
         self.call = call
         self.plugins = plugins[:]
-
     
     def __call__(self, *arg, **kw):
         try:

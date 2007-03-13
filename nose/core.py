@@ -299,16 +299,17 @@ def get_parser(env=None):
                       help="DO NOT look for tests in python modules that are "
                       "executable. (The default on the windows platform is to "
                       "do so.)")
-    
-    # add opts from plugins
-    all_plugins = []
-    # when generating the help message, load only builtin plugins
-    for plugcls in load_plugins():
-        plug = plugcls()
-        try:
-            plug.add_options(parser, env)
-        except AttributeError:
-            pass
+
+##     # FIXME move this
+##     # add opts from plugins
+##     all_plugins = []
+##     # when generating the help message, load only builtin plugins
+##     for plugcls in load_plugins():
+##         plug = plugcls()
+##         try:
+##             plug.add_options(parser, env)
+##         except AttributeError:
+##             pass
     
     return parser
 
@@ -321,7 +322,8 @@ def configure(argv=None, env=None, help=False, disable_plugins=None):
         argv = sys.argv
     if env is None:
         env = os.environ
-    
+
+    # FIXME pass the plugin manager here
     conf = Config()
     parser = get_parser(env=env)
         
@@ -353,16 +355,18 @@ def configure(argv=None, env=None, help=False, disable_plugins=None):
         
     configure_logging(options)
 
-    # hand options to plugins
-    all_plugins = [plug() for plug in load_plugins()]
-    for plug in all_plugins:
-        plug.configure(options, conf)
-        if plug.enabled and disable_plugins:
-            for meth in disable_plugins:
-                if hasattr(plug, meth):
-                    plug.enabled = False
-                    log.warning("Plugin %s disabled: not all methods "
-                                "supported in this environment" % plug.name)
+# FIXME use plugin manager
+
+##     # hand options to plugins
+##     all_plugins = [plug() for plug in load_plugins()]
+##     for plug in all_plugins:
+##         plug.configure(options, conf)
+##         if plug.enabled and disable_plugins:
+##             for meth in disable_plugins:
+##                 if hasattr(plug, meth):
+##                     plug.enabled = False
+##                     log.warning("Plugin %s disabled: not all methods "
+##                                 "supported in this environment" % plug.name)
     conf.addPaths = options.addPaths
     conf.capture = options.capture
     conf.detailedErrors = options.detailedErrors

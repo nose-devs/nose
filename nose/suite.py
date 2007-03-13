@@ -105,6 +105,7 @@ class ContextSuite(LazySuite):
     def run(self, result):
         """Run tests in suite inside of suite fixtures.
         """
+        # FIXME proxy the result *here*
         try:
             self.setUp()
         except KeyboardInterrupt:
@@ -117,6 +118,7 @@ class ContextSuite(LazySuite):
                 log.debug("running test %s", test)
                 if result.shouldStop:
                     break
+                # FIXME and proxy the result *here*
                 test(result)
         finally:
             try:

@@ -1,17 +1,28 @@
-"""Compatibility shim for running under the setuptools test command. The
-ResultProxy wraps the actual TestResult passed to a test and implements output
-capture and plugin support. TestProxy wraps test cases and in those wrapped
-test cases, wraps the TestResult with a ResultProxy.
+"""
+Result Proxy
+------------
 
-To enable this functionality, use ResultProxySuite as the suiteClass in a
-TestLoader.
+The result proxy wraps the result instance given to each test. It
+performs two functions: enabling extended error/failure reporting,
+including output capture and assert introspection, and calling
+plugins.
+
+As each result event is fired, plugins are called with the same event;
+however, plugins are called with the nose.case.Test instance that
+wraps the actual test. So when a test fails and calls
+result.addFailure(self, err), the result proxy calls
+addFailure(self.test, err) for each plugin. This allows plugins to
+have a single stable interface for all test types, and also to
+manipulate the test object itself by setting the `test` attribute of
+the nose.case.Test that they receive.
 """
 import logging
 import sys
 import unittest
+from nose.exc import SkipTest, DeprecatedTest
 from nose.config import Config
 from nose.inspector import inspect_traceback
-from nose.result import ln, start_capture, end_capture
+from nose.util import ln
 
 try:
     from cStringIO import StringIO
@@ -42,12 +53,12 @@ class ResultProxy(object):
     as well as calling plugins with the nose.case.Test instance (instead of the
     wrapped test case) as each result call is made. Finally, the real result
     method is called with the wrapped test.
-    """
-    
+    """    
     def __init__(self, result, test, config=None):
         if config is None:
             config = Config()
         self.config = config
+        self.plugins = config.plugins
         self.result = result
         self.stdout = [] # stack of stdout patches
         self.test = test
@@ -62,26 +73,27 @@ class ResultProxy(object):
 
     def afterTest(self, test):
         self.assertMyTest(test)
+        self.plugins.afterTest(self.test)
         try:
             self.result.beforeTest(test)
         except AttributeError:
             pass
-        # FIXME call plugins
         if self.config.capture:
-            end_capture()
+            self.endCapture()
 
     def beforeTest(self, test):
         self.assertMyTest(test)
+        self.plugins.beforeTest(self.test)
         try:
             self.result.afterTest(test)
         except AttributeError:
             pass
         if self.config.capture:
-            start_capture()
-        # FIXME call plugins
+            self.startCapture()
     
     def addDeprecated(self, test, err):
         self.assertMyTest(test)
+        self.plugins.addDeprecated(self.test, err)
         try:
             self.result.addDeprecated(test, err)
         except AttributeError:
@@ -89,20 +101,26 @@ class ResultProxy(object):
     
     def addError(self, test, err):
         self.assertMyTest(test)
-        # call plugins
-        # extract capture and assert information
+
+        # Skip and Deprecated will land here first
+        ec, ev, tb = err
+        if issubclass(ec, SkipTest):
+            return self.addSkip(test, err)
+        elif issubclass(ec, DeprecatedTest):
+            return self.addDeprecated(test, err)        
         err = self.formatErr(err)
+        self.plugins.addError(self.test, err)
         self.result.addError(test, err)
 
     def addFailure(self, test, err):
         self.assertMyTest(test)
-        # call plugins
-        # extract capture and assert information
         err = self.formatErr(err, inspect_tb=True)
+        self.plugins.addFailure(self.test, err)
         self.result.addFailure(test, err)
 
     def addSkip(self, test, err):
         self.assertMyTest(test)
+        self.plugins.addSkip(self.test, err)
         try:
             self.result.addSkip(test, err)
         except AttributeError:
@@ -110,6 +128,7 @@ class ResultProxy(object):
     
     def addSuccess(self, test):
         self.assertMyTest(test)
+        self.plugins.addSuccess(self.test)
         self.result.addSuccess(test)
 
     def endCapture(self):
@@ -119,7 +138,6 @@ class ResultProxy(object):
             capt = ''
         if self.stdout:
             sys.stdout = self.stdout.pop()
-        self.test.captured_output = capt
         return capt
 
     def formatErr(self, err, inspect_tb=False):
@@ -128,10 +146,11 @@ class ResultProxy(object):
             return err
         ec, ev, tb = err
         if capt:
-            output = self.endCapture()
+            self.test.captured_output = output = self.endCapture()
             self.startCapture()
-            ev = '\n'.join([str(ev) , ln('>> begin captured stdout <<'),
-                            output, ln('>> end captured stdout <<')])
+            if output:
+                ev = '\n'.join([str(ev) , ln('>> begin captured stdout <<'),
+                                output, ln('>> end captured stdout <<')])
         if inspect_tb:
             tbinfo = inspect_traceback(tb)
             ev = '\n'.join([str(ev), tbinfo])
@@ -143,12 +162,14 @@ class ResultProxy(object):
 
     def startTest(self, test):
         self.assertMyTest(test)
+        self.plugins.startTest(self.test)
         self.result.startTest(test)
     
     def stop(self):
         self.result.stop()
     
     def stopTest(self, test):
+        self.plugins.stopTest(self.test)
         self.result.stopTest(test)
     
     def get_shouldStop(self):

@@ -4,7 +4,7 @@ from inspect import ismethod
 from nose.config import Config
 from nose.context import FixtureContext
 from nose.proxy import ResultProxyFactory, ResultProxy
-
+from mock import RecordingPluginManager
 
 class TestResultProxy(unittest.TestCase):
 
@@ -104,6 +104,71 @@ class TestResultProxy(unittest.TestCase):
         assert res.errors
         self.assertEqual(case.captured_output, "So long\n")
 
+    def test_proxy_calls_plugins(self):
+        from nose import SkipTest, DeprecatedTest
+        res = unittest.TestResult()
+        class TC(unittest.TestCase):
+            def test_error(self):
+                print "So long"
+                raise TypeError("oops")
+            def test_fail(self):
+                print "Hello"
+                self.fail()
+            def test_skip(self):
+                raise SkipTest('not it')
+            def test_deprecated(self):
+                raise DeprecatedTest('old n busted')
+            def test(self):
+                pass
+        plugs = RecordingPluginManager()
+        config = Config(plugins=plugs)
+        context = FixtureContext(config=config)
 
+        case_e = context(TC('test_error'))
+        case_f = context(TC('test_fail'))
+        case_s = context(TC('test_skip'))
+        case_d = context(TC('test_deprecated'))
+        case_t = context(TC('test'))
+
+        case_e(res)
+        assert 'beforeTest' in plugs.called
+        assert 'startTest' in plugs.called
+        assert 'addError' in plugs.called
+        assert 'stopTest' in plugs.called
+        assert 'afterTest' in plugs.called
+        plugs.reset()
+        
+        case_f(res)
+        assert 'beforeTest' in plugs.called
+        assert 'startTest' in plugs.called
+        assert 'addFailure' in plugs.called
+        assert 'stopTest' in plugs.called
+        assert 'afterTest' in plugs.called
+        plugs.reset()
+
+        case_s(res)
+        assert 'beforeTest' in plugs.called
+        assert 'startTest' in plugs.called
+        assert 'addSkip' in plugs.called
+        assert 'stopTest' in plugs.called
+        assert 'afterTest' in plugs.called
+        plugs.reset()
+
+        case_d(res)
+        assert 'beforeTest' in plugs.called
+        assert 'startTest' in plugs.called
+        assert 'addDeprecated' in plugs.called
+        assert 'stopTest' in plugs.called
+        assert 'afterTest' in plugs.called
+        plugs.reset()
+
+        case_t(res)
+        assert 'beforeTest' in plugs.called
+        assert 'startTest' in plugs.called
+        assert 'addSuccess' in plugs.called
+        assert 'stopTest' in plugs.called
+        assert 'afterTest' in plugs.called
+        plugs.reset()
+            
 if __name__ == '__main__':
     unittest.main()

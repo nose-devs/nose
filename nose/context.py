@@ -1,3 +1,14 @@
+"""
+Test Context
+------------
+
+The test context is responsible for wrapping test cases in the test
+wrapper (nose.case.Test by default), and tracking the parent of any
+given suite of tests, so that parent fixtures may be executed around
+those tests. It also provides a passthrough for keyword arguments that
+should be passed to each nose.case.Test (or other wrapper) as it is
+instantiated.
+"""
 import logging
 import sys
 from inspect import isclass, ismodule
@@ -9,38 +20,44 @@ log = logging.getLogger(__name__)
 
 class FixtureContext(object):
 
-    def __init__(self, parent=None, config=None, result_proxy = None):
+    def __init__(self, parent=None, config=None, **kw):
         """Initialize a FixtureContext for a test run.
 
         Optional arguments:
+
+        * parent: the `parent` of the context, that is, the module or
+          class to which tests in this context belong. Fixtures on the
+          parent may be executed by calling the `setup()` and
+          `teardown()` methods of this object.
         
         * config: the configuration of this test run. If no config is passed,
           a default config will be used.
         
-        * result_proxy: a callable that may be passed a result and test, and
-          returns a proxy object that will mediate between the test wrapper
-          and.
+        * `**kw`: any other keyword arguments will be passed to each
+        nose.case.Tst test wrapper as it is instantiated.
+        
         """
         self.parent = parent
         if config is None:
             config = Config()
         self.config = config
-        self.result_proxy = result_proxy
+        self.test_kw = kw
         self.was_setup = False
         self.was_torndown = False
 
     def __call__(self, test):
-        # FIXME may be more efficient to pass the actual class?
         return self.add(test)
 
     def add(self, test):
+        """Add the test to this context. Returns a nose.case.Test wrapping the
+        test case. Override this method to use a different test wrapper.
+        """
         log.debug("Add %s to parent %s", test, self.parent)
-        return Test(self, test, result_proxy=self.result_proxy)
+        return Test(self, test, **self.test_kw)
 
     def setup(self):
-        """Context setup. If this is the first for any surrounding package or
-        module or class of this test, fire the parent object setup; record
-        that it was fired
+        """Context setup. Execute the setup method of the
+        parent object, if it exists.
         """
         log.debug('context setup')
         if self.was_setup:
@@ -57,10 +74,8 @@ class FixtureContext(object):
         self.was_setup = True
             
     def teardown(self):
-        """Context teardown. If this is the last for an surrounding package
-        or module, and setup fired for that module or package, fire teardown
-        for the module/package/class too. otherwise pop off of the stack for
-        thatmodule/package/class.
+        """Context teardown. Execute the teardown method of the
+        parent, if it exists.
         """
         log.debug('context teardown')
         if not self.was_setup or self.was_torndown:

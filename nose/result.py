@@ -240,12 +240,4 @@ def end_capture():
         log.debug('capture ended, sys.stdout is now %r' % sys.stdout)
         
     
-def ln(label):
-    label_len = len(label) + 2
-    chunk = (70 - label_len) / 2
-    out = '%s %s %s' % ('-' * chunk, label, '-' * chunk)
-    pad = 70 - len(out)
-    if pad > 0:
-        out = out + ('-' * pad)
-    return out
 

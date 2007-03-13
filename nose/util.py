@@ -176,6 +176,19 @@ def getpackage(filename):
     mod_parts.reverse()
     return '.'.join(mod_parts)
 
+def ln(label):
+    """Draw a 70-char-wide divider, with label in the middle.
+
+    >>> ln('hello there')
+    '---------------------------- hello there -----------------------------'
+    """
+    label_len = len(label) + 2
+    chunk = (70 - label_len) / 2
+    out = '%s %s %s' % ('-' * chunk, label, '-' * chunk)
+    pad = 70 - len(out)
+    if pad > 0:
+        out = out + ('-' * pad)
+    return out
 
 def resolve_name(name, module=None):
     """Resolve a dotted name to a module and its parts. This is stolen

@@ -78,9 +78,48 @@ class TestNoseTestLoader(unittest.TestCase):
         self.assertEqual(len(m.state), len(expect))
         for item in m.state:
             self.assertEqual(item, expect.pop(0))
-            
+
+    def test_mod_setup_fails_no_tests_run(self):
+        ctx = os.path.join(support, 'ctx')
+        l = loader.TestLoader(working_dir=ctx)
+        suite = l.loadTestsFromName('mod_setup_fails.py')
+
+        res = unittest.TestResult()
+        suite(res)
+
+        assert res.errors
+        assert not res.failures, res.failures
+        assert res.testsRun == 0, \
+               "Expected to run 0 tests but ran %s" % res.testsRun
+
+    def test_mod_setup_skip_no_tests_run(self):
+        ctx = os.path.join(support, 'ctx')
+        l = loader.TestLoader(working_dir=ctx)
+        suite = l.loadTestsFromName('mod_setup_skip.py')
+
+        res = unittest.TestResult()
+        suite(res)
+
+        assert not suite.was_setup, "Suite setup did not fail"
+        assert not res.errors, res.errors
+        assert not res.failures, res.failures
+        assert res.testsRun == 0, \
+               "Expected to run 0 tests but ran %s" % res.testsRun
+
+    def test_mod_import_skip_no_tests_run(self):
+        ctx = os.path.join(support, 'ctx')
+        l = loader.TestLoader(working_dir=ctx)
+        suite = l.loadTestsFromName('mod_import_skip.py')
+
+        res = unittest.TestResult()
+        suite(res)
+
+        assert not res.errors, res.errors
+        assert not res.failures, res.failures
+        assert res.testsRun == 0, \
+               "Expected to run 0 tests but ran %s" % res.testsRun
         
 if __name__ == '__main__':
-    import logging
-    logging.basicConfig(level=logging.DEBUG)
+    #import logging
+    #logging.basicConfig(level=logging.DEBUG)
     unittest.main()
