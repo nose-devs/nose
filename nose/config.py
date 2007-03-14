@@ -22,6 +22,7 @@ class Config(object):
                              ]
         self.include = None
         self.plugins = NoPlugins()
+        self.resultProxy = None
         self.srcDirs = ['lib', 'src']
         self.stopOnError = False
         self.tests = []

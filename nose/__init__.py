@@ -291,7 +291,7 @@ from nose.core import TestCollector, collector, configure, main, run, \
     run_exit, runmodule
 from nose.exc import SkipTest, DeprecatedTest
 from nose.loader import TestLoader
-from nose.suite import LazySuite
+# from nose.suite import LazySuite
 from nose.result import TextTestResult
 from nose.tools import with_setup # backwards compatibility
 from nose.util import file_like, split_test_name, test_address
@@ -301,7 +301,7 @@ __versioninfo__ = (0, 10, '0a1')
 __version__ = '.'.join(map(str, __versioninfo__))
 
 __all__ = [ 
-    'TextTestResult', 'LazySuite', 
+    'TextTestResult', # 'LazySuite', 
     'SkipTest', 'DeprecatedTest', 
     'TestCollector', 'TestLoader',
     'collector', 'configure', 'main', 'run', 'run_exit', 'runmodule',

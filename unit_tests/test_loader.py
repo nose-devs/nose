@@ -185,7 +185,7 @@ class TestTestLoader(unittest.TestCase):
         os.path.isdir = mock_isdir
         os.path.isfile = mock_isfile
         context.__import__ = util.__import__ = mock_import
-        self.l = TestLoader(importer=MockImporter(), context=MockContext)
+        self.l = TestLoader(importer=MockImporter())#, context=MockContext)
         
     def tearDown(self):
         os.listdir = _listdir

@@ -13,26 +13,20 @@ from suite import LazySuite, ContextSuiteFactory
 
 class TestLoader(unittest.TestLoader):
     
-    def __init__(self, config=None, context=None, importer=None,
-                 working_dir=None):
+    def __init__(self, config=None, importer=None, working_dir=None):
         # FIXME would get selector too
         if config is None:
             config = Config()
-        # NOTE in cases where a native result object isn't available,
-        # the caller should pass in a context with a result proxy
-        if context is None:
-            context = FixtureContext
         if importer is None:
             importer = Importer(config=config)
         if working_dir is None:
             working_dir = os.getcwd()
         self.config = config
-        self.context = context
         self.importer = importer
         self.working_dir = working_dir
         if config.addPaths:
             add_path(working_dir)        
-        self.suiteClass = ContextSuiteFactory(context, config=config)
+        self.suiteClass = ContextSuiteFactory(config=config)
         unittest.TestLoader.__init__(self)        
 
     def loadTestsFromTestClass(self, cls):

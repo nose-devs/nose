@@ -30,19 +30,18 @@ class Failure(unittest.TestCase):
 
 
 class Test(unittest.TestCase):
-    """The universal contextualized test case wrapper.
+    """The universal test case wrapper.
 
     When a plugin sees a test, it will always see an instance of this
     class. To access the actual test case that will be run, access the
     test property of the nose.case.Test instance.    
     """
-    def __init__(self, context, test, result_proxy=None):
-        log.debug("Test %s %s", context, test)
-        self.context = context
+    def __init__(self, test, config=None):
+        log.debug("Test(%s)", test)
         self.test = test
-        if result_proxy is None:
-            result_proxy = ResultProxyFactory(context.config)
-        self.result_proxy = result_proxy
+        if config is None:
+            config = Config()
+        self.config = config
         self.captured_output = None
         self.assert_info = None
         unittest.TestCase.__init__(self)
@@ -53,6 +52,9 @@ class Test(unittest.TestCase):
 
     def __str__(self):
         return str(self.test)
+
+    def __repr__(self):
+        return "Test(%r)" % self.test
 
     def afterTest(self, result):
         log.debug("Test afterTest %s", self)
@@ -93,7 +95,8 @@ class Test(unittest.TestCase):
         test before it is called and do cleanup after it is
         called. They are called unconditionally.
         """
-        result = self.result_proxy(result, self)
+        if self.config.resultProxy:
+            result = self.config.resultProxy(result, self)
         self.beforeTest(result)
         try:
             self.runTest(result)

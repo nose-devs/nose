@@ -1,7 +1,10 @@
 import logging
 import sys
 import unittest
+from inspect import isclass
 from nose.config import Config
+from nose.case import Test
+from nose.util import try_run
 
 log = logging.getLogger(__name__)
 
@@ -66,36 +69,27 @@ class LazySuite(unittest.TestSuite):
 
         
 
-#
-# FIXME how to get the result proxy in there? Does it make sense
-# to put that into the context?
-#
-
 class ContextSuiteFactory(object):
-    def __init__(self, context, config=None):
-        self.context = context
+    def __init__(self, config=None):
         if config is None:
             config = Config()
         self.config = config
 
     def __call__(self, tests, parent=None):
-        context = self.context(parent, config=self.config)
-        return ContextSuite(tests, context)
+        return ContextSuite(tests, parent, config=self.config)
 
 
 class ContextSuite(LazySuite):
     failureException = unittest.TestCase.failureException
     was_setup = False
+    was_torndown = False
     
-    def __init__(self, tests=(), context=None):        
-        if context:
-            self.context = context
+    def __init__(self, tests=(), parent=None, config=None):        
+        self.parent = parent
+        if config is None:
+            config = Config()
+        self.config = config
         LazySuite.__init__(self, tests)
-
-    def _add_context(self, test):
-        if hasattr(test, 'context'):
-            return test
-        return self.context(test)
 
     def exc_info(self):
         """Hook for replacing error tuple output
@@ -105,7 +99,12 @@ class ContextSuite(LazySuite):
     def run(self, result):
         """Run tests in suite inside of suite fixtures.
         """
-        # FIXME proxy the result *here*
+        # proxy the result for myself
+        config = self.config
+        if config.resultProxy:
+            result, orig = config.resultProxy(result, self)
+        else:
+            result, orig = result, result
         try:
             self.setUp()
         except KeyboardInterrupt:
@@ -118,8 +117,10 @@ class ContextSuite(LazySuite):
                 log.debug("running test %s", test)
                 if result.shouldStop:
                     break
-                # FIXME and proxy the result *here*
-                test(result)
+                # each nose.case.Test will create its own result proxy
+                # so the cases need the original result, to avoid proxy
+                # chains
+                test(orig)
         finally:
             try:
                 self.tearDown()
@@ -130,21 +131,41 @@ class ContextSuite(LazySuite):
 
     def setUp(self):
         log.debug("suite setUp called, tests: %s", self._tests)
-        if self:
-            self.context.setup()
-            self.was_setup = True
+        if not self or self.was_setup:
+            return
+        parent = self.parent
+        if parent is None:
+            return
+        if isclass(parent):
+            names = ('setup_class',)
+        else:
+            names = ('setup_module', 'setup')
+        # FIXME packages, camelCase
+        try_run(parent, names)
+        self.was_setup = True
 
     def tearDown(self):
-        if self.was_setup:
-            self.context.teardown()
+        log.debug('context teardown')
+        if not self.was_setup or self.was_torndown:
+            return
+        parent = self.parent
+        if parent is None:
+            return
+        if isclass(parent):
+            names = ('teardown_class',)
+        else:
+            names = ('teardown_module', 'teardown')
+        # FIXME packages, camelCase
+        try_run(parent, names)
+        self.was_torndown = True
         
-    def _get_tests_with_context(self):
+    def _get_wrapped_tests(self):
         for test in self._get_tests():
-            if hasattr(test, 'context'):
+            if isinstance(test, Test):
                 yield test
             else:
-                yield self.context(test)
+                yield Test(test, config=self.config)
 
-    _tests = property(_get_tests_with_context, LazySuite._set_tests, None,
+    _tests = property(_get_wrapped_tests, LazySuite._set_tests, None,
                       "Access the tests in this suite. Tests are returned "
                       "inside of a context wrapper.")
