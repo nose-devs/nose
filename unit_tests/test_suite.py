@@ -94,13 +94,11 @@ class TestContextSuite(unittest.TestCase):
         self.TC = TC
 
     def test_tests_get_context(self):
-        """Tests in a context suite have a context"""
-        ctx = MockContext()
+        """Tests in a context suite are wrapped"""
         suite = ContextSuite(
-            [self.TC('test_one'), self.TC('test_two')],
-            ctx)
+            [self.TC('test_one'), self.TC('test_two')])
         for test in suite:
-            assert test.context is ctx
+            assert isinstance(test.test, self.TC)
 
     def test_nested_context_suites(self):
         """Nested suites don't recontextualize"""

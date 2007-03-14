@@ -161,7 +161,7 @@ class ContextSuite(LazySuite):
         
     def _get_wrapped_tests(self):
         for test in self._get_tests():
-            if isinstance(test, Test):
+            if isinstance(test, Test) or isinstance(test, unittest.TestSuite):
                 yield test
             else:
                 yield Test(test, config=self.config)

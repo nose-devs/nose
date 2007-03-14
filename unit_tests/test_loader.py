@@ -5,7 +5,6 @@ import unittest
 from nose.loader import TestLoader
 from mock import MockContext
 
-from nose import context  # so we can set its __import__
 from nose import util # so we can set its __import__
 import nose.case
 
@@ -184,14 +183,14 @@ class TestTestLoader(unittest.TestCase):
         os.listdir = mock_listdir
         os.path.isdir = mock_isdir
         os.path.isfile = mock_isfile
-        context.__import__ = util.__import__ = mock_import
+        util.__import__ = mock_import
         self.l = TestLoader(importer=MockImporter())#, context=MockContext)
         
     def tearDown(self):
         os.listdir = _listdir
         os.path.isdir = _isdir
         os.path.isfile = _isfile
-        context.__import__ = util.__import__ = __import__
+        util.__import__ = __import__
 
     def test_lint(self):
         """Test that main API functions exist
@@ -201,13 +200,6 @@ class TestTestLoader(unittest.TestCase):
         l.loadTestsFromModule
         l.loadTestsFromName
         l.loadTestsFromNames
-
-    def test_loader_has_context(self):
-        l = self.l
-        assert l.context
-
-        l = TestLoader(context='whatever')
-        self.assertEqual(l.context, 'whatever')
 
     def test_load_from_name_dir_abs(self):
         l = self.l
@@ -247,10 +239,15 @@ class TestTestLoader(unittest.TestCase):
         l = self.l
         suite = l.loadTestsFromName('test_module:TC')
         tests = [t for t in suite]
+        print tests
         assert tests
         assert len(tests) == 1, \
                "Should have loaded 1 test, but got %s" % tests
-        assert filter(lambda t: t.context, tests)
+
+        # the item in tests is a suite, we want to check that all of
+        # the members of the suite are wrapped -- though this is really
+        # a suite test and doesn't belong here..
+        assert filter(lambda t: isinstance(t, nose.case.Test), tests[0])
 
     def test_load_from_name_module_func(self):
         l = self.l
@@ -310,21 +307,22 @@ class TestTestLoader(unittest.TestCase):
         tests[0](res)
         assert res.errors, "Expected missing module test to raise exception"
 
-    def test_cases_from_testcase_have_context(self):
+    def test_cases_from_testcase_are_wrapped(self):
         test_module = M['test_module']
         l = self.l
         suite = l.loadTestsFromTestCase(test_module.TC)
         print suite
         tests = [t for t in suite]
         for test in tests:
-            assert hasattr(test, 'context'), "Test %s has no context" % test
+            assert isinstance(test, nose.case.Test), \
+                   "Test %r is not a test wrapper" % test
 
     def test_load_test_func(self):
         l = self.l
         suite = l.loadTestsFromName('test_module')
         tests = [t for t in suite]
         self.assertEqual(len(tests), 2, "Wanted 2 tests, got %s" % tests)
-        assert filter(lambda t: t.context, tests)
+        assert filter(lambda t: isinstance(t, nose.case.Test), tests)
         print tests
         class_tests = tests[0]
         func_tests = tests[1:]
@@ -333,11 +331,9 @@ class TestTestLoader(unittest.TestCase):
         assert len(func_tests) == 1, \
                "Expected 1 func test got %s" % func_tests
         for test in class_tests:
-            assert test.context
             assert isinstance(test.test, unittest.TestCase), \
                    "Expected TestCase npt %s" % tests[0].test
         for test in func_tests:
-            assert test.context
             assert isinstance(test.test, nose.case.FunctionTestCase), \
                    "Expected FunctionTestCase not %s" % tests[1].test
 
