@@ -3,7 +3,6 @@ import os
 import sys
 import unittest
 from nose.loader import TestLoader
-from mock import MockContext
 
 from nose import util # so we can set its __import__
 import nose.case

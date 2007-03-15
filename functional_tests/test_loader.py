@@ -21,7 +21,7 @@ class TestNoseTestLoader(unittest.TestCase):
     def test_load_from_name_file(self):
         res = unittest.TestResult()
         wd = os.path.join(support, 'package1')
-        l = loader.TestLoader(working_dir=wd)
+        l = loader.TestLoader(workingDir=wd)
 
         file_suite = l.loadTestsFromName('tests/test_example_function.py')
         for t in file_suite:
@@ -33,7 +33,7 @@ class TestNoseTestLoader(unittest.TestCase):
     def test_load_from_name_dot(self):
         res = unittest.TestResult()
         wd = os.path.join(support, 'package1')
-        l = loader.TestLoader(working_dir=wd)
+        l = loader.TestLoader(workingDir=wd)
         dir_suite = l.loadTestsFromName('.')
         for t in dir_suite:
             print "dir ", t
@@ -44,7 +44,7 @@ class TestNoseTestLoader(unittest.TestCase):
     def test_fixture_context(self):
         res = unittest.TestResult()
         wd = os.path.join(support, 'package2')
-        l = loader.TestLoader(working_dir=wd)
+        l = loader.TestLoader(workingDir=wd)
         dir_suite = l.loadTestsFromName('.')
         dir_suite(res)
 
@@ -81,7 +81,7 @@ class TestNoseTestLoader(unittest.TestCase):
 
     def test_mod_setup_fails_no_tests_run(self):
         ctx = os.path.join(support, 'ctx')
-        l = loader.TestLoader(working_dir=ctx)
+        l = loader.TestLoader(workingDir=ctx)
         suite = l.loadTestsFromName('mod_setup_fails.py')
 
         res = unittest.TestResult()
@@ -92,37 +92,45 @@ class TestNoseTestLoader(unittest.TestCase):
         assert res.testsRun == 0, \
                "Expected to run 0 tests but ran %s" % res.testsRun
 
-    def test_mod_setup_skip_no_tests_run(self):
+    def test_mod_setup_skip_no_tests_run_no_errors(self):
         ctx = os.path.join(support, 'ctx')
-        l = loader.TestLoader(working_dir=ctx)
+        l = loader.TestLoader(workingDir=ctx)
         suite = l.loadTestsFromName('mod_setup_skip.py')
 
         res = unittest.TestResult()
         suite(res)
 
         assert not suite.was_setup, "Suite setup did not fail"
-        # FIXME this only applies if resultProxy is used
-        # assert not res.errors, res.errors
+        assert not res.errors, res.errors
         assert not res.failures, res.failures
         assert res.testsRun == 0, \
                "Expected to run 0 tests but ran %s" % res.testsRun
 
-    def test_mod_import_skip_no_tests_run(self):
+    def test_mod_import_skip_one_test_no_errors(self):
         ctx = os.path.join(support, 'ctx')
-        l = loader.TestLoader(working_dir=ctx)
+        l = loader.TestLoader(workingDir=ctx)
         suite = l.loadTestsFromName('mod_import_skip.py')
 
         res = unittest.TestResult()
         suite(res)
 
-        # FIXME this only applies if resultProxy is used
-        # assert not res.errors, res.errors
+        assert not res.errors, res.errors
         assert not res.failures, res.failures
-        assert res.testsRun == 0, \
-               "Expected to run 0 tests but ran %s" % res.testsRun
+        assert res.testsRun == 1, \
+               "Expected to run 1 tests but ran %s" % res.testsRun
 
     def test_failed_import(self):
-        raise NotImplementedError("Need to implement failed import test")
+        ctx = os.path.join(support, 'ctx')
+        l = loader.TestLoader(workingDir=ctx)
+        suite = l.loadTestsFromName('no_such_module.py')
+
+        res = unittest.TestResult()
+        suite(res)
+
+        assert res.errors, "Expected errors but got none"
+        assert not res.failures, res.failures
+        assert res.testsRun == 1, \
+               "Expected to run 1 tests but ran %s" % res.testsRun
         
 if __name__ == '__main__':
     #import logging

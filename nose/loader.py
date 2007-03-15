@@ -1,3 +1,4 @@
+import logging
 import os
 import sys
 import unittest
@@ -11,21 +12,23 @@ from nose.util import cmp_lineno, getpackage, isgenerator, ispackage, \
     resolve_name
 from suite import LazySuite, ContextSuiteFactory
 
+log = logging.getLogger(__name__)
+
 class TestLoader(unittest.TestLoader):
     
-    def __init__(self, config=None, importer=None, working_dir=None):
+    def __init__(self, config=None, importer=None, workingDir=None):
         # FIXME would get selector too
         if config is None:
             config = Config()
         if importer is None:
             importer = Importer(config=config)
-        if working_dir is None:
-            working_dir = os.getcwd()
+        if workingDir is None:
+            workingDir = os.getcwd()
         self.config = config
         self.importer = importer
-        self.working_dir = working_dir
+        self.workingDir = workingDir
         if config.addPaths:
-            add_path(working_dir)        
+            add_path(workingDir)        
         self.suiteClass = ContextSuiteFactory(config=config)
         unittest.TestLoader.__init__(self)        
 
@@ -48,7 +51,9 @@ class TestLoader(unittest.TestLoader):
         return self.suiteClass(tests, parent=cls)
 
     def loadTestsFromDir(self, path):
-        print "load from dir %s" % path
+        log.debug("load from dir %s", path)
+
+        # FIXME plugins.beforeDirectory(path)
 
         if self.config.addPaths:
             paths_added = add_path(path)
@@ -69,14 +74,11 @@ class TestLoader(unittest.TestLoader):
                 is_dir = os.path.isdir(entry_path)
             is_package = ispackage(entry_path)
             if is_test and is_file and entry.endswith('.py'):
-                # FIXME this needs to be a full path name?
                 yield self.loadTestsFromName(entry_path)
             elif is_dir:
                 if is_package:
                     # Load the entry as a package: given the full path,
                     # loadTestsFromName() will figure it out
-                    # FIXME should pass the full path name here and
-                    # let TestAddress figure it out?
                     yield self.loadTestsFromName(entry_path)
                 elif is_test:
                     # Another test dir in this one: recurse lazily
@@ -86,15 +88,17 @@ class TestLoader(unittest.TestLoader):
         # try: finally: around a generator and we can't guarantee that
         # a generator will be called often enough to do the pop
         
-        # FIXME give plugins a chance?
+        # FIXME plugins.loadTestsFromDir(path)
 
         # pop paths
         if self.config.addPaths:
             map(remove_path, paths_added)
 
+        # FIXME plugins.afterDirectory(path)
+
     def loadTestsFromFile(self, filename):
         # only called for non-module files
-        # FIXME give plugins a chance
+        # FIXME give plugins a chance -- plugins.loadTestsFromFile(filename)
         pass
 
     def loadTestsFromGenerator(self, generator, module):
@@ -185,7 +189,7 @@ class TestLoader(unittest.TestLoader):
         # FIXME refactor this method into little bites
         # FIXME would pass working dir too
         suite = self.suiteClass
-        addr = TestAddress(name, working_dir=self.working_dir)
+        addr = TestAddress(name, workingDir=self.workingDir)
         print "load from %s (%s) (%s)" % (name, addr, module)
         print addr.filename, addr.module, addr.call
         
@@ -206,8 +210,10 @@ class TestLoader(unittest.TestLoader):
         else:
             if addr.module:
                 try:
+                    # FIXME plugins.beforeImport(filename, module)
                     module = self.importer.import_from_path(
                         addr.filename, addr.module)
+                    # FIXME plugins.afterImport(filename, module)
                 except KeyboardInterrupt, SystemExit:
                     raise
                 except:

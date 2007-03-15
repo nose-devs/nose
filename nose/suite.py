@@ -2,11 +2,16 @@ import logging
 import sys
 import unittest
 from inspect import isclass
-from nose.config import Config
 from nose.case import Test
+from nose.config import Config
+from nose.proxy import ResultProxyFactory
 from nose.util import try_run
 
 log = logging.getLogger(__name__)
+
+# Singleton for default value -- see ContextSuite.__init__ below
+_def = object()
+
 
 class LazySuite(unittest.TestSuite):
 
@@ -84,11 +89,16 @@ class ContextSuite(LazySuite):
     was_setup = False
     was_torndown = False
     
-    def __init__(self, tests=(), parent=None, config=None):        
+    def __init__(self, tests=(), parent=None, config=None, resultProxy=_def):
         self.parent = parent
         if config is None:
             config = Config()
+        # Using a singleton to represent default instead of None allows
+        # passing resultProxy=None to turn proxying off.
+        if resultProxy is _def:
+            resultProxy = ResultProxyFactory(config=config)
         self.config = config
+        self.resultProxy = resultProxy
         LazySuite.__init__(self, tests)
 
     def exc_info(self):
@@ -101,8 +111,8 @@ class ContextSuite(LazySuite):
         """
         # proxy the result for myself
         config = self.config
-        if config.resultProxy:
-            result, orig = config.resultProxy(result, self)
+        if self.resultProxy:
+            result, orig = self.resultProxy(result, self), result
         else:
             result, orig = result, result
         try:
@@ -136,6 +146,7 @@ class ContextSuite(LazySuite):
         parent = self.parent
         if parent is None:
             return
+        # FIXME plugins.contextSetup(parent)
         if isclass(parent):
             names = ('setup_class',)
         else:
@@ -158,13 +169,16 @@ class ContextSuite(LazySuite):
         # FIXME packages, camelCase
         try_run(parent, names)
         self.was_torndown = True
+        # FIXME plugins.contextTeardown(parent)
         
     def _get_wrapped_tests(self):
         for test in self._get_tests():
             if isinstance(test, Test) or isinstance(test, unittest.TestSuite):
                 yield test
             else:
-                yield Test(test, config=self.config)
+                yield Test(test,
+                           config=self.config,
+                           resultProxy=self.resultProxy)
 
     _tests = property(_get_wrapped_tests, LazySuite._set_tests, None,
                       "Access the tests in this suite. Tests are returned "

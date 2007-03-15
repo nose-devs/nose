@@ -280,16 +280,16 @@ class TestAddress(object):
     Callables may be a class name, function name, method name, or
     class.method specification.
     """
-    def __init__(self, name, working_dir=None):
-        if working_dir is None:
-            working_dir = os.getcwd()
+    def __init__(self, name, workingDir=None):
+        if workingDir is None:
+            workingDir = os.getcwd()
         self.name = name
-        self.working_dir = working_dir
+        self.workingDir = workingDir
         self.filename, self.module, self.call = split_test_name(name)
         if self.filename is not None:
             self.filename = src(self.filename)
             if not os.path.isabs(self.filename):
-                self.filename = os.path.abspath(os.path.join(working_dir,
+                self.filename = os.path.abspath(os.path.join(workingDir,
                                                              self.filename))
             if self.module is None:
                 self.module = getpackage(self.filename)
@@ -366,10 +366,10 @@ class TestAddress(object):
             return False
 
         # Turn the module name into a path and compare against
-        # the filename, with the file extension and working_dir removed
+        # the filename, with the file extension and workingDir removed
         sep = os.path.sep
         mpath = os.path.sep.join(mn.split('.'))
-        base = base[len(self.working_dir):]
+        base = base[len(self.workingDir):]
         log.debug("Match file %s (from module %s) vs %s", mpath, mn, base)
         mod_match_re = re.compile(r'(^|%s)%s(%s|$)' % (sep, mpath, sep))
         if mod_match_re.search(base):
@@ -464,7 +464,7 @@ def subpackage_of(modname, package):
     return True
 
     
-def test_addr(names, working_dir=None):
+def test_addr(names, workingDir=None):
     if names is None:
         return None
-    return [ TestAddress(name, working_dir) for name in names ]
+    return [ TestAddress(name, workingDir) for name in names ]

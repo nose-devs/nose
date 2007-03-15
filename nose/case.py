@@ -6,7 +6,6 @@ import logging
 import sys
 import unittest
 from nose.config import Config
-from nose.proxy import ResultProxyFactory
 from nose.util import try_run
 
 log = logging.getLogger(__name__)
@@ -37,14 +36,15 @@ class Test(unittest.TestCase):
     class. To access the actual test case that will be run, access the
     test property of the nose.case.Test instance.    
     """
-    def __init__(self, test, config=None):
+    def __init__(self, test, config=None, resultProxy=None):
         log.debug("Test(%s)", test)
         self.test = test
         if config is None:
             config = Config()
         self.config = config
-        self.captured_output = None
-        self.assert_info = None
+        self.assertDetails = None
+        self.capturedOutput = None
+        self.resultProxy = resultProxy
         unittest.TestCase.__init__(self)
         
     def __call__(self, *arg, **kwarg):
@@ -96,8 +96,8 @@ class Test(unittest.TestCase):
         test before it is called and do cleanup after it is
         called. They are called unconditionally.
         """
-        if self.config.resultProxy:
-            result = self.config.resultProxy(result, self)
+        if self.resultProxy:
+            result = self.resultProxy(result, self)
         self.beforeTest(result)
         try:
             self.runTest(result)
