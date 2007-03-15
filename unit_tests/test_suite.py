@@ -3,7 +3,6 @@ from nose import case
 from nose.suite import LazySuite, ContextSuite, ContextSuiteFactory
 #from nose.context import FixtureContext
 import unittest
-from mock import MockContext
 
 class TestLazySuite(unittest.TestCase):
 
@@ -23,7 +22,6 @@ class TestLazySuite(unittest.TestCase):
                 yield test
         suite = LazySuite(gen_tests)
         self.assertEqual(list([test for test in suite]), tests)
-
 
     def test_lazy_and_nonlazy(self):
         TC = self.TC
@@ -93,7 +91,7 @@ class TestContextSuite(unittest.TestCase):
                 pass
         self.TC = TC
 
-    def test_tests_get_context(self):
+    def test_tests_are_wrapped(self):
         """Tests in a context suite are wrapped"""
         suite = ContextSuite(
             [self.TC('test_one'), self.TC('test_two')])
@@ -101,23 +99,23 @@ class TestContextSuite(unittest.TestCase):
             assert isinstance(test.test, self.TC)
 
     def test_nested_context_suites(self):
-        """Nested suites don't recontextualize"""
-        ctx = MockContext()
+        """Nested suites don't re-wrap"""
         suite = ContextSuite(
-            [self.TC('test_one'), self.TC('test_two')],
-            ctx)
-        top_suite = ContextSuite(suite, ctx)
-        for test in top_suite:
-            if hasattr(test, 'test'):
-                assert not hasattr(test.test, 'context'), \
-                       "The test %s wraps %s which has a context" \
-                       % (test, test.test)
-            elif isinstance(test, unittest.TestSuite):
-                for t in test:
-                    if hasattr(t, 'test'):
-                        assert not hasattr(t.test, 'context'), \
-                               "The test %s wraps %s which has a context" \
-                               % (t, t.test)
+            [self.TC('test_one'), self.TC('test_two')])
+        suite2 = ContextSuite(suite)
+        suite3 = ContextSuite([suite2])
+
+        # suite3 is [suite2]
+        tests = [t for t in suite3]
+        assert isinstance(tests[0], ContextSuite)
+        # suite2 is [suite]
+        tests = [t for t in tests[0]]
+        assert isinstance(tests[0], ContextSuite)
+        # suite is full of wrapped tests
+        tests = [t for t in tests[0]]
+        cases = filter(lambda t: isinstance(t, case.Test), tests)
+        assert cases
+        assert len(cases) == len(tests)
 
     def test_context_fixtures_called(self):
         class P:
@@ -130,10 +128,9 @@ class TestContextSuite(unittest.TestCase):
                 self.was_torndown = True
 
         parent = P()
-        ctx = MockContext(parent)
         suite = ContextSuite(
             [self.TC('test_one'), self.TC('test_two')],
-            ctx)
+            parent=parent)
         res = unittest.TestResult()
         suite(res)
 
@@ -154,10 +151,9 @@ class TestContextSuite(unittest.TestCase):
                 self.was_torndown = True
 
         parent = P()
-        ctx = MockContext(parent)
         suite = ContextSuite(
             [self.TC('test_one'), self.TC('test_two')],
-            ctx)
+            parent=parent)
         res = unittest.TestResult()
         suite(res)
 
@@ -179,8 +175,7 @@ class TestContextSuite(unittest.TestCase):
                 self.was_torndown = True
 
         parent = P()
-        ctx = MockContext(parent)
-        suite = ContextSuite([], ctx)
+        suite = ContextSuite([], parent=parent)
         res = unittest.TestResult()
         suite(res)
 

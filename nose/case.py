@@ -5,6 +5,7 @@ to create test cases from test functions and methods in test classes.
 import logging
 import sys
 import unittest
+from nose.config import Config
 from nose.proxy import ResultProxyFactory
 from nose.util import try_run
 

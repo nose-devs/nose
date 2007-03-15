@@ -3,7 +3,6 @@ import pdb
 import sys
 import nose.case
 from nose.config import Config
-from nose.context import FixtureContext
 
 class TestNoseCases(unittest.TestCase):
 
@@ -110,8 +109,7 @@ class TestNoseTestWrapper(unittest.TestCase):
                 print "TC tearDown %s" % self
                 called.append('tearDown')
 
-        context = FixtureContext()
-        case = context(TC())
+        case = nose.case.Test(TC())
         case(res)
         assert not res.errors, res.errors
         assert not res.failures, res.failures
@@ -167,9 +165,8 @@ class TestNoseTestWrapper(unittest.TestCase):
                 
         res = unittest.TestResult()
         config = Config()
-        proxy = ResPrxFactory()
-        context = FixtureContext(config=config, result_proxy=proxy)
-        case = context(TC())
+        config.resultProxy = ResPrxFactory()
+        case = nose.case.Test(TC(), config=config)
 
         case(res)
         assert not res.errors, res.errors
