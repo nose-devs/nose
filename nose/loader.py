@@ -158,7 +158,7 @@ class TestLoader(unittest.TestLoader):
         return self.suiteClass(generate)
 
     def loadTestsFromModule(self, module):
-        print "Load from module %s" % module.__name__
+        log.debug("Load from module %s", module.__name__)
         tests = []
         test_classes = []
         test_funcs = []
@@ -190,7 +190,7 @@ class TestLoader(unittest.TestLoader):
         # FIXME would pass working dir too
         suite = self.suiteClass
         addr = TestAddress(name, workingDir=self.workingDir)
-        print "load from %s (%s) (%s)" % (name, addr, module)
+        log.debug("load from %s (%s) (%s)", name, addr, module)
         print addr.filename, addr.module, addr.call
         
         if module:

@@ -90,6 +90,7 @@ class ContextSuite(LazySuite):
     was_torndown = False
     
     def __init__(self, tests=(), parent=None, config=None, resultProxy=_def):
+        log.debug("Context suite for %s (%s)", tests, parent)
         self.parent = parent
         if config is None:
             config = Config()

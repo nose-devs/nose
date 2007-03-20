@@ -15,6 +15,7 @@ class Config(object):
         self.debugErrors = False
         self.debugFailures = False
         self.exclude = None
+        self.exit = True
         self.includeExe = sys.platform=='win32'
         self.ignoreFiles = [ re.compile(r'^\.'),
                              re.compile(r'^_'),

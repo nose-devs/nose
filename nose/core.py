@@ -6,6 +6,7 @@ import re
 import sys
 import types
 import unittest
+from inspect import isclass
 from optparse import OptionParser
 
 from nose.plugins import load_plugins, call_plugins
@@ -178,57 +179,88 @@ class TestProgram(unittest.TestProgram):
     """
     verbosity = 1
 
-    def __init__(self, module=None, defaultTest=defaultTestCollector,
-                 argv=None, testRunner=None, testLoader=None, env=None,
-                 stream=sys.stderr):
-        self.testRunner = testRunner
-        self.testCollector = defaultTest
-        self.testLoader = testLoader
-        self.stream = stream
-        self.success = False
-        self.module = module
-
-        if not callable(self.testCollector):
-            raise ValueError("TestProgram argument defaultTest must be "
-                             "a callable with the same signature as "
-                             "nose.TestCollector")
-        
-        if argv is None:
-            argv = sys.argv
+    def __init__(self, module=None, defaultTest='.', 
+                 argv=None, testRunner=None, testLoader=None, env=None):
         if env is None:
             env = os.environ
-        self.parseArgs(argv, env)
-        self.createTests()
-        self.runTests()
+        self.env = env
+        unittest.TestProgram.__init__(
+            self, module=module, defaultTest=defaultTest,
+            argv=argv, testRunner=testRunner, testLoader=testLoader)
         
-    def parseArgs(self, argv, env):
+#     def __init__(self, module=None, defaultTest=defaultTestCollector,
+#                  argv=None, testRunner=None, testLoader=None, env=None,
+#                  stream=sys.stderr):
+#         self.testRunner = testRunner
+#         self.testCollector = defaultTest
+#         self.testLoader = testLoader
+#         self.stream = stream
+#         self.success = False
+#         self.module = module
+
+#         if not callable(self.testCollector):
+#             raise ValueError("TestProgram argument defaultTest must be "
+#                              "a callable with the same signature as "
+#                              "nose.TestCollector")
+        
+#         if argv is None:
+#             argv = sys.argv
+#         if env is None:
+#             env = os.environ
+#         self.parseArgs(argv, env)
+#         self.createTests()
+#         self.runTests()
+        
+    def parseArgs(self, argv):
         """Parse argv and env and configure running environment.
         """
-        self.conf = configure(argv, env)
+        log.debug("parseArgs is called %s", argv)
+        self.conf = Config() # configure(argv, self.env)
+        log.debug("configured %s", self.conf)
+        
+        # instantiate the test loader
+        if self.testLoader is None:
+            self.testLoader = defaultTestLoader(self.conf)
+        elif isclass(self.testLoader):
+            self.testLoader = self.testLoader(self.conf)
+
+        log.debug("test loader is %s", self.testLoader)
+            
         # append the requested module to the list of tests to run
-        if self.module:
-            try:
-                self.conf.tests.append(self.module.__name__)
-            except AttributeError:
-                self.conf.tests.append(str(self.module))
-                
+        # FIXME if module is a string, add it to self.testNames? not sure
+
+        # FIXME ... pull test names from args, or:
+        self.testNames = (self.defaultTest,)
+
+        log.debug('Test names are %s', self.testNames)
+#         if self.module:
+#             try:
+#                 self.conf.tests.append(self.module.__name__)
+#             except AttributeError:
+#                 self.conf.tests.append(str(self.module))
+        self.createTests()
+        
     def createTests(self):
         """Create the tests to run. Default behavior is to discover
         tests using TestCollector using nose.loader.TestLoader as the
         test loader.
         """
-        self.test = self.testCollector(self.conf, self.testLoader)
+        log.debug("createTests called")        
+        self.test = self.testLoader.loadTestsFromNames(self.testNames)
 
     def runTests(self):
         """Run Tests. Returns true on success, false on failure, and sets
         self.success to the same value.
         """
+        log.debug("runTests called")
         if self.testRunner is None:
             self.testRunner = TextTestRunner(stream=self.stream,
                                              verbosity=self.conf.verbosity,
                                              conf=self.conf)
         result = self.testRunner.run(self.test)
         self.success = result.wasSuccessful()
+        if self.conf.exit:
+            sys.exit(not self.success)
         return self.success
 
 def get_parser(env=None):
@@ -372,7 +404,8 @@ def configure(argv=None, env=None, help=False, disable_plugins=None):
     conf.detailedErrors = options.detailedErrors
     conf.debugErrors = options.debugErrors
     conf.debugFailures = options.debugFailures
-    conf.plugins = [ plug for plug in all_plugins if plug.enabled ]
+## FIXME use plugin manager
+##    conf.plugins = [ plug for plug in all_plugins if plug.enabled ]
     conf.stopOnError = options.stopOnError
     conf.verbosity = options.verbosity
     conf.includeExe = options.includeExe
@@ -400,17 +433,20 @@ def configure(argv=None, env=None, help=False, disable_plugins=None):
     if options.exclude:
         conf.exclude = map(re.compile, tolist(options.exclude))
         log.info("Excluding tests matching %s", options.exclude)
-        
+
+    # call early to ensure we get our hooks into sys.stdout before
+    # any subject modules are loaded and import it
     if conf.capture:
         start_capture()
-        
-    try:
-        # give plugins a chance to start
-        call_plugins(conf.plugins, 'begin')
-    except:
-        if conf.capture:
-            end_capture()
-        raise
+
+# FIXME use plugin manager
+#    try:
+#        # give plugins a chance to start
+#        call_plugins(conf.plugins, 'begin')
+#    except:
+#        if conf.capture:
+#            end_capture()
+#        raise
     return conf
 
 def configure_logging(options):

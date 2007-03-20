@@ -1,0 +1,42 @@
+import os
+import unittest
+from cStringIO import StringIO
+from nose.core import TestProgram
+
+here = os.path.dirname(__file__)
+support = os.path.join(here, 'support')
+
+class TestRunner(unittest.TextTestRunner):
+    def _makeResult(self):
+        self.result = unittest._TextTestResult(
+            self.stream, self.descriptions, self.verbosity)
+        return self.result 
+
+class TestTestProgram(unittest.TestCase):
+
+    def test_run_support_ctx(self):
+        """Collect and run tests in functional_tests/support/ctx
+
+        This should collect no tests in the default configuration, since
+        none of the modules have test-like names.
+        """
+        stream = StringIO()
+        runner = TestRunner(stream=stream)
+        try:
+            prog = TestProgram(defaultTest=os.path.join(support, 'ctx'),
+                               argv=['test_run_support_ctx'],
+                               testRunner=runner)
+        except SystemExit:
+            pass
+        res = runner.result
+        print stream.getvalue()
+        self.assertEqual(res.testsRun, 0,
+                         "Expected to run 0 tests, ran %s" % res.testsRun)
+        assert res.wasSuccessful
+        assert not res.errors
+        assert not res.failures
+
+if __name__ == '__main__':
+    import logging
+    logging.basicConfig(level=logging.DEBUG)
+    unittest.main()
