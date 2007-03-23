@@ -136,6 +136,21 @@ def ispackage(path):
             return True
     return False
 
+def getfilename(package, relativeTo=None):
+    """Find the python source file for a package, relative to a
+    particular directory (defaults to current working directory if not
+    given).
+    """
+    if relativeTo is None:
+        relativeTo = os.getcwd()
+    path = os.path.join(relativeTo, os.sep.join(package.split('.')))
+    suffixes = ('/__init__.py', '.py')
+    for suffix in suffixes:
+        filename = path + suffix
+        if os.path.exists(filename):
+            return filename
+    return None
+    
 def getpackage(filename):
     """
     Find the full dotted package name for a given python source file

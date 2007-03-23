@@ -72,6 +72,16 @@ class TestImporter(unittest.TestCase):
         assert dp1.__path__
         assert dp2.__path__
         self.assertNotEqual(dp1.__path__, dp2.__path__)
+
+    def test_import_sets_intermediate_modules(self):
+        imp = self.imp
+        path = os.path.join(self.dir,
+                            'package2', 'test_pak', 'test_sub', 'test_mod.py')
+        mod = imp.import_from_path(path, 'test_pak.test_sub.test_mod')
+        print mod, dir(mod)
+        assert 'test_pak' in sys.modules, 'test_pak was not imported?'
+        test_pak = sys.modules['test_pak']
+        assert hasattr(test_pak, 'test_sub'), "test_pak.test_sub was not set"
         
     def test_cached_no_reload(self):
         imp = self.imp

@@ -6,7 +6,7 @@ import unittest
 from nose.config import Config
 from nose.plugins import call_plugins
 from nose.util import absfile, file_like, split_test_name, src, test_address, \
-     getpackage
+     getfilename, getpackage
 
 log = logging.getLogger(__name__)
 
@@ -286,13 +286,21 @@ class TestAddress(object):
         self.name = name
         self.workingDir = workingDir
         self.filename, self.module, self.call = split_test_name(name)
-        if self.filename is not None:
+        log.debug('Test name %s resolved to file %s, module %s, call %s',
+                  name, self.filename, self.module, self.call)
+        if self.filename is None:
+            if self.module is not None:
+                self.filename = getfilename(self.module, self.workingDir)
+        if self.filename:
             self.filename = src(self.filename)
             if not os.path.isabs(self.filename):
                 self.filename = os.path.abspath(os.path.join(workingDir,
                                                              self.filename))
             if self.module is None:
                 self.module = getpackage(self.filename)
+        log.debug(
+            'Final resolution of test name %s: file %s module %s call %s',
+            name, self.filename, self.module, self.call)
 
     def __str__(self):
         return self.name

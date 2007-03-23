@@ -6,6 +6,7 @@ import sys
 import unittest
 from mock import ResultProxyFactory, ResultProxy
 
+
 class TestLazySuite(unittest.TestCase):
 
     def setUp(self):
@@ -119,6 +120,11 @@ class TestContextSuite(unittest.TestCase):
         assert cases
         assert len(cases) == len(tests)
 
+        # sub-suites knows they have a context
+        #assert suite.context is None
+        #assert suite2.context is suite
+        #assert suite3.context is suite2
+
     def test_context_fixtures_called(self):
         class P:
             was_setup = False
@@ -140,6 +146,50 @@ class TestContextSuite(unittest.TestCase):
         assert not res.failures, res.failures
         assert parent.was_setup
         assert parent.was_torndown
+
+    def test_context_fixtures_for_ancestors(self):
+        top = imp.new_module('top')
+        top.bot = imp.new_module('top.bot')
+        top.bot.end = imp.new_module('top.bot.end')
+
+        sys.modules['top'] = top
+        sys.modules['top.bot'] = top.bot
+        sys.modules['top.bot.end'] = top.bot.end
+
+        class TC(unittest.TestCase):
+            def runTest(self):
+                pass
+        top.bot.TC = TC
+        TC.__module__ = 'top.bot'
+
+        # suite with just TC test
+        # this suite should call top and top.bot setup
+        csf = ContextSuiteFactory()
+        suite = csf([TC()], parent=top.bot)
+
+        suite.setUp()
+        assert top in csf.was_setup, "Ancestor not set up"
+        assert top.bot in csf.was_setup, "Parent not set up"
+        
+        suite.tearDown()
+        assert top in csf.was_torndown, "Ancestor not torn down"
+        assert top.bot in csf.was_torndown, "Parent not torn down"
+
+        # wrapped suites
+        # the outer suite sets up its parent, the inner
+        # its parent only, without re-setting up the outer parent
+        csf = ContextSuiteFactory()
+        inner_suite = csf([TC()], parent=top.bot) 
+        suite = csf(inner_suite, parent=top)
+
+        suite.setUp()
+        assert top in csf.was_setup
+        assert not top.bot in csf.was_setup
+        inner_suite.setUp()
+        assert top in csf.was_setup
+        assert top.bot in csf.was_setup
+        assert csf.was_setup[top] is suite
+        assert csf.was_setup[top.bot] is inner_suite
 
     def test_context_fixtures_setup_fails(self):
         class P:
@@ -205,47 +255,7 @@ class TestContextSuite(unittest.TestCase):
 
 
 class TestContextSuiteFactory(unittest.TestCase):
-    
-    def test_context_parenting(self):
-        """Test that a context suite factory correctly parents the
-        suites it creates.
-        """
-        top = imp.new_module('top')
-        top.bot = imp.new_module('top.bot')
-        top.bot.end = imp.new_module('top.bot.end')
-        
-        sys.modules['top'] = top
-        sys.modules['top.bot'] = top.bot
-        sys.modules['top.bot.end'] = top.bot.end
-        
-        class TC(unittest.TestCase):
-            def runTest(self):
-                pass
-        top.bot.TC = TC
-        TC.__module__ = 'top.bot'
-
-        csf = ContextSuiteFactory()
-        suite = csf([TC()], parent=TC)
-        assert isinstance(suite, ContextSuite), 'Top suite is not context suite'
-        assert suite.parent is top, 'Top suite has incorrect parent'
-        tests = [t for t in suite._tests]
-        assert isinstance(tests[0], ContextSuite), \
-               'suite.tests is not ContextSuite but %s' % suite.tests
-        suite = tests[0]
-        assert suite.parent is top.bot, 'top.bot suite has incorrect parent'
-        tests = [t for t in suite._tests]
-        assert isinstance(tests[0], ContextSuite), \
-               'suite.tests.tests is not ContextSuite but %s' % suite.tests
-        suite = tests[0]
-        assert suite.parent is top.bot.TC, \
-               'top.bot.TC suite has incorrect parent'
-        tests = [t for t in suite._tests]
-        assert tests[0].__class__ is case.Test, \
-               'Test not wrapped, class is %s' % tests[0].__class__
-        assert tests[0].test.__class__ is TC, \
-               'Wrapped test is not expected class %s' \
-               % tests[0].test.__class__
-        
+            
     def test_ancestry(self):
         top = imp.new_module('top')
         top.bot = imp.new_module('top.bot')
@@ -275,6 +285,8 @@ class TestContextSuiteFactory(unittest.TestCase):
 
 
 if __name__ == '__main__':
+    import logging
+    logging.basicConfig(level=logging.DEBUG)
     unittest.main()
         
 #     class TC(unittest.TestCase):

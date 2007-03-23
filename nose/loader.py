@@ -26,7 +26,7 @@ class TestLoader(unittest.TestLoader):
             workingDir = os.getcwd()
         self.config = config
         self.importer = importer
-        self.workingDir = workingDir
+        self.workingDir = os.path.normpath(os.path.abspath(workingDir))
         if config.addPaths:
             add_path(workingDir)        
         self.suiteClass = ContextSuiteFactory(config=config)
@@ -183,6 +183,7 @@ class TestLoader(unittest.TestLoader):
         for path in paths:
             tests.extend(self.loadTestsFromDir(path))
         # FIXME give plugins a chance
+
         return self.suiteClass(tests, parent=module)
     
     def loadTestsFromName(self, name, module=None):

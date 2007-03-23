@@ -79,43 +79,42 @@ class ContextSuiteFactory(object):
         if config is None:
             config = Config()
         self.config = config
-        self.suites = []
+        self.suites = {}
+        self.context = {}
+        self.was_setup = {}
+        self.was_torndown = {}
 
     def __call__(self, tests, parent=None):
         """Return (possibly creating a new) ContextSuite for parent,
         including tests.
-
-        
-        
-
-
         """
-        # The easy case: there are no other suites to worry about
-        # so our only concern is that we roll up the parent tree to find
-        # all of the ancestors of the parent and produce a hierarchy
-        # of suites so that all parents get their fixtures called
-        if not self.suites:
-            suite = ContextSuite(tests, parent, config=self.config)
-            self.suites.append(suite)
-            for ancestor in self.ancestry(parent):
-                suite = ContextSuite(suite, ancestor, config=self.config)
-                self.suites.append(suite)
-            return suite
-
+        suite = ContextSuite(
+            tests, parent=parent, factory=self, config=self.config)
+        self.suites.setdefault(parent, []).append(suite)
+        self.context.setdefault(suite, []).append(parent)
+        for ancestor in self.ancestry(parent):
+            self.suites.setdefault(ancestor, []).append(suite)
+            self.context[suite].append(ancestor)
+        return suite
+    
     def ancestry(self, parent):
         """Return the ancestry of the parent (that is, all of the
         packages and modules containing the parent), in order of
         descent with the outermost ancestor last. This method is a generator
         """
+        log.debug("get ancestry %s", parent)
+        if parent is None:
+            return
         if hasattr(parent, '__module__'):
             ancestors = parent.__module__.split('.')
         elif hasattr(parent, '__name__'):
             ancestors = parent.__name__.split('.')[:-1]
+        else:
+            raise TypeError("%s has no ancestors?" % parent)
         while ancestors:
-            print ancestors
+            log.debug(" %s ancestors %s", parent, ancestors)
             yield resolve_name('.'.join(ancestors))                
             ancestors.pop()
-            
         
 
 class ContextSuite(LazySuite):
@@ -123,18 +122,26 @@ class ContextSuite(LazySuite):
     was_setup = False
     was_torndown = False
     
-    def __init__(self, tests=(), parent=None, config=None, resultProxy=_def):
-        log.debug("Context suite for %s (%s)", tests, parent)
+    def __init__(self, tests=(), parent=None, factory=None,
+                 config=None, resultProxy=_def):
+        log.debug("Context suite for %s (%s)", tests, parent)        
         self.parent = parent
+        self.factory = factory
         if config is None:
             config = Config()
+        self.config = config
         # Using a singleton to represent default instead of None allows
         # passing resultProxy=None to turn proxying off.
         if resultProxy is _def:
             resultProxy = ResultProxyFactory(config=config)
-        self.config = config
         self.resultProxy = resultProxy
+        self.has_run = False
         LazySuite.__init__(self, tests)
+
+    def __repr__(self):
+        return "<%s parent=%s>" % (
+            unittest._strclass(self.__class__), self.parent)
+    __str__ = __repr__
 
     def exc_info(self):
         """Hook for replacing error tuple output
@@ -167,6 +174,7 @@ class ContextSuite(LazySuite):
                 # chains
                 test(orig)
         finally:
+            self.has_run = True
             try:
                 self.tearDown()
             except KeyboardInterrupt:
@@ -176,34 +184,100 @@ class ContextSuite(LazySuite):
 
     def setUp(self):
         log.debug("suite setUp called, tests: %s", self._tests)
-        if not self or self.was_setup:
+        if not self:
+            # I have no tests
+            return
+        if self.was_setup:
+            log.debug("Already set up")
             return
         parent = self.parent
         if parent is None:
             return
+        # before running my own parent's setup, I need to
+        # ask the factory if my parent's parents' setups have been run
+        factory = self.factory
+        if factory:
+            # get a copy, since we'll be destroying it as we go
+            ancestors = factory.context.get(self, [])[:]
+            while ancestors:
+                ancestor = ancestors.pop()
+                log.debug("ancestor %s may need setup", ancestor)
+                if ancestor in factory.was_setup:
+                    continue
+                log.debug("ancestor %s does need setup", ancestor)
+                self.setupParent(ancestor)
+            if parent in factory.was_setup:
+                self.setupParent(parent)
+        else:
+            self.setupParent(parent)
+        self.was_setup = True
+
+    def setupParent(self, parent):
         # FIXME plugins.contextSetup(parent)
+        log.debug("%s setup parent %s", self, parent)
+        if self.factory:
+            # note that I ran the setup for this parent, so that I'll run
+            # the teardown in my teardown
+            self.factory.was_setup[parent] = self
         if isclass(parent):
             names = ('setup_class',)
         else:
             names = ('setup_module', 'setup')
         # FIXME packages, camelCase
         try_run(parent, names)
-        self.was_setup = True
 
     def tearDown(self):
         log.debug('context teardown')
         if not self.was_setup or self.was_torndown:
+            log.debug(
+                "No reason to teardown (was_setup? %s was_torndown? %s)"
+                % (self.was_setup, self.was_torndown))
             return
+        self.was_torndown = True
         parent = self.parent
         if parent is None:
+            log.debug("No parent to tear down")
             return
+
+        # for each ancestor... if the ancestor was setup
+        # if I did the setup OR no other suites under that
+        # ancestor exist that have not been run, I can do teardown
+        factory = self.factory
+        if factory:
+            for ancestor in factory.context.get(self, []):
+                log.debug('ancestor %s may need teardown', ancestor)
+                if not ancestor in factory.was_setup:
+                    log.debug('ancestor %s was not setup', ancestor)
+                    continue
+                if ancestor in factory.was_torndown:
+                    log.debug('ancestor %s already torn down', ancestor)
+                    continue
+                setup = factory.was_setup[ancestor]
+                if setup is self:
+                    self.teardownParent(ancestor)
+                else:
+                    # I can still run teardown if all other suites
+                    # in this context have run, and it's not yet
+                    # torn down (supports loadTestsFromNames where
+                    # N names are from the same/overlapping contexts)
+                    suites = factory.suites[ancestor]
+                    have_run = [ s for s in suites if s.has_run ]
+                    if suites == have_run:
+                        self.teardownParent(ancestor)
+            if parent in factory.was_torndown:
+                return
+        self.teardownParent(parent)
+        
+    def teardownParent(self, parent):
+        log.debug("%s teardown parent %s", self, parent)
         if isclass(parent):
             names = ('teardown_class',)
         else:
             names = ('teardown_module', 'teardown')
         # FIXME packages, camelCase
         try_run(parent, names)
-        self.was_torndown = True
+        if self.factory:
+            self.factory.was_torndown[parent] = self
         # FIXME plugins.contextTeardown(parent)
         
     def _get_wrapped_tests(self):

@@ -32,6 +32,8 @@ class Importer(object):
         self._modules = {}
 
     def import_from_path(self, path, fqname):
+        # FIXME this doesn't behave enough like the real python
+        # importer -- importing foo.bar.baz doesn't set foo.bar
         try:
             finfo = os.stat(path)
         except OSError, e:

@@ -11,25 +11,25 @@ def test():
 class TestMaths:
 
     def setup_class(cls):
-        state.append('test_pack.test_sub.test_mod.TestMaths.setup_class')
+        state.append('test_pak.test_sub.test_mod.TestMaths.setup_class')
     setup_class = classmethod(setup_class)
 
     def teardown_class(cls):
-        state.append('test_pack.test_sub.test_mod.TestMaths.teardown_class')
+        state.append('test_pak.test_sub.test_mod.TestMaths.teardown_class')
     teardown_class = classmethod(teardown_class)
     
     def setup(self):
-        state.append('test_pack.test_sub.test_mod.TestMaths.setup')
+        state.append('test_pak.test_sub.test_mod.TestMaths.setup')
 
     def teardown(self):
-        state.append('test_pack.test_sub.test_mod.TestMaths.teardown')
+        state.append('test_pak.test_sub.test_mod.TestMaths.teardown')
         
     def test_div(self):
-        state.append('test_pack.test_sub.test_mod.TestMaths.test_div')
+        state.append('test_pak.test_sub.test_mod.TestMaths.test_div')
         assert maths.div(2, 1) == 2, "%s != %s" % (maths.div(2, 1), 2)
 
     def test_two_two(self):
-        state.append('test_pack.test_sub.test_mod.TestMaths.test_two_two')
+        state.append('test_pak.test_sub.test_mod.TestMaths.test_two_two')
         assert maths.mult(2, 2) == maths.add(2, 2)
     
 def teardown():
