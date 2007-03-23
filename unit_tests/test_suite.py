@@ -1,6 +1,8 @@
 from nose.config import Config
 from nose import case
 from nose.suite import LazySuite, ContextSuite, ContextSuiteFactory
+import imp
+import sys
 import unittest
 from mock import ResultProxyFactory, ResultProxy
 
@@ -200,16 +202,87 @@ class TestContextSuite(unittest.TestCase):
         calls = [ c[0] for c in ResultProxy.called ]
         self.assertEqual(calls, ['beforeTest', 'startTest',
                                  'addError', 'stopTest', 'afterTest'])
+
+
+class TestContextSuiteFactory(unittest.TestCase):
+    
+    def test_context_parenting(self):
+        """Test that a context suite factory correctly parents the
+        suites it creates.
+        """
+        top = imp.new_module('top')
+        top.bot = imp.new_module('top.bot')
+        top.bot.end = imp.new_module('top.bot.end')
         
+        sys.modules['top'] = top
+        sys.modules['top.bot'] = top.bot
+        sys.modules['top.bot.end'] = top.bot.end
+        
+        class TC(unittest.TestCase):
+            def runTest(self):
+                pass
+        top.bot.TC = TC
+        TC.__module__ = 'top.bot'
+
+        csf = ContextSuiteFactory()
+        suite = csf([TC()], parent=TC)
+        assert isinstance(suite, ContextSuite), 'Top suite is not context suite'
+        assert suite.parent is top, 'Top suite has incorrect parent'
+        tests = [t for t in suite._tests]
+        assert isinstance(tests[0], ContextSuite), \
+               'suite.tests is not ContextSuite but %s' % suite.tests
+        suite = tests[0]
+        assert suite.parent is top.bot, 'top.bot suite has incorrect parent'
+        tests = [t for t in suite._tests]
+        assert isinstance(tests[0], ContextSuite), \
+               'suite.tests.tests is not ContextSuite but %s' % suite.tests
+        suite = tests[0]
+        assert suite.parent is top.bot.TC, \
+               'top.bot.TC suite has incorrect parent'
+        tests = [t for t in suite._tests]
+        assert tests[0].__class__ is case.Test, \
+               'Test not wrapped, class is %s' % tests[0].__class__
+        assert tests[0].test.__class__ is TC, \
+               'Wrapped test is not expected class %s' \
+               % tests[0].test.__class__
+        
+    def test_ancestry(self):
+        top = imp.new_module('top')
+        top.bot = imp.new_module('top.bot')
+        top.bot.end = imp.new_module('top.bot.end')
+        
+        sys.modules['top'] = top
+        sys.modules['top.bot'] = top.bot
+        sys.modules['top.bot.end'] = top.bot.end
+        
+        class P:
+            pass
+        top.bot.P = P
+        P.__module__ = 'top.bot'
+
+        csf = ContextSuiteFactory()
+        P_ancestors = list([a for a in csf.ancestry(P)])
+        self.assertEqual(P_ancestors, [top.bot, top])
+
+        end_ancestors = list([a for a in csf.ancestry(top.bot.end)])
+        self.assertEqual(end_ancestors, [top.bot, top])
+
+        bot_ancestors = list([a for a in csf.ancestry(top.bot)])
+        self.assertEqual(bot_ancestors, [top])
+
+        top_ancestors = list([a for a in csf.ancestry(top)])
+        self.assertEqual(top_ancestors, [])
+
+
 if __name__ == '__main__':
     unittest.main()
         
-    class TC(unittest.TestCase):
-            def runTest(self):
-                raise Exception("error")
+#     class TC(unittest.TestCase):
+#             def runTest(self):
+#                 raise Exception("error")
             
-    ResultProxy.called[:] = []
-    res = unittest.TestResult()
-    config = Config()
+#     ResultProxy.called[:] = []
+#     res = unittest.TestResult()
+#     config = Config()
 
     

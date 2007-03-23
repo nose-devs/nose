@@ -79,6 +79,77 @@ class TestNoseTestLoader(unittest.TestCase):
         for item in m.state:
             self.assertEqual(item, expect.pop(0))
 
+    def test_fixture_context_name_is_module(self):
+        res = unittest.TestResult()
+        wd = os.path.join(support, 'package2')
+        l = loader.TestLoader(workingDir=wd)
+        suite = l.loadTestsFromName('test_pak.test_mod')
+        suite(res)
+
+        assert 'test_pak' in sys.modules, \
+               "Did not load test_pak? sys.modules has: %s" \
+               % sys.modules.keys()
+        m = sys.modules['test_pak']
+        print "test pak state", m.state
+        expect = ['test_pak.setup',
+                  'test_pak.test_mod.setup',
+                  'test_pak.test_mod.test_add',
+                  'test_pak.test_mod.test_minus',
+                  'test_pak.test_mod.teardown',
+                  'test_pak.teardown']
+        self.assertEqual(len(m.state), len(expect))
+        for item in m.state:
+            self.assertEqual(item, expect.pop(0))
+
+    def test_fixture_context_name_is_single_test(self):
+        res = unittest.TestResult()
+        wd = os.path.join(support, 'package2')
+        l = loader.TestLoader(workingDir=wd)
+        suite = l.loadTestsFromName('test_pak.test_mod:test_add')
+        suite(res)
+
+        assert 'test_pak' in sys.modules, \
+               "Did not load test_pak? sys.modules has: %s" \
+               % sys.modules.keys()
+        m = sys.modules['test_pak']
+        print "test pak state", m.state
+        expect = ['test_pak.setup',
+                  'test_pak.test_mod.setup',
+                  'test_pak.test_mod.test_add',
+                  'test_pak.test_mod.teardown',
+                  'test_pak.teardown']
+        self.assertEqual(len(m.state), len(expect))
+        for item in m.state:
+            self.assertEqual(item, expect.pop(0))
+
+    def test_fixture_context_name_is_test_class_test(self):
+        res = unittest.TestResult()
+        wd = os.path.join(support, 'package2')
+        l = loader.TestLoader(workingDir=wd)
+        suite = l.loadTestsFromName(
+            'test_pak.test_sub.test_mod:TestMaths.test_div')
+        suite(res)
+
+        assert 'test_pak' in sys.modules, \
+               "Did not load test_pak? sys.modules has: %s" \
+               % sys.modules.keys()
+        m = sys.modules['test_pak']
+        print "test pak state", m.state
+        expect = ['test_pak.setup',
+                  'test_pak.test_sub.setup',
+                  'test_pak.test_sub.test_mod.setup',
+                  'test_pack.test_sub.test_mod.TestMaths.setup_class',
+                  'test_pack.test_sub.test_mod.TestMaths.setup',
+                  'test_pack.test_sub.test_mod.TestMaths.test_div',
+                  'test_pack.test_sub.test_mod.TestMaths.teardown'
+                  'test_pack.test_sub.test_mod.TestMaths.teardown_class',
+                  'test_pak.test_sub.test_mod.teardown',
+                  'test_pak.test_sub.teardown',
+                  'test_pak.teardown']
+        self.assertEqual(len(m.state), len(expect))
+        for item in m.state:
+            self.assertEqual(item, expect.pop(0))
+
     def test_mod_setup_fails_no_tests_run(self):
         ctx = os.path.join(support, 'ctx')
         l = loader.TestLoader(workingDir=ctx)

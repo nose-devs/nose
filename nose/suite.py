@@ -5,7 +5,7 @@ from inspect import isclass
 from nose.case import Test
 from nose.config import Config
 from nose.proxy import ResultProxyFactory
-from nose.util import try_run
+from nose.util import resolve_name, try_run
 
 log = logging.getLogger(__name__)
 
@@ -79,10 +79,44 @@ class ContextSuiteFactory(object):
         if config is None:
             config = Config()
         self.config = config
+        self.suites = []
 
     def __call__(self, tests, parent=None):
-        return ContextSuite(tests, parent, config=self.config)
+        """Return (possibly creating a new) ContextSuite for parent,
+        including tests.
 
+        
+        
+
+
+        """
+        # The easy case: there are no other suites to worry about
+        # so our only concern is that we roll up the parent tree to find
+        # all of the ancestors of the parent and produce a hierarchy
+        # of suites so that all parents get their fixtures called
+        if not self.suites:
+            suite = ContextSuite(tests, parent, config=self.config)
+            self.suites.append(suite)
+            for ancestor in self.ancestry(parent):
+                suite = ContextSuite(suite, ancestor, config=self.config)
+                self.suites.append(suite)
+            return suite
+
+    def ancestry(self, parent):
+        """Return the ancestry of the parent (that is, all of the
+        packages and modules containing the parent), in order of
+        descent with the outermost ancestor last. This method is a generator
+        """
+        if hasattr(parent, '__module__'):
+            ancestors = parent.__module__.split('.')
+        elif hasattr(parent, '__name__'):
+            ancestors = parent.__name__.split('.')[:-1]
+        while ancestors:
+            print ancestors
+            yield resolve_name('.'.join(ancestors))                
+            ancestors.pop()
+            
+        
 
 class ContextSuite(LazySuite):
     failureException = unittest.TestCase.failureException

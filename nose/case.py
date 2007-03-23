@@ -52,6 +52,7 @@ class Test(unittest.TestCase):
         return self.run(*arg, **kwarg)
 
     def __str__(self):
+        # FIXME plugins.testName(self)
         return str(self.test)
 
     def __repr__(self):
@@ -108,6 +109,7 @@ class Test(unittest.TestCase):
         self.test(result)
 
     def shortDescription(self):
+        # FIXME plugins.describeTest(self)
         return self.test.shortDescription()
         
 

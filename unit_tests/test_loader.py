@@ -142,26 +142,26 @@ def mock_isfile(path):
         return False
     return '.' in path
 
-
-def mock_import(modname, gl=None, lc=None, fr=None):
-    if gl is None:
-        gl = M
-    if lc is None:
-        lc = locals()
-    try:
-        mod = sys.modules[modname]
-    except KeyError:
-        pass
-    try:
-        pname = []
-        for part in modname.split('.'):
-            pname.append(part)
-            mname = '.'.join(pname)
-            mod = gl[mname]
-            sys.modules[mname] = mod
-        return mod
-    except KeyError:
-        raise ImportError("No '%s' in fake module list" % modname)    
+## no longer needed?
+## def mock_import(modname, gl=None, lc=None, fr=None):
+##     if gl is None:
+##         gl = M
+##     if lc is None:
+##         lc = locals()
+##     try:
+##         mod = sys.modules[modname]
+##     except KeyError:
+##         pass
+##     try:
+##         pname = []
+##         for part in modname.split('.'):
+##             pname.append(part)
+##             mname = '.'.join(pname)
+##             mod = gl[mname]
+##             sys.modules[mname] = mod
+##         return mod
+##     except KeyError:
+##         raise ImportError("No '%s' in fake module list" % modname)    
 
 
 class MockImporter:
@@ -182,14 +182,12 @@ class TestTestLoader(unittest.TestCase):
         os.listdir = mock_listdir
         os.path.isdir = mock_isdir
         os.path.isfile = mock_isfile
-        util.__import__ = mock_import
         self.l = TestLoader(importer=MockImporter())#, context=MockContext)
         
     def tearDown(self):
         os.listdir = _listdir
         os.path.isdir = _isdir
         os.path.isfile = _isfile
-        util.__import__ = __import__
 
     def test_lint(self):
         """Test that main API functions exist

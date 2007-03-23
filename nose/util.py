@@ -204,7 +204,7 @@ def resolve_name(name, module=None):
     if module is None:
         while parts_copy:
             try:
-                print " --> Context import %s" % name
+                print " --> util import %s" % name
                 module = __import__('.'.join(parts_copy))
                 break
             except ImportError:
