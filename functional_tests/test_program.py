@@ -36,6 +36,27 @@ class TestTestProgram(unittest.TestCase):
         assert not res.errors
         assert not res.failures
 
+    def test_run_support_package2(self):
+        """Collect and run tests in functional_tests/support/package2
+
+        This should collect and run 5 tests.
+        """
+        stream = StringIO()
+        runner = TestRunner(stream=stream)
+        try:
+            prog = TestProgram(defaultTest=os.path.join(support, 'package2'),
+                               argv=['test_run_support_package2', '-v'],
+                               testRunner=runner)
+        except SystemExit:
+            pass
+        res = runner.result
+        print stream.getvalue()
+        self.assertEqual(res.testsRun, 5,
+                         "Expected to run 5 tests, ran %s" % res.testsRun)
+        assert res.wasSuccessful
+        assert not res.errors
+        assert not res.failures
+
 if __name__ == '__main__':
     import logging
     logging.basicConfig(level=logging.DEBUG)
