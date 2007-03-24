@@ -2,6 +2,7 @@ import maths
 from test_pak import state
 
 def setup():
+    # print "MOD setup called", state, id(state)
     state.append('test_pak.test_mod.setup')
 
 def test_add():
@@ -12,4 +13,5 @@ def test_minus():
     state.append('test_pak.test_mod.test_minus')
     
 def teardown():
+    # print "MOD teardown called", state, id(state)
     state.append('test_pak.test_mod.teardown')

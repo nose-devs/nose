@@ -13,7 +13,7 @@ import os
 import sys
 from nose.config import Config
 
-#from imp import find_module, load_module, acquire_lock, release_lock, \
+from imp import find_module, load_module, acquire_lock, release_lock #, \
 #     load_source as _load_source
 
 log = logging.getLogger(__name__)
@@ -25,45 +25,14 @@ class Importer(object):
         if config is None:
             config = Config()
         self.config = config
-        if not imputil._os_stat:
-            imputil._os_bootstrap()
-        self._imp = imputil._FilesystemImporter()
-        self._imp.add_suffix('.py', imputil.py_suffix_importer)
-        self._modules = {}
 
     def import_from_path(self, path, fqname):
-        # FIXME this doesn't behave enough like the real python
-        # importer -- importing foo.bar.baz doesn't set foo.bar
-        if '.' in fqname:
-            return self.import_package_from_path(path, fqname)
-        try:
-            finfo = os.stat(path)
-        except OSError, e:
-            raise ImportError(
-                "Unable to import %s from %s: %s" % (fqname, path, e))
-        # ensure that the parent path is on sys.path
-        if self.config.addPaths:
-            add_path(os.path.dirname(path))
-        pkgpath = None
-        if os.path.isdir(path):
-            pkgpath = path
-            path = os.path.join(path, '__init__.py')
-        result = imputil.py_suffix_importer(path, finfo, fqname)
-        if result:
-            if pkgpath is not None:
-                ispkg, code, values = result
-                values['__path__'] = [ pkgpath ]
-                result = (1, code, values)
-            return self._imp._process_result(result, fqname)
-        raise ImportError("Unable to import %s from %s" % (fqname, path))
-
-    def import_package_from_path(self, path, fqname):
         """Import a dotted-name package whose tail is at path. In other words,
         given foo.bar and path/to/foo/bar.py, import foo from path/to/foo then
         bar from path/to/foo/bar, returning bar.
         """
         # find the base dir of the package
-        path_parts = os.path.normpath(path).split(os.sep)
+        path_parts = os.path.normpath(os.path.abspath(path)).split(os.sep)
         name_parts = fqname.split('.')
         if path_parts[-1].startswith('__init__'):
             path_parts.pop()
@@ -71,34 +40,80 @@ class Importer(object):
         dir_path = os.sep.join(path_parts)
         # then import fqname starting from that dir
         return self.import_from_dir(dir_path, fqname)                
-    
+
     def import_from_dir(self, dir, fqname):
-        """Import a package, which may be a dotted name, from the root dir
-        dir. The package is loaded top-down, and each part is added to
-        sys.modules and connected to its parent under the appropriate name.
+        """Import a module *only* from path, ignoring sys.path and
+        reloading if the version in sys.modules is not the one we want.
         """
-        dir = os.path.abspath(dir)
+        dir = os.path.normpath(os.path.abspath(dir))
+        log.debug("Import %s from %s", fqname, dir)
+
+        # FIXME reimplement local per-dir cache?
+        
+        # special case for __main__
+        if fqname == '__main__':
+            return sys.modules[fqname]
+        
         if self.config.addPaths:
             add_path(dir)
-        cache = self._modules.setdefault(dir, {})
-        if fqname in cache:
-            # print "Returning cached %s:%s" % (dir, fqname)
-            return cache[fqname]
+            
+        path = [dir]
         parts = fqname.split('.')
-        loaded = []
-        parent = None
+        part_fqname = ''
+        mod = parent = fh = None
+
         for part in parts:
-            # print "load %s from %s" % (part, dir)
-            loaded.append(part)
-            part_fqname = '.'.join(loaded)
-            # FIXME push dir onto sys.path
-            mod = self._imp.import_from_dir(dir, part)
-            cache[part_fqname] = mod
-            if parent is not None:
+            if part_fqname == '':
+                part_fqname = part
+            else:
+                part_fqname = "%s.%s" % (part_fqname, part)
+            try:
+                acquire_lock()
+                log.debug("find module part %s (%s) in %s",
+                          part, part_fqname, path)
+                fh, filename, desc = find_module(part, path)
+                old = sys.modules.get(part_fqname)
+                if old is not None:
+                    # test modules frequently have name overlap; make sure
+                    # we get a fresh copy of anything we are trying to load
+                    # from a new path
+                    log.debug("sys.modules has %s as %s", part_fqname, old)
+                    if self.same_module(old, filename):
+                       mod = old
+                    else:
+                        del sys.modules[part_fqname]
+                        mod = load_module(part_fqname, fh, filename, desc)
+                else:
+                    mod = load_module(part_fqname, fh, filename, desc)
+            finally:
+                if fh:
+                    fh.close()
+                release_lock()
+            if parent:
                 setattr(parent, part, mod)
+            if hasattr(mod, '__path__'):
+                path = mod.__path__
             parent = mod
-            dir = os.path.join(dir, part)
         return mod
+
+    def same_module(self, mod, filename):
+        if hasattr(mod, '__path__'):
+            mod_path = os.path.dirname(
+                os.path.normpath(
+                os.path.abspath(mod.__path__[0])))
+        elif hasattr(mod, '__file__'):
+            mod_path = os.path.dirname(
+                os.path.normpath(
+                os.path.abspath(mod.__file__)))
+        else:
+            # builtin or other module-like object that
+            # doesn't have __file__; must be new
+            return False
+        new_path = os.path.dirname(os.path.normpath(filename))
+        log.debug(
+            "module already loaded? mod: %s new: %s",
+            mod_path, new_path)
+        return mod_path == new_path
         
 def add_path(path):
     """Ensure that the path, or the root of the current package (if
@@ -125,97 +140,6 @@ def remove_path(path):
     log.debug('Remove path %s' % path)
     if path in sys.path:
         sys.path.remove(path)
-
-
-# def load_source(name, path, conf):
-#     """Wrap load_source to make sure that the dir of the module (or package)
-#     is in sys.path before the module is loaded.
-#     """
-#     if conf.addPaths:
-#         add_path(os.path.dirname(path))
-#     return _load_source(name, path)
-                 
-# def _import(name, path, conf):
-#     """Import a module *only* from path, ignoring sys.path and
-#     reloading if the version in sys.modules is not the one we want.
-#     """
-#     log.debug("Import %s from %s (addpaths: %s)", name, path, conf.addPaths)
-    
-#     # special case for __main__
-#     if name == '__main__':
-#         return sys.modules[name]
-
-#     # make sure we're doing an absolute import
-#     # name, path = make_absolute(name, path)
-    
-#     if conf.addPaths:
-#         for p in path:
-#             if p is not None:
-#                 add_path(p)
-
-#     path = [ p for p in path if p is not None ]
-#     cache = _modules.setdefault(':'.join(path), {})
-
-#     # quick exit for fully cached names
-#     if cache.has_key(name):
-#         return cache[name]
-    
-#     parts = name.split('.')
-#     fqname = ''
-#     mod = parent = fh = None
-    
-#     for part in parts:
-#         if fqname == '':
-#             fqname = part
-#         else:
-#             fqname = "%s.%s" % (fqname, part)
-
-#         if cache.has_key(fqname):
-#             mod = cache[fqname]
-#         else:
-#             try:
-#                 acquire_lock()
-#                 log.debug("find module part %s (%s) at %s", part, fqname, path)
-#                 fh, filename, desc = find_module(part, path)
-#                 old = sys.modules.get(fqname)
-#                 if old:
-#                     # test modules frequently have name overlap; make sure
-#                     # we get a fresh copy of anything we are trying to load
-#                     # from a new path
-#                     if hasattr(old,'__path__'):
-#                         old_path = os.path.normpath(old.__path__[0])
-#                         old_ext = None
-#                     elif hasattr(old, '__file__'):
-#                         old_norm = os.path.normpath(old.__file__)
-#                         old_path, old_ext = os.path.splitext(old_norm)
-#                     else:
-#                         # builtin or other module-like object that
-#                         # doesn't have __file__
-#                         old_path, old_ext, old_norm = None, None, None
-#                     new_norm = os.path.normpath(filename)
-#                     new_path, new_ext = os.path.splitext(new_norm)
-#                     if old_path == new_path:
-#                         log.debug("module %s already loaded "
-#                                   "old: %s %s new: %s %s", fqname, old_path,
-#                                   old_ext, new_path, new_ext)
-#                         cache[fqname] = mod = old
-#                         continue
-#                     else:
-#                         del sys.modules[fqname]
-#                 log.debug("Loading %s from %s", fqname, filename)
-#                 mod = load_module(fqname, fh, filename, desc)
-#                 log.debug("%s from %s yields %s", fqname, filename, mod)
-#                 cache[fqname] = mod
-#             finally:
-#                 if fh:
-#                     fh.close()
-#                 release_lock()
-#         if parent:
-#             setattr(parent, part, mod)
-#         if hasattr(mod, '__path__'):
-#             path = mod.__path__
-#         parent = mod
-#     return mod
 
 def make_absolute(name, path):
     """Given a module name and the path at which it is found, back up to find

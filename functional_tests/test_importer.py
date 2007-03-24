@@ -11,6 +11,7 @@ class TestImporter(unittest.TestCase):
                                                  'support'))
         self.imp = Importer()
         self._mods = sys.modules.copy()
+        self._path = sys.path[:]
 
     def tearDown(self):
         to_del = [ m for m in sys.modules.keys() if
@@ -19,6 +20,7 @@ class TestImporter(unittest.TestCase):
             for mod in to_del:
                 del sys.modules[mod]
         sys.modules.update(self._mods)
+        sys.path = self._path[:]
 
     def test_import_from_dir(self):
         imp = self.imp
@@ -85,19 +87,49 @@ class TestImporter(unittest.TestCase):
         
     def test_cached_no_reload(self):
         imp = self.imp
-
         d1 = os.path.join(self.dir, 'dir1')
-
-        # simple name
         m1 = imp.import_from_dir(d1, 'mod')
         m2 = imp.import_from_dir(d1, 'mod')        
         assert m1 is m2, "%s is not %s" % (m1, m2)
 
-        # dotted name
+    def test_cached_no_reload_dotted(self):
+        imp = self.imp
+        d1 = os.path.join(self.dir, 'dir1')
         p1 = imp.import_from_dir(d1, 'pak.mod')
         p2 = imp.import_from_dir(d1, 'pak.mod')
-
         assert p1 is p2, "%s is not %s" % (p1, p2)
+
+    def test_import_sets_sys_modules(self):
+        imp = self.imp
+        d1 = os.path.join(self.dir, 'dir1')
+        p1 = imp.import_from_dir(d1, 'pak.mod')
+        assert sys.modules['pak.mod'] is p1, "pak.mod not in sys.modules"
+        assert sys.modules['pak'], "pak not in sys.modules"
+        assert sys.modules['pak'].mod is p1, \
+               "sys.modules['pak'].mod is not the module we loaded"
+
+    def test_failed_import_raises_import_error(self):
+        imp = self.imp
+        def bad_import():
+            imp.import_from_path(self.dir, 'no.such.module')
+        self.assertRaises(ImportError, bad_import)
+
+    def test_sys_modules_same_path_no_reload(self):
+        imp = self.imp
+
+        d1 = os.path.join(self.dir, 'dir1')
+        d2 = os.path.join(self.dir, 'dir2')
+        sys.path.insert(0, d1)
+        mod_sys_imported = __import__('mod')
+        mod_nose_imported = imp.import_from_dir(d1, 'mod')
+        assert mod_nose_imported is mod_sys_imported, \
+               "nose reimported a module in sys.modules from the same path"
+
+        mod_nose_imported2 = imp.import_from_dir(d2, 'mod')
+        assert mod_nose_imported2 != mod_sys_imported, \
+               "nose failed to reimport same name, different dir"
         
 if __name__ == '__main__':
+    import logging
+    logging.basicConfig(level=logging.DEBUG)
     unittest.main()

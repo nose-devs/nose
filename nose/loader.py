@@ -158,7 +158,7 @@ class TestLoader(unittest.TestLoader):
         return self.suiteClass(generate)
 
     def loadTestsFromModule(self, module):
-        log.debug("Load from module %s", module.__name__)
+        log.debug("Load from module %s", module)
         tests = []
         test_classes = []
         test_funcs = []
@@ -207,7 +207,7 @@ class TestLoader(unittest.TestLoader):
             if addr.call:
                 name = addr.call
             parent, obj = self.resolve(name, module)
-            return suite([self.makeTest(obj, parent)], parent=module)
+            return suite([self.makeTest(obj, parent)], parent=parent)
         else:
             if addr.module:
                 try:
@@ -252,6 +252,7 @@ class TestLoader(unittest.TestLoader):
         """Given a test object and its parent, return a unittest.TestCase
         instance that can be run as a test.
         """
+        log.debug('Make test for %s parent: %s', obj, parent)
         if isinstance(obj, unittest.TestCase):
             return obj
         elif isclass(obj):

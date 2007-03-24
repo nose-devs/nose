@@ -73,50 +73,6 @@ class LazySuite(unittest.TestSuite):
                       "generator, so iteration may not be repeatable.")
 
         
-
-class ContextSuiteFactory(object):
-    def __init__(self, config=None):
-        if config is None:
-            config = Config()
-        self.config = config
-        self.suites = {}
-        self.context = {}
-        self.was_setup = {}
-        self.was_torndown = {}
-
-    def __call__(self, tests, parent=None):
-        """Return (possibly creating a new) ContextSuite for parent,
-        including tests.
-        """
-        suite = ContextSuite(
-            tests, parent=parent, factory=self, config=self.config)
-        self.suites.setdefault(parent, []).append(suite)
-        self.context.setdefault(suite, []).append(parent)
-        for ancestor in self.ancestry(parent):
-            self.suites.setdefault(ancestor, []).append(suite)
-            self.context[suite].append(ancestor)
-        return suite
-    
-    def ancestry(self, parent):
-        """Return the ancestry of the parent (that is, all of the
-        packages and modules containing the parent), in order of
-        descent with the outermost ancestor last. This method is a generator
-        """
-        log.debug("get ancestry %s", parent)
-        if parent is None:
-            return
-        if hasattr(parent, '__module__'):
-            ancestors = parent.__module__.split('.')
-        elif hasattr(parent, '__name__'):
-            ancestors = parent.__name__.split('.')[:-1]
-        else:
-            raise TypeError("%s has no ancestors?" % parent)
-        while ancestors:
-            log.debug(" %s ancestors %s", parent, ancestors)
-            yield resolve_name('.'.join(ancestors))                
-            ancestors.pop()
-        
-
 class ContextSuite(LazySuite):
     failureException = unittest.TestCase.failureException
     was_setup = False
@@ -206,7 +162,7 @@ class ContextSuite(LazySuite):
                     continue
                 log.debug("ancestor %s does need setup", ancestor)
                 self.setupParent(ancestor)
-            if parent in factory.was_setup:
+            if not parent in factory.was_setup:
                 self.setupParent(parent)
         else:
             self.setupParent(parent)
@@ -253,9 +209,12 @@ class ContextSuite(LazySuite):
                     log.debug('ancestor %s already torn down', ancestor)
                     continue
                 setup = factory.was_setup[ancestor]
+                log.debug("%s setup ancestor %s", setup, ancestor)
                 if setup is self:
+                    log.debug("it was me")
                     self.teardownParent(ancestor)
                 else:
+                    log.debug("it wasn't me")
                     # I can still run teardown if all other suites
                     # in this context have run, and it's not yet
                     # torn down (supports loadTestsFromNames where
@@ -263,21 +222,24 @@ class ContextSuite(LazySuite):
                     suites = factory.suites[ancestor]
                     have_run = [ s for s in suites if s.has_run ]
                     if suites == have_run:
+                        log.debug("but everyone else is done so I'll clean up")
                         self.teardownParent(ancestor)
+                    log.debug("%s / %s == ? %s",
+                              suites, have_run, suites == have_run)
             if parent in factory.was_torndown:
                 return
         self.teardownParent(parent)
         
     def teardownParent(self, parent):
         log.debug("%s teardown parent %s", self, parent)
+        if self.factory:
+            self.factory.was_torndown[parent] = self
         if isclass(parent):
             names = ('teardown_class',)
         else:
             names = ('teardown_module', 'teardown')
         # FIXME packages, camelCase
         try_run(parent, names)
-        if self.factory:
-            self.factory.was_torndown[parent] = self
         # FIXME plugins.contextTeardown(parent)
         
     def _get_wrapped_tests(self):
@@ -292,3 +254,47 @@ class ContextSuite(LazySuite):
     _tests = property(_get_wrapped_tests, LazySuite._set_tests, None,
                       "Access the tests in this suite. Tests are returned "
                       "inside of a context wrapper.")
+
+
+class ContextSuiteFactory(object):
+    suiteClass = ContextSuite
+    def __init__(self, config=None, suiteClass=None):
+        if config is None:
+            config = Config()
+        self.config = config
+        self.suites = {}
+        self.context = {}
+        self.was_setup = {}
+        self.was_torndown = {}
+
+    def __call__(self, tests, parent=None):
+        """Return (possibly creating a new) ContextSuite for parent,
+        including tests.
+        """
+        suite = self.suiteClass(
+            tests, parent=parent, factory=self, config=self.config)
+        self.suites.setdefault(parent, []).append(suite)
+        self.context.setdefault(suite, []).append(parent)
+        for ancestor in self.ancestry(parent):
+            self.suites.setdefault(ancestor, []).append(suite)
+            self.context[suite].append(ancestor)
+        return suite
+    
+    def ancestry(self, parent):
+        """Return the ancestry of the parent (that is, all of the
+        packages and modules containing the parent), in order of
+        descent with the outermost ancestor last. This method is a generator
+        """
+        log.debug("get ancestry %s", parent)
+        if parent is None:
+            return
+        if hasattr(parent, '__module__'):
+            ancestors = parent.__module__.split('.')
+        elif hasattr(parent, '__name__'):
+            ancestors = parent.__name__.split('.')[:-1]
+        else:
+            raise TypeError("%s has no ancestors?" % parent)
+        while ancestors:
+            log.debug(" %s ancestors %s", parent, ancestors)
+            yield resolve_name('.'.join(ancestors))                
+            ancestors.pop()

@@ -1,7 +1,9 @@
 import os
 import sys
 import unittest
+from difflib import ndiff
 from nose import loader
+from nose import suite
 
 support = os.path.abspath(os.path.join(os.path.dirname(__file__), 'support'))
 
@@ -9,6 +11,7 @@ class TestNoseTestLoader(unittest.TestCase):
 
     def setUp(self):
         self._mods = sys.modules.copy()
+        # suite.ContextSuiteFactory.suiteClass = suite.TreePrintContextSuite
 
     def tearDown(self):
         to_del = [ m for m in sys.modules.keys() if
@@ -17,6 +20,7 @@ class TestNoseTestLoader(unittest.TestCase):
             for mod in to_del:
                 del sys.modules[mod]
         sys.modules.update(self._mods)
+        # suite.ContextSuiteFactory.suiteClass = suite.ContextSuite
 
     def test_load_from_name_file(self):
         res = unittest.TestResult()
@@ -116,6 +120,34 @@ class TestNoseTestLoader(unittest.TestCase):
         for item in m.state:
             self.assertEqual(item, expect.pop(0))
 
+    def test_fixture_context_name_is_test_class(self):
+        res = unittest.TestResult()
+        wd = os.path.join(support, 'package2')
+        l = loader.TestLoader(workingDir=wd)
+        suite = l.loadTestsFromName(
+            'test_pak.test_sub.test_mod:TestMaths')
+        suite(res)
+
+        assert 'test_pak' in sys.modules, \
+               "Context did not load test_pak"
+        m = sys.modules['test_pak']
+        # print "test pak state", m.state
+        expect = ['test_pak.setup',
+                  'test_pak.test_sub.setup',
+                  'test_pak.test_sub.test_mod.setup',
+                  'test_pak.test_sub.test_mod.TestMaths.setup_class',
+                  'test_pak.test_sub.test_mod.TestMaths.setup',
+                  'test_pak.test_sub.test_mod.TestMaths.test_div',
+                  'test_pak.test_sub.test_mod.TestMaths.teardown',
+                  'test_pak.test_sub.test_mod.TestMaths.setup',
+                  'test_pak.test_sub.test_mod.TestMaths.test_two_two',
+                  'test_pak.test_sub.test_mod.TestMaths.teardown',
+                  'test_pak.test_sub.test_mod.TestMaths.teardown_class',
+                  'test_pak.test_sub.test_mod.teardown',
+                  'test_pak.test_sub.teardown',
+                  'test_pak.teardown']
+        self.assertEqual(m.state, expect, diff(expect, m.state))
+
     def test_fixture_context_name_is_test_class_test(self):
         res = unittest.TestResult()
         wd = os.path.join(support, 'package2')
@@ -131,17 +163,15 @@ class TestNoseTestLoader(unittest.TestCase):
         expect = ['test_pak.setup',
                   'test_pak.test_sub.setup',
                   'test_pak.test_sub.test_mod.setup',
-                  'test_pack.test_sub.test_mod.TestMaths.setup_class',
-                  'test_pack.test_sub.test_mod.TestMaths.setup',
-                  'test_pack.test_sub.test_mod.TestMaths.test_div',
-                  'test_pack.test_sub.test_mod.TestMaths.teardown'
-                  'test_pack.test_sub.test_mod.TestMaths.teardown_class',
+                  'test_pak.test_sub.test_mod.TestMaths.setup_class',
+                  'test_pak.test_sub.test_mod.TestMaths.setup',
+                  'test_pak.test_sub.test_mod.TestMaths.test_div',
+                  'test_pak.test_sub.test_mod.TestMaths.teardown',
+                  'test_pak.test_sub.test_mod.TestMaths.teardown_class',
                   'test_pak.test_sub.test_mod.teardown',
                   'test_pak.test_sub.teardown',
                   'test_pak.teardown']
-        self.assertEqual(len(m.state), len(expect))
-        for item in m.state:
-            self.assertEqual(item, expect.pop(0))
+        self.assertEqual(m.state, expect, diff(expect, m.state))
 
     def test_mod_setup_fails_no_tests_run(self):
         ctx = os.path.join(support, 'ctx')
@@ -188,13 +218,43 @@ class TestNoseTestLoader(unittest.TestCase):
         l = loader.TestLoader(workingDir=ctx)
         suite = l.loadTestsFromName('no_such_module.py')
 
-        res = unittest.TestResult()
+        res = unittest._TextTestResult(
+            stream=unittest._WritelnDecorator(sys.stdout),
+            descriptions=0, verbosity=1)
         suite(res)
 
+        print res.errors
+        res.printErrors()
         assert res.errors, "Expected errors but got none"
         assert not res.failures, res.failures
         assert res.testsRun == 1, \
                "Expected to run 1 tests but ran %s" % res.testsRun
+
+# used for comparing lists
+def diff(a, b):
+    return '\n' + '\n'.join([ l for l in ndiff(a, b)
+                              if not l.startswith('  ') ])
+
+
+# used for context debugging
+class TreePrintContextSuite(suite.ContextSuite):
+    indent = ''
+
+    def setUp(self):
+        print self, 'setup -->'
+        ContextSuite.setUp(self)
+        TreePrintContextSuite.indent += '  '
+
+    def tearDown(self):
+        TreePrintContextSuite.indent = TreePrintContextSuite.indent[:-2]
+        try:
+            ContextSuite.tearDown(self)
+        finally:
+            print self, 'teardown <--'
+    def __repr__(self):
+        return '%s[%s]' % (self.indent, self.parent.__name__)
+    __str__ = __repr__
+
         
 if __name__ == '__main__':
     import logging
