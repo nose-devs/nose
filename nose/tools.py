@@ -10,7 +10,8 @@ import re
 import time
 import unittest
 
-__all__ = ['ok_', 'eq_', 'make_decorator', 'raises', 'timed', 'TimeExpired']
+__all__ = ['ok_', 'eq_', 'make_decorator', 'raises', 'timed', 'with_setup',
+           'TimeExpired']
 
 
 #
