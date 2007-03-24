@@ -34,6 +34,8 @@ class Importer(object):
     def import_from_path(self, path, fqname):
         # FIXME this doesn't behave enough like the real python
         # importer -- importing foo.bar.baz doesn't set foo.bar
+        if '.' in fqname:
+            return self.import_package_from_path(path, fqname)
         try:
             finfo = os.stat(path)
         except OSError, e:
@@ -55,15 +57,36 @@ class Importer(object):
             return self._imp._process_result(result, fqname)
         raise ImportError("Unable to import %s from %s" % (fqname, path))
 
-    # FIXME not sure this method is needed
+    def import_package_from_path(self, path, fqname):
+        """Import a dotted-name package whose tail is at path. In other words,
+        given foo.bar and path/to/foo/bar.py, import foo from path/to/foo then
+        bar from path/to/foo/bar, returning bar.
+        """
+        # find the base dir of the package
+        path_parts = os.path.normpath(path).split(os.sep)
+        name_parts = fqname.split('.')
+        if path_parts[-1].startswith('__init__'):
+            path_parts.pop()
+        path_parts = path_parts[:-(len(name_parts))]
+        dir_path = os.sep.join(path_parts)
+        # then import fqname starting from that dir
+        return self.import_from_dir(dir_path, fqname)                
+    
     def import_from_dir(self, dir, fqname):
+        """Import a package, which may be a dotted name, from the root dir
+        dir. The package is loaded top-down, and each part is added to
+        sys.modules and connected to its parent under the appropriate name.
+        """
         dir = os.path.abspath(dir)
+        if self.config.addPaths:
+            add_path(dir)
         cache = self._modules.setdefault(dir, {})
         if fqname in cache:
             # print "Returning cached %s:%s" % (dir, fqname)
             return cache[fqname]
         parts = fqname.split('.')
         loaded = []
+        parent = None
         for part in parts:
             # print "load %s from %s" % (part, dir)
             loaded.append(part)
@@ -71,6 +94,9 @@ class Importer(object):
             # FIXME push dir onto sys.path
             mod = self._imp.import_from_dir(dir, part)
             cache[part_fqname] = mod
+            if parent is not None:
+                setattr(parent, part, mod)
+            parent = mod
             dir = os.path.join(dir, part)
         return mod
         
