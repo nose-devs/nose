@@ -96,23 +96,32 @@ class Doctest(Plugin):
         if not self.matches(module.__name__):
             log.debug("Doctest doesn't want module %s", module)
             return
-        try:
-            doctests = doctest.DocTestSuite(module)
-        except ValueError:
-            # FIXME this doesn't mean "no tests" it means "unable to load
-            # tests" -- it should be returned as a pseudo-suite that
-            # has a single 'test' that re-raises the exception
-            log.debug("No doctests in %s", module)
+        doctests = self._loadDoctests(module)
+        if not doctests:
             return
+        # < 2.4 doctest (and unittest) suites don't have iterators
+        log.debug("Doctests found in %s", module)
+        if hasattr(doctests, '__iter__'):
+            doctest_suite = doctests
         else:
-            # < 2.4 doctest (and unittest) suites don't have iterators
-            log.debug("Doctests found in %s", module)
-            if hasattr(doctests, '__iter__'):
-                doctest_suite = doctests
-            else:
-                doctest_suite = doctests._tests
-            for test in doctest_suite:
-                yield test
+            doctest_suite = doctests._tests
+        for test in doctest_suite:
+            yield test
+
+    def _loadDoctests(self, module):
+        try:
+            doctest.DocFileSuite
+            # 2.4
+            return doctest.DocTestSuite(module)
+        except AttributeError:
+            # 2.3
+            try:
+                return doctest.DocTestSuite(module)
+            except ValueError, e:
+                # 2.3 empty = ValueError
+                if 'has no tests' in e:
+                    return
+                raise
             
     def loadTestsFromPath(self, filename, package=None, importPath=None):
         if self.extension and anyp(filename.endswith, self.extension):

@@ -1,3 +1,16 @@
+0.9.3
+
+- Made usage of temp files in profiler plugin more sensible. Thanks to Michael
+  Sclenker for the bug report.
+- Fixed bug that stopped loading of twisted TestCase tests. Thanks to Kumar
+  McMillan for the bug report.
+- Corrected man page location. Thanks to luke macken for the bug report and
+  patch.
+- Added with_setup to nose.tools.__all__. Thanks to Allen Bierbaum for the bug
+  report.
+- Altered plugin loading so that builtin plugins can be loaded without
+  setuptools. Thanks to Allen Bierbaum for the suggestion.
+
 0.9.2
 
 - Added nosetests setuptools command. Now you can run python setup.py

@@ -9,11 +9,11 @@ and writing decorators contributed by Antoine Pitrou. Thanks to them
 all, and the many other folks who contributed patches and filed bug
 reports and feature requests.
 
-Nose's project home has also moved from python hosting to Google
-code. Please update your svn checkouts and bookmarks. To check out the
-current trunk: svn co http://python-nose.googlecode.com/svn/trunk. To
-file issues, go to the `new issues page`_. To read up on features,
-writing plugins, and other topics, visit the `new wiki`_.
+Nose's project home has moved from python hosting to Google code. Please
+update your svn checkouts and bookmarks. To check out the current trunk: svn
+co http://python-nose.googlecode.com/svn/trunk. To file issues, go to the `new
+issues page`_. To read up on features, writing plugins, and other topics,
+visit the `new wiki`_.
 
 .. _`new issues page`: http://code.google.com/p/python-nose/issues/list
 .. _`new wiki`: http://code.google.com/p/python-nose/w/list

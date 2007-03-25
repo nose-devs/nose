@@ -34,6 +34,8 @@ print "cd %s" % svnroot
 branch = 'branches/%s.%s.%s-stable' % (versioninfo[0],
                                        versioninfo[1], versioninfo[2])
 tag =  'tags/%s-release' % version
+
+"""
 if os.path.isdir(tag):
     raise Exception("Tag path %s already exists. Can't release same version "
                     "twice!")
@@ -79,8 +81,10 @@ runcmd("svn ci -m 'Release branch for %s'" % version)
 os.chdir(tagroot)
 print "cd %s" % tagroot
 runcmd("svn ci -m 'Release tag for %s'" % version)
+"""
 
 # make docs
+os.chdir(svnroot)
 os.chdir(tag)
 print "cd %s" % tag
 
