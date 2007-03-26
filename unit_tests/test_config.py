@@ -39,5 +39,10 @@ class TestNoseConfig(unittest.TestCase):
         assert c.plugins
         c.plugins.begin()
 
+    def test_testnames(self):
+        c = nose.config.Config()
+        c.configure(['foo', 'bar', 'baz.buz.biz'])
+        self.assertEqual(c.testNames, ['foo', 'bar', 'baz.buz.biz'])
+
 if __name__ == '__main__':
     unittest.main()
