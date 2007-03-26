@@ -16,7 +16,6 @@ except ImportError:
 
 from nose.inspector import inspect_traceback
 from nose.exc import DeprecatedTest, SkipTest
-from nose.plugins import call_plugins
 
 # buffer = StringIO()
 stdout = []

@@ -2,9 +2,30 @@ import os
 import re
 import sys
 
-
 class Config(object):
-    """nose configuration. For internal use only.
+    """nose configuration.
+
+    self.testMatch = re.compile(r'(?:^|[\b_\.%s-])[Tt]est' % os.sep)
+    self.addPaths = True
+    self.capture = True
+    self.detailedErrors = False
+    self.debugErrors = False
+    self.debugFailures = False
+    self.exclude = None
+    self.exit = True
+    self.includeExe = sys.platform=='win32'
+    self.ignoreFiles = ( re.compile(r'^\.'),
+                         re.compile(r'^_'),
+                         re.compile(r'^setup\.py$')
+                         )
+    self.include = None
+    self.plugins = NoPlugins()
+    self.srcDirs = ('lib', 'src')
+    self.runOnInit = True
+    self.stopOnError = False
+    self.testNames = ()
+    self.verbosity = 1
+    self.where = ('.',)
     """
 
     def __init__(self, **kw):
@@ -16,46 +37,46 @@ class Config(object):
         self.debugFailures = False
         self.exclude = None
         self.exit = True
-        self.includeExe = sys.platform=='win32'
-        self.ignoreFiles = [ re.compile(r'^\.'),
-                             re.compile(r'^_'),
-                             re.compile(r'^setup\.py$')
-                             ]
+        self.includeExe = (sys.platform=='win32')
+        self.ignoreFiles = (re.compile(r'^\.'),
+                            re.compile(r'^_'),
+                            re.compile(r'^setup\.py$')
+                            )
         self.include = None
         self.plugins = NoPlugins()
-        self.srcDirs = ['lib', 'src']
+        self.srcDirs = ('lib', 'src')
+        self.runOnInit = True
         self.stopOnError = False
-        self.tests = []
+        self.testsNames = ()
         self.verbosity = 1
-        self._where = None
-        self._working_dir = None
+        self.where = ('.',)
+        
+        self._default = self.__dict__.copy()
         self.update(kw)
         self._orig = self.__dict__.copy()
+        #        self._where = None
+        #        self._working_dir = None
 
-    # FIXME maybe kill all this and instantiate a new config for each
-    # working dir
-    def get_where(self):
-        return self._where
+    def configure(self, argv=None, env=None):
+        # get a parser
+        # load plugins
+        # let plugins set opts
+        # parse argv
+        # configure self and plugins
+        # testNames = non-option args
+        pass
 
-    def set_where(self, val):
-        self._where = val
-        self._working_dir = None
+    def __repr__(self):
+        d = self.__dict__
+        keys = [ k for k in d.keys()
+                 if not k.startswith('_') ]
+        keys.sort()
+        return "Config(%s)" % ', '.join([ '%s=%r' % (k, d[k])
+                                          for k in keys ])
+    __str__ = __repr__
 
-    def get_working_dir(self):
-        val = self._working_dir
-        if val is None:
-            if isinstance(self.where, list) or isinstance(self.where, tuple):
-                val = self._working_dir = self.where[0]
-            else:
-                val = self._working_dir = self.where
-        return val
-
-    def set_working_dir(self, val):
-        self._working_dir = val
-        
-    def __str__(self):
-        # FIXME -- in alpha order
-        return repr(self.__dict__)
+    def default(self):
+        self.__dict__.update(self._default)
 
     def reset(self):
         self.__dict__.update(self._orig)
@@ -66,18 +87,45 @@ class Config(object):
     def update(self, d):
         self.__dict__.update(d)
 
-    # properties
-    where = property(get_where, set_where, None,
-                     "The list of directories where tests will be discovered")
-    working_dir = property(get_working_dir, set_working_dir, None,
-                           "The current working directory (the root "
-                           "directory of the current test run).")
-
 
 class NoPlugins(object):
-
+    """Plugin 'manager' that includes no plugins and returns None
+    for all calls
+    """
     def __getattr__(self, call):
         return self
 
     def __call__(self, *arg, **kw):
         return
+
+
+
+# deprecated
+    # FIXME maybe kill all this and instantiate a new config for each
+    # working dir
+#     def get_where(self):
+#         return self._where
+
+#     def set_where(self, val):
+#         self._where = val
+#         self._working_dir = None
+
+#     def get_working_dir(self):
+#         val = self._working_dir
+#         if val is None:
+#             if isinstance(self.where, list) or isinstance(self.where, tuple):
+#                 val = self._working_dir = self.where[0]
+#             else:
+#                 val = self._working_dir = self.where
+#         return val
+
+#     def set_working_dir(self, val):
+#         self._working_dir = val
+        
+
+#     # properties
+#     where = property(get_where, set_where, None,
+#                      "The list of directories where tests will be discovered")
+#     working_dir = property(get_working_dir, set_working_dir, None,
+#                            "The current working directory (the root "
+#                            "directory of the current test run).")

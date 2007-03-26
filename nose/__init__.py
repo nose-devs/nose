@@ -287,23 +287,17 @@ along with this program; if not, write to the Free Software Foundation,
 Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
 """
 
-from nose.core import TestCollector, collector, configure, main, run, \
-    run_exit, runmodule
+from nose.core import main, run, run_exit, runmodule
 from nose.exc import SkipTest, DeprecatedTest
-from nose.loader import TestLoader
-# from nose.suite import LazySuite
-from nose.result import TextTestResult
 from nose.tools import with_setup # backwards compatibility
-from nose.util import file_like, split_test_name, test_address
 
 __author__ = 'Jason Pellerin'
 __versioninfo__ = (0, 10, '0a1')
 __version__ = '.'.join(map(str, __versioninfo__))
 
-__all__ = [ 
-    'TextTestResult', # 'LazySuite', 
-    'SkipTest', 'DeprecatedTest', 
-    'TestCollector', 'TestLoader',
-    'collector', 'configure', 'main', 'run', 'run_exit', 'runmodule',
-    'with_setup', 'file_like', 'split_test_name', 'test_address'
+__all__ = [
+    'main', 'run', 'run_ext', 'runmodule', 'with_setup',
+    'SkipTest', 'DeprecatedTest'
     ]
+
+

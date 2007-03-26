@@ -25,19 +25,19 @@ class TestNoseConfig(unittest.TestCase):
         assert c.exclude == 'x'
 
     def test_multiple_include(self):
-        conf = configure(['--include=a', '--include=b'])
-        self.assertEqual(conf.include, [re.compile('a'), re.compile('b')])
+        c = nose.config.Config()
+        c.configure(['--include=a', '--include=b'])
+        self.assertEqual(c.include, [re.compile('a'), re.compile('b')])
 
     def test_single_include(self):
-        conf = configure(['--include=b'])
-        self.assertEqual(conf.include, [re.compile('b')])
+        c = nose.config.Config()
+        c.configure(['--include=b'])
+        self.assertEqual(c.include, [re.compile('b')])
 
     def test_plugins(self):
         c = nose.config.Config()
         assert c.plugins
-
-        # default no-plugins state allows any call
-        c.plugins.whatever()
+        c.plugins.begin()
 
 if __name__ == '__main__':
     unittest.main()

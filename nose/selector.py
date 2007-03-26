@@ -4,7 +4,6 @@ import re
 import sys
 import unittest
 from nose.config import Config
-from nose.plugins import call_plugins
 from nose.util import absfile, file_like, split_test_name, src, test_address, \
      getfilename, getpackage
 

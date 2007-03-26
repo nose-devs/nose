@@ -9,27 +9,28 @@ import unittest
 from inspect import isclass
 from optparse import OptionParser
 
-from nose.plugins import load_plugins, call_plugins
-from nose.result import start_capture, end_capture, TextTestResult
 from nose.config import Config
-from nose.loader import defaultTestLoader
-from nose.result import Result
-from nose.suite import LazySuite
-from nose.util import absdir, tolist
 from nose.importer import add_path
+from nose.loader import defaultTestLoader
+from nose.plugins.manager import DefaultPluginManager
+from nose.result import start_capture, end_capture, TextTestResult
+from nose.util import absdir, tolist
+
 
 log = logging.getLogger('nose.core')
 
 
-class TestCollector(LazySuite):
+class TestCollector:
     """Main nose test collector.
 
     Uses a test loader to load tests from the directory given in conf
     (conf.path). Uses the default test loader from nose.loader by
     default. Any other loader may be used so long as it implements
     loadTestsFromDir().    
-    """    
+    """
     def __init__(self, conf, loader=None):
+        raise NotImplentedError("TestCollector not yet reimplemented")
+    
         if loader is None:
             loader = defaultTestLoader(conf)
         self.conf = conf
@@ -58,6 +59,7 @@ def collector():
     ResultProxySuite test suites, which use a proxy result object to
     enable output capture and assert introspection.
     """
+    raise NotImplementedError("collector() not yet reimplemented")
     # plugins that implement any of these methods are disabled, since
     # we don't control the test runner and won't be able to run them
     setuptools_incompat = ( 'finalize', 'prepareTest', 'report',
@@ -78,9 +80,12 @@ class TextTestRunner(unittest.TextTestRunner):
     the test case itself.
     """    
     def __init__(self, stream=sys.stderr, descriptions=1, verbosity=1,
-                 conf=None):
+                 config=None):
+        if config is None:
+            config = Config()
+        self.config = config
         unittest.TextTestRunner.__init__(self, stream, descriptions, verbosity)
-        self.conf = conf
+
     
     def _makeResult(self):
         return TextTestResult(self.stream,
@@ -179,11 +184,14 @@ class TestProgram(unittest.TestProgram):
     """
     verbosity = 1
 
-    def __init__(self, module=None, defaultTest='.', 
-                 argv=None, testRunner=None, testLoader=None, env=None):
+    def __init__(self, module=None, defaultTest='.', argv=None,
+                 testRunner=None, testLoader=None, env=None, config=None):
         if env is None:
             env = os.environ
         self.env = env
+        if config is None:
+            config = Config(plugins=DefaultPluginManager())
+        self.config = config
         unittest.TestProgram.__init__(
             self, module=module, defaultTest=defaultTest,
             argv=argv, testRunner=testRunner, testLoader=testLoader)
@@ -215,29 +223,25 @@ class TestProgram(unittest.TestProgram):
         """Parse argv and env and configure running environment.
         """
         log.debug("parseArgs is called %s", argv)
-        self.conf = Config() # configure(argv, self.env)
-        log.debug("configured %s", self.conf)
+
+        self.config.configure(argv, self.env)
+        log.debug("configured %s", self.config)
         
         # instantiate the test loader
         if self.testLoader is None:
-            self.testLoader = defaultTestLoader(self.conf)
+            self.testLoader = defaultTestLoader(config=self.config)
         elif isclass(self.testLoader):
-            self.testLoader = self.testLoader(self.conf)
+            self.testLoader = self.testLoader(config=self.config)
 
         log.debug("test loader is %s", self.testLoader)
             
-        # append the requested module to the list of tests to run
-        # FIXME if module is a string, add it to self.testNames? not sure
+        # FIXME if self.module is a string, add it to self.testNames? not sure
 
-        # FIXME ... pull test names from args, or:
-        self.testNames = (self.defaultTest,)
-
+        if config.testNames:
+            self.testNames = config.testNames
+        else:
+            self.testNames = (self.defaultTest,)
         log.debug('Test names are %s', self.testNames)
-#         if self.module:
-#             try:
-#                 self.conf.tests.append(self.module.__name__)
-#             except AttributeError:
-#                 self.conf.tests.append(str(self.module))
         self.createTests()
         
     def createTests(self):
@@ -255,11 +259,11 @@ class TestProgram(unittest.TestProgram):
         log.debug("runTests called")
         if self.testRunner is None:
             self.testRunner = TextTestRunner(stream=self.stream,
-                                             verbosity=self.conf.verbosity,
-                                             conf=self.conf)
+                                             verbosity=self.config.verbosity,
+                                             config=self.config)
         result = self.testRunner.run(self.test)
         self.success = result.wasSuccessful()
-        if self.conf.exit:
+        if self.config.exit:
             sys.exit(not self.success)
         return self.success
 

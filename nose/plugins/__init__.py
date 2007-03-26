@@ -106,50 +106,9 @@ See nose.plugins.attrib, nose.plugins.cover, nose.plugins.doctests and
 nose.plugins.profile for examples. Further examples may be found the
 examples directory in the nose source distribution.
 """
-import logging
-import pkg_resources
-from warnings import warn
-from nose.plugins.base import *
-from nose.plugins.manager import PluginManager
+from nose.plugins.base import Plugin
+from nose.plugins.manager import *
 
-log = logging.getLogger(__name__)
 
-def call_plugins(plugins, method, *arg, **kw):
-    """Call all method on plugins in list, that define it, with provided
-    arguments. The first response that is not None is returned.
-    """
-    raise Exception("DEPRECATED")
-    for plug in plugins:
-        func = getattr(plug, method, None)
-        if func is None:
-            continue
-        log.debug("call plugin %s: %s", plug.name, method)
-        result = func(*arg, **kw)
-        if result is not None:
-            return result
-    return None
-        
-def load_plugins(builtin=True, others=True):
-    """Load plugins, either builtin, others, or both.
-    """
-    raise Exception("DEPRECATED")
-
-    for ep in pkg_resources.iter_entry_points('nose.plugins'):
-        log.debug("load plugin %s" % ep)
-        try:
-            plug = ep.load()
-        except KeyboardInterrupt:
-            raise
-        except Exception, e:
-            # never want a plugin load to kill the test run
-            # but we can't log here because the logger is not yet
-            # configured
-            warn("Unable to load plugin %s: %s" % (ep, e), RuntimeWarning)
-            continue
-        if plug.__module__.startswith('nose.plugins'):
-            if builtin:
-                yield plug
-        elif others:
-            yield plug
 
 

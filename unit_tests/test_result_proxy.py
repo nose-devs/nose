@@ -28,6 +28,7 @@ class TestResultProxy(unittest.TestCase):
             assert ismethod(m), "%s is not a method" % method
 
     def test_proxy_proxies(self):
+        from nose.case import Test
         class Dummy:
             def __init__(self):
                 self.__dict__['called'] = []
@@ -44,9 +45,8 @@ class TestResultProxy(unittest.TestCase):
             raise Exception("exception")
         except:
             err = sys.exc_info()
-        context = FixtureContext()
         test = TC()
-        case = context(test)
+        case = Test(test)
         res = Dummy()
         proxy = ResultProxy(res, test=case)
         proxy.addError(test, err)
@@ -67,12 +67,12 @@ class TestResultProxy(unittest.TestCase):
         self.assertEqual(res.shouldStop, 'yes please')
 
     def test_proxy_handles_missing_methods(self):
+        from nose.case import Test
         class TC(unittest.TestCase):
             def runTest(self):
                 pass
-        context = FixtureContext()
         test = TC()
-        case = context(test)
+        case = Test(test)
         res = unittest.TestResult()
         proxy = ResultProxy(res, case)
         proxy.addSkip(test, None)
@@ -81,6 +81,7 @@ class TestResultProxy(unittest.TestCase):
         proxy.afterTest(test)
         
     def test_output_capture(self):
+        from nose.case import Test
         res = unittest.TestResult()
         class TC(unittest.TestCase):
             def test_error(self):
@@ -91,21 +92,23 @@ class TestResultProxy(unittest.TestCase):
                 self.fail()
         config = Config()
         config.capture = True
-        context = FixtureContext(config=config)
-        case = context(TC('test_fail'))
 
-        case(res)
+        case = Test(TC('test_fail'))
+        proxy = ResultProxy(res, case, config=config)
+        case(proxy)
         assert res.failures
         self.assertEqual(case.captured_output, "Hello\n")
 
         res = unittest.TestResult()
-        case = context(TC('test_error'))
-        case(res)
+        case = Test(TC('test_error'))
+        proxy = ResultProxy(res, case, config=config)
+        case(proxy)
         assert res.errors
         self.assertEqual(case.captured_output, "So long\n")
 
     def test_proxy_calls_plugins(self):
         from nose import SkipTest, DeprecatedTest
+        from nose.case import Test
         res = unittest.TestResult()
         class TC(unittest.TestCase):
             def test_error(self):
@@ -122,23 +125,26 @@ class TestResultProxy(unittest.TestCase):
                 pass
         plugs = RecordingPluginManager()
         config = Config(plugins=plugs)
-        context = FixtureContext(config=config)
 
-        case_e = context(TC('test_error'))
-        case_f = context(TC('test_fail'))
-        case_s = context(TC('test_skip'))
-        case_d = context(TC('test_deprecated'))
-        case_t = context(TC('test'))
+        factory = ResultProxyFactory(config=config)
 
-        case_e(res)
+        case_e = Test(TC('test_error'))
+        case_f = Test(TC('test_fail'))
+        case_s = Test(TC('test_skip'))
+        case_d = Test(TC('test_deprecated'))
+        case_t = Test(TC('test'))
+
+        pres_e = factory(res, case_e)
+        case_e(pres_e)
         assert 'beforeTest' in plugs.called
         assert 'startTest' in plugs.called
         assert 'addError' in plugs.called
         assert 'stopTest' in plugs.called
         assert 'afterTest' in plugs.called
         plugs.reset()
-        
-        case_f(res)
+
+        pres_f = factory(res, case_f)
+        case_f(pres_f)
         assert 'beforeTest' in plugs.called
         assert 'startTest' in plugs.called
         assert 'addFailure' in plugs.called
@@ -146,7 +152,8 @@ class TestResultProxy(unittest.TestCase):
         assert 'afterTest' in plugs.called
         plugs.reset()
 
-        case_s(res)
+        pres_s = factory(res, case_s)
+        case_s(pres_s)
         assert 'beforeTest' in plugs.called
         assert 'startTest' in plugs.called
         assert 'addSkip' in plugs.called
@@ -154,7 +161,8 @@ class TestResultProxy(unittest.TestCase):
         assert 'afterTest' in plugs.called
         plugs.reset()
 
-        case_d(res)
+        pres_d = factory(res, case_d)
+        case_d(pres_d)
         assert 'beforeTest' in plugs.called
         assert 'startTest' in plugs.called
         assert 'addDeprecated' in plugs.called
@@ -162,7 +170,8 @@ class TestResultProxy(unittest.TestCase):
         assert 'afterTest' in plugs.called
         plugs.reset()
 
-        case_t(res)
+        pres_t = factory(res, case_t)
+        case_t(pres_t)
         assert 'beforeTest' in plugs.called
         assert 'startTest' in plugs.called
         assert 'addSuccess' in plugs.called

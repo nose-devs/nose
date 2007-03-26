@@ -14,8 +14,6 @@ try:
 except ImportError:
     from StringIO import StringIO
 
-from nose.config import Config
-
 log = logging.getLogger('nose')
 
 ident_re = re.compile(r'^[A-Za-z_][A-Za-z0-9_.]*$')
