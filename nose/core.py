@@ -13,8 +13,8 @@ from nose.config import Config
 from nose.importer import add_path
 from nose.loader import defaultTestLoader
 from nose.plugins.manager import DefaultPluginManager
-from nose.result import start_capture, end_capture, TextTestResult
-from nose.util import absdir, tolist
+from nose.result import TextTestResult
+from nose.util import absdir, tolist, start_capture, end_capture
 
 
 log = logging.getLogger('nose.core')
@@ -91,21 +91,20 @@ class TextTestRunner(unittest.TextTestRunner):
         return TextTestResult(self.stream,
                               self.descriptions,
                               self.verbosity,
-                              self.conf)
+                              self.config)
 
     def run(self, test):
-        wrapper = call_plugins(self.conf.plugins, 'prepareTest', test)
+        wrapper = self.config.plugins.prepareTest(test)
         if wrapper is not None:
             test = wrapper
         
         # plugins can decorate or capture the output stream
-        wrapped = call_plugins(self.conf.plugins, 'setOutputStream',
-                               self.stream)
+        wrapped = self.config.plugins.setOutputStream(self.stream)
         if wrapped is not None:
             self.stream = wrapped
             
         result = unittest.TextTestRunner.run(self, test)
-        call_plugins(self.conf.plugins, 'finalize', result)
+        self.config.plugins.finalize(result)
         return result
 
     
@@ -234,11 +233,14 @@ class TestProgram(unittest.TestProgram):
             self.testLoader = self.testLoader(config=self.config)
 
         log.debug("test loader is %s", self.testLoader)
+        plug_loader = self.config.plugins.prepareTestLoader(self.testLoader)
+        if plug_loader is not None:
+            self.testLoader = plug_loader
             
         # FIXME if self.module is a string, add it to self.testNames? not sure
 
-        if config.testNames:
-            self.testNames = config.testNames
+        if self.config.testNames:
+            self.testNames = self.config.testNames
         else:
             self.testNames = (self.defaultTest,)
         log.debug('Test names are %s', self.testNames)
@@ -258,9 +260,12 @@ class TestProgram(unittest.TestProgram):
         """
         log.debug("runTests called")
         if self.testRunner is None:
-            self.testRunner = TextTestRunner(stream=self.stream,
+            self.testRunner = TextTestRunner(stream=self.config.stream,
                                              verbosity=self.config.verbosity,
                                              config=self.config)
+        plug_runner = self.config.plugins.prepareTestRunner(self.testRunner)
+        if plug_runner is not None:
+            self.testRunner = plug_runner
         result = self.testRunner.run(self.test)
         self.success = result.wasSuccessful()
         if self.config.exit:

@@ -23,6 +23,7 @@ class Config(object):
     self.srcDirs = ('lib', 'src')
     self.runOnInit = True
     self.stopOnError = False
+    self.stream = sys.stderr
     self.testNames = ()
     self.verbosity = 1
     self.where = ('.',)
@@ -47,7 +48,8 @@ class Config(object):
         self.srcDirs = ('lib', 'src')
         self.runOnInit = True
         self.stopOnError = False
-        self.testsNames = ()
+        self.stream = sys.stderr
+        self.testNames = ()
         self.verbosity = 1
         self.where = ('.',)
         

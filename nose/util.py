@@ -18,6 +18,9 @@ log = logging.getLogger('nose')
 
 ident_re = re.compile(r'^[A-Za-z_][A-Za-z0-9_.]*$')
 
+# used for output capture; stack of wrapped stdouts
+stdout = []
+
 def absdir(path):
     """Return absolute, normalized path to directory, if it exists; None
     otherwise.
@@ -381,6 +384,76 @@ def tolist(val):
     except TypeError:
         # who knows... 
         return list(val)
+
+
+def start_capture():
+    """Start capturing output to stdout.
+    """
+    log.debug('start capture from %r' % sys.stdout)
+    stdout.append(sys.stdout)
+    sys.stdout = StringIO()
+    log.debug('sys.stdout is now %r' % sys.stdout)
+
+
+def end_capture():
+    """Stop capturing output to stdout.
+    """
+    if stdout:
+        sys.stdout = stdout.pop()
+        log.debug('capture ended, sys.stdout is now %r' % sys.stdout)
+
+
+class odict(dict):
+    """Simple ordered dict implementation, based on:
+
+    http://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/107747
+    """
+    def __init__(self, *arg, **kw):
+        self._keys = []
+        super(odict, self).__init__(*arg, **kw)
+
+    def __delitem__(self, key):
+        super(odict, self).__delitem__(key)
+        self._keys.remove(key)
+
+    def __setitem__(self, key, item):
+        super(odict, self).__setitem__(key, item)
+        if key not in self._keys:
+            self._keys.append(key)
+
+    def __str__(self):
+        return "{%s}" % ', '.join(["%r: %r" % (k, v) for k, v in self.items()])
+
+    def clear(self):
+        super(odict, self).clear()
+        self._keys = []
+
+    def copy(self):
+        d = super(odict, self).copy()
+        d._keys = self._keys[:]
+        return d
+
+    def items(self):
+        return zip(self._keys, self.values())
+
+    def keys(self):
+        return self._keys[:]
+
+    def setdefault(self, key, failobj=None):
+        item = super(odict, self).setdefault(key, failobj)
+        if key not in self._keys:
+            self._keys.append(key)
+        return item
+
+    def update(self, dict):
+        super(odict, self).update(dict)
+        for key in dict.keys():
+            if key not in self._keys:
+                self._keys.append(key)
+
+    def values(self):
+        return map(self.get, self._keys)
+
 
 
 if __name__ == '__main__':

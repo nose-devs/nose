@@ -303,6 +303,49 @@ class IPluginInterface(object):
         """
         pass
     loadTestsFromTestCase.generative = True
+
+    def prepareTestLoader(self, loader):
+        """Called before tests are loaded. To replace the test loader,
+        return a test loader. To allow other plugins to process the
+        test loader, return None. Only one plugin may replace the test
+        loader. Only valid when using nose.TestProgram.
+
+        Parameters:
+         * loader:
+           the test loader
+        """
+        pass
+
+    def prepareTestResult(self, result):
+        """Called before the first test is run. To use a different
+        test result handler for all tests than the given result,
+        return a test result handler. NOTE however that this handler
+        will only be seen by tests, that is, inside of the result
+        proxy system. The TestRunner and TestProgram -- whether nose's
+        or other -- will continue to see the original result
+        handler. For this reason, it is usually better to monkeypatch
+        the result (for instance, if you want to handle TODO
+        exceptions in some way). Only one plugin may replace the
+        result, but many may monkeypatch it. If you want to
+        monkeypatch and stop other plugins from doing so, monkeypatch
+        and return the patched result.
+
+        Parameters:
+         * result:
+           the test result
+        """
+        pass
+
+    def prepareTestRunner(self, runner):
+        """Called before tests are run. To replace the test runner,
+        return a test runner. To allow other plugins to process the
+        test runner, return None. Only valid when using nose.TesrProgram.
+
+        Parameters:
+         * runner
+           the test runner
+        """
+        pass
     
     def prepareTest(self, test):
         """Called before the test is run by the test runner. Please note

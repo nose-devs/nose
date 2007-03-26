@@ -1,6 +1,7 @@
 from nose.case import Test
 from nose.config import Config
 from nose import proxy
+from nose.util import odict
 
 class ResultProxyFactory:
     def __call__(self, result, test):
@@ -56,7 +57,10 @@ class RecordingPluginManager(object):
         return RecordingPluginProxy(self, call)
 
     def reset(self):
-        self.called = {}
+        self.called = odict()
+
+    def calls(self):
+        return self.called.keys()
 
 
 class RecordingPluginProxy(object):

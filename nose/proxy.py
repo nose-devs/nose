@@ -4,8 +4,8 @@ Result Proxy
 
 The result proxy wraps the result instance given to each test. It
 performs two functions: enabling extended error/failure reporting,
-including output capture and assert introspection, and calling
-plugins.
+including output capture, assert introspection, and varied error classes,
+and calling plugins.
 
 As each result event is fired, plugins are called with the same event;
 however, plugins are called with the nose.case.Test instance that
@@ -22,7 +22,7 @@ import unittest
 from nose.exc import SkipTest, DeprecatedTest
 from nose.config import Config
 from nose.inspector import inspect_traceback
-from nose.util import ln
+from nose.util import ln, start_capture, end_capture
 
 try:
     from cStringIO import StringIO
@@ -40,8 +40,23 @@ class ResultProxyFactory(object):
         if config is None:
             config = Config()
         self.config = config
+        self.__prepared = False
+        self.__result = None
 
     def __call__(self, result, test):
+        """Return a ResultProxy for the current test.
+
+        On first call, plugins are given a chance to replace the
+        result used for the remaining tests. If a plugin returns a
+        value from prepareTestResult, that object will be used as the
+        result for all tests.
+        """
+        if not self.__prepared:
+            plug_result = self.config.plugins.prepareTestResult(result)
+            if plug_result is not None:
+                self.__result = result = plug_result
+        if self.__result is not None:
+            result = self.__result
         return ResultProxy(result, test, config=self.config)
 
 
@@ -60,7 +75,6 @@ class ResultProxy(object):
         self.config = config
         self.plugins = config.plugins
         self.result = result
-        self.stdout = [] # stack of stdout patches
         self.test = test
 
     def __repr__(self):
@@ -103,9 +117,12 @@ class ResultProxy(object):
     
     def addError(self, test, err):
         self.assertMyTest(test)
-
-        # Skip and Deprecated will land here first
+        plugin_handled = self.config.plugins.handleError(test, err)
+        if plugin_handled:
+            return
         ec, ev, tb = err
+
+        # FIXME redo these as plugins
         if issubclass(ec, SkipTest):
             return self.addSkip(test, err)
         elif issubclass(ec, DeprecatedTest):
@@ -116,6 +133,9 @@ class ResultProxy(object):
 
     def addFailure(self, test, err):
         self.assertMyTest(test)
+        plugin_handled = self.config.plugins.handleFailure(test, err)
+        if plugin_handled:
+            return
         err = self.formatErr(err, inspect_tb=True)
         self.plugins.addFailure(self.test, err)
         self.result.addFailure(test, err)
@@ -138,8 +158,7 @@ class ResultProxy(object):
             capt = sys.stdout.getvalue()
         except AttributeError:
             capt = ''
-        if self.stdout:
-            sys.stdout = self.stdout.pop()
+        end_capture()
         return capt
 
     def formatErr(self, err, inspect_tb=False):
@@ -159,8 +178,7 @@ class ResultProxy(object):
         return (ec, ev, tb)
 
     def startCapture(self):
-        self.stdout.append(sys.stdout)
-        sys.stdout = StringIO()
+        start_capture()
 
     def startTest(self, test):
         self.assertMyTest(test)
