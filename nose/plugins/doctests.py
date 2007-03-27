@@ -109,19 +109,13 @@ class Doctest(Plugin):
             yield test
 
     def _loadDoctests(self, module):
-        try:
-            doctest.DocFileSuite
-            # 2.4
+        try:            
             return doctest.DocTestSuite(module)
-        except AttributeError:
-            # 2.3
-            try:
-                return doctest.DocTestSuite(module)
-            except ValueError, e:
-                # 2.3 empty = ValueError
-                if 'has no tests' in e:
-                    return
-                raise
+        except ValueError, e:
+            # empty = ValueError
+            if 'has no tests' in e:
+                return
+            raise            
             
     def loadTestsFromPath(self, filename, package=None, importPath=None):
         if self.extension and anyp(filename.endswith, self.extension):
