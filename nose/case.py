@@ -97,7 +97,7 @@ class Test(unittest.TestCase):
         From here we don't call result.startTest or stopTest or
         addSuccess.  The wrapper calls addError/addFailure only if its
         own setup or teardown fails, or running the wrapped test fails
-        (eg, if the wrapped"test" is not callable).
+        (eg, if the wrapped "test" is not callable).
 
         Two additional methods are called, beforeTest and
         afterTest. These give plugins a chance to modify the wrapped

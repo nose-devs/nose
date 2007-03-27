@@ -42,21 +42,30 @@ class Plugin(object):
         self.add_options(parser, env)
         
     def add_options(self, parser, env=os.environ):
-        # FIXME raise deprecation warning if wasn't called by wrapper
-        env_opt = 'NOSE_WITH_%s' % self.name.upper()
-        env_opt.replace('-', '_')
+        """Non-camel-case version of func name for backwards compatibility.
+        """
+        # FIXME raise deprecation warning if wasn't called by wrapper 
         try:
-            parser.add_option("--with-%s" % self.name,
-                              action="store_true",
-                              dest=self.enableOpt,
-                              default=env.get(env_opt),
-                              help="Enable plugin %s: %s [%s]" %
-                              (self.__class__.__name__, self.help(), env_opt))
+            self.options(parser, env)
+            self.can_configure = True
         except OptionConflictError, e:
             warn("Plugin %s has conflicting option string: %s and will "
                  "be disabled" % (self, e), RuntimeWarning)
             self.enabled = False
             self.can_configure = False
+            
+    def options(self, parser, env=os.environ):
+        """New plugin API: override to just set options. Use instead
+        of add_options.
+        """
+        env_opt = 'NOSE_WITH_%s' % self.name.upper()
+        env_opt.replace('-', '_')
+        parser.add_option("--with-%s" % self.name,
+                          action="store_true",
+                          dest=self.enableOpt,
+                          default=env.get(env_opt),
+                          help="Enable plugin %s: %s [%s]" %
+                          (self.__class__.__name__, self.help(), env_opt))
 
     def configure(self, options, conf):
         """Configure the plugin and system, based on selected options.

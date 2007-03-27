@@ -1,7 +1,9 @@
 import unittest
+from nose.config import Config
 from nose.plugins.skip import Skip, SkipTest
 from nose.result import TextTestResult
 from StringIO import StringIO
+from optparse import OptionParser
 
 
 class TestSkipPlugin(unittest.TestCase):
@@ -22,7 +24,7 @@ class TestSkipPlugin(unittest.TestCase):
         res._orig_wasSuccessful
         res.skipped
         self.assertEqual(res.errorClasses,
-                         {SkipTest: ('skipped', 'SKIP')})
+                         {SkipTest: ('skipped', 'SKIP', False)})
 
         # result w/out print works too
         res = unittest.TestResult()
@@ -31,7 +33,7 @@ class TestSkipPlugin(unittest.TestCase):
         res._orig_addError
         res.skipped
         self.assertEqual(res.errorClasses,
-                         {SkipTest: ('skipped', 'SKIP')})
+                         {SkipTest: ('skipped', 'SKIP', False)})
 
     def test_patched_result_handles_skip(self):
         res = unittest.TestResult()
@@ -49,8 +51,11 @@ class TestSkipPlugin(unittest.TestCase):
         assert res.skipped[0][0] is test
 
     def test_patches_only_when_needed(self):
-        stream = unittest._WritelnDecorator(StringIO())
-        res = TextTestResult(stream, 0, 1)
+        class NoPatch(unittest.TestResult):
+            def __init__(self):
+                self.errorClasses = {}
+                
+        res = NoPatch()
         sk = Skip()
         sk.prepareTestResult(res)
         assert not hasattr(res, '_orig_addError'), \
@@ -78,7 +83,7 @@ class TestSkipPlugin(unittest.TestCase):
         assert out.startswith('S')
         assert 'SKIP: ' in out
         assert 'skip me' in out
-        assert res.wasSuccessful
+        assert res.wasSuccessful()
 
     def test_skip_output_verbose(self):
 
@@ -102,6 +107,18 @@ class TestSkipPlugin(unittest.TestCase):
 
         assert ' ... SKIP' in out
         assert 'skip me too' in out
+
+    def test_enabled_by_default(self):
+        sk = Skip()
+        assert sk.enabled, "Skip was not enabled by default"
+
+    def test_can_be_disabled(self):
+        parser = OptionParser()
+        sk = Skip()
+        sk.addOptions(parser)
+        options, args = parser.parse_args(['--no-skip'])
+        sk.configure(options, Config())
+        assert not sk.enabled, "Skip was not disabled by noSkip option"
         
 
 if __name__ == '__main__':

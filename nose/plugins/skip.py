@@ -1,17 +1,44 @@
+import os
 from nose.plugins.base import Plugin
 from warnings import warn
 
+
 class Skip(Plugin):
+    """Plugin that installs a SKIP error class for the SkipTest
+    exception.  When SkipTest is raised, the exception will be logged
+    in the skipped attribute of the result, 'S' or 'SKIP' (verbose)
+    will be output, and the exception will not be counted as an error
+    or failure.
+    """
+    enabled = True
+
+    def options(self, parser, env=os.environ):
+        env_opt = 'NOSE_WITHOUT_SKIP'
+        parser.add_option('--no-skip', action='store_true',
+                          dest='noSkip', default=env.get(env_opt, False),
+                          help="Disable special handling of SkipTest "
+                          "exceptions.")
+
+    def configure(self, options, conf):
+        if not self.can_configure:
+            return
+        self.conf = conf
+        disable = getattr(options, 'noSkip', False)
+        if disable:
+            self.enabled = False
+    
     def prepareTestResult(self, result):
-        if not hasattr(result, '_orig_addError'):
+        if not hasattr(result, 'errorClasses'):
             self.patchResult(result)
         if SkipTest not in result.errorClasses:
-            result.errorClasses[SkipTest] = ('skipped', 'SKIP')
+            result.errorClasses[SkipTest] = ('skipped', 'SKIP', False)
             result.skipped = []
             
     def patchResult(self, result):
         result._orig_addError, result.addError = \
             result.addError, add_error_patch(result)
+        result._orig_wasSuccessful, result.wasSuccessful = \
+            result.wasSuccessful, wassuccessful_patch(result)
         if hasattr(result, 'printErrors'):
             result._orig_printErrors, result.printErrors = \
                 result.printErrors, print_errors_patch(result)
@@ -25,10 +52,14 @@ class SkipTest(Exception):
 
 
 def add_error_patch(result):
+    """Create a new addError method to patch into a result instance
+    that recognizes the errorClasses attribute and deals with
+    errorclasses correctly.
+    """
     self = result
-    def add_error(test, err):
+    def addError(test, err):
         ec, ev, tb = err
-        handler, label = self.errorClasses.get(ec, (None, None))
+        handler, label, isfail = self.errorClasses.get(ec, (None, None, None))
         if not handler:
             return self._orig_addError(test, err)
         errlist = getattr(self, handler, None)
@@ -43,14 +74,36 @@ def add_error_patch(result):
                 self.stream.write(label)
             elif self.dots:
                 self.stream.write(label[:1])
-    return add_error
+    return addError
 
 
 def print_errors_patch(result):
+    """Create a new printErrors method that prints errorClasses items
+    as well.
+    """
     self = result
-    def print_errors():
+    def printErrors():
         self._orig_printErrors()
         for cls in self.errorClasses.keys():
-            handler, label = self.errorClasses[cls]
+            handler, label, isfail = self.errorClasses[cls]
             self.printErrorList(label, getattr(self, handler, []))
-    return print_errors
+    return printErrors
+
+
+def wassuccessful_patch(result):
+    """Create a new wasSuccessful method that checks errorClasses for
+    exceptions that were put into other slots than error or failure
+    but that still count as not success.
+    """
+    self = result
+    def wasSuccessful():
+        if self.errors or self.failures:
+            return False
+        for cls in self.errorClasses.keys():
+            handler, label, isfail = self.errorClasses[cls]
+            if not isfail:
+                continue
+            if getattr(self, handler, []):
+                return False
+        return True
+    return wasSuccessful
