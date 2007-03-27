@@ -40,6 +40,11 @@ class Test(unittest.TestCase):
     """
     def __init__(self, test, config=None, resultProxy=None):
         log.debug("Test(%s)", test)
+        # sanity check
+        if not callable(test):
+            raise TypeError("nose.case.Test called with argument %r that "
+                            "is not callable. A callable is required."
+                            % test)
         self.test = test
         if config is None:
             config = Config()
@@ -103,14 +108,20 @@ class Test(unittest.TestCase):
             result = self.resultProxy(result, self)
         self.beforeTest(result)
         try:
-            self.runTest(result)
+            try:
+                self.runTest(result)
+            except KeyboardInterrupt:
+                raise
+            except:
+                err = sys.exc_info()
+                result.addError(self, err)
         finally:
             self.afterTest(result)
         
     def runTest(self, result):
         log.debug('run test %s with result %s', self.test, result)
         self.test(result)
-
+        
     def shortDescription(self):
         # FIXME plugins.describeTest(self)
         return self.test.shortDescription()

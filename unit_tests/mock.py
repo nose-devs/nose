@@ -1,4 +1,4 @@
-from nose.case import Test
+# from nose.case import Test
 from nose.config import Config
 from nose import proxy
 from nose.util import odict

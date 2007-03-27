@@ -14,8 +14,9 @@ try:
 except ImportError:
     from StringIO import StringIO
 
-from nose.inspector import inspect_traceback
-from nose.exc import DeprecatedTest, SkipTest
+from nose.config import Config
+#from nose.inspector import inspect_traceback
+# from nose.exc import DeprecatedTest, SkipTest
 
 # buffer = StringIO()
 

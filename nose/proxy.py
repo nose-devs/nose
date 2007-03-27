@@ -122,12 +122,14 @@ class ResultProxy(object):
             return
         ec, ev, tb = err
 
+        # FIXME pdb if config
         # FIXME redo these as plugins
         if issubclass(ec, SkipTest):
             return self.addSkip(test, err)
         elif issubclass(ec, DeprecatedTest):
             return self.addDeprecated(test, err)        
         err = self.formatErr(err)
+        # FIXME plugins expect capt
         self.plugins.addError(self.test, err)
         self.result.addError(test, err)
 
@@ -136,7 +138,9 @@ class ResultProxy(object):
         plugin_handled = self.config.plugins.handleFailure(test, err)
         if plugin_handled:
             return
+        # FIXME pdb if config
         err = self.formatErr(err, inspect_tb=True)
+        # FIXME plugins expect capt, tb info
         self.plugins.addFailure(self.test, err)
         self.result.addFailure(test, err)
 
@@ -150,6 +154,7 @@ class ResultProxy(object):
     
     def addSuccess(self, test):
         self.assertMyTest(test)
+        # FIXME plugins expect capt
         self.plugins.addSuccess(self.test)
         self.result.addSuccess(test)
 

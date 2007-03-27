@@ -1,5 +1,6 @@
 import unittest
 from nose.plugins.skip import Skip, SkipTest
+from nose.result import TextTestResult
 from StringIO import StringIO
 
 
@@ -9,7 +10,7 @@ class TestSkipPlugin(unittest.TestCase):
         sk = Skip()
         sk.addOptions
         sk.configure
-        sk.prepareTestResult
+        sk.prepareTestResult        
 
     def test_prepare_patches_result(self):
         stream = unittest._WritelnDecorator(StringIO())
@@ -18,6 +19,7 @@ class TestSkipPlugin(unittest.TestCase):
         sk.prepareTestResult(res)
         res._orig_addError
         res._orig_printErrors
+        res._orig_wasSuccessful
         res.skipped
         self.assertEqual(res.errorClasses,
                          {SkipTest: ('skipped', 'SKIP')})
@@ -45,6 +47,15 @@ class TestSkipPlugin(unittest.TestCase):
         assert not res.errors, "Skip was not caught: %s" % res.errors
         assert res.skipped
         assert res.skipped[0][0] is test
+
+    def test_patches_only_when_needed(self):
+        stream = unittest._WritelnDecorator(StringIO())
+        res = TextTestResult(stream, 0, 1)
+        sk = Skip()
+        sk.prepareTestResult(res)
+        assert not hasattr(res, '_orig_addError'), \
+               "Skip patched a result class it didn't need to patch"
+        
 
     def test_skip_output(self):
         class TC(unittest.TestCase):
