@@ -1,5 +1,7 @@
 import os
+from new import instancemethod
 from nose.plugins.base import Plugin
+from nose.result import TextTestResult
 from warnings import warn
 
 
@@ -56,38 +58,16 @@ def add_error_patch(result):
     that recognizes the errorClasses attribute and deals with
     errorclasses correctly.
     """
-    self = result
-    def addError(test, err):
-        ec, ev, tb = err
-        handler, label, isfail = self.errorClasses.get(ec, (None, None, None))
-        if not handler:
-            return self._orig_addError(test, err)
-        errlist = getattr(self, handler, None)
-        if errlist is None:
-            warn("No attribute %s in TestResult: needed to handle errors "
-                 "of class %s" % (handler, ec), RuntimeWarning)
-            return self._orig_addError(test, err)
-        errlist.append((test, self._exc_info_to_string(err, test)))
-        stream = getattr(self, 'stream', None)
-        if stream is not None:
-            if self.showAll:
-                self.stream.write(label)
-            elif self.dots:
-                self.stream.write(label[:1])
-    return addError
+    return instancemethod(
+        TextTestResult.addError.im_func, result, result.__class__)
 
 
 def print_errors_patch(result):
     """Create a new printErrors method that prints errorClasses items
     as well.
     """
-    self = result
-    def printErrors():
-        self._orig_printErrors()
-        for cls in self.errorClasses.keys():
-            handler, label, isfail = self.errorClasses[cls]
-            self.printErrorList(label, getattr(self, handler, []))
-    return printErrors
+    return instancemethod(
+        TextTestResult.printErrors.im_func, result, result.__class__)
 
 
 def wassuccessful_patch(result):
@@ -95,15 +75,5 @@ def wassuccessful_patch(result):
     exceptions that were put into other slots than error or failure
     but that still count as not success.
     """
-    self = result
-    def wasSuccessful():
-        if self.errors or self.failures:
-            return False
-        for cls in self.errorClasses.keys():
-            handler, label, isfail = self.errorClasses[cls]
-            if not isfail:
-                continue
-            if getattr(self, handler, []):
-                return False
-        return True
-    return wasSuccessful
+    return instancemethod(
+        TextTestResult.wasSuccessful.im_func, result, result.__class__)
