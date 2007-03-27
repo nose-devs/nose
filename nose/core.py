@@ -7,7 +7,7 @@ import sys
 import types
 import unittest
 from inspect import isclass
-from optparse import OptionParser
+
 
 from nose.config import Config
 from nose.importer import add_path
@@ -187,9 +187,8 @@ class TestProgram(unittest.TestProgram):
                  testRunner=None, testLoader=None, env=None, config=None):
         if env is None:
             env = os.environ
-        self.env = env
         if config is None:
-            config = Config(plugins=DefaultPluginManager())
+            config = Config(env=env, plugins=DefaultPluginManager())
         self.config = config
         unittest.TestProgram.__init__(
             self, module=module, defaultTest=defaultTest,
@@ -223,20 +222,29 @@ class TestProgram(unittest.TestProgram):
         """
         log.debug("parseArgs is called %s", argv)
 
-        self.config.configure(argv, self.env)
+        self.config.configure(argv, doc=TestProgram.__doc__)
+        if self.config.options.version:
+            from nose import __version__
+            print "%s version %s" % (os.path.basename(sys.argv[0]), __version__)
+            sys.exit(0)
+
         log.debug("configured %s", self.config)
+        
+        # call early to ensure we get our hooks into sys.stdout before
+        # any subject modules are loaded and import it
+        if self.config.capture:
+            start_capture()
         
         # instantiate the test loader
         if self.testLoader is None:
             self.testLoader = defaultTestLoader(config=self.config)
         elif isclass(self.testLoader):
             self.testLoader = self.testLoader(config=self.config)
-
-        log.debug("test loader is %s", self.testLoader)
         plug_loader = self.config.plugins.prepareTestLoader(self.testLoader)
         if plug_loader is not None:
             self.testLoader = plug_loader
-            
+        log.debug("test loader is %s", self.testLoader)
+        
         # FIXME if self.module is a string, add it to self.testNames? not sure
 
         if self.config.testNames:
@@ -272,74 +280,6 @@ class TestProgram(unittest.TestProgram):
             sys.exit(not self.success)
         return self.success
 
-def get_parser(env=None):
-    parser = OptionParser(TestProgram.__doc__)
-    parser.add_option("-V","--version",action="store_true",
-                      dest="version",default=False,
-                      help="Output nose version and exit")
-    parser.add_option("-v", "--verbose",
-                      action="count", dest="verbosity",
-                      default=int(env.get('NOSE_VERBOSE', 1)),
-                      help="Be more verbose. [NOSE_VERBOSE]")
-    parser.add_option("--verbosity", action="store", dest="verbosity",
-                      type="int", help="Set verbosity; --verbosity=2 is "
-                      "the same as -vv")
-    parser.add_option("-l", "--debug", action="store",
-                      dest="debug", default=env.get('NOSE_DEBUG'),
-                      help="Activate debug logging for one or more systems. "
-                      "Available debug loggers: nose, nose.importer, "
-                      "nose.inspector, nose.plugins, nose.result and "
-                      "nose.selector. Separate multiple names with a comma.")
-    parser.add_option("--debug-log", dest="debug_log", action="store",
-                      default=env.get('NOSE_DEBUG_LOG'),
-                      help="Log debug messages to this file "
-                      "(default: sys.stderr)")
-    parser.add_option("-q", "--quiet", action="store_const",
-                      const=0, dest="verbosity")
-    parser.add_option("-w", "--where", action="append", dest="where",
-                      help="Look for tests in this directory [NOSE_WHERE]")
-    parser.add_option("-e", "--exclude", action="append", dest="exclude",
-                      help="Don't run tests that match regular "
-                      "expression [NOSE_EXCLUDE]")
-    parser.add_option("-i", "--include", action="append", dest="include",
-                      help="Also run tests that match regular "
-                      "expression [NOSE_INCLUDE]")
-    parser.add_option("-s", "--nocapture", action="store_false",
-                      default=not env.get('NOSE_NOCAPTURE'), dest="capture",
-                      help="Don't capture stdout (any stdout output "
-                      "will be printed immediately) [NOSE_NOCAPTURE]")
-    parser.add_option("-d", "--detailed-errors", action="store_true",
-                      default=env.get('NOSE_DETAILED_ERRORS'),
-                      dest="detailedErrors", help="Add detail to error"
-                      " output by attempting to evaluate failed"
-                      " asserts [NOSE_DETAILED_ERRORS]")
-    parser.add_option("--pdb", action="store_true", dest="debugErrors",
-                      default=env.get('NOSE_PDB'), help="Drop into debugger "
-                      "on errors")
-    parser.add_option("--pdb-failures", action="store_true",
-                      dest="debugFailures",
-                      default=env.get('NOSE_PDB_FAILURES'),
-                      help="Drop into debugger on failures")
-    parser.add_option("-x", "--stop", action="store_true", dest="stopOnError",
-                      default=env.get('NOSE_STOP'),
-                      help="Stop running tests after the first error or "
-                      "failure")
-    parser.add_option("-P", "--no-path-adjustment", action="store_false",
-                      dest="addPaths",
-                      default=not env.get('NOSE_NOPATH'),
-                      help="Don't make any changes to sys.path when "
-                      "loading tests [NOSE_NOPATH]")
-    parser.add_option("--exe", action="store_true", dest="includeExe",
-                      default=env.get('NOSE_INCLUDE_EXE',
-                                      sys.platform=='win32'),
-                      help="Look for tests in python modules that are "
-                      "executable. Normal behavior is to exclude executable "
-                      "modules, since they may not be import-safe "
-                      "[NOSE_INCLUDE_EXE]")
-    parser.add_option("--noexe", action="store_false", dest="includeExe",
-                      help="DO NOT look for tests in python modules that are "
-                      "executable. (The default on the windows platform is to "
-                      "do so.)")
 
 ##     # FIXME move this
 ##     # add opts from plugins
@@ -352,101 +292,8 @@ def get_parser(env=None):
 ##         except AttributeError:
 ##             pass
     
-    return parser
 
-def configure(argv=None, env=None, help=False, disable_plugins=None):
-    """Configure the nose running environment. Execute configure before
-    collecting tests with nose.TestCollector to enable output capture and
-    other features.
-    """
-    if argv is None:
-        argv = sys.argv
-    if env is None:
-        env = os.environ
 
-    # FIXME pass the plugin manager here
-    conf = Config()
-    parser = get_parser(env=env)
-        
-    options, args = parser.parse_args(argv)
-    if help:
-        return parser.format_help()
-    
-    try:
-        log.debug('Adding %s to tests to run' % args[1:])
-        conf.tests.extend(args[1:])
-    except IndexError:
-        pass
-    
-    if options.version:
-        from nose import __version__
-        print "%s version %s" % (os.path.basename(sys.argv[0]), __version__)
-        sys.exit(0)
-
-    # where is an append action, so it can't have a default value 
-    # in the parser, or that default will always be in the list
-    if not options.where:
-        options.where = env.get('NOSE_WHERE', os.getcwd())
-
-    # include and exclude also
-    if not options.include:
-        options.include = env.get('NOSE_INCLUDE', [])
-    if not options.exclude:
-        options.exclude = env.get('NOSE_EXCLUDE', [])
-        
-    configure_logging(options)
-
-# FIXME use plugin manager
-
-##     # hand options to plugins
-##     all_plugins = [plug() for plug in load_plugins()]
-##     for plug in all_plugins:
-##         plug.configure(options, conf)
-##         if plug.enabled and disable_plugins:
-##             for meth in disable_plugins:
-##                 if hasattr(plug, meth):
-##                     plug.enabled = False
-##                     log.warning("Plugin %s disabled: not all methods "
-##                                 "supported in this environment" % plug.name)
-    conf.addPaths = options.addPaths
-    conf.capture = options.capture
-    conf.detailedErrors = options.detailedErrors
-    conf.debugErrors = options.debugErrors
-    conf.debugFailures = options.debugFailures
-## FIXME use plugin manager
-##    conf.plugins = [ plug for plug in all_plugins if plug.enabled ]
-    conf.stopOnError = options.stopOnError
-    conf.verbosity = options.verbosity
-    conf.includeExe = options.includeExe
-    
-    if options.where is not None:
-        conf.where = []
-        for path in tolist(options.where):
-            log.debug('Adding %s as nose working directory', path)
-            abs_path = absdir(path)
-            if abs_path is None:
-                raise ValueError("Working directory %s not found, or "
-                                 "not a directory" % path)
-            conf.where.append(abs_path)
-            log.info("Looking for tests in %s", abs_path)
-            if conf.addPaths and \
-                    os.path.exists(os.path.join(abs_path, '__init__.py')):
-                log.info("Working directory %s is a package; "
-                         "adding to sys.path" % abs_path)
-                add_path(abs_path)
-                
-    if options.include:
-        conf.include = map(re.compile, tolist(options.include))
-        log.info("Including tests matching %s", options.include)
-        
-    if options.exclude:
-        conf.exclude = map(re.compile, tolist(options.exclude))
-        log.info("Excluding tests matching %s", options.exclude)
-
-    # call early to ensure we get our hooks into sys.stdout before
-    # any subject modules are loaded and import it
-    if conf.capture:
-        start_capture()
 
 # FIXME use plugin manager
 #    try:
@@ -456,7 +303,7 @@ def configure(argv=None, env=None, help=False, disable_plugins=None):
 #        if conf.capture:
 #            end_capture()
 #        raise
-    return conf
+
 
 def configure_logging(options):
     """Configure logging for nose, or optionally other packages. Any logger

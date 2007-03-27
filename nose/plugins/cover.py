@@ -32,7 +32,7 @@ class Coverage(Plugin):
     coverTests = False
     coverPackages = None
     
-    def add_options(self, parser, env=os.environ):
+    def addOptions(self, parser, env=os.environ):
         Plugin.add_options(self, parser, env)
         parser.add_option("--cover-package", action="append",
                           default=env.get('NOSE_COVER_PACKAGE'),

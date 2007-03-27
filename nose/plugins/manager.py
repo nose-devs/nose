@@ -9,12 +9,14 @@ to plugins.
 * Entry point
 
 """
+import logging
 from warnings import warn
 from nose.plugins.base import IPluginInterface
 
 __all__ = ['DefaultPluginManager', 'PluginManager', 'EntryPointPluginManager',
            'BuiltinPluginManager']
-           
+
+log = logging.getLogger(__name__)
 
 class PluginManager(object):
 
@@ -35,6 +37,17 @@ class PluginManager(object):
     def addPlugins(self, plugins):
         for plug in plugins:
             self.addPlugin(plug)
+
+    def configure(self, options, config):
+        """Configure the set of plugins with the given options
+        and config instance. After configuration, disabled plugins
+        are removed from the plugins list.
+        """
+        self.config = config
+        cfg = PluginProxy('configure', self._plugins)
+        cfg(options, config)
+        enabled = [plug for plug in self._plugins if plug.enabled]
+        self.plugins = enabled        
 
     def loadPlugins(self):
         pass
@@ -94,7 +107,7 @@ class PluginProxy(object):
 
             
 class EntryPointPluginManager(PluginManager):
-    entry_point = 'nose.plugins'
+    entry_point = 'nose.plugins.0-10'
     
     def loadPlugins(self):
         """Load plugins by iterating the `nose.plugins` entry point.
@@ -114,7 +127,7 @@ class EntryPointPluginManager(PluginManager):
                 # configured
                 warn("Unable to load plugin %s: %s" % (ep, e), RuntimeWarning)
                 continue
-            self.addPlugin(plug)
+            self.addPlugin(plug())
 
 
 class BuiltinPluginManager(PluginManager):
@@ -124,7 +137,7 @@ class BuiltinPluginManager(PluginManager):
         super(BuiltinPluginManager, self).loadPlugins()
         from nose.plugins import builtin
         for plug in builtin.plugins:
-            self.addPlugin(plug)
+            self.addPlugin(plug())
         
 
 try:

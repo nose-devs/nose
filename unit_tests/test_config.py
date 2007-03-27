@@ -1,7 +1,6 @@
 import re
 import unittest
 import nose.config
-from nose.core import configure
 
 class TestNoseConfig(unittest.TestCase):
 

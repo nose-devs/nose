@@ -20,8 +20,9 @@ class TestPluginCalls(unittest.TestCase):
     def test_plugin_calls_package1(self):
         wdir = os.path.join(support, 'package1')
         man = RecordingPluginManager()
-        conf = Config(exit=False, plugins=man)
-        t = TestProgram(defaultTest=wdir, config=conf)
+        conf = Config(exit=False, plugins=man, stream=sys.stdout)
+        t = TestProgram(defaultTest=wdir, config=conf,
+                        argv=['test_plugin_calls_package1'])
         print man.called
         assert man.called
 

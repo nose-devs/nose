@@ -1,6 +1,8 @@
 import os
 import re
 import textwrap
+from optparse import OptionConflictError
+from warnings import warn
 from nose.util import tolist
 
 class Plugin(object):
@@ -20,6 +22,7 @@ class Plugin(object):
       * The plugin will not be enabled unless this option is selected by
         the user.    
     """
+    can_configure = False
     enabled = False
     enableOpt = None
     name = None
@@ -30,20 +33,30 @@ class Plugin(object):
         if self.enableOpt is None:
             self.enableOpt = "enable_plugin_%s" % self.name
             
-    def add_options(self, parser, env=os.environ):
+    def addOptions(self, parser, env=os.environ):
         """Add command-line options for this plugin.
 
         The base plugin class adds --with-$name by default, used to enable the
         plugin. 
         """
+        self.add_options(parser, env)
+        
+    def add_options(self, parser, env=os.environ):
+        # FIXME raise deprecation warning if wasn't called by wrapper
         env_opt = 'NOSE_WITH_%s' % self.name.upper()
         env_opt.replace('-', '_')
-        parser.add_option("--with-%s" % self.name,
-                          action="store_true",
-                          dest=self.enableOpt,
-                          default=env.get(env_opt),
-                          help="Enable plugin %s: %s [%s]" %
-                          (self.__class__.__name__, self.help(), env_opt))
+        try:
+            parser.add_option("--with-%s" % self.name,
+                              action="store_true",
+                              dest=self.enableOpt,
+                              default=env.get(env_opt),
+                              help="Enable plugin %s: %s [%s]" %
+                              (self.__class__.__name__, self.help(), env_opt))
+        except OptionConflictError, e:
+            warn("Plugin %s has conflicting option string: %s and will "
+                 "be disabled" % (self, e), RuntimeWarning)
+            self.enabled = False
+            self.can_configure = False
 
     def configure(self, options, conf):
         """Configure the plugin and system, based on selected options.
@@ -51,6 +64,8 @@ class Plugin(object):
         The base plugin class sets the plugin to enabled if the enable option
         for the plugin (self.enableOpt) is true.
         """
+        if not self.can_configure:
+            return
         self.conf = conf
         if hasattr(options, self.enableOpt):
             self.enabled = getattr(options, self.enableOpt)
@@ -70,7 +85,8 @@ class Plugin(object):
         warn("Plugin.tolist is deprecated. Use nose.util.tolist instead",
              DeprecationWarning)
         return tolist(val)
-        
+
+
 class IPluginInterface(object):
     """
     Nose plugin API
@@ -150,6 +166,7 @@ class IPluginInterface(object):
         all other plugins from setting their options.
         """
         pass
+    add_options = addOptions
 
     # FIXME beforeTest, afterTest
 
@@ -189,7 +206,7 @@ class IPluginInterface(object):
          * err:
            sys.exc_info() tuple
          * capt:
-           Captured output, if any
+           Captured output, if any.
          * tb_info:
            Introspected traceback info, if any
         """
@@ -213,7 +230,7 @@ class IPluginInterface(object):
          * test:
            the test case
          * capt:
-           Captured output, if any
+           Captured output, if any.
         """
         pass        
             
@@ -241,6 +258,32 @@ class IPluginInterface(object):
         printing, any other value to stop them.
         """
         pass
+
+    def handleError(self, test, err):
+        """Called on addError. To handle the error yourself and prevent normal
+        error processing, return a true value.
+
+        Parameters:
+         * test:
+           the test case
+         * err:
+           the error tuple (class, value, traceback)
+        """
+        pass
+    handleError._new = True
+
+    def handleFailure(self, test, err):
+        """Called on addFailure. To handle the failure yourself and
+        prevent normal failure processing, return a true value.
+
+        Parameters:
+         * test:
+           the test case
+         * err:
+           the error tuple (class, value, traceback)
+        """
+        pass
+    handleFailure._new = True
 
     # FIXME loadTestsFromClass, loadTestsFromDir
     
@@ -315,6 +358,7 @@ class IPluginInterface(object):
            the test loader
         """
         pass
+    prepareTestLoader._new = True
 
     def prepareTestResult(self, result):
         """Called before the first test is run. To use a different
@@ -335,6 +379,7 @@ class IPluginInterface(object):
            the test result
         """
         pass
+    prepareTestResult._new = True
 
     def prepareTestRunner(self, runner):
         """Called before tests are run. To replace the test runner,
@@ -346,6 +391,7 @@ class IPluginInterface(object):
            the test runner
         """
         pass
+    prepareTestRunner._new = True
     
     def prepareTest(self, test):
         """Called before the test is run by the test runner. Please note
