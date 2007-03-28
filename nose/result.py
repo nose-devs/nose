@@ -42,6 +42,7 @@ class TextTestResult(_TextTestResult):
                  "of class %s" % (handler, ec), RuntimeWarning)
             return self._addError(test, err)
         errlist.append((test, self._exc_info_to_string(err, test)))
+        # Might get patched into a streamless result
         stream = getattr(self, 'stream', None)
         if stream is not None:
             if self.showAll:

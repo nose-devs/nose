@@ -151,6 +151,7 @@ class Config(object):
             log.info("Excluding tests matching %s", options.exclude)
 
         self.plugins.configure(options, self)
+        self.plugins.begin()
 
     def configureLogging(self, options):
         # FIXME

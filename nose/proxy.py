@@ -95,6 +95,7 @@ class ResultProxy(object):
         except AttributeError:
             pass
         if self.config.capture:
+            # FIXME can capture be a plugin?
             self.endCapture()
 
     def beforeTest(self, test):
@@ -106,28 +107,13 @@ class ResultProxy(object):
             pass
         if self.config.capture:
             self.startCapture()
-    
-    def addDeprecated(self, test, err):
-        self.assertMyTest(test)
-        self.plugins.addDeprecated(self.test, err)
-        try:
-            self.result.addDeprecated(test, err)
-        except AttributeError:
-            pass
-    
+        
     def addError(self, test, err):
         self.assertMyTest(test)
         plugin_handled = self.config.plugins.handleError(test, err)
         if plugin_handled:
             return
-        ec, ev, tb = err
-
-        # FIXME pdb if config
-        # FIXME redo these as plugins
-        if issubclass(ec, SkipTest):
-            return self.addSkip(test, err)
-        elif issubclass(ec, DeprecatedTest):
-            return self.addDeprecated(test, err)        
+        # FIXME pdb if config -- or plugin?
         err = self.formatErr(err)
         # FIXME plugins expect capt
         self.plugins.addError(self.test, err)
@@ -138,19 +124,11 @@ class ResultProxy(object):
         plugin_handled = self.config.plugins.handleFailure(test, err)
         if plugin_handled:
             return
-        # FIXME pdb if config
+        # FIXME pdb if config -- or plugin?
         err = self.formatErr(err, inspect_tb=True)
         # FIXME plugins expect capt, tb info
         self.plugins.addFailure(self.test, err)
         self.result.addFailure(test, err)
-
-    def addSkip(self, test, err):
-        self.assertMyTest(test)
-        self.plugins.addSkip(self.test, err)
-        try:
-            self.result.addSkip(test, err)
-        except AttributeError:
-            pass
     
     def addSuccess(self, test):
         self.assertMyTest(test)
