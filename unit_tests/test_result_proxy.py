@@ -22,7 +22,7 @@ class TestResultProxy(unittest.TestCase):
         res = unittest.TestResult()
         proxy = ResultProxy(res, test=None)
 
-        methods = [ 'addSkip', 'addDeprecated', 'beforeTest', 'afterTest' ]
+        methods = [ 'beforeTest', 'afterTest' ]
         for method in methods:
             m = getattr(proxy, method)
             assert ismethod(m), "%s is not a method" % method
@@ -52,8 +52,6 @@ class TestResultProxy(unittest.TestCase):
         proxy.addError(test, err)
         proxy.addFailure(test, err)
         proxy.addSuccess(test)
-        proxy.addSkip(test, err)
-        proxy.addDeprecated(test, err)
         proxy.startTest(test)
         proxy.stopTest(test)
         proxy.beforeTest(test)
@@ -61,8 +59,8 @@ class TestResultProxy(unittest.TestCase):
         proxy.stop()
         proxy.shouldStop = 'yes please'
         for method in ['addError', 'addFailure', 'addSuccess',
-                       'addSkip', 'addDeprecated','startTest', 'stopTest',
-                       'beforeTest', 'afterTest', 'stop']:
+                       'startTest', 'stopTest', 'beforeTest', 'afterTest',
+                       'stop']:
             assert method in res.called, "%s was not proxied"
         self.assertEqual(res.shouldStop, 'yes please')
 
@@ -75,8 +73,6 @@ class TestResultProxy(unittest.TestCase):
         case = Test(test)
         res = unittest.TestResult()
         proxy = ResultProxy(res, case)
-        proxy.addSkip(test, None)
-        proxy.addDeprecated(test, None)
         proxy.beforeTest(test)
         proxy.afterTest(test)
         
@@ -107,7 +103,6 @@ class TestResultProxy(unittest.TestCase):
         self.assertEqual(case.captured_output, "So long\n")
 
     def test_proxy_calls_plugins(self):
-        from nose import SkipTest, DeprecatedTest
         from nose.case import Test
         res = unittest.TestResult()
         class TC(unittest.TestCase):
@@ -117,10 +112,6 @@ class TestResultProxy(unittest.TestCase):
             def test_fail(self):
                 print "Hello"
                 self.fail()
-            def test_skip(self):
-                raise SkipTest('not it')
-            def test_deprecated(self):
-                raise DeprecatedTest('old n busted')
             def test(self):
                 pass
         plugs = RecordingPluginManager()
@@ -130,8 +121,6 @@ class TestResultProxy(unittest.TestCase):
 
         case_e = Test(TC('test_error'))
         case_f = Test(TC('test_fail'))
-        case_s = Test(TC('test_skip'))
-        case_d = Test(TC('test_deprecated'))
         case_t = Test(TC('test'))
 
         pres_e = factory(res, case_e)
@@ -148,24 +137,6 @@ class TestResultProxy(unittest.TestCase):
         assert 'beforeTest' in plugs.called
         assert 'startTest' in plugs.called
         assert 'addFailure' in plugs.called
-        assert 'stopTest' in plugs.called
-        assert 'afterTest' in plugs.called
-        plugs.reset()
-
-        pres_s = factory(res, case_s)
-        case_s(pres_s)
-        assert 'beforeTest' in plugs.called
-        assert 'startTest' in plugs.called
-        assert 'addSkip' in plugs.called
-        assert 'stopTest' in plugs.called
-        assert 'afterTest' in plugs.called
-        plugs.reset()
-
-        pres_d = factory(res, case_d)
-        case_d(pres_d)
-        assert 'beforeTest' in plugs.called
-        assert 'startTest' in plugs.called
-        assert 'addDeprecated' in plugs.called
         assert 'stopTest' in plugs.called
         assert 'afterTest' in plugs.called
         plugs.reset()

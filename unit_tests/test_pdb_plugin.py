@@ -1,6 +1,8 @@
 import sys
 import unittest
+from nose.config import Config
 from nose.plugins import debug
+from optparse import OptionParser
 
 class StubPdb:
     called = False
@@ -32,11 +34,54 @@ class TestPdbPlugin(unittest.TestCase):
             err = sys.exc_info()
     
         p.enabled = True
+        p.enabled_for_errors = True
         p.enabled_for_failures = True
 
         p.addError(None, err)
-        assert debug.pdb.called
+        assert debug.pdb.called, "Did not call pdb.post_mortem on error"
 
+        debug.pdb.called = False
+        p.addFailure(None, err)
+        assert debug.pdb.called, "Did not call pdb.post_mortem on failure"
 
+    def test_command_line_options_enable(self):
+        parser = OptionParser()
+
+        p = debug.Pdb()
+        p.addOptions(parser)
+        options, args = parser.parse_args(['test_configuration',
+                                           '--pdb',
+                                           '--pdb-failures'])
+        p.configure(options, Config())
+        assert p.enabled
+        assert p.enabled_for_failures
+
+    def test_disabled_by_default(self):
+        p = debug.Pdb()
+        assert not p.enabled
+        assert not p.enabled_for_failures
+
+        parser = OptionParser()
+        p.addOptions(parser)
+        options, args = parser.parse_args(['test_configuration'])
+        p.configure(options, Config())
+        assert not p.enabled
+        assert not p.enabled_for_failures
+        
+    def test_env_settings_enable(self):
+        p = debug.Pdb()
+        assert not p.enabled
+        assert not p.enabled_for_failures
+
+        env = {'NOSE_PDB': '1',
+               'NOSE_PDB_FAILURES': '1'}
+
+        parser = OptionParser()
+        p.addOptions(parser, env)
+        options, args = parser.parse_args(['test_configuration'])
+        p.configure(options, Config())
+        assert p.enabled
+        assert p.enabled_for_failures
+        
 if __name__ == '__main__':
     unittest.main()

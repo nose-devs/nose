@@ -1,0 +1,26 @@
+Changes:
+
+* Use options() instead of add_options()
+
+* addSkip() and addDeprecated() will not be called
+  - varied error classes, no more hard-coded error handlers
+  - check for error classes in addError instead
+
+* addError() and addFailure() will not get capt or tb_info arguments
+  - these values are accessible in the test, if present.
+
+New methods available:
+
+* afterTest
+
+* beforeTest
+
+* handleError
+
+* handleFailure
+
+* prepareTestLoader
+
+* prepareTestResult
+
+* prepareTestRunner

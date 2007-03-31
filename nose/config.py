@@ -42,8 +42,6 @@ class Config(object):
         self.capture = not env.get('NOSE_NOCAPTURE', False)
         self.detailedErrors = env.get('NOSE_DETAILED_ERRORS', False)
         self.debug = env.get('NOSE_DEBUG')
-        self.debugErrors = env.get('NOSE_PDB', False)
-        self.debugFailures = env.get('NOSE_PDB_FAILURES', False)
         self.debugLog = env.get('NOSE_DEBUG_LOG')
         self.exclude = None
         self.exit = True
@@ -217,15 +215,6 @@ class Config(object):
             dest="detailedErrors", help="Add detail to error"
             " output by attempting to evaluate failed"
             " asserts [NOSE_DETAILED_ERRORS]")
-        parser.add_option(
-            "--pdb", action="store_true", dest="debugErrors",
-            default=self.debugErrors,
-            help="Drop into debugger on errors")
-        parser.add_option(
-            "--pdb-failures", action="store_true",
-            dest="debugFailures",
-            default=self.debugFailures,
-            help="Drop into debugger on failures")
         parser.add_option(
             "-x", "--stop", action="store_true", dest="stopOnError",
             default=self.stopOnError,

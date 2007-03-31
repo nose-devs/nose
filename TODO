@@ -1,0 +1,45 @@
+implement pdb/pdb-fail as plugin
+ -- what to do about error classes? would be ideal
+    not to trigger pdb, output capture, etc on items caught
+    by error classes, but there's no avenue for that to happen
+    unless the plugin stores a result ref on prepareResult, 
+    which is rather hackish and tightly coupled. Can the result do
+    something to the error that it handles as an errorClass, something
+    that the plugin can see in a non hackish way?
+implement output capture as plugin
+implement assert inspection as plugin
+implement deprecated test exception as plugin
+
+
+...
+
+REMOVE the context class entirely? is it doing anything that 
+suite and case.Test shouldn't more properly do?
+
+tests for:
+
+module-level setup skip: skip all
+likewise deprecated
+likewise error
+
+plugins:
+
+plugin manager class
+replace call_plugins with proxied call through plugin manager
+  how to handle diff cases where plugs may short circuit on first non-None
+  response or where all non-None responses are taken?
+
+result/result proxy:
+
+SUITES also need to proxy their results
+
+result takes config
+implements beforeTest, afterTest
+result proxy should be a plugin?
+what plugin hook is needed for that?
+
+supporting result proxy in context:
+
+ call context.prepareTest() before each test? no
+ need to have a hook for context (or test case) 
+ to replace/wrap the result
