@@ -54,6 +54,7 @@ class TestPdbPlugin(unittest.TestCase):
                                            '--pdb-failures'])
         p.configure(options, Config())
         assert p.enabled
+        assert p.enabled_for_errors
         assert p.enabled_for_failures
 
     def test_disabled_by_default(self):
@@ -66,6 +67,7 @@ class TestPdbPlugin(unittest.TestCase):
         options, args = parser.parse_args(['test_configuration'])
         p.configure(options, Config())
         assert not p.enabled
+        assert not p.enabled_for_errors
         assert not p.enabled_for_failures
         
     def test_env_settings_enable(self):
@@ -81,7 +83,11 @@ class TestPdbPlugin(unittest.TestCase):
         options, args = parser.parse_args(['test_configuration'])
         p.configure(options, Config())
         assert p.enabled
+        assert p.enabled_for_errors
         assert p.enabled_for_failures
+
+    def test_real_stdout_restored(self):
+        assert False, "Test not written"
         
 if __name__ == '__main__':
     unittest.main()

@@ -94,9 +94,6 @@ class ResultProxy(object):
             self.result.beforeTest(test)
         except AttributeError:
             pass
-        if self.config.capture:
-            # FIXME can capture be a plugin?
-            self.endCapture()
 
     def beforeTest(self, test):
         self.assertMyTest(test)
@@ -105,29 +102,31 @@ class ResultProxy(object):
             self.result.afterTest(test)
         except AttributeError:
             pass
-        if self.config.capture:
-            self.startCapture()
         
     def addError(self, test, err):
         self.assertMyTest(test)
-        plugin_handled = self.config.plugins.handleError(test, err)
+        plugins = self.plugins
+        plugin_handled = plugins.handleError(test, err)
         if plugin_handled:
             return
-        # FIXME pdb if config -- or plugin?
-        err = self.formatErr(err)
+        formatted = plugins.formatError(self.test, err)
+        if formatted is not None:
+            err = formatted
         # FIXME plugins expect capt
-        self.plugins.addError(self.test, err)
+        plugins.addError(self.test, err)
         self.result.addError(test, err)
 
     def addFailure(self, test, err):
         self.assertMyTest(test)
-        plugin_handled = self.config.plugins.handleFailure(test, err)
+        plugins = self.plugins
+        plugin_handled = plugins.handleFailure(test, err)
         if plugin_handled:
             return
-        # FIXME pdb if config -- or plugin?
-        err = self.formatErr(err, inspect_tb=True)
+        formatted = plugins.formatFailure(self.test, err)
+        if formatted is not None:
+            err = formatted
         # FIXME plugins expect capt, tb info
-        self.plugins.addFailure(self.test, err)
+        plugins.addFailure(self.test, err)
         self.result.addFailure(test, err)
     
     def addSuccess(self, test):
@@ -136,13 +135,6 @@ class ResultProxy(object):
         self.plugins.addSuccess(self.test)
         self.result.addSuccess(test)
 
-    def endCapture(self):
-        try:
-            capt = sys.stdout.getvalue()
-        except AttributeError:
-            capt = ''
-        end_capture()
-        return capt
 
     def formatErr(self, err, inspect_tb=False):
         capt = self.config.capture
@@ -159,9 +151,6 @@ class ResultProxy(object):
             tbinfo = inspect_traceback(tb)
             ev = '\n'.join([str(ev), tbinfo])
         return (ec, ev, tb)
-
-    def startCapture(self):
-        start_capture()
 
     def startTest(self, test):
         self.assertMyTest(test)

@@ -76,32 +76,6 @@ class TestResultProxy(unittest.TestCase):
         proxy.beforeTest(test)
         proxy.afterTest(test)
         
-    def test_output_capture(self):
-        from nose.case import Test
-        res = unittest.TestResult()
-        class TC(unittest.TestCase):
-            def test_error(self):
-                print "So long"
-                raise TypeError("oops")
-            def test_fail(self):
-                print "Hello"
-                self.fail()
-        config = Config()
-        config.capture = True
-
-        case = Test(TC('test_fail'))
-        proxy = ResultProxy(res, case, config=config)
-        case(proxy)
-        assert res.failures
-        self.assertEqual(case.captured_output, "Hello\n")
-
-        res = unittest.TestResult()
-        case = Test(TC('test_error'))
-        proxy = ResultProxy(res, case, config=config)
-        case(proxy)
-        assert res.errors
-        self.assertEqual(case.captured_output, "So long\n")
-
     def test_proxy_calls_plugins(self):
         from nose.case import Test
         res = unittest.TestResult()
