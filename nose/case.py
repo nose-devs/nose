@@ -91,6 +91,13 @@ class Test(unittest.TestCase):
     def id(self):
         return self.test.id()
 
+    def name(self):
+        """Return a round-trip name for this test, a name that can be
+        fed back as input to loadTestByName and (assuming the same
+        plugin configuration) result in the loading of this test.
+        """
+        raise NotImplementedError("Test.name not implemented")
+    
     def run(self, result):
         """Modified run for the test wrapper.
 
@@ -180,6 +187,14 @@ class FunctionTestCase(TestBase):
         self.arg = arg
         self.descriptor = descriptor
         unittest.TestCase.__init__(self)
+
+    def name(self):
+        """Return a round-trip name for this test, a name that can be
+        fed back as input to loadTestByName and (assuming the same
+        plugin configuration) result in the loading of this test.
+        """
+        raise NotImplementedError("FunctionTestCase.name not implemented")
+    
         
     def setUp(self):
         """Run any setup function attached to the test function
@@ -281,6 +296,13 @@ class MethodTestCase(TestBase):
             name = "%s%s" % (name, arg)
         return name
     __repr__ = __str__
+
+    def name(self):
+        """Return a round-trip name for this test, a name that can be
+        fed back as input to loadTestByName and (assuming the same
+        plugin configuration) result in the loading of this test.
+        """
+        raise NotImplementedError("MethodTestCase.name not implemented")
 
     def setUp(self):
         log.debug("MethodTestCase.setUp(%s)", self)

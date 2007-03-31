@@ -26,11 +26,19 @@ class Pdb(Plugin):
     def addError(self, test, err):
         if not self.enabled_for_errors:
             return
-        ec, ev, tb = err
-        pdb.post_mortem(tb)
+        self.debug(err)
 
     def addFailure(self, test, err):
         if not self.enabled_for_failures:
             return
+        self.debug(err)
+
+    def debug(self, err):
+        import sys
         ec, ev, tb = err
-        pdb.post_mortem(tb)
+        stdout = sys.stdout
+        sys.stdout = sys.__stdout__
+        try:
+            pdb.post_mortem(tb)
+        finally:
+            sys.stdout = stdout

@@ -3,6 +3,7 @@ import unittest
 from nose.config import Config
 from nose.plugins import debug
 from optparse import OptionParser
+from StringIO import StringIO
 
 class StubPdb:
     called = False
@@ -13,10 +14,12 @@ class TestPdbPlugin(unittest.TestCase):
 
     def setUp(self):
         self._pdb = debug.pdb
+        self._so = sys.stdout
         debug.pdb = StubPdb()
 
     def tearDown(self):
         debug.pdb = self._pdb
+        sys.stdout = self._so
 
     def test_plugin_api(self):
         p = debug.Pdb()
@@ -86,8 +89,29 @@ class TestPdbPlugin(unittest.TestCase):
         assert p.enabled_for_errors
         assert p.enabled_for_failures
 
-    def test_real_stdout_restored(self):
-        assert False, "Test not written"
+    def test_real_stdout_restored_before_call(self):
+        
+        class CheckStdout(StubPdb):
+            def post_mortem(self, tb):
+                assert sys.stdout is sys.__stdout__, \
+                       "sys.stdout was not restored to sys.__stdout__ " \
+                       "before call"
+        debug.pdb = CheckStdout()
+
+        patch = StringIO()
+        sys.stdout = patch
+        p = debug.Pdb()
+        p.enabled = True
+        p.enabled_for_errors = True
+
+        try:
+            raise Exception("oops")
+        except:
+            err = sys.exc_info()
+    
+        p.addError(None, err)    
+        assert sys.stdout is patch, "sys.stdout was not reset after call"
+        
         
 if __name__ == '__main__':
     unittest.main()
