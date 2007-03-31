@@ -10,6 +10,7 @@ to plugins.
 
 """
 import logging
+import os
 from warnings import warn
 from nose.plugins.base import IPluginInterface
 
@@ -139,6 +140,40 @@ class BuiltinPluginManager(PluginManager):
         for plug in builtin.plugins:
             self.addPlugin(plug())
         
+
+class LegacyPluginManager(EntryPointPluginManager):
+    """Loads 0.9 plugins and wraps each in a LegacyPlugin, which
+    filters or rearranges the plugin calls that have changed since 0.9
+    to call them as 0.9 did.
+    """
+    entry_point = 'nose.plugins'
+
+    def addPlugin(self, plug):
+        super(LegacyPluginManager, self).addPlugin(LegacyPlugin(plug))
+
+
+class LegacyPlugin:
+    """Proxy for 0.9 plugins, adapts 0.10 calls to 0.9 standard.
+    """
+    def __init__(self, plugin):
+        self.plugin = plugin
+
+    def options(self, parser, env=os.environ):
+        # call add_options
+        pass
+    
+    def addError(self, test, err):
+        # add capt
+        # switch off to addSkip, addDeprecated if those types
+        pass
+
+    def addFailure(self, test, err):
+        # add capt, tb_info
+        pass
+
+    def __getattr__(self, val):
+        return getattr(self.plugin, val)
+    
 
 try:
     import pkg_resources
