@@ -268,6 +268,34 @@ class IPluginInterface(object):
         """
         pass
 
+    def formatError(self, test, err):
+        """Called in result.addError, before plugin.addError. If you
+        want to replace or modify the error tuple, return a new error
+        tuple.
+
+        Parameters:
+         * test:
+           the test case
+         * err:
+           the error tuple (class, value, traceback)
+        """
+        pass
+    formatError._new = True
+
+    def formatFailure(self, test, err):
+        """Called in result.addFailure, before plugin.addFailure. If you
+        want to replace or modify the error tuple, return a new error
+        tuple.
+
+        Parameters:
+         * test:
+           the test case
+         * err:
+           the error tuple (class, value, traceback)
+        """
+        pass
+    formatFailure._new = True
+
     def handleError(self, test, err):
         """Called on addError. To handle the error yourself and prevent normal
         error processing, return a true value.

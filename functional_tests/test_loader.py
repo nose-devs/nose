@@ -187,6 +187,7 @@ class TestNoseTestLoader(unittest.TestCase):
                "Expected to run 0 tests but ran %s" % res.testsRun
 
     def test_mod_setup_skip_no_tests_run_no_errors(self):
+        # FIXME need to load a config with builtin plugins
         ctx = os.path.join(support, 'ctx')
         l = loader.TestLoader(workingDir=ctx)
         suite = l.loadTestsFromName('mod_setup_skip.py')
@@ -201,6 +202,7 @@ class TestNoseTestLoader(unittest.TestCase):
                "Expected to run 0 tests but ran %s" % res.testsRun
 
     def test_mod_import_skip_one_test_no_errors(self):
+        # FIXME need to load a config with builtin plugins
         ctx = os.path.join(support, 'ctx')
         l = loader.TestLoader(workingDir=ctx)
         suite = l.loadTestsFromName('mod_import_skip.py')

@@ -44,11 +44,13 @@ class PluginManager(object):
         and config instance. After configuration, disabled plugins
         are removed from the plugins list.
         """
+        log.debug("Configuring plugins")
         self.config = config
         cfg = PluginProxy('configure', self._plugins)
         cfg(options, config)
         enabled = [plug for plug in self._plugins if plug.enabled]
-        self.plugins = enabled        
+        self.plugins = enabled
+        log.debug("Plugins enabled: %s", enabled)
 
     def loadPlugins(self):
         pass

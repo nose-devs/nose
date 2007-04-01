@@ -12,10 +12,7 @@ class Config(object):
 
     self.testMatch = re.compile(r'(?:^|[\b_\.%s-])[Tt]est' % os.sep)
     self.addPaths = True
-    self.capture = True
     self.detailedErrors = False
-    self.debugErrors = False
-    self.debugFailures = False
     self.exclude = None
     self.exit = True
     self.includeExe = sys.platform=='win32'
@@ -39,7 +36,6 @@ class Config(object):
         self.args = ()
         self.testMatch = re.compile(r'(?:^|[\b_\.%s-])[Tt]est' % os.sep)
         self.addPaths = not env.get('NOSE_NOPATH', False)
-        self.capture = not env.get('NOSE_NOCAPTURE', False)
         self.detailedErrors = env.get('NOSE_DETAILED_ERRORS', False)
         self.debug = env.get('NOSE_DEBUG')
         self.debugLog = env.get('NOSE_DEBUG_LOG')
@@ -117,10 +113,7 @@ class Config(object):
 
         self.configureLogging(options)
         self.addPaths = options.addPaths
-        self.capture = options.capture
         self.detailedErrors = options.detailedErrors
-        self.debugErrors = options.debugErrors
-        self.debugFailures = options.debugFailures
         self.stopOnError = options.stopOnError
         self.verbosity = options.verbosity
         self.includeExe = options.includeExe
@@ -153,7 +146,7 @@ class Config(object):
 
     def configureLogging(self, options):
         # FIXME
-        # logging.basicConfig(level=logging.DEBUG)
+        # xlogging.basicConfig(level=logging.DEBUG)
         pass
 
     def default(self):
@@ -188,8 +181,7 @@ class Config(object):
             help="Log debug messages to this file "
             "(default: sys.stderr)")
         parser.add_option(
-            "-q", "--quiet", action="store_const",
-            const=0, dest="verbosity")
+            "-q", "--quiet", action="store_const", const=0, dest="verbosity")
         parser.add_option(
             "-w", "--where", action="append", dest="where",
             help="DEPRECATED Look for tests in this directory. "
@@ -204,11 +196,6 @@ class Config(object):
             "-i", "--include", action="append", dest="include",
             help="Also run tests that match regular "
             "expression [NOSE_INCLUDE]")
-        parser.add_option(
-            "-s", "--nocapture", action="store_false",
-            default=self.capture, dest="capture",
-            help="Don't capture stdout (any stdout output "
-            "will be printed immediately) [NOSE_NOCAPTURE]")
         parser.add_option(
             "-d", "--detailed-errors", action="store_true",
             default=self.detailedErrors,

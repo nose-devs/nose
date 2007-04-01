@@ -7,8 +7,6 @@ class TestNoseConfig(unittest.TestCase):
     def test_defaults(self):
         c = nose.config.Config()
         assert c.addPaths == True
-        assert c.capture == True
-        assert c.detailedErrors == False
         # FIXME etc
         
     def test_reset(self):

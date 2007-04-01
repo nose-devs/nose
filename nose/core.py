@@ -14,7 +14,7 @@ from nose.importer import add_path
 from nose.loader import defaultTestLoader
 from nose.plugins.manager import DefaultPluginManager
 from nose.result import TextTestResult
-from nose.util import absdir, tolist, start_capture, end_capture
+from nose.util import absdir, tolist
 
 
 log = logging.getLogger('nose.core')
@@ -229,11 +229,6 @@ class TestProgram(unittest.TestProgram):
             sys.exit(0)
 
         log.debug("configured %s", self.config)
-        
-        # call early to ensure we get our hooks into sys.stdout before
-        # any subject modules are loaded and import it
-        if self.config.capture:
-            start_capture()
         
         # instantiate the test loader
         if self.testLoader is None:

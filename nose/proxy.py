@@ -83,9 +83,10 @@ class ResultProxy(object):
     def assertMyTest(self, test):
         # The test I was called with must be my .test or my
         # .test's .test.
-        assert test is getattr(self.test, 'test', self.test), \
-               "ResultProxy for %r was called with test %r" \
-               % (self.test, test)
+        
+        assert test is self.test or test is getattr(self.test, 'test', None), \
+               "ResultProxy for %r (%s) was called with test %r (%s)" \
+               % (self.test, id(self.test), test, id(test))
 
     def afterTest(self, test):
         self.assertMyTest(test)
