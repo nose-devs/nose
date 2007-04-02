@@ -18,7 +18,9 @@ class LazySuite(unittest.TestSuite):
     def __init__(self, tests=()):
         self._set_tests(tests)
                 
-
+    def __iter__(self):
+        return iter(self._tests)
+        
     def __repr__(self):
         return "<%s tests=generator (%s)>" % (
             unittest._strclass(self.__class__), id(self))
