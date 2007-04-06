@@ -63,8 +63,6 @@ class TestLoader(unittest.TestLoader):
         for entry in entries:
             if entry.startswith('.') or entry.startswith('_'):
                 continue
-            print "at %s" % entry
-
             entry_path = os.path.abspath(os.path.join(path, entry))
             is_test = entry.startswith('test') # FIXME use selector
             is_file = os.path.isfile(entry_path)
@@ -84,9 +82,8 @@ class TestLoader(unittest.TestLoader):
                     # Another test dir in this one: recurse lazily
                     yield LazySuite(
                         lambda: self.loadTestsFromDir(entry_path))
-        # FIXME pop dir off of sys.path -- ideally, but we can't have
-        # try: finally: around a generator and we can't guarantee that
-        # a generator will be called often enough to do the pop
+            # FIXME else if wanted anyway, loadTestsFromFile
+            
         
         # FIXME plugins.loadTestsFromDir(path)
 
@@ -97,9 +94,10 @@ class TestLoader(unittest.TestLoader):
         # FIXME plugins.afterDirectory(path)
 
     def loadTestsFromFile(self, filename):
-        # only called for non-module files
-        # FIXME give plugins a chance -- plugins.loadTestsFromFile(filename)
-        pass
+        # only called for non-module
+        tests = [test for test in plugins.loadTestsFromFile(filename)]
+        if tests:
+            return self.suiteClass(tests)
 
     def loadTestsFromGenerator(self, generator, module):
         """Lazy-load tests from a generator function. The generator function
@@ -182,17 +180,19 @@ class TestLoader(unittest.TestLoader):
         paths = getattr(module, '__path__', [])
         for path in paths:
             tests.extend(self.loadTestsFromDir(path))
+            
         # FIXME give plugins a chance
 
         return self.suiteClass(tests, parent=module)
     
     def loadTestsFromName(self, name, module=None):
         # FIXME refactor this method into little bites
-        # FIXME would pass working dir too
         suite = self.suiteClass
         addr = TestAddress(name, workingDir=self.workingDir)
         log.debug("load from %s (%s) (%s)", name, addr, module)
-        print addr.filename, addr.module, addr.call
+        # print addr.filename, addr.module, addr.call
+
+        # FIXME give plugins first crack
         
         if module:
             # Two cases:
@@ -246,7 +246,6 @@ class TestLoader(unittest.TestLoader):
                 # handled when module is not None
                 return suite([
                     Failure(ValueError, "Unresolvable test name %s" % name)])
-        # FIXME give plugins a chance?
 
     def makeTest(self, obj, parent=None):
         """Given a test object and its parent, return a unittest.TestCase
@@ -281,7 +280,6 @@ class TestLoader(unittest.TestLoader):
                            "Can't make a test from %s" % obj)
 
     def resolve(self, name, module):
-#        parent, obj = resolve_name(name, module)
         obj = module
         parts = name.split('.')
         for part in parts:

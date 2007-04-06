@@ -18,7 +18,7 @@ class TextTestResult(_TextTestResult):
     Deprecated, TODO) that extend the errors/failures/success triad.
     """    
     def __init__(self, stream, descriptions, verbosity, config=None,
-                 errorClasses=None):
+                 errorClasses=None):        
         if errorClasses is None:
             errorClasses = {}
         self.errorClasses = errorClasses
@@ -33,30 +33,30 @@ class TextTestResult(_TextTestResult):
         error will be added to the list for that class, not errors.
         """
         ec, ev, tb = err
-        handler, label, isfail = self.errorClasses.get(ec, (None, None, None))
-        if not handler:
-            return self._addError(test, err)
-        errlist = getattr(self, handler, None)
-        if errlist is None:
-            warn("No attribute %s: needed to handle errors "
-                 "of class %s" % (handler, ec), RuntimeWarning)
-            return self._addError(test, err)
-        errlist.append((test, self._exc_info_to_string(err, test)))
-        # Might get patched into a streamless result
-        stream = getattr(self, 'stream', None)
-        if stream is not None:
-            if self.showAll:
-                self.stream.write(label)
-            elif self.dots:
-                self.stream.write(label[:1])
+        for cls, (storage, label, isfail) in self.errorClasses.items():
+            if issubclass(ec, cls):
+                storage.append((test, self._exc_info_to_string(err, test)))
+                # Might get patched into a streamless result
+                stream = getattr(self, 'stream', None)
+                if stream is not None:
+                    if self.showAll:
+                        stream.writeln(label)
+                    elif self.dots:
+                        stream.write(label[:1])
+                return
+        self.errors.append((test, self._exc_info_to_string(err, test)))
+        if self.showAll:
+            self.stream.writeln('ERROR')
+        elif self.dots:
+            stream.write('E')
 
     def printErrors(self):
         """Overrides to print all errorClasses errors as well.
         """
         _TextTestResult.printErrors(self)
         for cls in self.errorClasses.keys():
-            handler, label, isfail = self.errorClasses[cls]
-            self.printErrorList(label, getattr(self, handler, []))
+            storage, label, isfail = self.errorClasses[cls]
+            self.printErrorList(label, storage)
 
     def wasSuccessful(self):
         """Overrides to check that there are no errors in errorClasses
@@ -66,15 +66,19 @@ class TextTestResult(_TextTestResult):
         if self.errors or self.failures:
             return False
         for cls in self.errorClasses.keys():
-            handler, label, isfail = self.errorClasses[cls]
+            storage, label, isfail = self.errorClasses[cls]
             if not isfail:
                 continue
-            if getattr(self, handler, []):
+            if storage:
                 return False
         return True
 
     def _addError(self, test, err):
         self.errors.append((test, self._exc_info_to_string(err, test)))
+        if self.showAll:
+            self.stream.write('ERROR')
+        elif self.dots:
+            stream.write('E')
 
     def _exc_info_to_string(self, err, test):
         try:

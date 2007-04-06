@@ -26,6 +26,7 @@ class Plugin(object):
     enabled = False
     enableOpt = None
     name = None
+    score = 1
 
     def __init__(self):
         if self.name is None:

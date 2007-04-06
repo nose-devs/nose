@@ -24,7 +24,7 @@ class TestSkipPlugin(unittest.TestCase):
         res._orig_wasSuccessful
         res.skipped
         self.assertEqual(res.errorClasses,
-                         {SkipTest: ('skipped', 'SKIP', False)})
+                         {SkipTest: (res.skipped, 'SKIP', False)})
 
         # result w/out print works too
         res = unittest.TestResult()
@@ -33,7 +33,7 @@ class TestSkipPlugin(unittest.TestCase):
         res._orig_addError
         res.skipped
         self.assertEqual(res.errorClasses,
-                         {SkipTest: ('skipped', 'SKIP', False)})
+                         {SkipTest: (res.skipped, 'SKIP', False)})
 
     def test_patched_result_handles_skip(self):
         res = unittest.TestResult()

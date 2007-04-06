@@ -220,7 +220,7 @@ def resolve_name(name, module=None):
     if module is None:
         while parts_copy:
             try:
-                print " --> util import %s" % name
+                log.debug("__import__ %s", name)
                 module = __import__('.'.join(parts_copy))
                 break
             except ImportError:
@@ -229,7 +229,7 @@ def resolve_name(name, module=None):
                     raise
         parts = parts[1:]
     obj = module
-    print "resolve: ", parts, name, obj, module
+    log.debug("resolve: %s, %s, %s, %s", parts, name, obj, module)
     for part in parts:
         parent, obj = obj, getattr(obj, part)
     return obj

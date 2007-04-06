@@ -1,11 +1,13 @@
 import unittest
 import nose
 from nose import case
-from nose.util import *
+# don't import * -- some util functions look testlike
+from nose import util
 
 class TestUtils(unittest.TestCase):
     
     def test_file_like(self):
+        file_like = util.file_like
         assert file_like('a/file')
         assert file_like('file.py')
         assert file_like('/some/file.py')
@@ -15,6 +17,7 @@ class TestUtils(unittest.TestCase):
         assert not file_like('test')
         
     def test_split_test_name(self):
+        split_test_name = util.split_test_name
         assert split_test_name('a.package:Some.method') == \
             (None, 'a.package', 'Some.method')
         assert split_test_name('some.module') == \
@@ -28,7 +31,7 @@ class TestUtils(unittest.TestCase):
 
     def test_split_test_name_windows(self):
         # convenience
-        stn = split_test_name
+        stn = util.split_test_name
         self.assertEqual(stn(r'c:\some\path.py:a_test'),
                          (r'c:\some\path.py', None, 'a_test'))
         self.assertEqual(stn(r'c:\some\path.py'),
@@ -50,6 +53,7 @@ class TestUtils(unittest.TestCase):
         #     /path/to/file.py:class.method
         # converted into 3-tuples (file, module, callable)
         # all terms optional
+        test_address = util.test_address
         class Foo:
             def bar(self):
                 pass
@@ -91,12 +95,14 @@ class TestUtils(unittest.TestCase):
                          (me, __name__, 'Foo.bar'))
 
     def test_tolist(self):
+        tolist = util.tolist
         assert tolist('foo') == ['foo']
         assert tolist(['foo', 'bar']) == ['foo', 'bar']
         assert tolist('foo,bar') == ['foo', 'bar']
         self.assertEqual(tolist('.*foo/.*,.1'), ['.*foo/.*', '.1'])
 
     def test_try_run(self):
+        try_run = util.try_run
         import imp
 
         def bar():

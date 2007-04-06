@@ -49,6 +49,8 @@ class PluginManager(object):
         cfg = PluginProxy('configure', self._plugins)
         cfg(options, config)
         enabled = [plug for plug in self._plugins if plug.enabled]
+        enabled.sort(
+            lambda a, b: cmp(getattr(a, 'score', 1), getattr(b, 'score', 1)))
         self.plugins = enabled
         log.debug("Plugins enabled: %s", enabled)
 

@@ -13,6 +13,7 @@ class Skip(Plugin):
     or failure.
     """
     enabled = True
+    score = 100 # run early so other plugins don't see skips
 
     def options(self, parser, env=os.environ):
         env_opt = 'NOSE_WITHOUT_SKIP'
@@ -28,13 +29,21 @@ class Skip(Plugin):
         disable = getattr(options, 'noSkip', False)
         if disable:
             self.enabled = False
+
+    def addError(self, test, err):
+        """Prevent other plugins from seeing this error if it is a SkipTest or
+        SkipTest subclass.
+        """
+        err_cls, a, b = err
+        if issubclass(err_cls, SkipTest):
+            return True
     
     def prepareTestResult(self, result):
         if not hasattr(result, 'errorClasses'):
             self.patchResult(result)
         if SkipTest not in result.errorClasses:
-            result.errorClasses[SkipTest] = ('skipped', 'SKIP', False)
             result.skipped = []
+            result.errorClasses[SkipTest] = (result.skipped, 'SKIP', False)
             
     def patchResult(self, result):
         result._orig_addError, result.addError = \
