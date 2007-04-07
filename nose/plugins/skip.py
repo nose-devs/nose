@@ -1,11 +1,14 @@
 import os
-from new import instancemethod
-from nose.plugins.base import Plugin
-from nose.result import TextTestResult
-from warnings import warn
+from nose.plugins.errorclass import ErrorClass, ErrorClassPlugin
 
 
-class Skip(Plugin):
+class SkipTest(Exception):
+    """Raise this exception to mark a test as skipped.
+    """
+    pass
+
+
+class Skip(ErrorClassPlugin):
     """Plugin that installs a SKIP error class for the SkipTest
     exception.  When SkipTest is raised, the exception will be logged
     in the skipped attribute of the result, 'S' or 'SKIP' (verbose)
@@ -13,7 +16,9 @@ class Skip(Plugin):
     or failure.
     """
     enabled = True
-    score = 100 # run early so other plugins don't see skips
+    skipped = ErrorClass(SkipTest,
+                         label='SKIP',
+                         isfailure=False)
 
     def options(self, parser, env=os.environ):
         env_opt = 'NOSE_WITHOUT_SKIP'
@@ -29,60 +34,4 @@ class Skip(Plugin):
         disable = getattr(options, 'noSkip', False)
         if disable:
             self.enabled = False
-
-    def addError(self, test, err):
-        """Prevent other plugins from seeing this error if it is a SkipTest or
-        SkipTest subclass.
-        """
-        err_cls, a, b = err
-        if issubclass(err_cls, SkipTest):
-            return True
-    
-    def prepareTestResult(self, result):
-        if not hasattr(result, 'errorClasses'):
-            self.patchResult(result)
-        if SkipTest not in result.errorClasses:
-            result.skipped = []
-            result.errorClasses[SkipTest] = (result.skipped, 'SKIP', False)
             
-    def patchResult(self, result):
-        result._orig_addError, result.addError = \
-            result.addError, add_error_patch(result)
-        result._orig_wasSuccessful, result.wasSuccessful = \
-            result.wasSuccessful, wassuccessful_patch(result)
-        if hasattr(result, 'printErrors'):
-            result._orig_printErrors, result.printErrors = \
-                result.printErrors, print_errors_patch(result)
-        result.errorClasses = {}
-
-
-class SkipTest(Exception):
-    """Raise this exception to mark a test as skipped.
-    """
-    pass
-
-
-def add_error_patch(result):
-    """Create a new addError method to patch into a result instance
-    that recognizes the errorClasses attribute and deals with
-    errorclasses correctly.
-    """
-    return instancemethod(
-        TextTestResult.addError.im_func, result, result.__class__)
-
-
-def print_errors_patch(result):
-    """Create a new printErrors method that prints errorClasses items
-    as well.
-    """
-    return instancemethod(
-        TextTestResult.printErrors.im_func, result, result.__class__)
-
-
-def wassuccessful_patch(result):
-    """Create a new wasSuccessful method that checks errorClasses for
-    exceptions that were put into other slots than error or failure
-    but that still count as not success.
-    """
-    return instancemethod(
-        TextTestResult.wasSuccessful.im_func, result, result.__class__)
