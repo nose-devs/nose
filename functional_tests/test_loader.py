@@ -232,6 +232,37 @@ class TestNoseTestLoader(unittest.TestCase):
         assert res.testsRun == 1, \
                "Expected to run 1 tests but ran %s" % res.testsRun
 
+    def test_failed_import_module_name(self):
+        ctx = os.path.join(support, 'ctx')
+        l = loader.TestLoader(workingDir=ctx)
+        suite = l.loadTestsFromName('no_such_module')
+
+        res = unittest._TextTestResult(
+            stream=unittest._WritelnDecorator(sys.stdout),
+            descriptions=0, verbosity=1)
+        suite(res)
+        print res.errors
+        res.printErrors()
+        assert res.errors, "Expected errors but got none"
+        assert not res.failures, res.failures
+        err = res.errors[0][0].exc_class
+        assert err is ImportError, \
+            "Expected import error, got %s" % err
+
+    def test_load_nonsense_name(self):
+        ctx = os.path.join(support, 'ctx')
+        l = loader.TestLoader(workingDir=ctx)
+        suite = l.loadTestsFromName('fred!')
+
+        res = unittest._TextTestResult(
+            stream=unittest._WritelnDecorator(sys.stdout),
+            descriptions=0, verbosity=1)
+        suite(res)
+        print res.errors
+        assert res.errors, "Expected errors but got none"
+        assert not res.failures, res.failures
+        
+        
 # used for comparing lists
 def diff(a, b):
     return '\n' + '\n'.join([ l for l in ndiff(a, b)
@@ -259,6 +290,6 @@ class TreePrintContextSuite(suite.ContextSuite):
 
         
 if __name__ == '__main__':
-    import logging
-    logging.basicConfig(level=logging.DEBUG)
+    #import logging
+    #logging.basicConfig(level=logging.DEBUG)
     unittest.main()

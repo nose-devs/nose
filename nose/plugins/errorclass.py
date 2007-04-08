@@ -46,7 +46,6 @@ class ErrorClassPlugin(Plugin):
     def prepareTestResult(self, result):
         if not hasattr(result, 'errorClasses'):
             self.patchResult(result)
-        print self.errorClasses
         for cls, (storage_attr, label, isfail) in self.errorClasses:
             if cls not in result.errorClasses:
                 storage = getattr(result, storage_attr, [])

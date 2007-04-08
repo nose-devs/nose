@@ -95,9 +95,20 @@ class TestLoader(unittest.TestLoader):
 
     def loadTestsFromFile(self, filename):
         # only called for non-module
-        tests = [test for test in plugins.loadTestsFromFile(filename)]
-        if tests:
-            return self.suiteClass(tests)
+        log.debug("Load from non-module file %s", filename)
+        try:
+            tests = [test for test in plugins.loadTestsFromFile(filename)]
+            if tests:
+                return self.suiteClass(tests)
+            else:
+                open(filename, 'r').close() # trigger os error 
+                raise ValueError("Unable to load tests from file %s"
+                                 % filename)
+        except KeyboardInterrupt:
+            raise
+        except:
+            exc = sys.exc_info()
+            return self.suiteClass([Failure(*exc)])
 
     def loadTestsFromGenerator(self, generator, module):
         """Lazy-load tests from a generator function. The generator function
@@ -212,8 +223,11 @@ class TestLoader(unittest.TestLoader):
             if addr.module:
                 try:
                     # FIXME plugins.beforeImport(filename, module)
-                    module = self.importer.import_from_path(
-                        addr.filename, addr.module)
+                    if addr.filename is None:
+                        module = resolve_name(addr.module)
+                    else:
+                        module = self.importer.import_from_path(
+                            addr.filename, addr.module)
                     # FIXME plugins.afterImport(filename, module)
                 except KeyboardInterrupt, SystemExit:
                     raise
@@ -241,6 +255,9 @@ class TestLoader(unittest.TestLoader):
                             lambda: self.loadTestsFromDir(path))
                     elif os.path.isfile(path):
                         return self.loadTestsFromFile(path)
+                    else:
+                        return suite([
+                                Failure(OSError, "No such file %s" % path)])
             else:
                 # just a function? what to do? I think it can only be
                 # handled when module is not None

@@ -32,12 +32,12 @@ class TextTestResult(_TextTestResult):
         errorClasses. If the exception is a registered class, the
         error will be added to the list for that class, not errors.
         """
+        stream = getattr(self, 'stream', None)
         ec, ev, tb = err
         for cls, (storage, label, isfail) in self.errorClasses.items():
             if issubclass(ec, cls):
                 storage.append((test, self._exc_info_to_string(err, test)))
                 # Might get patched into a streamless result
-                stream = getattr(self, 'stream', None)
                 if stream is not None:
                     if self.showAll:
                         stream.writeln(label)
@@ -45,10 +45,11 @@ class TextTestResult(_TextTestResult):
                         stream.write(label[:1])
                 return
         self.errors.append((test, self._exc_info_to_string(err, test)))
-        if self.showAll:
-            self.stream.writeln('ERROR')
-        elif self.dots:
-            stream.write('E')
+        if stream is not None:
+            if self.showAll:
+                self.stream.writeln('ERROR')
+            elif self.dots:
+                stream.write('E')
 
     def printErrors(self):
         """Overrides to print all errorClasses errors as well.
