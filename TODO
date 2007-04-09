@@ -1,13 +1,5 @@
-SELECTOR
 
 implement pdb/pdb-fail as plugin
- -- what to do about error classes? would be ideal
-    not to trigger pdb, output capture, etc on items caught
-    by error classes, but there's no avenue for that to happen
-    unless the plugin stores a result ref on prepareResult, 
-    which is rather hackish and tightly coupled. Can the result do
-    something to the error that it handles as an errorClass, something
-    that the plugin can see in a non hackish way?
 implement output capture as plugin
 implement assert inspection as plugin
 implement deprecated test exception as plugin
@@ -22,15 +14,6 @@ before/after Import
 before/after Context [in suite, call with parent]
 makeTest
 
-BUGS
-
-calls with odd names produce bad errors
-
-missing module -- tries to import even though path is None
-non-module name -- passes None to nose.caseTest
-
-missing last test result tag when it's an error? or always
-or just when running test_utils.py since last test fails?
 
 ...
 

@@ -9,6 +9,9 @@ Changes:
 * addError() and addFailure() will not get capt or tb_info arguments
   - these values are accessible in the test, if present.
 
+* wantFile()
+  - optional package argument is never passed
+
 New methods available:
 
 * afterTest

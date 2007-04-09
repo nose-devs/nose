@@ -359,12 +359,14 @@ class TestTestLoader(unittest.TestCase):
         tests = [t for t in suite]
 
         for t in tests:
+            print "test", t
             assert isinstance(t, unittest.TestSuite), \
                    "Test %s is not a suite" % t
 
         # the first item is a class, with both normal and generator methods
         count = 0
         cl_tests = [t for t in tests[0]]
+        print "class tests", cl_tests
         normal, gens = cl_tests[0], cl_tests[1:]
         assert isinstance(normal, nose.case.Test), \
                "Expected a test case but got %s" % normal
@@ -419,4 +421,6 @@ class TestTestLoader(unittest.TestCase):
                "Expected to generate 4 tests, but got %s" % count
         
 if __name__ == '__main__':
+    #import logging
+    #logging.basicConfig(level=logging.DEBUG)
     unittest.main()

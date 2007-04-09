@@ -511,15 +511,15 @@ class IPluginInterface(object):
         """
         pass
     
-    def wantFile(self, file, package=None):
+    def wantFile(self, file):
         """Return true if you want to collect tests from this file,
         false if you do not and None if you don't care.
+
+        Change from 0.9: The optional package parameter is no longer passed.
 
         Parameters:
          * file:
            Full path to file
-         * package:
-           Package in which file is found, if any
         """
         pass
     

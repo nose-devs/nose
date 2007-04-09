@@ -7,7 +7,7 @@ from nose.case import Failure, FunctionTestCase, MethodTestCase
 from nose.config import Config
 from nose.context import FixtureContext
 from nose.importer import Importer, add_path, remove_path
-from nose.selector import TestAddress
+from nose.selector import defaultSelector, TestAddress
 from nose.util import cmp_lineno, getpackage, isgenerator, ispackage, \
     resolve_name
 from suite import LazySuite, ContextSuiteFactory
@@ -16,7 +16,8 @@ log = logging.getLogger(__name__)
 
 class TestLoader(unittest.TestLoader):
     
-    def __init__(self, config=None, importer=None, workingDir=None):
+    def __init__(self, config=None, importer=None, workingDir=None,
+                 selector=None):
         # FIXME would get selector too
         if config is None:
             config = Config()
@@ -24,9 +25,12 @@ class TestLoader(unittest.TestLoader):
             importer = Importer(config=config)
         if workingDir is None:
             workingDir = os.getcwd()
+        if selector is None:
+            selector = defaultSelector(config)
         self.config = config
         self.importer = importer
         self.workingDir = os.path.normpath(os.path.abspath(workingDir))
+        self.selector = selector
         if config.addPaths:
             add_path(workingDir)        
         self.suiteClass = ContextSuiteFactory(config=config)
@@ -42,11 +46,10 @@ class TestLoader(unittest.TestLoader):
         """
         tests = []
         for entry in dir(cls):
-            # FIXME use a selector
-            if not entry.startswith('test'):
-                continue
             item = getattr(cls, entry, None)
             if ismethod(item):
+                if not self.selector.wantMethod(item):
+                    continue
                 tests.append(self.makeTest(item, cls))
         return self.suiteClass(tests, parent=cls)
 
@@ -64,15 +67,21 @@ class TestLoader(unittest.TestLoader):
             if entry.startswith('.') or entry.startswith('_'):
                 continue
             entry_path = os.path.abspath(os.path.join(path, entry))
-            is_test = entry.startswith('test') # FIXME use selector
             is_file = os.path.isfile(entry_path)
+            is_test = False
             if is_file:
                 is_dir = False
+                is_test = self.selector.wantFile(entry_path)
             else:
                 is_dir = os.path.isdir(entry_path)
+                if is_dir:
+                    is_test = self.selector.wantDirectory(entry_path)
             is_package = ispackage(entry_path)
-            if is_test and is_file and entry.endswith('.py'):
-                yield self.loadTestsFromName(entry_path)
+            if is_test and is_file:
+                if entry.endswith('.py'):
+                    yield self.loadTestsFromName(entry_path)
+                else:
+                    yield self.loadTestsFromFile(entry_path)
             elif is_dir:
                 if is_package:
                     # Load the entry as a package: given the full path,
@@ -81,9 +90,7 @@ class TestLoader(unittest.TestLoader):
                 elif is_test:
                     # Another test dir in this one: recurse lazily
                     yield LazySuite(
-                        lambda: self.loadTestsFromDir(entry_path))
-            # FIXME else if wanted anyway, loadTestsFromFile
-            
+                        lambda: self.loadTestsFromDir(entry_path))            
         
         # FIXME plugins.loadTestsFromDir(path)
 
@@ -175,12 +182,9 @@ class TestLoader(unittest.TestLoader):
             test = getattr(module, item, None)
             # print "Check %s (%s) in %s" % (item, test, module.__name__)
             if isclass(test):
-                # FIXME use a selector
-                if (issubclass(test, unittest.TestCase)
-                    or test.__name__.lower().startswith('test')):
+                if self.selector.wantClass(test):
                     test_classes.append(test)
-            elif isfunction(test) and item.lower().startswith('test'):
-                # FIXME use selector
+            elif isfunction(test) and self.selector.wantFunction(test):
                 test_funcs.append(test)
         test_classes.sort(lambda a, b: cmp(a.__name__, b.__name__))
         test_funcs.sort(cmp_lineno)

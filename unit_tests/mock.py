@@ -1,8 +1,15 @@
-# from nose.case import Test
+import imp
+import sys
 from nose.config import Config
 from nose import proxy
 from nose.util import odict
 
+
+def mod(name):
+    m = imp.new_module(name)
+    sys.modules[name] = m
+    return m
+    
 class ResultProxyFactory:
     def __call__(self, result, test):
         return ResultProxy(result, test)

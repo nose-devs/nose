@@ -37,9 +37,6 @@ Let's see the plugin in action. First some boilerplate.
 
     >>> import sys
     >>> import unittest
-    >>> from nose.config import Config
-    >>> from nose.plugins.manager import PluginManager
-
     >>> buf = unittest._WritelnDecorator(sys.stdout)
 
 Now define a test case that raises a Todo.
