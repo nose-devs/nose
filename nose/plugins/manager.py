@@ -97,6 +97,7 @@ class PluginProxy(object):
         """Call plugins in a chain, where the result of each plugin call is
         sent to the next plugin as input. The final output result is returned.
         """
+        result = None
         for p in self.plugins:
             meth = getattr(p, self.call, None)
             if meth is None:

@@ -40,7 +40,7 @@ class TestSkipPdbInteraction(unittest.TestCase):
         test = case.Test(TC('test'), resultProxy=rpf)
         test(res)
 
-        assert not res.errors, res.errors, "Skip was recorded as error"
+        assert not res.errors, "Skip was recorded as error %s" % res.errors
         assert not debug.pdb.called, "pdb was called"
 
         

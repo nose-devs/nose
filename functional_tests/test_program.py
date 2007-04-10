@@ -56,6 +56,8 @@ class TestTestProgram(unittest.TestCase):
         assert res.wasSuccessful
         assert not res.errors
         assert not res.failures
+        
+        
 
 if __name__ == '__main__':
     import logging

@@ -182,18 +182,33 @@ class TestProgram(unittest.TestProgram):
     that control or produce output) detailed in the options below.
     """
     verbosity = 1
+    userConfigFiles = [
+        # Linux users will prefer this
+        "~/.noserc",
+        # Windows users will prefer this
+        "~/nose.cfg"
+        ]
 
     def __init__(self, module=None, defaultTest='.', argv=None,
                  testRunner=None, testLoader=None, env=None, config=None):
         if env is None:
             env = os.environ
         if config is None:
-            config = Config(env=env, plugins=DefaultPluginManager())
+            config = self.makeConfig(env)
         self.config = config
         unittest.TestProgram.__init__(
             self, module=module, defaultTest=defaultTest,
             argv=argv, testRunner=testRunner, testLoader=testLoader)
-        
+
+    def makeConfig(self, env):
+        """Load a Config, pre-filled with user config files if any are
+        found.
+        """
+        cfg_files = filter(os.path.exists,
+                           map(os.path.expanduser, self.userConfigFiles) +
+                           ['setup.cfg'])        
+        return Config(
+            env=env, files=cfg_files, plugins=DefaultPluginManager())
         
     def parseArgs(self, argv):
         """Parse argv and env and configure running environment.
@@ -252,30 +267,6 @@ class TestProgram(unittest.TestProgram):
         if self.config.exit:
             sys.exit(not self.success)
         return self.success
-
-
-##     # FIXME move this
-##     # add opts from plugins
-##     all_plugins = []
-##     # when generating the help message, load only builtin plugins
-##     for plugcls in load_plugins():
-##         plug = plugcls()
-##         try:
-##             plug.add_options(parser, env)
-##         except AttributeError:
-##             pass
-    
-
-
-
-# FIXME use plugin manager
-#    try:
-#        # give plugins a chance to start
-#        call_plugins(conf.plugins, 'begin')
-#    except:
-#        if conf.capture:
-#            end_capture()
-#        raise
 
 
 def configure_logging(options):

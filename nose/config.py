@@ -2,10 +2,16 @@ import logging
 import os
 import re
 import sys
+import ConfigParser
 from optparse import OptionParser
 from nose.util import absdir, tolist
+from warnings import warn
 
 log = logging.getLogger(__name__)
+
+# not allowed in config files
+option_blacklist = ['help', 'verbose']
+
 
 class Config(object):
     """nose configuration.
@@ -36,6 +42,7 @@ class Config(object):
         self.args = ()
         self.testMatch = re.compile(r'(?:^|[\b_\.%s-])[Tt]est' % os.sep)
         self.addPaths = not env.get('NOSE_NOPATH', False)
+        self.configSection = 'nosetests'
         self.detailedErrors = env.get('NOSE_DETAILED_ERRORS', False)
         self.debug = env.get('NOSE_DEBUG')
         self.debugLog = env.get('NOSE_DEBUG_LOG')
@@ -88,13 +95,22 @@ class Config(object):
 
         if argv is None:
             argv = sys.argv
+
+        if hasattr(self, 'files'):
+            argv = self.loadConfig(self.files, argv)
+        
         env = self.env
         
-        self.getParser(doc)
+        parser = self.getParser(doc)
         self.plugins.loadPlugins()
-        self.pluginOpts()
+        self.pluginOpts(parser)
         
-        options, args = self.parser.parse_args(argv)
+        options, args = parser.parse_args(argv)
+        # If -c --config has been specified on command line,
+        # load those config files to create a new argv set and reparse
+        if options.files:
+            argv = self.loadConfig(options.files, argv)
+            options, args = parser.parse_args(argv)        
         try:
             self.options, self.testNames = options, args[1:]
         except IndexError:
@@ -169,6 +185,13 @@ class Config(object):
             type="int", help="Set verbosity; --verbosity=2 is "
             "the same as -vv")
         parser.add_option(
+            "-q", "--quiet", action="store_const", const=0, dest="verbosity")
+        parser.add_option(
+            "-c", "--config", action="append", dest="files",
+            help="Load configuration from config file(s). May be specified "
+            "multiple times; in that case, all config files will be "
+            "loaded and combined")
+        parser.add_option(
             "-l", "--debug", action="store",
             dest="debug", default=self.debug,
             help="Activate debug logging for one or more systems. "
@@ -180,14 +203,6 @@ class Config(object):
             default=self.debugLog,
             help="Log debug messages to this file "
             "(default: sys.stderr)")
-        parser.add_option(
-            "-q", "--quiet", action="store_const", const=0, dest="verbosity")
-        parser.add_option(
-            "-w", "--where", action="append", dest="where",
-            help="DEPRECATED Look for tests in this directory. "
-            "This option is deprecated; you can pass the directories "
-            "without using -w for the same behavior. [NOSE_WHERE]"
-            )
         parser.add_option(
             "-e", "--exclude", action="append", dest="exclude",
             help="Don't run tests that match regular "
@@ -224,11 +239,50 @@ class Config(object):
             help="DO NOT look for tests in python modules that are "
             "executable. (The default on the windows platform is to "
             "do so.)")
-        self.parser = parser
+        parser.add_option(
+            "-w", "--where", action="append", dest="where",
+            help="DEPRECATED Look for tests in this directory. "
+            "This option is deprecated; you can pass the directories "
+            "without using -w for the same behavior. [NOSE_WHERE]"
+            )
         return parser
 
-    def pluginOpts(self):
-        self.plugins.addOptions(self.parser, self.env)
+    def loadConfig(self, file, argv):
+        """Load config from file (may be filename or file-like object) and
+        push the config into argv.
+        """
+        cfg = ConfigParser.RawConfigParser()
+        try:
+            try:
+                cfg.readfp(file)
+            except AttributeError:
+                # Filename not an fp
+                cfg.read(file)
+        except ConfigParser.Error, e:
+            warn("Error reading config file %s: %s" % (file, e),
+                 RuntimeWarning)
+            return argv
+        if self.configSection not in cfg.sections():
+            return argv
+        file_argv = []
+        for optname in cfg.options(self.configSection):
+            if optname in option_blacklist:
+                continue
+            value = cfg.get(self.configSection, optname)
+            if flag(value):
+                if _bool(value):
+                    file_argv.append('--' + optname)
+            else:
+                file_argv.append('--' + optname)
+                file_argv.append(value)
+        # Copy the given args and insert args loaded from file
+        # between the program name (first arg) and the rest
+        combined = argv[:]
+        combined[1:1] = file_argv
+        return combined
+
+    def pluginOpts(self, parser):
+        self.plugins.addOptions(parser, self.env)
 
     def reset(self):
         self.__dict__.update(self._orig)
@@ -249,6 +303,18 @@ class NoPlugins(object):
 
     def __call__(self, *arg, **kw):
         return
+
+
+# used when parsing config files
+def flag(val):
+    """Does the value look like an on/off flag?"""
+    if len(val) > 5:
+        return False
+    return val.upper() in ('1', '0', 'F', 'T', 'TRUE', 'FALSE', 'ON', 'OFF')
+
+
+def _bool(val):
+    return val.upper() in ('1', 'T', 'TRUE', 'ON')
 
 
 
