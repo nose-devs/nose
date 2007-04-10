@@ -20,7 +20,7 @@ class Capture(Plugin):
     score = 50
     
     def __init__(self):
-        self.stdout = None
+        self.stdout = []
         self._buf = None
 
     def options(self, parser, env=os.environ):
@@ -60,15 +60,13 @@ class Capture(Plugin):
                           output, ln('>> end captured stdout <<')])
 
     def start(self):
+        self.stdout.append(sys.stdout)
         self._buf = StringIO()
-        if self.stdout is None:
-            self.stdout = sys.stdout
         sys.stdout = self._buf
 
     def end(self):
         if self.stdout:
-            sys.stdout = self.stdout
-            self.stdout = None
+            sys.stdout = self.stdout.pop(0)
 
     def _get_buffer(self):
         if self._buf is not None:
