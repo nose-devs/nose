@@ -54,6 +54,7 @@ class TestUtils(unittest.TestCase):
         # converted into 3-tuples (file, module, callable)
         # all terms optional
         test_address = util.test_address
+        absfile = util.absfile
         class Foo:
             def bar(self):
                 pass

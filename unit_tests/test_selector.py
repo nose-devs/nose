@@ -4,7 +4,7 @@ import re
 import unittest
 import nose.selector
 from nose.config import Config
-from nose.selector import log, Selector, test_addr
+from nose.selector import log, Selector
 from nose.util import absdir
 from mock import mod
 
