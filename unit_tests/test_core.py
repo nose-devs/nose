@@ -1,30 +1,12 @@
 import unittest
 import nose.core
+from nose.config import Config
 
 from cStringIO import StringIO
 
-def nullcollector(conf, loader):
-    def nulltest(result):
-        pass
-    return nulltest
-
-class TestTestProgram(unittest.TestCase):
-
-    def test_init_arg_defaultTest(self):
-        try:
-            t = nose.core.TestProgram(defaultTest='something', argv=[], env={})
-        except ValueError:
-            pass
-        else:
-            self.fail("TestProgram with non-callable defaultTest should "
-                      "have thrown ValueError")
-
-    def test_init_arg_module(self):
-        s = StringIO()
-        t = nose.core.TestProgram('__main__', defaultTest=nullcollector,
-                                  argv=[], env={}, stream=s)
-        assert '__main__' in t.conf.tests
-
+class nullLoader:
+    def loadTestsFromNames(self, names):
+        return unittest.TestSuite()
 
 class TestAPI_run(unittest.TestCase):
 
@@ -32,8 +14,9 @@ class TestAPI_run(unittest.TestCase):
         import sys
         s = StringIO()
         stdout = sys.stdout
-        res = nose.core.run(defaultTest=nullcollector, argv=[], env={},
-                            stream=s)
+        conf = Config(stream=s, exit=False)
+        res = nose.core.run(
+            testLoader=nullLoader(), argv=['test_run'], env={}, config=conf)
         stdout_after = sys.stdout
         self.assertEqual(stdout, stdout_after)
         

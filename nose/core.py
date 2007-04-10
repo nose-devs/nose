@@ -194,28 +194,6 @@ class TestProgram(unittest.TestProgram):
             self, module=module, defaultTest=defaultTest,
             argv=argv, testRunner=testRunner, testLoader=testLoader)
         
-#     def __init__(self, module=None, defaultTest=defaultTestCollector,
-#                  argv=None, testRunner=None, testLoader=None, env=None,
-#                  stream=sys.stderr):
-#         self.testRunner = testRunner
-#         self.testCollector = defaultTest
-#         self.testLoader = testLoader
-#         self.stream = stream
-#         self.success = False
-#         self.module = module
-
-#         if not callable(self.testCollector):
-#             raise ValueError("TestProgram argument defaultTest must be "
-#                              "a callable with the same signature as "
-#                              "nose.TestCollector")
-        
-#         if argv is None:
-#             argv = sys.argv
-#         if env is None:
-#             env = os.environ
-#         self.parseArgs(argv, env)
-#         self.createTests()
-#         self.runTests()
         
     def parseArgs(self, argv):
         """Parse argv and env and configure running environment.
@@ -353,9 +331,7 @@ run_exit = main
 def run(*arg, **kw):
     """Collect and run test, returning success or failure
     """
-    result = TestProgram(*arg, **kw).success
-    end_capture()
-    return result
+    return TestProgram(*arg, **kw).success
 
 def runmodule(name='__main__'):
     """Collect and run tests in a single module only. Defaults to running

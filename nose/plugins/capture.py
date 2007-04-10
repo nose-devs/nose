@@ -76,3 +76,6 @@ class Capture(Plugin):
 
     buffer = property(_get_buffer, None, None,
                       """Captured stdout output.""")
+
+    def __del__(self):
+        self.end()
