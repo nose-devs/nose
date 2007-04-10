@@ -435,6 +435,8 @@ def configure_logging(options):
         handler = logging.StreamHandler(sys.stderr) # FIXME        
     handler.setFormatter(format)
 
+    print "nose handler", handler
+
     logger = logging.getLogger('nose')
     logger.propagate = 0
 

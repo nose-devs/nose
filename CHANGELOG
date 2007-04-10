@@ -1,5 +1,7 @@
 0.9.3
 
+- Fixed bug that caused profiler plugin to leak 0-byte temp files. Thanks to
+  Antoine Pitrou for the patch.
 - Made usage of temp files in profiler plugin more sensible. Thanks to Michael
   Sclenker for the bug report.
 - Fixed bug that stopped loading of twisted TestCase tests. Thanks to Kumar

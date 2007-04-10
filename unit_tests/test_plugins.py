@@ -456,8 +456,11 @@ class TestProfPlugin(unittest.TestCase):
     def test_begin(self):
         plug = Profile()
         plug.pfile = tempfile.mkstemp()[1]
-        plug.begin()
-        assert plug.prof
+        try:
+            plug.begin()
+            assert plug.prof
+        finally:
+            plug.finalize(None)
 
     def test_prepare_test(self):
         r = {}
@@ -470,8 +473,25 @@ class TestProfPlugin(unittest.TestCase):
         plug = Profile()
         plug.prof = dummy()
         result = plug.prepareTest(func)
-        result(r)
-        assert r[1] == ("func", "wrapped")
-        
+        try:
+            result(r)
+            assert r[1] == ("func", "wrapped")
+        finally:
+            plug.finalize(None)
+
+    def test_finalize(self):
+        def func():
+            pass
+
+        plug = Profile()
+        plug.begin()
+        plug.prepareTest(func)
+        pfile = plug.pfile
+        try:
+            assert os.path.exists(pfile)
+        finally:
+            plug.finalize(None)
+        assert not os.path.exists(pfile)
+
 if __name__ == '__main__':
     unittest.main()
