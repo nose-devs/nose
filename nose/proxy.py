@@ -113,9 +113,10 @@ class ResultProxy(object):
         formatted = plugins.formatError(self.test, err)
         if formatted is not None:
             err = formatted
-        # FIXME plugins expect capt
         plugins.addError(self.test, err)
         self.result.addError(test, err)
+        if self.config.stopOnError:
+            self.shouldStop = True
 
     def addFailure(self, test, err):
         self.assertMyTest(test)
@@ -126,16 +127,15 @@ class ResultProxy(object):
         formatted = plugins.formatFailure(self.test, err)
         if formatted is not None:
             err = formatted
-        # FIXME plugins expect capt, tb info
         plugins.addFailure(self.test, err)
         self.result.addFailure(test, err)
+        if self.config.stopOnError:
+            self.shouldStop = True
     
     def addSuccess(self, test):
         self.assertMyTest(test)
-        # FIXME plugins expect capt
         self.plugins.addSuccess(self.test)
         self.result.addSuccess(test)
-
 
     def formatErr(self, err, inspect_tb=False):
         capt = self.config.capture

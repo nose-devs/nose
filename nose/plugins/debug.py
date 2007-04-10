@@ -5,7 +5,7 @@ from nose.plugins.base import Plugin
 class Pdb(Plugin):
     enabled_for_errors = False
     enabled_for_failures = False
-    score = 0 # run last
+    score = 10 # run last, among builtins
     
     def options(self, parser, env=os.environ):
         parser.add_option(

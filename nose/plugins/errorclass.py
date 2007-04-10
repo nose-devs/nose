@@ -122,7 +122,7 @@ class ErrorClass(object):
 
 class ErrorClassPlugin(Plugin):
     __metaclass__ = MetaErrorClass
-    score = 100
+    score = 1000
     errorClasses = ()
 
     def addError(self, test, err):

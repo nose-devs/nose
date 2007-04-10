@@ -123,6 +123,20 @@ class TestResultProxy(unittest.TestCase):
         assert 'stopTest' in plugs.called
         assert 'afterTest' in plugs.called
         plugs.reset()
+
+    def test_stop_on_error(self):
+        from nose.case import Test
+        class TC(unittest.TestCase):
+            def runTest(self):
+                raise Exception("Enough!")
+        conf = Config(stopOnError=True)
+        test = TC()
+        case = Test(test)
+        res = unittest.TestResult()
+        proxy = ResultProxy(res, case, config=conf)
+        case(proxy)
+        assert proxy.shouldStop
+        assert res.shouldStop
             
 if __name__ == '__main__':
     unittest.main()

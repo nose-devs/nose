@@ -87,11 +87,27 @@ class PluginProxy(object):
         if getattr(meth, 'generative', False):
             # call all plugins and yield a flattened iterator of their results
             return self.generate(*arg, **kw)
+        elif getattr(meth, 'chainable', False):
+            return self.chain(*arg, **kw)
         else:
             # return a value from the first plugin that returns non-None
             return self.simple(*arg, **kw)
 
+    def chain(self, *arg, **kw):
+        """Call plugins in a chain, where the result of each plugin call is
+        sent to the next plugin as input. The final output result is returned.
+        """
+        for p in self.plugins:
+            meth = getattr(p, self.call, None)
+            if meth is None:
+                continue
+            result = meth(*arg, **kw)
+            arg = (result,)
+        return result
+
     def generate(self, *arg, **kw):
+        """Call all plugins, yielding each item in each non-None result.
+        """
         for p in self.plugins:
             meth = getattr(p, self.call, None)
             if meth is None:
@@ -102,6 +118,8 @@ class PluginProxy(object):
                     yield r
 
     def simple(self, *arg, **kw):
+        """Call all plugins, returning the first non-None result.
+        """
         for p in self.plugins:
             meth = getattr(p, self.call, None)
             if meth is None:

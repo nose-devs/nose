@@ -26,7 +26,7 @@ class Plugin(object):
     enabled = False
     enableOpt = None
     name = None
-    score = 1
+    score = 100
 
     def __init__(self):
         if self.name is None:
@@ -282,6 +282,7 @@ class IPluginInterface(object):
         """
         pass
     formatError._new = True
+    formatError.chainable = True
 
     def formatFailure(self, test, err):
         """Called in result.addFailure, before plugin.addFailure. If you
@@ -296,6 +297,7 @@ class IPluginInterface(object):
         """
         pass
     formatFailure._new = True
+    formatFailure.chainable = True
 
     def handleError(self, test, err):
         """Called on addError. To handle the error yourself and prevent normal

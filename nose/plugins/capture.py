@@ -17,6 +17,7 @@ class Capture(Plugin):
     enabled = True
     env_opt = 'NOSE_NOCAPTURE'
     name = 'capture'
+    score = 50
     
     def __init__(self):
         self.stdout = None
@@ -56,7 +57,7 @@ class Capture(Plugin):
 
     def addCaptureToErr(self, ev, output):
         return '\n'.join([str(ev) , ln('>> begin captured stdout <<'),
-                        output, ln('>> end captured stdout <<')])
+                          output, ln('>> end captured stdout <<')])
 
     def start(self):
         self._buf = StringIO()

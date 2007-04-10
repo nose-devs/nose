@@ -1,8 +1,5 @@
-
-implement pdb/pdb-fail as plugin
-implement output capture as plugin
 implement assert inspection as plugin
-implement deprecated test exception as plugin
+
 
 fix test_loader unittest -- move the mock stuff to another module that it
   can import in its setup
