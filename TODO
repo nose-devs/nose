@@ -1,5 +1,8 @@
 implement assert inspection as plugin
-
+fix builtin plugins:
+ attrib
+ coverage
+ prof
 
 fix test_loader unittest -- move the mock stuff to another module that it
   can import in its setup
@@ -11,6 +14,19 @@ before/after Import
 before/after Context [in suite, call with parent]
 makeTest
 
+when result prints final result, patch in error classes, eg,
+
+FAILED (todo=10)
+  or
+OK (skipped=2)
+
+BUGS
+
+--exclude doesn't seem to work
+something in functional tests is causing capture plugin to stop capturing
+in unittests, it seems to get stuck, not clearing the buffer?
+
+MERGE merge trunk -> 0.10 from r9 to pick up trunk changes/fixes
 
 ...
 

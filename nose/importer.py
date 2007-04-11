@@ -4,20 +4,14 @@ necessary because test modules in different directories frequently have the
 same names, which means that the first loaded would mask the rest when using
 the builtin importer.
 """
-
-# FIXME use imputil? This is almost exactly _FileSystemImport.import_from_dir
-
-import imputil
 import logging
 import os
 import sys
 from nose.config import Config
 
-from imp import find_module, load_module, acquire_lock, release_lock #, \
-#     load_source as _load_source
+from imp import find_module, load_module, acquire_lock, release_lock
 
 log = logging.getLogger(__name__)
-#_modules = {}
 
 class Importer(object):
     
@@ -140,14 +134,3 @@ def remove_path(path):
     log.debug('Remove path %s' % path)
     if path in sys.path:
         sys.path.remove(path)
-
-def make_absolute(name, path):
-    """Given a module name and the path at which it is found, back up to find
-    the parent of the module, popping directories off of the path so long as
-    they contain __init__.py files.
-    """
-    if not os.path.exists(os.path.join(path, '__init__.py')):
-        return (name, path)
-    path, parent = os.path.split(path)
-    name = "%s.%s" % (parent, path)
-    return make_absolute(name, path)

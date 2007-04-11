@@ -162,7 +162,7 @@ class Config(object):
 
     def configureLogging(self, options):
         # FIXME
-        # xlogging.basicConfig(level=logging.DEBUG)
+        #logging.basicConfig(level=logging.DEBUG)
         pass
 
     def default(self):

@@ -2,114 +2,115 @@ import imp
 import os
 import sys
 import unittest
-from nose.loader import TestLoader
+from nose.loader import TestLoader as Loader
 
 from nose import util # so we can set its __import__
 import nose.case
 
 
+def mods():
+    #
+    # Setting up the fake modules that we'll use for testing
+    # test loading
+    #
+    M = {}
+    M['test_module'] = imp.new_module('test_module')
+    M['module'] = imp.new_module('module')
+    M['package'] = imp.new_module('package')
+    M['package'].__path__ = ['/package']
+    M['package'].__file__ = '/package/__init__.py'
+    M['package.subpackage'] = imp.new_module('package.subpackage')
+    M['package'].subpackage = M['package.subpackage']
+    M['package.subpackage'].__path__ = ['/package/subpackage']
+    M['package.subpackage'].__file__ = '/package/subpackage/__init__.py'
+    M['test_module_with_generators'] = imp.new_module('test_module_with_generators')
 
-#
-# Setting up the fake modules that we'll use for testing
-# test loading
-#
-M = {}
-M['test_module'] = imp.new_module('test_module')
-M['module'] = imp.new_module('module')
-M['package'] = imp.new_module('package')
-M['package'].__path__ = ['/package']
-M['package'].__file__ = '/package/__init__.py'
-M['package.subpackage'] = imp.new_module('package.subpackage')
-M['package'].subpackage = M['package.subpackage']
-M['package.subpackage'].__path__ = ['/package/subpackage']
-M['package.subpackage'].__file__ = '/package/subpackage/__init__.py'
-M['test_module_with_generators'] = imp.new_module('test_module_with_generators')
 
+    # a unittest testcase subclass
+    class TC(unittest.TestCase):
+        def runTest(self):
+            pass
 
-# a unittest testcase subclass
-class TC(unittest.TestCase):
-    def runTest(self):
+    class TC2(unittest.TestCase):
+        def runTest(self):
+            pass
+
+    # test function
+    def test_func():
         pass
 
-class TC2(unittest.TestCase):
-    def runTest(self):
-        pass
-    
-# test function
-def test_func():
-    pass
+    # non-testcase-subclass test class
+    class TestClass:
 
-# non-testcase-subclass test class
-class TestClass:
-    
-    def test_func(self):
-        pass
-    
-    def test_generator_inline(self):
-        """docstring for test generator inline
+        def test_func(self):
+            pass
+
+        def test_generator_inline(self):
+            """docstring for test generator inline
+            """
+            def test_odd(v):
+                assert v % 2
+            for i in range(0, 4):
+                yield test_odd, i
+
+        def test_generator_method(self):
+            """docstring for test generator method
+            """
+            for i in range(0, 4):
+                yield self.try_odd, i
+
+        def test_generator_method_name(self):
+            """docstring for test generator method name
+            """
+            for i in range(0, 4):
+                yield 'try_odd', i
+
+        def try_odd(self, v):
+            assert v % 2
+
+    # test function that is generator
+    def test_func_generator():
+        """docstring for test func generator
         """
         def test_odd(v):
             assert v % 2
         for i in range(0, 4):
             yield test_odd, i
-            
-    def test_generator_method(self):
-        """docstring for test generator method
-        """
-        for i in range(0, 4):
-            yield self.try_odd, i
-            
-    def test_generator_method_name(self):
-        """docstring for test generator method name
+
+    def test_func_generator_name():
+        """docstring for test func generator name
         """
         for i in range(0, 4):
             yield 'try_odd', i
-            
-    def try_odd(self, v):
+
+    def try_odd(v):
         assert v % 2
 
-# test function that is generator
-def test_func_generator():
-    """docstring for test func generator
-    """
-    def test_odd(v):
-        assert v % 2
-    for i in range(0, 4):
-        yield test_odd, i
+    M['nose'] = nose
+    M['__main__'] = sys.modules['__main__']
+    M['test_module'].TC = TC
+    TC.__module__ = 'test_module'
+    M['test_module'].test_func = test_func
+    test_func.__module__ = 'test_module'
+    M['module'].TC2 = TC2
+    TC2.__module__ = 'module'
+    M['test_module_with_generators'].TestClass = TestClass
+    TestClass.__module__ = 'test_module_with_generators'
+    M['test_module_with_generators'].test_func_generator = test_func_generator
+    M['test_module_with_generators'].test_func_generator_name = \
+        test_func_generator_name
+    M['test_module_with_generators'].try_odd = try_odd
+    test_func_generator_name.__module__ = 'test_module_with_generators'
+    test_func_generator.__module__ = 'test_module_with_generators'
+    try_odd.__module__ = 'test_module_with_generators'
+    del TC
+    del TC2
+    del test_func
+    del TestClass
+    del test_func_generator
+    return M
 
-def test_func_generator_name():
-    """docstring for test func generator name
-    """
-    for i in range(0, 4):
-        yield 'try_odd', i
-
-def try_odd(v):
-    assert v % 2
-
-M['nose'] = nose
-M['__main__'] = sys.modules['__main__']
-M['test_module'].TC = TC
-TC.__module__ = 'test_module'
-M['test_module'].test_func = test_func
-test_func.__module__ = 'test_module'
-M['module'].TC2 = TC2
-TC2.__module__ = 'module'
-M['test_module_with_generators'].TestClass = TestClass
-TestClass.__module__ = 'test_module_with_generators'
-M['test_module_with_generators'].test_func_generator = test_func_generator
-M['test_module_with_generators'].test_func_generator_name = \
-    test_func_generator_name
-M['test_module_with_generators'].try_odd = try_odd
-test_func_generator_name.__module__ = 'test_module_with_generators'
-test_func_generator.__module__ = 'test_module_with_generators'
-try_odd.__module__ = 'test_module_with_generators'
-del TC
-del TC2
-del test_func
-del TestClass
-del test_func_generator
-
-# sys.modules.update(M)
+M = mods()
 
 # Mock the filesystem access so we don't have to maintain
 # a support dir with real files
@@ -183,7 +184,7 @@ class TestTestLoader(unittest.TestCase):
         os.path.isdir = mock_isdir
         os.path.isfile = mock_isfile
         util.__import__ = mock_import
-        self.l = TestLoader(importer=MockImporter())#, context=MockContext)
+        self.l = Loader(importer=MockImporter())#, context=MockContext)
 
     def tearDown(self):
         os.listdir = _listdir
@@ -201,30 +202,35 @@ class TestTestLoader(unittest.TestCase):
         l.loadTestsFromNames
 
     def test_load_from_name_dir_abs(self):
+        print "load from name dir"
         l = self.l
         suite = l.loadTestsFromName('/a/dir/path')
         tests = [t for t in suite]
         self.assertEqual(len(tests), 1)
 
     def test_load_from_name_module_filename(self):
+        print "load from name module filename"
         l = self.l
         suite = l.loadTestsFromName('test_module.py')
         tests = [t for t in suite]
         assert tests
 
     def test_load_from_name_module(self):
+        print "load from name module"
         l = self.l
         suite = l.loadTestsFromName('test_module')
         tests = [t for t in suite]
         assert tests            
 
-    def test_load_from_name_nontest_module(self):        
+    def test_load_from_name_nontest_module(self):
+        print "load from name nontest module"
         l = self.l
         suite = l.loadTestsFromName('module')
         tests = [t for t in suite]
         assert tests
 
     def test_load_from_name_method(self):
+        print "load from name method"
         res = unittest.TestResult()
         l = self.l
         suite = l.loadTestsFromName(':TC.runTest')
@@ -235,6 +241,7 @@ class TestTestLoader(unittest.TestCase):
         assert not res.errors, "Got errors %s running tests" % res.errors
 
     def test_load_from_name_module_class(self):
+        print "load from name module class"
         l = self.l
         suite = l.loadTestsFromName('test_module:TC')
         tests = [t for t in suite]
@@ -249,6 +256,7 @@ class TestTestLoader(unittest.TestCase):
         assert filter(lambda t: isinstance(t, nose.case.Test), tests[0])
 
     def test_load_from_name_module_func(self):
+        print "load from name module func"
         l = self.l
         suite = l.loadTestsFromName('test_module:test_func')
         tests = [t for t in suite]
@@ -259,6 +267,7 @@ class TestTestLoader(unittest.TestCase):
                "Expected FunctionTestCase not %s" % tests[0].test
 
     def test_load_from_name_module_method(self):
+        print "load from name module method"
         l = self.l
         suite = l.loadTestsFromName('test_module:TC.runTest')
         tests = [t for t in suite]
@@ -267,6 +276,7 @@ class TestTestLoader(unittest.TestCase):
                "Should have loaded 1 test, but got %s" % tests
 
     def test_load_from_name_module_missing_class(self):
+        print "load from name module missing class"
         res = unittest.TestResult()
         l = self.l
         suite = l.loadTestsFromName('test_module:TC2')
@@ -277,6 +287,7 @@ class TestTestLoader(unittest.TestCase):
         assert res.errors, "Expected missing class test to raise exception"
 
     def test_load_from_name_module_missing_func(self):
+        print "load from name module missing func"
         res = unittest.TestResult()
         l = self.l
         suite = l.loadTestsFromName('test_module:test_func2')
@@ -287,6 +298,7 @@ class TestTestLoader(unittest.TestCase):
         assert res.errors, "Expected missing func test to raise exception"
 
     def test_load_from_name_module_missing_method(self):
+        print "load from name module missing method"
         res = unittest.TestResult()
         l = self.l
         suite = l.loadTestsFromName('test_module:TC.testThat')
@@ -297,6 +309,7 @@ class TestTestLoader(unittest.TestCase):
         assert res.errors, "Expected missing method test to raise exception"
 
     def test_load_from_name_missing_module(self):
+        print "load from name missing module"
         res = unittest.TestResult()
         l = self.l
         suite = l.loadTestsFromName('other_test_module')
@@ -307,6 +320,7 @@ class TestTestLoader(unittest.TestCase):
         assert res.errors, "Expected missing module test to raise exception"
 
     def test_cases_from_testcase_are_wrapped(self):
+        print "cases from testcase are wrapped"
         test_module = M['test_module']
         l = self.l
         suite = l.loadTestsFromTestCase(test_module.TC)
@@ -317,6 +331,7 @@ class TestTestLoader(unittest.TestCase):
                    "Test %r is not a test wrapper" % test
 
     def test_load_test_func(self):
+        print "load test func"
         l = self.l
         suite = l.loadTestsFromName('test_module')
         tests = [t for t in suite]
@@ -337,6 +352,7 @@ class TestTestLoader(unittest.TestCase):
                    "Expected FunctionTestCase not %s" % tests[1].test
 
     def test_load_from_name_package_root_path(self):
+        print "load from name package root path"
         l = self.l
         suite = l.loadTestsFromName('/package')
         print suite
@@ -346,6 +362,7 @@ class TestTestLoader(unittest.TestCase):
         assert not tests, "The full test list %s was not empty" % tests
 
     def test_load_from_name_subpackage_path(self):
+        print "load from name subpackage path"
         l = self.l
         suite = l.loadTestsFromName('/package/subpackage')
         print suite
@@ -353,6 +370,7 @@ class TestTestLoader(unittest.TestCase):
         assert len(tests) == 0, "Expected no tests, got %s" % tests
 
     def test_load_generators(self):
+        print "load generators"
         test_module_with_generators = M['test_module_with_generators']
         l = self.l
         suite = l.loadTestsFromModule(test_module_with_generators)
@@ -421,6 +439,6 @@ class TestTestLoader(unittest.TestCase):
                "Expected to generate 4 tests, but got %s" % count
         
 if __name__ == '__main__':
-    #import logging
-    #logging.basicConfig(level=logging.DEBUG)
+    import logging
+    logging.basicConfig(level=logging.DEBUG)
     unittest.main()

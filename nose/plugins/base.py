@@ -178,7 +178,26 @@ class IPluginInterface(object):
         pass
     add_options = addOptions
 
-    # FIXME beforeTest, afterTest
+    def afterTest(self, test):
+        """Called after the test has been run and the result recorded
+        (after stopTest).
+
+        Parameters:
+         * test:
+           test test case
+        """
+        pass
+    afterTest._new = True
+
+    def beforeTest(self, test):
+        """Called before the test is run (before startTest).
+        
+        Parameters:
+         * test:
+           test test case
+        """        
+        pass
+    beforeTest._new = True
 
     def addDeprecated(self, test, err):
         """Called when a deprecated test is seen. DO NOT return a value

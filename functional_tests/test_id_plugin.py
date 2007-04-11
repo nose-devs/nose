@@ -3,9 +3,13 @@ import tempfile
 import unittest
 from nose.core import TestProgram, TextTestRunner
 from nose.config import Config
+from nose.exc import SkipTest
 from nose.plugins.manager import PluginManager
-from nose.plugins.testid import TestId
 from cStringIO import StringIO
+
+raise SkipTest('Id plugin not yet written')
+
+from nose.plugins.testid import TestId
 
 here = os.path.abspath(os.path.dirname(__file__))
 support = os.path.join(here, 'support')

@@ -1,3 +1,4 @@
+import logging
 import os
 import sys
 from nose.plugins.base import Plugin
@@ -8,6 +9,8 @@ except ImportError:
     from StringIO import StringIO
 
 
+log = logging.getLogger(__name__)
+
 class Capture(Plugin):
     """Output capture plugin. Enabled by default. Disable with -s or
     --nocapture. This plugin captures stdout during test execution,
@@ -17,7 +20,7 @@ class Capture(Plugin):
     enabled = True
     env_opt = 'NOSE_NOCAPTURE'
     name = 'capture'
-    score = 50
+    score = 500
     
     def __init__(self):
         self.stdout = []
@@ -36,17 +39,20 @@ class Capture(Plugin):
             self.enabled = False
 
     def afterTest(self, test):
+        log.debug("%s afterTest %s", self, test)
         self.end()
-
+        self._buf = None
+        
     def begin(self):
         self.start() # get an early handle on sys.stdout
 
     def beforeTest(self, test):
+        log.debug("%s beforeTest %s", self, test)
         self.start()
         
     def formatError(self, test, err):
-        self.end()
         test.captured_output = output = self.buffer
+        self._buf = None
         if not output:
             return
         ec, ev, tb = err
@@ -63,10 +69,12 @@ class Capture(Plugin):
         self.stdout.append(sys.stdout)
         self._buf = StringIO()
         sys.stdout = self._buf
+        log.debug("%s start capture. sys.stdout: %r", self, sys.stdout)
 
     def end(self):
         if self.stdout:
             sys.stdout = self.stdout.pop(0)
+        log.debug("%s end capture. sys.stdout: %r", self, sys.stdout)
 
     def _get_buffer(self):
         if self._buf is not None:
@@ -76,4 +84,5 @@ class Capture(Plugin):
                       """Captured stdout output.""")
 
     def __del__(self):
-        self.end()
+        while self.stdout:
+            self.end()

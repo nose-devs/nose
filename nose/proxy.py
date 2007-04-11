@@ -52,6 +52,7 @@ class ResultProxyFactory(object):
         result for all tests.
         """
         if not self.__prepared:
+            self.__prepared = True
             plug_result = self.config.plugins.prepareTestResult(result)
             if plug_result is not None:
                 self.__result = result = plug_result
@@ -92,7 +93,7 @@ class ResultProxy(object):
         self.assertMyTest(test)
         self.plugins.afterTest(self.test)
         try:
-            self.result.beforeTest(test)
+            self.result.afterTest(test)
         except AttributeError:
             pass
 
@@ -100,7 +101,7 @@ class ResultProxy(object):
         self.assertMyTest(test)
         self.plugins.beforeTest(self.test)
         try:
-            self.result.afterTest(test)
+            self.result.beforeTest(test)
         except AttributeError:
             pass
         

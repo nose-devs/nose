@@ -79,6 +79,7 @@ class PluginProxy(object):
         self.plugins = plugins[:]
     
     def __call__(self, *arg, **kw):
+        log.debug("call %s(%s, %s) %s", self.call, arg, kw, self.plugins)
         try:
             meth = getattr(self.interface, self.call)
         except AttributeError:
@@ -123,9 +124,11 @@ class PluginProxy(object):
         """
         for p in self.plugins:
             meth = getattr(p, self.call, None)
+            log.debug("%s.%s: %s", p, self.call, meth)
             if meth is None:
                 continue
             result = meth(*arg, **kw)
+            log.debug("called %s %s: %s", p, self.call, result)
             if result is not None:
                 return result
 
