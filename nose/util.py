@@ -18,8 +18,6 @@ log = logging.getLogger('nose')
 
 ident_re = re.compile(r'^[A-Za-z_][A-Za-z0-9_.]*$')
 
-# used for output capture; stack of wrapped stdouts
-stdout = []
 
 def absdir(path):
     """Return absolute, normalized path to directory, if it exists; None
@@ -276,7 +274,8 @@ def split_test_name(test):
             return (None, file_or_mod, fn)
     else:
         return (None, None, fn)
-split_test_name.__test__ = False
+split_test_name.__test__ = False # do not collect
+
     
 def test_address(test):
     """Find the test address for a test, which may be a module, filename,
@@ -319,6 +318,7 @@ def test_address(test):
                 "%s.%s" % (cls_adr[2], method_name))
     raise TypeError("I don't know what %s is (%s)" % (test, t))
 test_address.__test__ = False # do not collect
+
 
 def try_run(obj, names):
     """Given a list of possible method names, try to run them with the
@@ -382,23 +382,6 @@ def tolist(val):
     except TypeError:
         # who knows... 
         return list(val)
-
-
-def start_capture():
-    """Start capturing output to stdout.
-    """
-    log.debug('start capture from %r' % sys.stdout)
-    stdout.append(sys.stdout)
-    sys.stdout = StringIO()
-    log.debug('sys.stdout is now %r' % sys.stdout)
-
-
-def end_capture():
-    """Stop capturing output to stdout.
-    """
-    if stdout:
-        sys.stdout = stdout.pop()
-        log.debug('capture ended, sys.stdout is now %r' % sys.stdout)
 
 
 class odict(dict):

@@ -105,10 +105,53 @@ Examples
 See nose.plugins.attrib, nose.plugins.cover, nose.plugins.doctests and
 nose.plugins.profile for examples. Further examples may be found the
 examples directory in the nose source distribution.
+
+Testing Plugins
+===============
+
+The plugin interface is well-tested enough so that you can safely unit
+test your use of its hooks with some level of confidence.  However,
+there is a mixin for unittest.TestCase called PluginTester that's
+designed to test plugins in their native runtime environment.
+
+Here's a simple example with a do-nothing plugin and a composed suite.
+
+    >>> import unittest
+    >>> from nose.plugins import Plugin, PluginTester
+    >>> class FooPlugin(Plugin):
+    ...     pass
+    >>> class TestPluginFoo(PluginTester, unittest.TestCase):
+    ...     activate_opt = '--with-foo'
+    ...     debuglog = 'nose.plugins.foo'
+    ...     plugins = [FooPlugin()]
+    ...     def test_foo(self):
+    ...         for line in self.output:
+    ...             # i.e. check for patterns
+    ...             pass
+    ... 
+    ...         # or check for a line containing ...
+    ...         assert "ValueError" in self.output
+    ...     def makeSuite(self):
+    ...         class TC(unittest.TestCase):
+    ...             def runTest(self):
+    ...                 raise ValueError("I hate foo")
+    ...         return unittest.TestSuite([TC()])
+    ...
+    >>> res = unittest.TestResult()
+    >>> case = TestPluginFoo('test_foo')
+    >>> case(res)
+    >>> res.errors
+    []
+    >>> res.failures
+    []
+    >>> res.wasSuccessful()
+    True
+    >>> res.testsRun
+    1
 """
 from nose.plugins.base import Plugin
 from nose.plugins.manager import *
-
+from nose.plugins.plugintest import PluginTester
 
 
 

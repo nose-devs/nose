@@ -41,7 +41,7 @@ from nose.core import get_parser, main
 
 parser = get_parser(env={})
 
-option_blacklist = ['help', 'verbose']
+
     
 def get_user_options():
     """convert a optparse option list into a distutils option tuple list"""
@@ -107,11 +107,3 @@ class nosetests(Command):
                     argv.append(value)
         main(argv=argv, env=os.environ)
 
-def flag(val):
-    """Does the value look like an on/off flag?"""
-    if len(val) > 5:
-        return False
-    return val.upper() in ('1', '0', 'F', 'T', 'TRUE', 'FALSE', 'ON', 'OFF')
-
-def _bool(val):
-    return val.upper() in ('1', 'T', 'TRUE', 'ON')

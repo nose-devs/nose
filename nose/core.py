@@ -190,12 +190,14 @@ class TestProgram(unittest.TestProgram):
         ]
 
     def __init__(self, module=None, defaultTest='.', argv=None,
-                 testRunner=None, testLoader=None, env=None, config=None):
+                 testRunner=None, testLoader=None, env=None, config=None,
+                 suite=None):
         if env is None:
             env = os.environ
         if config is None:
             config = self.makeConfig(env)
         self.config = config
+        self.suite = suite
         unittest.TestProgram.__init__(
             self, module=module, defaultTest=defaultTest,
             argv=argv, testRunner=testRunner, testLoader=testLoader)
@@ -247,8 +249,13 @@ class TestProgram(unittest.TestProgram):
         tests using TestCollector using nose.loader.TestLoader as the
         test loader.
         """
-        log.debug("createTests called")        
-        self.test = self.testLoader.loadTestsFromNames(self.testNames)
+        log.debug("createTests called")
+        if self.suite is not None:
+            # We were given an explicit suite to run. Make sure it's
+            # loaded and wrapped correctly.
+            self.test = self.testLoader.suiteClass(self.suite)
+        else:
+            self.test = self.testLoader.loadTestsFromNames(self.testNames)
 
     def runTests(self):
         """Run Tests. Returns true on success, false on failure, and sets

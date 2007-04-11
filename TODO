@@ -4,14 +4,16 @@ deprecated needs to be added to builtin plug list
 fix builtin plugins:
  attrib
  coverage
+ doctest
  prof
- isolation
+ isolation * post merge
 
 remove plugins:
  missing
 
-fix test_loader unittest -- move the mock stuff to another module that it
-  can import in its setup
+new plugin:
+ testid
+
 
 * plugin methods to add
 
@@ -35,14 +37,6 @@ BUGS
 
 --exclude doesn't seem to work? in some cases?
 
-doctest causes error:
-
-  File "/usr/lib/python2.4/unittest.py", line 498, in loadTestsFromTestCase
-    return self.suiteClass(map(testCaseClass, testCaseNames))
-TypeError: __init__() takes at least 3 arguments (2 given)
-
-doctests is forcing the normal loader to load tests from unwanted modules
-by returning True on wantfile for all python modules
 
 
 MERGE merge trunk -> 0.10 from r9 to pick up trunk changes/fixes

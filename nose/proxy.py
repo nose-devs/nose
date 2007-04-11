@@ -22,7 +22,7 @@ import unittest
 from nose.exc import SkipTest, DeprecatedTest
 from nose.config import Config
 from nose.inspector import inspect_traceback
-from nose.util import ln, start_capture, end_capture
+from nose.util import ln
 
 try:
     from cStringIO import StringIO
