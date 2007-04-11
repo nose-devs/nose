@@ -103,3 +103,5 @@ class AccessDecorator(object):
         return val in self._buf
     def __iter__(self):
         return self.stream
+    def __str__(self):
+        return self._buf
