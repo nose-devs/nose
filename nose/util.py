@@ -210,10 +210,10 @@ def resolve_name(name, module=None):
     """Resolve a dotted name to a module and its parts. This is stolen
     wholesale from unittest.TestLoader.loadTestByName.
 
-    >>> resolve_name('nose.util')
-    <Module nose.util...>
-    >>> resolve_name('nose.util.resolve_name')
-    <Function nose.util.resolve_name...>
+    >>> resolve_name('nose.util') #doctest: +ELLIPSIS
+    <module 'nose.util' from...>
+    >>> resolve_name('nose.util.resolve_name') #doctest: +ELLIPSIS
+    <function resolve_name at...>
     """
     parts = name.split('.')
     parts_copy = parts[:]
@@ -282,6 +282,10 @@ def test_address(test):
     """Find the test address for a test, which may be a module, filename,
     class, method or function.
     """
+    try:
+        return test.address()
+    except AttributeError:
+        pass
     # type-based polymorphism sucks in general, but I believe is
     # appropriate here
     t = type(test)
@@ -301,15 +305,9 @@ def test_address(test):
                 "%s.%s" % (cls_adr[2], test.__name__))
     # handle unittest.TestCase instances
     if isinstance(test, unittest.TestCase):
-        if hasattr(test, 'testFunc'):
-            # nose FunctionTestCase
-            return test_address(test.testFunc)
         if hasattr(test, '_FunctionTestCase__testFunc'):
             # unittest FunctionTestCase
             return test_address(test._FunctionTestCase__testFunc)
-        if hasattr(test, 'testCase'):
-            # nose MethodTestCase
-            return test_address(test.testCase)
         # regular unittest.TestCase
         cls_adr = test_address(test.__class__)
         # 2.5 compat: __testMethodName changed to _testMethodName
