@@ -1,7 +1,6 @@
 import time
 import unittest
 from nose.tools import *
-from nose.exc import SkipTest
 
 class TestTools(unittest.TestCase):
 
