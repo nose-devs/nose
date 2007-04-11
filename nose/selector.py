@@ -45,10 +45,15 @@ class Selector(object):
 
         A class must be a unittest.TestCase subclass, or match test name
         requirements. Classes that start with _ are always excluded.
-        """        
-        wanted = (not cls.__name__.startswith('_')
-                  and (issubclass(cls, unittest.TestCase)
-                       or self.matches(cls.__name__)))
+        """
+        declared = getattr(cls, '__test__', None)
+        if declared is not None:
+            wanted = declared
+        else:
+            wanted = (not cls.__name__.startswith('_')
+                      and (issubclass(cls, unittest.TestCase)
+                           or self.matches(cls.__name__)))
+        
         plug_wants = self.plugins.wantClass(cls)        
         if plug_wants is not None:
             log.debug("Plugin setting selection of %s to %s", cls, plug_wants)
@@ -119,7 +124,11 @@ class Selector(object):
         except AttributeError:
             # not a function
             return False
-        wanted = not funcname.startswith('_') and self.matches(funcname)
+        declared = getattr(function, '__test__', None)
+        if declared is not None:
+            wanted = declared
+        else:
+            wanted = not funcname.startswith('_') and self.matches(funcname)
         plug_wants = self.plugins.wantFunction(function)
         if plug_wants is not None:
             wanted = plug_wants
@@ -137,7 +146,11 @@ class Selector(object):
         if method_name.startswith('_'):
             # never collect 'private' methods
             return False
-        wanted = self.matches(method_name)
+        declared = getattr(method, '__test__', None)
+        if declared is not None:
+            wanted = declared
+        else:
+            wanted = self.matches(method_name)
         plug_wants = self.plugins.wantMethod(method)
         if plug_wants is not None:
             wanted = plug_wants
@@ -150,8 +163,12 @@ class Selector(object):
         The tail of the module name must match test requirements. One exception:
         we always want __main__.
         """
-        wanted = self.matches(module.__name__.split('.')[-1]) \
-                 or module.__name__ == '__main__'
+        declared = getattr(module, '__test__', None)
+        if declared is not None:
+            wanted = declared
+        else:
+            wanted = self.matches(module.__name__.split('.')[-1]) \
+                     or module.__name__ == '__main__'
         plug_wants = self.plugins.wantModule(module)
         if plug_wants is not None:
             wanted = plug_wants

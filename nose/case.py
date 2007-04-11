@@ -14,6 +14,7 @@ log = logging.getLogger(__name__)
 
 # FIXME probably not the best name, since it is mainly used for errors
 class Failure(unittest.TestCase):
+    __test__ = False # do not collect
     def __init__(self, exc_class, exc_val, tb=None):
         log.debug("A failure! %s %s %s", exc_class, exc_val, format_tb(tb))
         self.exc_class = exc_class
@@ -38,6 +39,7 @@ class Test(unittest.TestCase):
     class. To access the actual test case that will be run, access the
     test property of the nose.case.Test instance.    
     """
+    __test__ = False # do not collect
     def __init__(self, test, config=None, resultProxy=None):
         log.debug("Test(%s)", test)
         # sanity check
@@ -141,6 +143,7 @@ class Test(unittest.TestCase):
 class TestBase(unittest.TestCase):
     """Common functionality for FunctionTestCase and MethodTestCase.
     """
+    __test__ = False # do not collect
     def id(self):
         return str(self)
         
@@ -182,7 +185,7 @@ class FunctionTestCase(TestBase):
             # ...
 
     """
-    
+    __test__ = False # do not collect
     def __init__(self, test, setUp=None, tearDown=None, arg=tuple(),
                  descriptor=None):
         self.test = test
@@ -252,6 +255,7 @@ class MethodTestCase(TestBase):
     Don't use this class directly; it is used internally in nose to
     create test cases for test methods.
     """
+    __test__ = False # do not collect
     def __init__(self, method, test=None, arg=tuple(), descriptor=None):
         """Initialize the MethodTestCase.
 

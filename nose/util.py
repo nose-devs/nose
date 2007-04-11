@@ -276,7 +276,7 @@ def split_test_name(test):
             return (None, file_or_mod, fn)
     else:
         return (None, None, fn)
-
+split_test_name.__test__ = False
     
 def test_address(test):
     """Find the test address for a test, which may be a module, filename,
@@ -318,7 +318,7 @@ def test_address(test):
         return (cls_adr[0], cls_adr[1],
                 "%s.%s" % (cls_adr[2], method_name))
     raise TypeError("I don't know what %s is (%s)" % (test, t))
-
+test_address.__test__ = False # do not collect
 
 def try_run(obj, names):
     """Given a list of possible method names, try to run them with the

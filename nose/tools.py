@@ -101,3 +101,17 @@ def with_setup(setup=None, teardown=None):
             func.teardown = teardown
         return func
     return decorate
+
+
+def istest(func):
+    """Decorator to mark a function or method as a test
+    """
+    func.__test__ = True
+    return func
+
+
+def nottest(func):
+    """Decorator to mark a function or method as *not* a test
+    """
+    func.__test__ = False
+    return func

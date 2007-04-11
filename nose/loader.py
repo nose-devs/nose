@@ -79,14 +79,16 @@ class TestLoader(unittest.TestLoader):
             is_package = ispackage(entry_path)
             if is_test and is_file:
                 if entry.endswith('.py'):
-                    yield self.loadTestsFromName(entry_path)
+                    yield self.loadTestsFromName(
+                        entry_path, discovered=True)
                 else:
                     yield self.loadTestsFromFile(entry_path)
             elif is_dir:
                 if is_package:
                     # Load the entry as a package: given the full path,
                     # loadTestsFromName() will figure it out
-                    yield self.loadTestsFromName(entry_path)
+                    yield self.loadTestsFromName(
+                        entry_path, discovered=True)
                 elif is_test:
                     # Another test dir in this one: recurse lazily
                     yield LazySuite(
@@ -173,34 +175,43 @@ class TestLoader(unittest.TestLoader):
                                   "%s is not a function or method" % test_func)
         return self.suiteClass(generate)
 
-    def loadTestsFromModule(self, module):
+    def loadTestsFromModule(self, module, discovered=False):
         log.debug("Load from module %s", module)
         tests = []
         test_classes = []
         test_funcs = []
-        for item in dir(module):
-            test = getattr(module, item, None)
-            # print "Check %s (%s) in %s" % (item, test, module.__name__)
-            if isclass(test):
-                if self.selector.wantClass(test):
-                    test_classes.append(test)
-            elif isfunction(test) and self.selector.wantFunction(test):
-                test_funcs.append(test)
-        test_classes.sort(lambda a, b: cmp(a.__name__, b.__name__))
-        test_funcs.sort(cmp_lineno)
-        tests = map(lambda t: self.makeTest(t, parent=module),
-                    test_classes + test_funcs)
+        # For *discovered* modules, we only load tests when they look
+        # testlike. For modules we've been directed to load, we always
+        # look for tests. discovered is set to True by loadTestsFromDir
+        if not discovered or self.selector.wantModule(module):
+            for item in dir(module):
+                test = getattr(module, item, None)
+                # print "Check %s (%s) in %s" % (item, test, module.__name__)
+                if isclass(test):
+                    if self.selector.wantClass(test):
+                        test_classes.append(test)
+                elif isfunction(test) and self.selector.wantFunction(test):
+                    test_funcs.append(test)
+            test_classes.sort(lambda a, b: cmp(a.__name__, b.__name__))
+            test_funcs.sort(cmp_lineno)
+            tests = map(lambda t: self.makeTest(t, parent=module),
+                        test_classes + test_funcs)
 
         # Now, descend into packages
         paths = getattr(module, '__path__', [])
         for path in paths:
             tests.extend(self.loadTestsFromDir(path))
             
-        # FIXME give plugins a chance
+        # give plugins a chance
+        try:
+            for test in self.config.plugins.loadTestsFromModule(module):
+                tests.append(test)
+        except (TypeError, AttributeError):
+            pass
 
         return self.suiteClass(tests, parent=module)
     
-    def loadTestsFromName(self, name, module=None):
+    def loadTestsFromName(self, name, module=None, discovered=False):
         # FIXME refactor this method into little bites
         suite = self.suiteClass
         addr = TestAddress(name, workingDir=self.workingDir)
@@ -241,7 +252,8 @@ class TestLoader(unittest.TestLoader):
                 if addr.call:
                     return self.loadTestsFromName(addr.call, module)
                 else:
-                    return self.loadTestsFromModule(module)
+                    return self.loadTestsFromModule(
+                        module, discovered=discovered)
             elif addr.filename:
                 path = addr.filename
                 if addr.call:

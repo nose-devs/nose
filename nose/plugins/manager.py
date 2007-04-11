@@ -87,7 +87,7 @@ class PluginProxy(object):
                                  % (self.call, self.interface.__name__))
         if getattr(meth, 'generative', False):
             # call all plugins and yield a flattened iterator of their results
-            return self.generate(*arg, **kw)
+            return list(self.generate(*arg, **kw))
         elif getattr(meth, 'chainable', False):
             return self.chain(*arg, **kw)
         else:

@@ -57,6 +57,11 @@ class TestSelector(unittest.TestCase):
         assert not s.wantClass(Foo)
         assert s.wantClass(Bar)
         assert s.wantClass(TestMe)
+
+        TestMe.__test__ = False
+        assert not s.wantClass(TestMe), "Failed to respect __test__ = False"
+        Bar.__test__ = False
+        assert not s.wantClass(Bar), "Failed to respect __test__ = False"
         
     def test_want_directory(self):
         s = Selector(Config())
@@ -117,6 +122,10 @@ class TestSelector(unittest.TestCase):
         assert s.wantFunction(test_foo)
         assert not s.wantFunction(foo)
 
+        test_foo.__test__ = False
+        assert not s.wantFunction(test_foo), \
+               "Failed to respect __test__ = False"
+
     def test_want_method(self):
         class Baz:
             def test_me(self):
@@ -125,12 +134,17 @@ class TestSelector(unittest.TestCase):
                 pass
             def other(self):
                 pass
+            def test_not_test(self):
+                pass
+            test_not_test.__test__ = False
             
         s = Selector(Config())
         
         assert s.wantMethod(Baz.test_me)
         assert s.wantMethod(Baz.test_too)
         assert not s.wantMethod(Baz.other)
+        assert not s.wantMethod(Baz.test_not_test), \
+               "Failed to respect __test__ = False"
         
     def test_want_module(self):
         m = mod('whatever')
@@ -151,6 +165,9 @@ class TestSelector(unittest.TestCase):
         assert s.wantModule(m6)
         assert s.wantModule(m7)
         assert s.wantModule(m8)
+
+        m6.__test__ = False
+        assert not s.wantModule(m6), "Failed to respect __test__ = False"
 
         
 if __name__ == '__main__':
