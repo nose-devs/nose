@@ -1,8 +1,14 @@
 implement assert inspection as plugin
+deprecated needs to be added to builtin plug list
+
 fix builtin plugins:
  attrib
  coverage
  prof
+ isolation
+
+remove plugins:
+ missing
 
 fix test_loader unittest -- move the mock stuff to another module that it
   can import in its setup
@@ -20,11 +26,15 @@ FAILED (todo=10)
   or
 OK (skipped=2)
 
+** this can only be done in nose test runner
+
+make setup work with & w/out setuptools
+
+
 BUGS
 
 --exclude doesn't seem to work
-something in functional tests is causing capture plugin to stop capturing
-in unittests, it seems to get stuck, not clearing the buffer?
+
 
 MERGE merge trunk -> 0.10 from r9 to pick up trunk changes/fixes
 

@@ -52,7 +52,7 @@ class AttributeSelector(Plugin):
         Plugin.__init__(self)
         self.attribs = []
     
-    def addOptions(self, parser, env=os.environ):
+    def options(self, parser, env=os.environ):
         """Add command-line options for this plugin."""
 
         parser.add_option("-a", "--attr",

@@ -21,8 +21,8 @@ class Profile(Plugin):
     """
     Use this plugin to run tests using the hotshot profiler. 
     """
-    def add_options(self, parser, env=os.environ):
-        Plugin.add_options(self, parser, env)                
+    def options(self, parser, env=os.environ):
+        Plugin.options(self, parser, env)                
         parser.add_option('--profile-sort',action='store',dest='profile_sort',
                           default=env.get('NOSE_PROFILE_SORT','cumulative'),
                           help="Set sort order for profiler output")

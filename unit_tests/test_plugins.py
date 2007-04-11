@@ -41,33 +41,7 @@ class TestBuiltinPlugins(unittest.TestCase):
 
     def tearDown(self):
         sys.path = self.p[:]
-    
-    def test_load(self):
-        plugs = list(nose.plugins.load_plugins(builtin=True, others=False))
-        # print plugs
-
-        assert Coverage in plugs
-        assert Doctest in plugs
-        assert AttributeSelector in plugs
-        assert Profile in plugs
-        assert MissedTests in plugs
-        assert len(plugs) == 5
-
-        for p in plugs:
-            assert not p.enabled
-
-    def test_failing_load(self):
-        tmp = nose.plugins.pkg_resources
-        nose.plugins.pkg_resources = ErrPkgResources()
-        try:
-            # turn off warnings
-            filterwarnings('ignore', category=RuntimeWarning)
-            plugs = list(nose.plugins.load_plugins(builtin=True, others=True))
-            self.assertEqual(plugs, [])
-        finally:
-            nose.plugins.pkg_resources = tmp
-            resetwarnings()
-            
+                
     def test_add_options(self):
         conf = Config()
         opt = Bucket()
@@ -143,6 +117,7 @@ class TestDoctestPlugin(unittest.TestCase):
         conf = Config()
         opt = Bucket()
         plug = Doctest()
+        plug.can_configure = True
         plug.configure(opt, conf)
         
         assert plug.wantFile('foo.py')
@@ -161,6 +136,7 @@ class TestDoctestPlugin(unittest.TestCase):
         conf = Config()
         opt = Bucket()
         plug = Doctest()
+        plug.can_configure = True
         plug.configure(opt, conf)
         assert not plug.matches('test')
         assert plug.matches('foo')
@@ -175,6 +151,7 @@ class TestDoctestPlugin(unittest.TestCase):
         conf = Config()
         opt = Bucket()
         plug = Doctest()
+        plug.can_configure = True
         plug.configure(opt, conf)
         suite = plug.loadTestsFromModule(foo.bar.buz)
         if compat_24:
@@ -196,6 +173,7 @@ class TestDoctestPlugin(unittest.TestCase):
         conf = Config()        
         opt = Bucket()
         plug = Doctest()
+        plug.can_configure = True
         plug.configure(opt, conf)
         plug.extension = ['.txt']
         suite = plug.loadTestsFromPath(fn)
@@ -343,80 +321,6 @@ class TestAttribPlugin(unittest.TestCase):
         assert not plug.wantFunction(f3)
         assert not plug.wantFunction(f4)
         
-class TestMissedTestsPlugin(unittest.TestCase):
-
-    def test_options(self):
-        opt = Config()
-        parser = OptionParser()
-        plug = MissedTests()
-        plug.add_options(parser, {})
-        opts = [ o._long_opts[0] for o in parser.option_list ]
-        assert '--with-missed-tests' in opts
-
-    def test_match(self):
-        class FooTest(unittest.TestCase):
-            def test_bar(self):
-                pass
-            
-        class QuzTest:
-            def test_whatever(self):
-                pass
-        def test_baz():
-            pass
-        foo = FooTest('test_bar')
-        baz = nose.case.FunctionTestCase(test_baz)
-        quz = nose.case.MethodTestCase(QuzTest, 'test_whatever')
-        
-        plug = MissedTests()
-
-        here = os.path.abspath(__file__)
-        
-        # positive matches
-        assert plug.match(foo, ':FooTest.test_bar')
-        assert plug.match(foo, ':FooTest')
-        assert plug.match(foo, here)
-        assert plug.match(foo, os.path.dirname(here))
-        assert plug.match(foo, __name__)
-        assert plug.match(baz, ':test_baz')
-        assert plug.match(baz, here)
-        assert plug.match(baz, __name__)
-        assert plug.match(quz, ':QuzTest.test_whatever')
-        assert plug.match(quz, ':QuzTest')
-        assert plug.match(quz, here)
-        assert plug.match(quz, __name__)
-        
-        # non-matches
-        assert not plug.match(foo, ':test_bar')        
-        assert not plug.match(foo, ':FooTest.test_bart')
-        assert not plug.match(foo, 'some.module')
-        assert not plug.match(foo, __name__ + '.whatever')
-        assert not plug.match(foo, '/some/path')
-
-    def test_begin(self):        
-        plug = MissedTests()
-        plug.conf = Config()
-        plug.begin()
-        assert plug.missed is None
-
-        plug.conf.tests = ['a']
-        plug.begin()
-        self.assertEqual(plug.missed, ['a'])
-        assert plug.missed is not plug.conf.tests
-
-    def test_finalize(self):
-        plug = MissedTests()
-        plug.missed = ['a']
-
-        out = []
-        class dummy:
-            pass
-
-        result = dummy()
-        result.stream = dummy()
-        result.stream.writeln = out.append
-        
-        plug.finalize(result)
-        self.assertEqual(out, ["WARNING: missed test 'a'"])
 
 class TestProfPlugin(unittest.TestCase):
     def test_options(self):

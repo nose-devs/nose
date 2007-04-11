@@ -28,8 +28,8 @@ class Doctest(Plugin):
     """
     extension = None
     
-    def add_options(self, parser, env=os.environ):
-        Plugin.add_options(self, parser, env)
+    def options(self, parser, env=os.environ):
+        Plugin.options(self, parser, env)
         parser.add_option('--doctest-tests', action='store_true',
                           dest='doctest_tests',
                           default=env.get('NOSE_DOCTEST_TESTS'),

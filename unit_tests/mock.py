@@ -78,3 +78,24 @@ class RecordingPluginProxy(object):
         
     def __call__(self, *arg, **kw):
         self.man.called.setdefault(self.call, []).append((arg, kw))
+
+
+class Bucket(object):
+    def __init__(self, **kw):
+        self.__dict__['d'] = {}
+        self.__dict__['d'].update(kw)
+        
+    def __getattr__(self, attr):
+        if not self.__dict__.has_key('d'):
+            return None
+        return self.__dict__['d'].get(attr)
+
+    def __setattr__(self, attr, val):        
+        self.d[attr] = val
+
+
+class MockOptParser(object):
+    def __init__(self):
+        self.opts = []
+    def add_option(self, *args, **kw):
+        self.opts.append((args, kw))

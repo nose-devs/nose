@@ -32,8 +32,8 @@ class Coverage(Plugin):
     coverTests = False
     coverPackages = None
     
-    def addOptions(self, parser, env=os.environ):
-        Plugin.add_options(self, parser, env)
+    def options(self, parser, env=os.environ):
+        Plugin.options(self, parser, env)
         parser.add_option("--cover-package", action="append",
                           default=env.get('NOSE_COVER_PACKAGE'),
                           dest="cover_packages",
@@ -123,7 +123,10 @@ class Coverage(Plugin):
         # coverPackages is on -- in that case, if we wanted this
         # module, we would have already returned True
         return not self.coverPackages
-    
+
+    # FIXME this is needed to force inclusion in coverage of
+    # modules that are never loaded. But it should be under a different
+    # hook in this version I think
     def wantFile(self, file, package=None):    
         """If inclusive coverage enabled, return true for all source files 
         in wanted packages."""    
