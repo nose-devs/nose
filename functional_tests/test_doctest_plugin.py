@@ -6,8 +6,8 @@ from nose.plugins import PluginTester
 support = os.path.join(os.path.dirname(__file__), 'support')
 
 class TestDoctestPlugin(PluginTester, unittest.TestCase):
-    activate_opt = '--with-doctest'
-    addargs = ['-v']
+    activate = '--with-doctest'
+    args = ['-v']
     plugins = [Doctest()]
     suitepath = os.path.join(support, 'dtt')
     

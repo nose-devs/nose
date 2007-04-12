@@ -20,9 +20,9 @@ class PluginTester(object):
     
     Class Variables
     ---------------
-    - activate_opt
+    - activate
     
-      - the option to send nosetests to activate the plugin
+      - the argument to send nosetests to activate the plugin
      
     - suitepath
     
@@ -33,21 +33,22 @@ class PluginTester(object):
 
       - if not None, becomes the value of --debug=debuglog
     
-    - addargs
+    - args
   
-      - a list of arguments to add to the nosetests command
+      - a list of arguments to add to the nosetests command, in addition to
+        the activate argument
     
     - env
     
       - optional dict of environment variables to send nosetests
       
     """
-    activate_opt = None
+    activate = None
     suitepath = None
     debuglog = False
-    addargs = None
+    args = None
     env = {}
-    _args = None
+    argv = None
     plugins = []
     
     def makeSuite(self):
@@ -73,7 +74,7 @@ class PluginTester(object):
         if not self.suitepath:
             suite = self.makeSuite()
             
-        self.nose = TestProgram(argv=self._args, env=self.env,
+        self.nose = TestProgram(argv=self.argv, env=self.env,
                                 config=conf, suite=suite)
         self.output = AccessDecorator(stream)
                                 
@@ -82,13 +83,13 @@ class PluginTester(object):
         """  
         if not self.env:  
             self.env = dict([(k,v) for k,v in os.environ.items()])
-        self._args = ['nosetests', self.activate_opt]
-        if self.addargs:
-            self._args.extend(self.addargs)
+        self.argv = ['nosetests', self.activate]
+        if self.args:
+            self.argv.extend(self.args)
         if self.debuglog:
-            self._args.append('--debug=%s' % self.debuglog)
+            self.argv.append('--debug=%s' % self.debuglog)
         if self.suitepath:
-            self._args.append(self.suitepath)
+            self.argv.append(self.suitepath)
 
         self._execPlugin()
 

@@ -1,3 +1,10 @@
+logging
+ config file opt
+ stream setting in config
+
+plugintester
+ set up logging to log to debug stream
+
 implement assert inspection as plugin
 deprecated needs to be added to builtin plug list
 
@@ -8,11 +15,12 @@ fix builtin plugins:
  prof
  isolation * post merge
 
-remove plugins:
- missing
-
 new plugin:
  testid
+
+rename Failure and split into subclasses for Import and other, and make
+it optionally include the name of the file being considered so that
+Failure test logs can be more informative
 
 
 * plugin methods to add

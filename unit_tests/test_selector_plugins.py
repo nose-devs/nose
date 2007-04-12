@@ -1,17 +1,10 @@
 import unittest
 import nose.selector
-import test_selector
 from nose.config import Config
 from nose.plugins.base import Plugin
+from nose.plugins.manager import PluginManager
 
 class TestSelectorPlugins(unittest.TestCase):
-
-    def test_null_selector(self):
-        # run the test_selector.TestSelector tests with
-        # a null selector config'd in, should still all pass
-        class NullSelector(Plugin):
-            pass
-
 
     def test_rejection(self):
         class EvilSelector(Plugin):
@@ -20,8 +13,7 @@ class TestSelectorPlugins(unittest.TestCase):
                     return False
                 return None
 
-        c = Config()
-        c.plugins = [ EvilSelector() ]
+        c = Config(plugins=PluginManager(plugins=[EvilSelector()]))
         s = nose.selector.Selector(c)
         s2 = nose.selector.Selector(Config())
         

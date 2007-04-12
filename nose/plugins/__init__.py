@@ -121,7 +121,7 @@ Here's a simple example with a do-nothing plugin and a composed suite.
     >>> class FooPlugin(Plugin):
     ...     pass
     >>> class TestPluginFoo(PluginTester, unittest.TestCase):
-    ...     activate_opt = '--with-foo'
+    ...     activate = '--with-foo'
     ...     debuglog = 'nose.plugins.foo'
     ...     plugins = [FooPlugin()]
     ...     def test_foo(self):

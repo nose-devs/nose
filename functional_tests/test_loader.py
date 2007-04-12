@@ -2,6 +2,9 @@ import os
 import sys
 import unittest
 from difflib import ndiff
+from nose.config import Config
+from nose.plugins.manager import PluginManager
+from nose.plugins.skip import Skip
 from nose import loader
 from nose import suite
 
@@ -187,9 +190,9 @@ class TestNoseTestLoader(unittest.TestCase):
                "Expected to run 0 tests but ran %s" % res.testsRun
 
     def test_mod_setup_skip_no_tests_run_no_errors(self):
-        # FIXME need to load a config with builtin plugins
+        config = Config(plugins=PluginManager(plugins=[Skip()]))
         ctx = os.path.join(support, 'ctx')
-        l = loader.TestLoader(workingDir=ctx)
+        l = loader.TestLoader(workingDir=ctx, config=config)
         suite = l.loadTestsFromName('mod_setup_skip.py')
 
         res = unittest.TestResult()
@@ -202,9 +205,9 @@ class TestNoseTestLoader(unittest.TestCase):
                "Expected to run 0 tests but ran %s" % res.testsRun
 
     def test_mod_import_skip_one_test_no_errors(self):
-        # FIXME need to load a config with builtin plugins
+        config = Config(plugins=PluginManager(plugins=[Skip()]))
         ctx = os.path.join(support, 'ctx')
-        l = loader.TestLoader(workingDir=ctx)
+        l = loader.TestLoader(workingDir=ctx, config=config)
         suite = l.loadTestsFromName('mod_import_skip.py')
 
         res = unittest.TestResult()
