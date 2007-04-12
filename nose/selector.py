@@ -113,7 +113,7 @@ class Selector(object):
         if plug_wants is not None:
             log.debug("plugin setting want %s to %s", file, plug_wants)
             wanted = plug_wants
-        log.debug("wantFile %s?", file, wanted)
+        log.debug("wantFile %s? %s", file, wanted)
         return wanted
 
     def wantFunction(self, function):

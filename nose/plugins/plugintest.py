@@ -51,7 +51,9 @@ class PluginTester(object):
     plugins = []
     
     def makeSuite(self):
-        """must return the full path to a directory to test."""
+        """Must override to return a suite of tests to run if you
+        don't supply a suitepath.
+        """
         raise NotImplementedError
 
     

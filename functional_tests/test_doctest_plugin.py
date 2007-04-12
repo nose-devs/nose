@@ -14,8 +14,8 @@ class TestDoctestPlugin(PluginTester, unittest.TestCase):
     def runTest(self):
         print str(self.output)
 
-        assert 'Doctest: mod ... ok' in self.output
-        assert 'Doctest: mod.foo ... ok' in self.output
+        assert 'Doctest: some_mod ... ok' in self.output
+        assert 'Doctest: some_mod.foo ... ok' in self.output
         assert 'Ran 2 tests' in self.output
         assert str(self.output).strip().endswith('OK')
 

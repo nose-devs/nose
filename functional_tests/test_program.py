@@ -2,6 +2,7 @@ import os
 import unittest
 from cStringIO import StringIO
 from nose.core import TestProgram
+from nose.config import Config
 
 here = os.path.dirname(__file__)
 support = os.path.join(here, 'support')
@@ -22,12 +23,10 @@ class TestTestProgram(unittest.TestCase):
         """
         stream = StringIO()
         runner = TestRunner(stream=stream)
-        try:
-            prog = TestProgram(defaultTest=os.path.join(support, 'ctx'),
-                               argv=['test_run_support_ctx'],
-                               testRunner=runner)
-        except SystemExit:
-            pass
+        prog = TestProgram(defaultTest=os.path.join(support, 'ctx'),
+                           argv=['test_run_support_ctx'],
+                           testRunner=runner,
+                           config=Config(exit=False))
         res = runner.result
         print stream.getvalue()
         self.assertEqual(res.testsRun, 0,
@@ -43,12 +42,11 @@ class TestTestProgram(unittest.TestCase):
         """
         stream = StringIO()
         runner = TestRunner(stream=stream)
-        try:
-            prog = TestProgram(defaultTest=os.path.join(support, 'package2'),
-                               argv=['test_run_support_package2', '-v'],
-                               testRunner=runner)
-        except SystemExit:
-            pass
+
+        prog = TestProgram(defaultTest=os.path.join(support, 'package2'),
+                           argv=['test_run_support_package2', '-v'],
+                           testRunner=runner,
+                           config=Config(exit=False))
         res = runner.result
         print stream.getvalue()
         self.assertEqual(res.testsRun, 5,
