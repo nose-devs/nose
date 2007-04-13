@@ -166,7 +166,7 @@ def mock_import(modname, gl=None, lc=None, fr=None):
 
 
 class MockImporter:
-    def import_from_path(self, path, fqname):
+    def importFromPath(self, path, fqname):
         try:
             m = M[fqname]
         except KeyError:

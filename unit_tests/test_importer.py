@@ -31,7 +31,7 @@ class TestImporter(unittest.TestCase):
         foobar = os.path.join(foo, 'bar')
 
         imp = nose.importer.Importer()
-        mod = imp.import_from_dir(foobar, 'buz')
+        mod = imp.importFromDir(foobar, 'buz')
         assert where in sys.path
         # buz has an intra-package import that sets boodle
         assert mod.boodle
@@ -46,7 +46,7 @@ class TestImporter(unittest.TestCase):
         sys.modules['buz'] = 'Whatever'
 
         imp = nose.importer.Importer()
-        mod = imp.import_from_dir(foobar, 'buz')
+        mod = imp.importFromDir(foobar, 'buz')
         assert where in sys.path
         # buz has an intra-package import that sets boodle
         assert mod.boodle

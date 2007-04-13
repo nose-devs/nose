@@ -29,14 +29,14 @@ class TestImporter(unittest.TestCase):
         d2 = os.path.join(self.dir, 'dir2')
         
         # simple name        
-        m1 = imp.import_from_dir(d1, 'mod')
-        m2 = imp.import_from_dir(d2, 'mod')
+        m1 = imp.importFromDir(d1, 'mod')
+        m2 = imp.importFromDir(d2, 'mod')
         self.assertNotEqual(m1, m2)
         self.assertNotEqual(m1.__file__, m2.__file__)
 
         # dotted name
-        p1 = imp.import_from_dir(d1, 'pak.mod')
-        p2 = imp.import_from_dir(d2, 'pak.mod')
+        p1 = imp.importFromDir(d1, 'pak.mod')
+        p2 = imp.importFromDir(d2, 'pak.mod')
         self.assertNotEqual(p1, p2)
         self.assertNotEqual(p1.__file__, p2.__file__)
 
@@ -48,28 +48,28 @@ class TestImporter(unittest.TestCase):
         d2 = jn(self.dir, 'dir2')
         
         # simple name        
-        m1 = imp.import_from_path(jn(d1, 'mod.py'), 'mod')
-        m2 = imp.import_from_path(jn(d2, 'mod.py'), 'mod')
+        m1 = imp.importFromPath(jn(d1, 'mod.py'), 'mod')
+        m2 = imp.importFromPath(jn(d2, 'mod.py'), 'mod')
         self.assertNotEqual(m1, m2)
         self.assertNotEqual(m1.__file__, m2.__file__)
 
         # dotted name
-        p1 = imp.import_from_path(jn(d1, 'pak', 'mod.py'), 'pak.mod')
-        p2 = imp.import_from_path(jn(d2, 'pak', 'mod.py'), 'pak.mod')
+        p1 = imp.importFromPath(jn(d1, 'pak', 'mod.py'), 'pak.mod')
+        p2 = imp.importFromPath(jn(d2, 'pak', 'mod.py'), 'pak.mod')
         self.assertNotEqual(p1, p2)
         self.assertNotEqual(p1.__file__, p2.__file__)
 
         # simple name -- package
-        sp1 = imp.import_from_path(jn(d1, 'pak'), 'pak')
-        sp2 = imp.import_from_path(jn(d2, 'pak'), 'pak')
+        sp1 = imp.importFromPath(jn(d1, 'pak'), 'pak')
+        sp2 = imp.importFromPath(jn(d2, 'pak'), 'pak')
         self.assertNotEqual(sp1, sp2)
         assert sp1.__path__
         assert sp2.__path__
         self.assertNotEqual(sp1.__path__, sp2.__path__)
 
         # dotted name -- package
-        dp1 = imp.import_from_path(jn(d1, 'pak', 'sub'), 'pak.sub')
-        dp2 = imp.import_from_path(jn(d2, 'pak', 'sub'), 'pak.sub')
+        dp1 = imp.importFromPath(jn(d1, 'pak', 'sub'), 'pak.sub')
+        dp2 = imp.importFromPath(jn(d2, 'pak', 'sub'), 'pak.sub')
         self.assertNotEqual(dp1, dp2)
         assert dp1.__path__
         assert dp2.__path__
@@ -79,7 +79,7 @@ class TestImporter(unittest.TestCase):
         imp = self.imp
         path = os.path.join(self.dir,
                             'package2', 'test_pak', 'test_sub', 'test_mod.py')
-        mod = imp.import_from_path(path, 'test_pak.test_sub.test_mod')
+        mod = imp.importFromPath(path, 'test_pak.test_sub.test_mod')
         print mod, dir(mod)
         assert 'test_pak' in sys.modules, 'test_pak was not imported?'
         test_pak = sys.modules['test_pak']
@@ -88,21 +88,21 @@ class TestImporter(unittest.TestCase):
     def test_cached_no_reload(self):
         imp = self.imp
         d1 = os.path.join(self.dir, 'dir1')
-        m1 = imp.import_from_dir(d1, 'mod')
-        m2 = imp.import_from_dir(d1, 'mod')        
+        m1 = imp.importFromDir(d1, 'mod')
+        m2 = imp.importFromDir(d1, 'mod')        
         assert m1 is m2, "%s is not %s" % (m1, m2)
 
     def test_cached_no_reload_dotted(self):
         imp = self.imp
         d1 = os.path.join(self.dir, 'dir1')
-        p1 = imp.import_from_dir(d1, 'pak.mod')
-        p2 = imp.import_from_dir(d1, 'pak.mod')
+        p1 = imp.importFromDir(d1, 'pak.mod')
+        p2 = imp.importFromDir(d1, 'pak.mod')
         assert p1 is p2, "%s is not %s" % (p1, p2)
 
     def test_import_sets_sys_modules(self):
         imp = self.imp
         d1 = os.path.join(self.dir, 'dir1')
-        p1 = imp.import_from_dir(d1, 'pak.mod')
+        p1 = imp.importFromDir(d1, 'pak.mod')
         assert sys.modules['pak.mod'] is p1, "pak.mod not in sys.modules"
         assert sys.modules['pak'], "pak not in sys.modules"
         assert sys.modules['pak'].mod is p1, \
@@ -111,7 +111,7 @@ class TestImporter(unittest.TestCase):
     def test_failed_import_raises_import_error(self):
         imp = self.imp
         def bad_import():
-            imp.import_from_path(self.dir, 'no.such.module')
+            imp.importFromPath(self.dir, 'no.such.module')
         self.assertRaises(ImportError, bad_import)
 
     def test_sys_modules_same_path_no_reload(self):
@@ -121,11 +121,11 @@ class TestImporter(unittest.TestCase):
         d2 = os.path.join(self.dir, 'dir2')
         sys.path.insert(0, d1)
         mod_sys_imported = __import__('mod')
-        mod_nose_imported = imp.import_from_dir(d1, 'mod')
+        mod_nose_imported = imp.importFromDir(d1, 'mod')
         assert mod_nose_imported is mod_sys_imported, \
                "nose reimported a module in sys.modules from the same path"
 
-        mod_nose_imported2 = imp.import_from_dir(d2, 'mod')
+        mod_nose_imported2 = imp.importFromDir(d2, 'mod')
         assert mod_nose_imported2 != mod_sys_imported, \
                "nose failed to reimport same name, different dir"
         

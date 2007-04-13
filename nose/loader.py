@@ -241,7 +241,12 @@ class TestLoader(unittest.TestLoader):
                     if addr.filename is None:
                         module = resolve_name(addr.module)
                     else:
-                        module = self.importer.import_from_path(
+                        # FIXME: to support module.name names,
+                        # do what resolve-name does and keep trying to
+                        # import, popping tail of module into addr.call,
+                        # until we either get an import or run out of
+                        # module parts
+                        module = self.importer.importFromPath(
                             addr.filename, addr.module)
                     # FIXME plugins.afterImport(filename, module)
                 except KeyboardInterrupt, SystemExit:

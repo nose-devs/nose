@@ -20,7 +20,7 @@ class Importer(object):
             config = Config()
         self.config = config
 
-    def import_from_path(self, path, fqname):
+    def importFromPath(self, path, fqname):
         """Import a dotted-name package whose tail is at path. In other words,
         given foo.bar and path/to/foo/bar.py, import foo from path/to/foo then
         bar from path/to/foo/bar, returning bar.
@@ -33,9 +33,9 @@ class Importer(object):
         path_parts = path_parts[:-(len(name_parts))]
         dir_path = os.sep.join(path_parts)
         # then import fqname starting from that dir
-        return self.import_from_dir(dir_path, fqname)                
+        return self.importFromDir(dir_path, fqname)                
 
-    def import_from_dir(self, dir, fqname):
+    def importFromDir(self, dir, fqname):
         """Import a module *only* from path, ignoring sys.path and
         reloading if the version in sys.modules is not the one we want.
         """
@@ -72,7 +72,7 @@ class Importer(object):
                     # we get a fresh copy of anything we are trying to load
                     # from a new path
                     log.debug("sys.modules has %s as %s", part_fqname, old)
-                    if self.same_module(old, filename):
+                    if self.sameModule(old, filename):
                        mod = old
                     else:
                         del sys.modules[part_fqname]
@@ -90,7 +90,7 @@ class Importer(object):
             parent = mod
         return mod
 
-    def same_module(self, mod, filename):
+    def sameModule(self, mod, filename):
         if hasattr(mod, '__path__'):
             mod_path = os.path.dirname(
                 os.path.normpath(
