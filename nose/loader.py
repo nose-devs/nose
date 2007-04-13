@@ -5,7 +5,6 @@ import unittest
 from inspect import isclass, isfunction, ismethod
 from nose.case import Failure, FunctionTestCase, MethodTestCase
 from nose.config import Config
-from nose.context import FixtureContext
 from nose.importer import Importer, add_path, remove_path
 from nose.selector import defaultSelector, TestAddress
 from nose.util import cmp_lineno, getpackage, isgenerator, ispackage, \
@@ -36,6 +35,27 @@ class TestLoader(unittest.TestLoader):
         self.suiteClass = ContextSuiteFactory(config=config)
         unittest.TestLoader.__init__(self)        
 
+    def getTestCaseNames(self, testCaseClass):
+        """Override to select with selector, unless
+        config.getTestCaseNames.Compat is True
+        """
+        if self.config.getTestCaseNamesCompat:
+            return unittest.TestLoader.getTestCaseNames(self, testCaseClass)
+        
+        def wanted(attr, cls=testCaseClass, sel=self.selector):
+            item = getattr(cls, attr, None)
+            if not ismethod(item):
+                return False
+            return sel.wantMethod(item)
+        cases = filter(wanted, dir(testCaseClass))
+        for base in testCaseClass.__bases__:
+            for case in self.getTestCaseNames(base):
+                if case not in cases:
+                    cases.append(case)
+        if self.sortTestMethodsUsing:
+            cases.sort(self.sortTestMethodsUsing)
+        return cases
+
     def loadTestsFromTestClass(self, cls):
         """Load tests from a test class that is *not* a unittest.TestCase
         subclass.
@@ -44,14 +64,21 @@ class TestLoader(unittest.TestLoader):
         name arguments, so we have to compose a MethodTestCase for each
         method in the class that looks testlike.        
         """
-        tests = []
-        for entry in dir(cls):
-            item = getattr(cls, entry, None)
-            if ismethod(item):
-                if not self.selector.wantMethod(item):
-                    continue
-                tests.append(self.makeTest(item, cls))
-        return self.suiteClass(tests, parent=cls)
+        def wanted(attr, cls=cls, sel=self.selector):
+            item = getattr(cls, attr, None)
+            if not ismethod(item):
+                return False
+            return sel.wantMethod(item)
+        cases = [self.makeTest(getattr(cls, case), cls)
+                 for case in filter(wanted, dir(cls))]
+#         tests = []
+#         for entry in dir(cls):
+#             item = getattr(cls, entry, None)
+#             if ismethod(item):
+#                 if not self.selector.wantMethod(item):
+#                     continue
+#                 tests.append(self.makeTest(item, cls))
+        return self.suiteClass(cases, parent=cls)
 
     def loadTestsFromDir(self, path):
         log.debug("load from dir %s", path)

@@ -48,6 +48,7 @@ class Config(object):
         self.debugLog = env.get('NOSE_DEBUG_LOG')
         self.exclude = None
         self.exit = True
+        self.getTestCaseNamesCompat = False
         self.includeExe = env.get('NOSE_INCLUDE_EXE',
                                   sys.platform == 'win32')
         self.ignoreFiles = (re.compile(r'^\.'),

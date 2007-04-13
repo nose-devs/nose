@@ -4,13 +4,17 @@ def test_one():
     pass
 test_one.a = 1
 
+
 def test_two():
     pass
 test_two.a = 1
+test_two.c = 20
+
 
 def test_three():
     pass
 test_three.b = 1
+
 
 class TestClass:
     a = 1
@@ -32,6 +36,7 @@ class Something(unittest.TestCase):
     
     def test_case_two(self):
         pass
+    test_case_two.c = 50
     
     def test_case_three(self):
         pass

@@ -2,7 +2,6 @@ import sys
 import unittest
 from inspect import ismethod
 from nose.config import Config
-from nose.context import FixtureContext
 from nose.proxy import ResultProxyFactory, ResultProxy
 from mock import RecordingPluginManager
 
