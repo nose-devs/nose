@@ -18,6 +18,8 @@ New methods available:
 
 * beforeTest
 
+* describeTest
+
 * formatError
 
 * formatFailure
@@ -31,3 +33,5 @@ New methods available:
 * prepareTestResult
 
 * prepareTestRunner
+
+* testName

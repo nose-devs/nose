@@ -28,6 +28,7 @@ Failure test logs can be more informative
 before/after Directory
 before/after Import
 before/after Context [in suite, call with parent]
+describeTest
 makeTest
 
 when result prints final result, patch in error classes, eg,

@@ -54,6 +54,7 @@ class Test(unittest.TestCase):
         self.assertDetails = None
         self.capturedOutput = None
         self.resultProxy = resultProxy
+        self.plugins = config.plugins
         unittest.TestCase.__init__(self)
         
     def __call__(self, *arg, **kwarg):
@@ -61,7 +62,9 @@ class Test(unittest.TestCase):
         return self.run(*arg, **kwarg)
 
     def __str__(self):
-        # FIXME plugins.testName(self)
+        name = self.plugins.testName(self)
+        if name is not None:
+            return name
         return str(self.test)
 
     def __repr__(self):
@@ -136,7 +139,9 @@ class Test(unittest.TestCase):
         self.test(result)
         
     def shortDescription(self):
-        # FIXME plugins.describeTest(self)
+        desc = self.plugins.describeTest(self)
+        if desc is not None:
+            return desc
         return self.test.shortDescription()
         
 

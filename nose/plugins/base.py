@@ -174,35 +174,18 @@ class IPluginInterface(object):
 
         Do *not* return a value from this method unless you want to stop
         all other plugins from setting their options.
+
+        DEPRECATED
         """
         pass
     add_options = addOptions
-
-    def afterTest(self, test):
-        """Called after the test has been run and the result recorded
-        (after stopTest).
-
-        Parameters:
-         * test:
-           test test case
-        """
-        pass
-    afterTest._new = True
-
-    def beforeTest(self, test):
-        """Called before the test is run (before startTest).
-        
-        Parameters:
-         * test:
-           test test case
-        """        
-        pass
-    beforeTest._new = True
 
     def addDeprecated(self, test, err):
         """Called when a deprecated test is seen. DO NOT return a value
         unless you want to stop other plugins from seeing the deprecated
         test.
+
+        DEPRECATED
 
         Parameters:
          * test:
@@ -245,6 +228,8 @@ class IPluginInterface(object):
         """Called when a test is skipped. DO NOT return a value unless
         you want to stop other plugins from seeing the skipped test.
 
+        DEPRECATED
+
         Parameters:
          * test:
            the test case
@@ -262,6 +247,27 @@ class IPluginInterface(object):
            Captured output, if any.
         """
         pass        
+
+    def afterTest(self, test):
+        """Called after the test has been run and the result recorded
+        (after stopTest).
+
+        Parameters:
+         * test:
+           test test case
+        """
+        pass
+    afterTest._new = True
+
+    def beforeTest(self, test):
+        """Called before the test is run (before startTest).
+        
+        Parameters:
+         * test:
+           test test case
+        """        
+        pass
+    beforeTest._new = True
             
     def begin(self):
         """Called before any tests are collected or run. Use this to
@@ -287,6 +293,16 @@ class IPluginInterface(object):
         printing, any other value to stop them.
         """
         pass
+
+    def describeTest(self, test):
+        """Return a test description. Called by test.shortDescription.
+
+        Parameters:
+         * test:
+           the test case
+        """
+        pass
+    describeTest._new = True
 
     def formatError(self, test, err):
         """Called in result.addError, before plugin.addError. If you
@@ -399,6 +415,8 @@ class IPluginInterface(object):
         not able to load any tests, or an iterable if you are. May be a
         generator.
 
+        DEPRECATE?
+
         Parameters:
          * cls:
            The test case class
@@ -510,6 +528,16 @@ class IPluginInterface(object):
            the test case
         """
         pass
+
+    def testName(self, test):
+        """Return a short test name. Called by test.__str__.
+
+        Parameters:
+         * test:
+           the test case
+        """
+        pass
+    testName._new = True
 
     def wantClass(self, cls):
         """Return true if you want the main test selector to collect
