@@ -138,22 +138,6 @@ class ResultProxy(object):
         self.plugins.addSuccess(self.test)
         self.result.addSuccess(test)
 
-    def formatErr(self, err, inspect_tb=False):
-        capt = self.config.capture
-        if not capt and not inspect_tb:
-            return err
-        ec, ev, tb = err
-        if capt:
-            self.test.captured_output = output = self.endCapture()
-            self.startCapture()
-            if output:
-                ev = '\n'.join([str(ev) , ln('>> begin captured stdout <<'),
-                                output, ln('>> end captured stdout <<')])
-        if inspect_tb:
-            tbinfo = inspect_traceback(tb)
-            ev = '\n'.join([str(ev), tbinfo])
-        return (ec, ev, tb)
-
     def startTest(self, test):
         self.assertMyTest(test)
         self.plugins.startTest(self.test)

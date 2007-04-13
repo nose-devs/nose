@@ -73,6 +73,7 @@ class TestAttributeValue(PluginTester, unittest.TestCase):
         assert 'test_case_one' in self.output
         assert 'test_case_three' in self.output
 
+
 class TestAttributeArray(PluginTester, unittest.TestCase):
     activate = "-a d=2"
     args = ['-v']
@@ -115,6 +116,7 @@ class TestAttributeArrayAnd(PluginTester, unittest.TestCase):
         assert 'test_case_two' not in self.output
         assert 'test_case_one' not in self.output
         assert 'test_case_three' not in self.output
+
 
 class TestAttributeArrayOr(PluginTester, unittest.TestCase):
     activate = "-v"

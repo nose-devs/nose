@@ -5,15 +5,16 @@ logging
 plugintester
  set up logging to log to debug stream
 
-implement assert inspection as plugin
-deprecated needs to be added to builtin plug list
-
 fix builtin plugins:
- attrib
  coverage
  doctest
  prof
  isolation * post merge
+   not sure how this one can be made to work at the module level, since
+   import and testrunning take place separately now -- mods a, b, c are all 
+   imported before tests are run in a. probably best to have it work at the
+   directory and context levels -- that will get pretty close to what it
+   does in 0.9
 
 new plugin:
  testid
@@ -28,8 +29,8 @@ Failure test logs can be more informative
 before/after Directory
 before/after Import
 before/after Context [in suite, call with parent]
-describeTest
 makeTest
+prepareTestCase
 
 when result prints final result, patch in error classes, eg,
 

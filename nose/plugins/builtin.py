@@ -9,6 +9,7 @@ from nose.plugins.debug import Pdb
 from nose.plugins.deprecated import Deprecated
 from nose.plugins.doctests import Doctest
 ## from nose.plugins.isolation import 
+from nose.plugins.failuredetail import FailureDetail
 from nose.plugins.prof import Profile
 from nose.plugins.skip import Skip
 
@@ -18,6 +19,7 @@ plugins = [
     Coverage,
     Deprecated,
     Doctest,
+    FailureDetail,
     Pdb,
     Profile,
     Skip]

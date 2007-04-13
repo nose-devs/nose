@@ -43,7 +43,6 @@ class Config(object):
         self.testMatch = re.compile(r'(?:^|[\b_\.%s-])[Tt]est' % os.sep)
         self.addPaths = not env.get('NOSE_NOPATH', False)
         self.configSection = 'nosetests'
-        self.detailedErrors = env.get('NOSE_DETAILED_ERRORS', False)
         self.debug = env.get('NOSE_DEBUG')
         self.debugLog = env.get('NOSE_DEBUG_LOG')
         self.exclude = None
@@ -130,7 +129,6 @@ class Config(object):
 
         self.configureLogging(options)
         self.addPaths = options.addPaths
-        self.detailedErrors = options.detailedErrors
         self.stopOnError = options.stopOnError
         self.verbosity = options.verbosity
         self.includeExe = options.includeExe
@@ -212,12 +210,6 @@ class Config(object):
             "-i", "--include", action="append", dest="include",
             help="Also run tests that match regular "
             "expression [NOSE_INCLUDE]")
-        parser.add_option(
-            "-d", "--detailed-errors", action="store_true",
-            default=self.detailedErrors,
-            dest="detailedErrors", help="Add detail to error"
-            " output by attempting to evaluate failed"
-            " asserts [NOSE_DETAILED_ERRORS]")
         parser.add_option(
             "-x", "--stop", action="store_true", dest="stopOnError",
             default=self.stopOnError,
