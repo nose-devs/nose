@@ -30,7 +30,7 @@ import os
 import re
 import sys
 import textwrap
-
+from inspect import isfunction
 from nose.plugins.base import Plugin
 from nose.util import tolist
 
@@ -97,7 +97,7 @@ class AttributeSelector(Plugin):
             for attr in std_attr:
                 # all attributes within an attribute group must match
                 attr_group = []
-                for attrib in attr.split(","):
+                for attrib in attr.strip().split(","):
                     # don't die on trailing comma
                     if not attrib:
                         continue
@@ -124,7 +124,6 @@ class AttributeSelector(Plugin):
             
     def validateAttrib(self, attribs):
         # TODO: is there a need for case-sensitive value comparison?
-
         # within each group, all must match for the group to match
         # if any group matches, then the attribute set as a whole
         # has matched
@@ -162,6 +161,20 @@ class AttributeSelector(Plugin):
         if any:
             # not True because we don't want to FORCE the selection of the
             # item, only say that it is acceptable
+            return None
+        return False
+
+    def wantClass(self, cls):
+        """Accept the class if the class or any method is wanted.
+        """
+        cls_attr = cls.__dict__
+        if self.validateAttrib(cls_attr) is not False:
+            return None
+        # Methods in __dict__.values() are functions, oddly enough.
+        methods = filter(isfunction, cls_attr.values())
+        wanted = filter(lambda m: m is not False,
+                        map(self.wantFunction, methods))
+        if wanted:
             return None
         return False
         

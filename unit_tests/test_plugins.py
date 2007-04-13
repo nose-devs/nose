@@ -246,7 +246,7 @@ class TestAttribPlugin(unittest.TestCase):
             pass
     
         plug = AttributeSelector()
-        plug.attribs = [[('a', 1)]]
+        plug.attribs = [[('a', True)]]
         assert plug.wantFunction(f) is not False
         assert not plug.wantFunction(g)
 

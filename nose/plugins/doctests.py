@@ -94,6 +94,8 @@ class Doctest(Plugin):
     def matches(self, name):
         """Doctest wants only non-test modules in general.
         """
+        # FIXME this seems wrong -- nothing is ever going to
+        # fail this test, since we're given a module NAME not FILE
         if name == '__init__.py':
             return False
         # FIXME don't think we need include/exclude checks here?
@@ -107,7 +109,7 @@ class Doctest(Plugin):
                                    [exc.search(name)
                                     for exc in self.conf.exclude])))
     
-    def wantFile(self, file, package=None):
+    def wantFile(self, file):
         # always want .py files
         if file.endswith('.py'):
             return True
