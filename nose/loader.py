@@ -316,6 +316,16 @@ class TestLoader(unittest.TestLoader):
                 return suite([
                     Failure(ValueError, "Unresolvable test name %s" % name)])
 
+#     def loadTestsFromNames(self, names, module=None):
+#         """Load tests from the given names.         
+#         """
+#         def load(self=self, names=names, module=module):
+#             for name in names:
+#                 # FIXME hook before
+#                 yield self.loadTestsFromName(name, module)
+#                 # FIXME hook after
+#         return LazySuite(load)
+
     def makeTest(self, obj, parent=None):
         """Given a test object and its parent, return a unittest.TestCase
         instance that can be run as a test.

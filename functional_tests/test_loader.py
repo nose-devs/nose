@@ -176,6 +176,39 @@ class TestNoseTestLoader(unittest.TestCase):
                   'test_pak.teardown']
         self.assertEqual(m.state, expect, diff(expect, m.state))
 
+    def test_fixture_context_multiple_names(self):
+        res = unittest.TestResult()
+        wd = os.path.join(support, 'package2')
+        l = loader.TestLoader(workingDir=wd)
+        suite = l.loadTestsFromNames(
+            ['test_pak.test_sub.test_mod:TestMaths.test_div',
+             'test_pak.test_sub.test_mod:TestMaths.test_two_two',
+             'test_pak.test_mod:test_add'])
+        print suite
+        suite(res)
+        assert not res.errors, res.errors
+        assert not res.failures, res.failures
+        assert 'test_pak' in sys.modules, \
+               "Context not load test_pak"
+        m = sys.modules['test_pak']
+        print "test pak state", m.state
+        expect = ['test_pak.setup',
+                  'test_pak.test_sub.setup',
+                  'test_pak.test_sub.test_mod.setup',
+                  'test_pak.test_sub.test_mod.TestMaths.setup_class',
+                  'test_pak.test_sub.test_mod.TestMaths.setup',
+                  'test_pak.test_sub.test_mod.TestMaths.test_div',
+                  'test_pak.test_sub.test_mod.TestMaths.test_two_two',
+                  'test_pak.test_sub.test_mod.TestMaths.teardown',
+                  'test_pak.test_sub.test_mod.TestMaths.teardown_class',
+                  'test_pak.test_sub.test_mod.teardown',
+                  'test_pak.test_sub.teardown',
+                  'test_pak.test_mod.setup',
+                  'test_pak.test_mod.test_add',
+                  'test_pak.test_mod.teardown',
+                  'test_pak.teardown']
+        self.assertEqual(m.state, expect, diff(expect, m.state))
+
     def test_mod_setup_fails_no_tests_run(self):
         ctx = os.path.join(support, 'ctx')
         l = loader.TestLoader(workingDir=ctx)
@@ -293,6 +326,6 @@ class TreePrintContextSuite(suite.ContextSuite):
 
         
 if __name__ == '__main__':
-    #import logging
-    #logging.basicConfig(level=logging.DEBUG)
+    import logging
+    logging.basicConfig() #level=logging.DEBUG)
     unittest.main()

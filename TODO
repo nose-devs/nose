@@ -16,6 +16,47 @@ fix builtin plugins:
    directory and context levels -- that will get pretty close to what it
    does in 0.9
 
+   it can be made to work only in surrounding contexts that are generators:
+      hook before
+      load and yield suite
+      hook after
+   
+   needed in 2 places -- loadTestsFromDir, loadTestsFromNames. 
+   So loadTestsFromNames will have to become lazy -- what impact will that
+     have on unittest compatibility, etc? can it just return a lazysuite?
+
+     the problem with loadTestsFromNames is that context teardown requires
+     that for a given context, all tests within the context are known before
+     teardown of the first suite within the context. Say you have a package of 
+     tests, a, with subpackages a.b and a.c. User wants to run tests a.b.test 
+     and a.c.test:
+
+     nosetests a.b.test a.c.test
+
+     'a' and 'b' setup and 'b' teardown run naturally with the 1st test
+     'c' setup and teardown run natually with the 2nd test. But when, or
+     how, does 'a' teardown run? If all tests are known, then a.c.test can
+     run a teardown, because it knows that no more tests in 'a' are going
+     to run. But if the 2 tests are loaded lazily -- as is REQUIRED for 
+     the isolation plugin -- then 1st test will mistakenly run 'a' teardown, 
+     since it doesn't know as it is torn down that another test in the
+     same context is about to load.
+
+     can't fix this by a call at the end of the loading process, since then
+     context teardowns may interleave -- 'a' and 'b' may be present at once
+
+     can't fix it by forcing full context load & unload around each test because
+     that will blow up normal runs.
+
+     
+BUGS -- context setup/teardown
+
+Need to develop better tests to handle the disjunct names cases, and
+from those figure out how the context fixtures can work. The only
+solution may be to have things in the names case do a complete context
+setup and teardown around each test.
+
+
 new plugin:
  testid
 

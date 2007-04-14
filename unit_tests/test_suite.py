@@ -170,7 +170,7 @@ class TestContextSuite(unittest.TestCase):
         suite.setUp()
         assert top in csf.was_setup, "Ancestor not set up"
         assert top.bot in csf.was_setup, "Parent not set up"
-        
+        suite.has_run = True
         suite.tearDown()
         assert top in csf.was_torndown, "Ancestor not torn down"
         assert top.bot in csf.was_torndown, "Parent not torn down"

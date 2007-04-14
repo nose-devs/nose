@@ -8,6 +8,7 @@ from nose.proxy import ResultProxyFactory
 from nose.util import resolve_name, try_run
 
 log = logging.getLogger(__name__)
+log.setLevel(logging.DEBUG)
 
 # Singleton for default value -- see ContextSuite.__init__ below
 _def = object()
@@ -28,10 +29,11 @@ class LazySuite(unittest.TestSuite):
     __str__ = __repr__
 
     def addTest(self, test):
-        log.debug("Adding precached test %s", test)
+        log.debug("Adding precached test %s (%s)", test, id(self))
         self._precache.append(test)
 
     def __nonzero__(self):
+        log.debug("tests in %s?", id(self))
         if self._precache:
             return True
         if self.test_generator is None:
@@ -82,7 +84,7 @@ class ContextSuite(LazySuite):
     
     def __init__(self, tests=(), parent=None, factory=None,
                  config=None, resultProxy=_def):
-        log.debug("Context suite for %s (%s)", tests, parent)        
+        log.debug("Context suite for %s (%s) (%s)", tests, parent, id(self))
         self.parent = parent
         self.factory = factory
         if config is None:
@@ -124,9 +126,10 @@ class ContextSuite(LazySuite):
             return
         try:
             for test in self._tests:
-                log.debug("running test %s", test)
                 if result.shouldStop:
+                    log.debug("stopping")
                     break
+                log.debug("running test %s (%s)", test, id(self))
                 # each nose.case.Test will create its own result proxy
                 # so the cases need the original result, to avoid proxy
                 # chains
@@ -141,12 +144,13 @@ class ContextSuite(LazySuite):
                 result.addError(self, self.exc_info())
 
     def setUp(self):
-        log.debug("suite setUp called, tests: %s", self._tests)
+        log.debug("suite %s setUp called, tests: %s", id(self), self._tests)
         if not self:
             # I have no tests
+            log.debug("suite %s has no tests", id(self))
             return
         if self.was_setup:
-            log.debug("Already set up")
+            log.debug("suite %s already set up", id(self))
             return
         parent = self.parent
         if parent is None:
@@ -169,6 +173,7 @@ class ContextSuite(LazySuite):
         else:
             self.setupParent(parent)
         self.was_setup = True
+        log.debug("completed suite setup")
 
     def setupParent(self, parent):
         # FIXME plugins.contextSetup(parent)
@@ -202,7 +207,8 @@ class ContextSuite(LazySuite):
         # ancestor exist that have not been run, I can do teardown
         factory = self.factory
         if factory:
-            for ancestor in factory.context.get(self, []):
+            ancestors = factory.context.get(self, []) + [parent]
+            for ancestor in ancestors:
                 log.debug('ancestor %s may need teardown', ancestor)
                 if not ancestor in factory.was_setup:
                     log.debug('ancestor %s was not setup', ancestor)
@@ -212,25 +218,21 @@ class ContextSuite(LazySuite):
                     continue
                 setup = factory.was_setup[ancestor]
                 log.debug("%s setup ancestor %s", setup, ancestor)
-                if setup is self:
-                    log.debug("it was me")
+                # I can run teardown if all other suites
+                # in this context have run, and it's not yet
+                # torn down (supports loadTestsFromNames where
+                # N names are from the same/overlapping contexts)
+                suites = factory.suites[ancestor]
+                # assume true for suites missing the has_run attribute;
+                # otherwise if a non-context suite sneaks in somehow,
+                # teardown will never run.
+                have_run = [s for s in suites if getattr(s, 'has_run', True)]
+                if suites == have_run:
                     self.teardownParent(ancestor)
-                else:
-                    log.debug("it wasn't me")
-                    # I can still run teardown if all other suites
-                    # in this context have run, and it's not yet
-                    # torn down (supports loadTestsFromNames where
-                    # N names are from the same/overlapping contexts)
-                    suites = factory.suites[ancestor]
-                    have_run = [ s for s in suites if s.has_run ]
-                    if suites == have_run:
-                        log.debug("but everyone else is done so I'll clean up")
-                        self.teardownParent(ancestor)
-                    log.debug("%s / %s == ? %s",
-                              suites, have_run, suites == have_run)
-            if parent in factory.was_torndown:
-                return
-        self.teardownParent(parent)
+                log.debug("%s / %s == ? %s",
+                          suites, have_run, suites == have_run)
+        else:
+            self.teardownParent(parent)
         
     def teardownParent(self, parent):
         log.debug("%s teardown parent %s", self, parent)
@@ -264,6 +266,8 @@ class ContextSuiteFactory(object):
         if config is None:
             config = Config()
         self.config = config
+        if suiteClass is not None:
+            self.suiteClass = suiteClass
         self.suites = {}
         self.context = {}
         self.was_setup = {}
@@ -277,9 +281,14 @@ class ContextSuiteFactory(object):
             tests, parent=parent, factory=self, config=self.config)
         self.suites.setdefault(parent, []).append(suite)
         self.context.setdefault(suite, []).append(parent)
+        log.debug("suite %s has parent %s", suite,
+                  getattr(parent, '__name__', None))
         for ancestor in self.ancestry(parent):
             self.suites.setdefault(ancestor, []).append(suite)
             self.context[suite].append(ancestor)
+            log.debug("suite %s has ancestor %s", suite, ancestor.__name__)
+        #log.debug("after suite %s: context: %s suites: %s",
+        #          suite, self.context, self.suites)
         return suite
     
     def ancestry(self, parent):
