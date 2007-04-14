@@ -45,8 +45,9 @@ fix builtin plugins:
      can't fix this by a call at the end of the loading process, since then
      context teardowns may interleave -- 'a' and 'b' may be present at once
 
-     can't fix it by forcing full context load & unload around each test because
-     that will blow up normal runs.
+     can only fix it by forcing full context load & unload around each
+     test WHEN USING loadTestFromNames -- this is inefficient, but unavoidable
+     without controlling the *order* of tests passed to loadTestsFromNames.
 
      
 BUGS -- context setup/teardown
@@ -59,6 +60,32 @@ setup and teardown around each test.
 
 new plugin:
  testid
+  -- needs loadTestsFromNames hook! for efficiency, it ought to 
+  (and ought to have enough info about the tests to) reorder them and 
+  organize into context suites such that the least # of context fixtures 
+  are used
+
+  How to order a batch of tests into an efficient set, knowing only the test
+  names -- lazily, so that imports don't happen until they *need* to happen.
+
+  ancestry() in suite factory shouldn't call resolve -- that should be done
+  as late as possible, so it should store the name of the ancestor only,
+  assuming that at the time it is resolved, the module name will be loadable
+  and unique.
+
+  resolve ancestry names in setup phase.
+
+  convert to TestAddresses
+
+  get the module names of each -- 
+    -- what about those that don't resolve to a module (like doctest files)?
+
+  for all that have common prefixes, organize into a suite stack from
+  outer -> inner (test_pak, tesk_pak.test_sub, etc)
+
+  yield the outermost of each suite stack, surrounded with contextStart/End 
+  or whatever calls.
+
 
 rename Failure and split into subclasses for Import and other, and make
 it optionally include the name of the file being considered so that
