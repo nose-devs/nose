@@ -26,11 +26,10 @@ Failure test logs can be more informative
 
 * plugin methods to add
 
-before/after Directory
-before/after Import
 before/after Context [in suite, call with parent]
 makeTest
 prepareTestCase
+loadTestsFromName
 
 when result prints final result, patch in error classes, eg,
 
@@ -41,6 +40,10 @@ OK (skipped=2)
 ** this can only be done in nose test runner
 
 make setup work with & w/out setuptools
+
+fix commands module -- use Config.configure to configure
+
+fix collector func -- configure, return loader.loadTestsFromNames()
 
 
 BUGS

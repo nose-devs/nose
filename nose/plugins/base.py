@@ -248,6 +248,30 @@ class IPluginInterface(object):
         """
         pass        
 
+    def afterDirectory(self, path):
+        """Called after all tests have been loaded from directory at path
+        and run.
+
+        Parameters:
+         * path
+           the directory that has finished processing
+        """
+        pass
+    afterDirectory._new = True
+
+    def afterImport(self, filename, module):
+        """Called after module is imported from filename. afterImport
+        is called even if the import failed.
+
+        Parameters:
+         * filename:
+           The file that was loaded
+         * module:
+           The name of the module
+        """
+        pass
+    afterImport._new = True        
+
     def afterTest(self, test):
         """Called after the test has been run and the result recorded
         (after stopTest).
@@ -259,12 +283,33 @@ class IPluginInterface(object):
         pass
     afterTest._new = True
 
+    def beforeDirectory(self, path):
+        """Called before tests are loaded from directory at path.
+
+        Parameters:
+         * path:
+           the directory that is about to be processed
+        """
+        pass
+    beforeDirectory._new = True
+
+    def beforeImport(self, filename, module):
+        """Called before module is imported from filename.
+
+        Parameters:
+         * filename
+           The file that will be loaded
+         * module
+           The name of the module found in file
+        """
+    beforeImport._new = True
+    
     def beforeTest(self, test):
         """Called before the test is run (before startTest).
         
         Parameters:
          * test:
-           test test case
+           the test case
         """        
         pass
     beforeTest._new = True
@@ -361,11 +406,26 @@ class IPluginInterface(object):
     handleFailure._new = True
 
     # FIXME loadTestsFromClass, loadTestsFromDir
+    def loadTestsFromDir(self, path):
+        """Return iterable of tests from a directory. May be a
+        generator.  Each item returned must be a runnable
+        unittest.TestCase (or subclass) instance or suite instance.
+        Return None if your plugin cannot collect any tests from
+        module.
+
+        Parameters:
+         * path:
+           The path to the directory.
+        """
+        pass
+    loadTestsFromDir.generative = True
+    loadTestsFromDir._new = True
     
     def loadTestsFromModule(self, module):
         """Return iterable of tests in a module. May be a
         generator. Each item returned must be a runnable
-        unittest.TestCase subclass. Return None if your plugin cannot
+        unittest.TestCase (or subclass) instance.
+        Return None if your plugin cannot
         collect any tests from module.
 
         Parameters:

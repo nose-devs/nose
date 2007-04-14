@@ -71,20 +71,16 @@ class TestLoader(unittest.TestLoader):
             return sel.wantMethod(item)
         cases = [self.makeTest(getattr(cls, case), cls)
                  for case in filter(wanted, dir(cls))]
-#         tests = []
-#         for entry in dir(cls):
-#             item = getattr(cls, entry, None)
-#             if ismethod(item):
-#                 if not self.selector.wantMethod(item):
-#                     continue
-#                 tests.append(self.makeTest(item, cls))
         return self.suiteClass(cases, parent=cls)
 
     def loadTestsFromDir(self, path):
+        """Load tests from the directory at path. This is a generator
+        -- each suite of tests from a module or other file is yielded
+        and is expected to be executed before the next file is
+        examined.
+        """
         log.debug("load from dir %s", path)
-
-        # FIXME plugins.beforeDirectory(path)
-
+        self.config.plugins.beforeDirectory(path)
         if self.config.addPaths:
             paths_added = add_path(path)
 
@@ -119,15 +115,19 @@ class TestLoader(unittest.TestLoader):
                 elif is_test:
                     # Another test dir in this one: recurse lazily
                     yield LazySuite(
-                        lambda: self.loadTestsFromDir(entry_path))            
-        
-        # FIXME plugins.loadTestsFromDir(path)
-
+                        lambda: self.loadTestsFromDir(entry_path))
+        # give plugins a chance
+        try:
+            tests = []
+            for test in self.config.plugins.loadTestsFromDir(path):
+                tests.append(test)
+            yield self.suiteClass(tests)
+        except (TypeError, AttributeError):
+            pass
         # pop paths
         if self.config.addPaths:
             map(remove_path, paths_added)
-
-        # FIXME plugins.afterDirectory(path)
+        self.config.plugins.afterDirectory(path)
 
     def loadTestsFromFile(self, filename):
         # only called for non-module
@@ -264,18 +264,22 @@ class TestLoader(unittest.TestLoader):
         else:
             if addr.module:
                 try:
-                    # FIXME plugins.beforeImport(filename, module)
                     if addr.filename is None:
                         module = resolve_name(addr.module)
                     else:
+                        self.config.plugins.beforeImport(
+                            addr.filename, addr.module)
                         # FIXME: to support module.name names,
                         # do what resolve-name does and keep trying to
                         # import, popping tail of module into addr.call,
                         # until we either get an import or run out of
                         # module parts
-                        module = self.importer.importFromPath(
-                            addr.filename, addr.module)
-                    # FIXME plugins.afterImport(filename, module)
+                        try:
+                            module = self.importer.importFromPath(
+                                addr.filename, addr.module)
+                        finally:
+                            self.config.plugins.afterImport(
+                                addr.filename, addr.module)
                 except KeyboardInterrupt, SystemExit:
                     raise
                 except:
