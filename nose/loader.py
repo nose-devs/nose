@@ -207,9 +207,9 @@ class TestLoader(unittest.TestLoader):
         tests = []
         test_classes = []
         test_funcs = []
-        # For *discovered* modules, we only load tests when they look
+        # For *discovered* modules, we only load tests when the module looks
         # testlike. For modules we've been directed to load, we always
-        # look for tests. discovered is set to True by loadTestsFromDir
+        # look for tests. (discovered is set to True by loadTestsFromDir)
         if not discovered or self.selector.wantModule(module):
             for item in dir(module):
                 test = getattr(module, item, None)

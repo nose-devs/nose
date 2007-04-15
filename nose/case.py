@@ -7,7 +7,7 @@ import sys
 import unittest
 from traceback import format_tb
 from nose.config import Config
-from nose.util import test_address, try_run
+from nose.util import resolve_name, test_address, try_run
 
 log = logging.getLogger(__name__)
 
@@ -106,6 +106,21 @@ class Test(unittest.TestCase):
         except AttributeError:
             # not a nose case
             return test_address(self.test)
+
+    def parent(self):
+        try:
+            return self.test.parent()
+        except AttributeError:
+            pass
+        try:
+            return self.test.__class__
+        except AttributeError:
+            pass
+        try:
+            return resolve_name(self.test.__module__)
+        except AttributeError:
+            pass
+        return None                
     
     def run(self, result):
         """Modified run for the test wrapper.
@@ -206,6 +221,9 @@ class FunctionTestCase(TestBase):
         plugin configuration) result in the loading of this test.
         """
         return test_address(self.test)    
+
+    def parent(self):
+        return resolve_name(self.test.__module__)
         
     def setUp(self):
         """Run any setup function attached to the test function
@@ -315,6 +333,9 @@ class MethodTestCase(TestBase):
         plugin configuration) result in the loading of this test.
         """
         return test_address(self.method)
+
+    def parent(self):
+        return self.cls
 
     def setUp(self):
         log.debug("MethodTestCase.setUp(%s)", self)

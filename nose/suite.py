@@ -203,8 +203,7 @@ class ContextSuite(LazySuite):
             return
 
         # for each ancestor... if the ancestor was setup
-        # if I did the setup OR no other suites under that
-        # ancestor exist that have not been run, I can do teardown
+        # and I did the setup, I can do teardown
         factory = self.factory
         if factory:
             ancestors = factory.context.get(self, []) + [parent]
@@ -218,19 +217,21 @@ class ContextSuite(LazySuite):
                     continue
                 setup = factory.was_setup[ancestor]
                 log.debug("%s setup ancestor %s", setup, ancestor)
+                if setup is self:
+                    self.teardownParent(ancestor)
                 # I can run teardown if all other suites
                 # in this context have run, and it's not yet
                 # torn down (supports loadTestsFromNames where
                 # N names are from the same/overlapping contexts)
-                suites = factory.suites[ancestor]
+                #suites = factory.suites[ancestor]
                 # assume true for suites missing the has_run attribute;
                 # otherwise if a non-context suite sneaks in somehow,
                 # teardown will never run.
-                have_run = [s for s in suites if getattr(s, 'has_run', True)]
-                if suites == have_run:
-                    self.teardownParent(ancestor)
-                log.debug("%s / %s == ? %s",
-                          suites, have_run, suites == have_run)
+                #have_run = [s for s in suites if getattr(s, 'has_run', True)]
+                #if suites == have_run:
+                #    self.teardownParent(ancestor)
+                #log.debug("%s / %s == ? %s",
+                #          suites, have_run, suites == have_run)
         else:
             self.teardownParent(parent)
         
@@ -274,8 +275,7 @@ class ContextSuiteFactory(object):
         self.was_torndown = {}
 
     def __call__(self, tests, parent=None):
-        """Return (possibly creating a new) ContextSuite for parent,
-        including tests.
+        """Return ContextSuite for tests with parent.
         """
         suite = self.suiteClass(
             tests, parent=parent, factory=self, config=self.config)
@@ -294,7 +294,8 @@ class ContextSuiteFactory(object):
     def ancestry(self, parent):
         """Return the ancestry of the parent (that is, all of the
         packages and modules containing the parent), in order of
-        descent with the outermost ancestor last. This method is a generator
+        descent with the outermost ancestor last.
+        This method is a generator.
         """
         log.debug("get ancestry %s", parent)
         if parent is None:

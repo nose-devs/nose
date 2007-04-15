@@ -136,7 +136,6 @@ class TestNoseTestWrapper(unittest.TestCase):
         self.assertEqual(calls, ['beforeTest', 'startTest', 'addError',
                                  'stopTest', 'afterTest'])
 
-
     def test_address(self):
         from nose.util import absfile
         class TC(unittest.TestCase):
@@ -171,6 +170,26 @@ class TestNoseTestWrapper(unittest.TestCase):
                                      'try_something', arg=(1,2,)))
         self.assertEqual(case.address(),
                          (fl, __name__, 'Test.test_gen'))
+
+    def test_parent(self):
+        class TC(unittest.TestCase):
+            def runTest(self):
+                pass
+        def test():
+            pass
+
+        class Test:
+            def test(self):
+                pass
+
+        case = nose.case.Test(TC())
+        self.assertEqual(case.parent(), TC)
+
+        case = nose.case.Test(nose.case.FunctionTestCase(test))
+        self.assertEqual(case.parent(), sys.modules[__name__])
+
+        case = nose.case.Test(nose.case.MethodTestCase(Test.test))
+        self.assertEqual(case.parent(), Test)
         
 if __name__ == '__main__':
     unittest.main()
