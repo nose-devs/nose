@@ -246,7 +246,8 @@ class ContextSuite(LazySuite):
         # FIXME packages, camelCase
         try_run(parent, names)
         # FIXME plugins.contextTeardown(parent)
-        
+
+    # FIXME the wrapping has to move to the factory
     def _get_wrapped_tests(self):
         for test in self._get_tests():
             if isinstance(test, Test) or isinstance(test, unittest.TestSuite):
@@ -275,7 +276,13 @@ class ContextSuiteFactory(object):
         self.was_torndown = {}
 
     def __call__(self, tests, parent=None):
-        """Return ContextSuite for tests with parent.
+        """Return ContextSuite for tests with parent. tests may either
+        be a callable (in which case the resulting ContextSuite will
+        have no parent context and be evaluated lazily) or an
+        iterabl. In that case the tests will wrapped in
+        nose.case.Test, be examined and the parent of each found and a
+        suite of suites returned, organized into a stack with the
+        outermost suites belonging to the outermost parents.
         """
         suite = self.suiteClass(
             tests, parent=parent, factory=self, config=self.config)

@@ -9,7 +9,7 @@ from nose.importer import Importer, add_path, remove_path
 from nose.selector import defaultSelector, TestAddress
 from nose.util import cmp_lineno, getpackage, isgenerator, ispackage, \
     resolve_name
-from suite import LazySuite, ContextSuiteFactory
+from suite import ContextSuiteFactory
 
 log = logging.getLogger(__name__)
 
@@ -114,7 +114,7 @@ class TestLoader(unittest.TestLoader):
                         entry_path, discovered=True)
                 elif is_test:
                     # Another test dir in this one: recurse lazily
-                    yield LazySuite(
+                    yield self.suiteClass(
                         lambda: self.loadTestsFromDir(entry_path))
         # give plugins a chance
         try:
@@ -203,6 +203,11 @@ class TestLoader(unittest.TestLoader):
         return self.suiteClass(generate)
 
     def loadTestsFromModule(self, module, discovered=False):
+        """Load all tests from module and return a suite containing
+        them. If the module has been discovered and is not test-like,
+        the suite will be empty by default, though plugins may add
+        their own tests.
+        """
         log.debug("Load from module %s", module)
         tests = []
         test_classes = []
@@ -303,7 +308,7 @@ class TestLoader(unittest.TestLoader):
                         # also know that we're not going to be asked
                         # to load from . and ./some_module.py *as part
                         # of this named test load*
-                        return LazySuite(
+                        return self.suiteClass(
                             lambda: self.loadTestsFromDir(path))
                     elif os.path.isfile(path):
                         return self.loadTestsFromFile(path)
