@@ -183,13 +183,13 @@ class TestNoseTestWrapper(unittest.TestCase):
                 pass
 
         case = nose.case.Test(TC())
-        self.assertEqual(case.parent(), TC)
+        self.assertEqual(case.parent, TC)
 
         case = nose.case.Test(nose.case.FunctionTestCase(test))
-        self.assertEqual(case.parent(), sys.modules[__name__])
+        self.assertEqual(case.parent, sys.modules[__name__])
 
         case = nose.case.Test(nose.case.MethodTestCase(Test.test))
-        self.assertEqual(case.parent(), Test)
+        self.assertEqual(case.parent, Test)
         
 if __name__ == '__main__':
     unittest.main()

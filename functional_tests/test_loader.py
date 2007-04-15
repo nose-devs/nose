@@ -14,7 +14,7 @@ class TestNoseTestLoader(unittest.TestCase):
 
     def setUp(self):
         self._mods = sys.modules.copy()
-        # suite.ContextSuiteFactory.suiteClass = suite.TreePrintContextSuite
+        suite.ContextSuiteFactory.suiteClass = TreePrintContextSuite
 
     def tearDown(self):
         to_del = [ m for m in sys.modules.keys() if
@@ -23,7 +23,7 @@ class TestNoseTestLoader(unittest.TestCase):
             for mod in to_del:
                 del sys.modules[mod]
         sys.modules.update(self._mods)
-        # suite.ContextSuiteFactory.suiteClass = suite.ContextSuite
+        suite.ContextSuiteFactory.suiteClass = suite.ContextSuite
 
     def test_load_from_name_file(self):
         res = unittest.TestResult()
@@ -234,6 +234,7 @@ class TestNoseTestLoader(unittest.TestCase):
         assert not suite.was_setup, "Suite setup did not fail"
         assert not res.errors, res.errors
         assert not res.failures, res.failures
+        assert res.skipped
         assert res.testsRun == 0, \
                "Expected to run 0 tests but ran %s" % res.testsRun
 
@@ -311,21 +312,22 @@ class TreePrintContextSuite(suite.ContextSuite):
 
     def setUp(self):
         print self, 'setup -->'
-        ContextSuite.setUp(self)
+        suite.ContextSuite.setUp(self)
         TreePrintContextSuite.indent += '  '
 
     def tearDown(self):
         TreePrintContextSuite.indent = TreePrintContextSuite.indent[:-2]
         try:
-            ContextSuite.tearDown(self)
+            suite.ContextSuite.tearDown(self)
         finally:
             print self, 'teardown <--'
     def __repr__(self):
-        return '%s[%s]' % (self.indent, self.parent.__name__)
+        return '%s[%s]' % (self.indent,
+                           getattr(self.parent, '__name__', self.parent))
     __str__ = __repr__
 
         
 if __name__ == '__main__':
-    import logging
-    logging.basicConfig() #level=logging.DEBUG)
+    #import logging
+    #logging.basicConfig() #level=logging.DEBUG)
     unittest.main()

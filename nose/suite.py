@@ -8,7 +8,7 @@ from nose.proxy import ResultProxyFactory
 from nose.util import resolve_name, try_run
 
 log = logging.getLogger(__name__)
-log.setLevel(logging.DEBUG)
+#log.setLevel(logging.DEBUG)
 
 # Singleton for default value -- see ContextSuite.__init__ below
 _def = object()
@@ -81,19 +81,15 @@ class ContextSuite(LazySuite):
     failureException = unittest.TestCase.failureException
     was_setup = False
     was_torndown = False
-    
+
     def __init__(self, tests=(), parent=None, factory=None,
-                 config=None, resultProxy=_def):
+                 config=None, resultProxy=None):
         log.debug("Context suite for %s (%s) (%s)", tests, parent, id(self))
         self.parent = parent
         self.factory = factory
         if config is None:
             config = Config()
         self.config = config
-        # Using a singleton to represent default instead of None allows
-        # passing resultProxy=None to turn proxying off.
-        if resultProxy is _def:
-            resultProxy = ResultProxyFactory(config=config)
         self.resultProxy = resultProxy
         self.has_run = False
         LazySuite.__init__(self, tests)
@@ -264,12 +260,17 @@ class ContextSuite(LazySuite):
 
 class ContextSuiteFactory(object):
     suiteClass = ContextSuite
-    def __init__(self, config=None, suiteClass=None):
+    def __init__(self, config=None, suiteClass=None, resultProxy=_def):
         if config is None:
             config = Config()
         self.config = config
         if suiteClass is not None:
             self.suiteClass = suiteClass
+        # Using a singleton to represent default instead of None allows
+        # passing resultProxy=None to turn proxying off.
+        if resultProxy is _def:
+            resultProxy = ResultProxyFactory(config=config)
+        self.resultProxy = resultProxy
         self.suites = {}
         self.context = {}
         self.was_setup = {}
@@ -284,16 +285,30 @@ class ContextSuiteFactory(object):
         suite of suites returned, organized into a stack with the
         outermost suites belonging to the outermost parents.
         """
+
+        log.debug("Create suite for %s", tests)
+        if parent is None:
+            tests = self.wrapTests(tests)
+            parent = self.findParent(tests)
+            #FIXME handle the complex case where there are tests that don't
+            # all share the same parent. First try to find a common ancestor;
+            # if one is found, wrap the suites/tests in a suite for that
+            # ancestor. Recurse with that suite + all other suites that don't
+            # fall under than ancestor. Continue until we've determined that
+            # no ancestors are in common, or findParent succeeds. Return
+            # the resulting suite.
         suite = self.suiteClass(
-            tests, parent=parent, factory=self, config=self.config)
-        self.suites.setdefault(parent, []).append(suite)
-        self.context.setdefault(suite, []).append(parent)
-        log.debug("suite %s has parent %s", suite,
-                  getattr(parent, '__name__', None))
-        for ancestor in self.ancestry(parent):
-            self.suites.setdefault(ancestor, []).append(suite)
-            self.context[suite].append(ancestor)
-            log.debug("suite %s has ancestor %s", suite, ancestor.__name__)
+            tests, parent=parent, factory=self, config=self.config,
+            resultProxy=self.resultProxy)
+        if parent is not None:
+            self.suites.setdefault(parent, []).append(suite)
+            self.context.setdefault(suite, []).append(parent)
+            log.debug("suite %s has parent %s", suite,
+                      getattr(parent, '__name__', None))
+            for ancestor in self.ancestry(parent):
+                self.suites.setdefault(ancestor, []).append(suite)
+                self.context[suite].append(ancestor)
+                log.debug("suite %s has ancestor %s", suite, ancestor.__name__)
         #log.debug("after suite %s: context: %s suites: %s",
         #          suite, self.context, self.suites)
         return suite
@@ -317,3 +332,36 @@ class ContextSuiteFactory(object):
             log.debug(" %s ancestors %s", parent, ancestors)
             yield resolve_name('.'.join(ancestors))                
             ancestors.pop()
+
+    def findParent(self, tests):
+        if callable(tests) or isinstance(tests, unittest.TestSuite):
+            return None
+        parent = None
+        for test in tests:
+            # Don't look at suites for parents, only tests
+            p = getattr(test, 'parent', None)
+            print "%s parent is %s" % (test, p)
+            if p is None:
+                continue
+            if parent is None:
+                parent = p
+            elif parent != p:
+                # FIXME raise a specific exception so it can be caught
+                # and then a super-suite constructed
+                raise Exception(
+                    "Tests with different parents in same suite! %s != %s"
+                    % (parent, p))
+        return parent
+            
+    def wrapTests(self, tests):
+        if callable(tests) or isinstance(tests, unittest.TestSuite):
+            return tests
+        wrapped = []
+        for test in tests:
+            if isinstance(test, Test) or isinstance(test, unittest.TestSuite):
+                wrapped.append(test)
+            else:
+                wrapped.append(
+                    Test(test, config=self.config, resultProxy=self.resultProxy)
+                    )
+        return wrapped

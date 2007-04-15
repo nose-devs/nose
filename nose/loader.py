@@ -12,6 +12,7 @@ from nose.util import cmp_lineno, getpackage, isgenerator, ispackage, \
 from suite import ContextSuiteFactory
 
 log = logging.getLogger(__name__)
+log.setLevel(logging.DEBUG)
 
 class TestLoader(unittest.TestLoader):
     
@@ -71,7 +72,7 @@ class TestLoader(unittest.TestLoader):
             return sel.wantMethod(item)
         cases = [self.makeTest(getattr(cls, case), cls)
                  for case in filter(wanted, dir(cls))]
-        return self.suiteClass(cases, parent=cls)
+        return self.suiteClass(cases)
 
     def loadTestsFromDir(self, path):
         """Load tests from the directory at path. This is a generator
@@ -241,7 +242,11 @@ class TestLoader(unittest.TestLoader):
         except (TypeError, AttributeError):
             pass
 
-        return self.suiteClass(tests, parent=module)
+        try:
+            return self.suiteClass(tests, parent=module)
+        except TypeError:
+            # suiteClass that doesn't accept parent argument
+            return self.suiteClass(tests)
     
     def loadTestsFromName(self, name, module=None, discovered=False):
         # FIXME refactor this method into little bites
@@ -265,7 +270,7 @@ class TestLoader(unittest.TestLoader):
             if addr.call:
                 name = addr.call
             parent, obj = self.resolve(name, module)
-            return suite([self.makeTest(obj, parent)], parent=parent)
+            return suite([self.makeTest(obj, parent)])
         else:
             if addr.module:
                 try:
