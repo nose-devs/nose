@@ -107,6 +107,17 @@ def func_lineno(func):
             return -1
 
 
+def isclass(obj):
+    """Is obj a class? inspect's isclass is too liberal and returns True
+    for objects that can't be subclasses of anything.
+    """
+    try:
+        issubclass(obj, type)
+    except TypeError:
+        return False
+    return True
+
+
 def isgenerator(func):
     try:
         return func.func_code.co_flags & CO_GENERATOR != 0

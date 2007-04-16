@@ -2,12 +2,12 @@ import logging
 import os
 import sys
 import unittest
-from inspect import isclass, isfunction, ismethod
+from inspect import isfunction, ismethod
 from nose.case import Failure, FunctionTestCase, MethodTestCase
 from nose.config import Config
 from nose.importer import Importer, add_path, remove_path
 from nose.selector import defaultSelector, TestAddress
-from nose.util import cmp_lineno, getpackage, isgenerator, ispackage, \
+from nose.util import cmp_lineno, getpackage, isclass, isgenerator, ispackage, \
     resolve_name
 from suite import ContextSuiteFactory, ContextList, LazySuite
 
@@ -343,7 +343,7 @@ class TestLoader(unittest.TestLoader):
         log.debug('Make test for %s parent: %s', obj, parent)
         if isinstance(obj, unittest.TestCase):
             return obj
-        elif isclass(obj):
+        elif isclass(obj):            
             if issubclass(obj, unittest.TestCase):
                 return self.loadTestsFromTestCase(obj)
             else:

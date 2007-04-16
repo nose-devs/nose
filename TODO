@@ -1,30 +1,3 @@
-suite/factory
- revise so that the factory __call__ doesn't take a parent arg -- determine the
- parentage during and return context suites bound to each parent found in the
- test list -- obviously doesn't apply to lazy lists, only to fully composed
- lists of tests -- lazy tests would yield up standard lazy suites with no 
- parent. This will help to make things more unittest-compatible, and help 
- with implementing the id plugin/efficient loadTestsFromNames -- with this in
- place it might be better to consider how the isolation plugin might be used
- to make loadTestsFromNames lazy, using a fresh context factory per test, 
- rather than having the ineffecient way be the default.
-
- pseudo for factory __call__:
-
- if callable(tests):
-    return lazy suite(tests)
-
- start a suite -- suites must track subsuites by parent
- context = top suite
- for test in tests:
-     # this will have to be outer-first
-     for ancestor in self.ancestry(test):
-          find suite in context or create new suite at context with 
-              ancestor as parent
-          context is now the last loaded suite
-     add test to suite
-
- return top-level suite of all suites
 
 logging
  config file opt
@@ -38,6 +11,12 @@ fix builtin plugins:
  doctest
  prof
  isolation * post merge
+   - need loadTestFromNames hook to make this work -- must be able to take over
+     completely and be (or use internally at least) a generator. This is 
+     needed because the plugin needs to isolate a import time, not just 
+     test-run time.
+
+older notes:
    not sure how this one can be made to work at the module level, since
    import and testrunning take place separately now -- mods a, b, c are all 
    imported before tests are run in a. probably best to have it work at the
@@ -77,89 +56,10 @@ fix builtin plugins:
      test WHEN USING loadTestFromNames -- this is inefficient, but unavoidable
      without controlling the *order* of tests passed to loadTestsFromNames.
 
-     
-BUGS -- context setup/teardown
-
-Need to develop better tests to handle the disjunct names cases, and
-from those figure out how the context fixtures can work. The only
-solution may be to have things in the names case do a complete context
-setup and teardown around each test.
-
-context is property of test, not suite
-
-when suite does addTest() it finds the context of the test and puts the test
-into a sub-suite at the proper place in its stack
-
-this is incompatible with laziness, so there has to be a top-level
-suite factory that yields suites with compatible contexts so that
-tests with matching contexts or contexts that are related (a.b or
-a.b.c) can be grouped for efficiency
-
-how will that work for isolation? isolation hooks would be around each
-top-level suite, will that differ from where they are during a
-discovery run and if so is that significant?
-
-suite.addTest(t)
-c = t.context()
-if c == suite.context:
-   add at this level
-elif suite.context.ancestor_of(c):
-   find subsuite for ancestor, add there
-else raise exception -- incompatible contexts
-
-this suggests that loadTestsFromNames needs its own suite class?
-
-this is an optimization that can be done after the basic functionality is
-established
-
-how does it work in discovery:
-
-see package p
- import p
-  find tests in p
-   yield suite of tests in p + lazy load of p.__path__
-    suite begins
-     p.setup
-      tests in p
-      lazy suite begins
-       see package p.q
-        import p.q
-         find tests in p.q           
-          yield suite of tests in p.q
-           suite begins
-            p.q setup
-             p.q tests
-            p.q teardown
-     p.teardown
-   
 
 new plugin:
  testid
-  -- needs loadTestsFromNames hook! for efficiency, it ought to 
-  (and ought to have enough info about the tests to) reorder them and 
-  organize into context suites such that the least # of context fixtures 
-  are used
-
-  How to order a batch of tests into an efficient set, knowing only the test
-  names -- lazily, so that imports don't happen until they *need* to happen.
-
-  ancestry() in suite factory shouldn't call resolve -- that should be done
-  as late as possible, so it should store the name of the ancestor only,
-  assuming that at the time it is resolved, the module name will be loadable
-  and unique.
-
-  resolve ancestry names in setup phase.
-
-  convert to TestAddresses
-
-  get the module names of each -- 
-    -- what about those that don't resolve to a module (like doctest files)?
-
-  for all that have common prefixes, organize into a suite stack from
-  outer -> inner (test_pak, tesk_pak.test_sub, etc)
-
-  yield the outermost of each suite stack, surrounded with contextStart/End 
-  or whatever calls.
+  -- needs loadTestsFromNames hook
 
 
 rename Failure and split into subclasses for Import and other, and make
@@ -193,6 +93,10 @@ BUGS
 
 --exclude doesn't seem to work? in some cases?
 
+-- when run vs spine suite, makeTest seemingly was called on an object
+   that should not have passed the selector --
+   sqlalchemy.sql._FunctionGateway, which doesn't match testmatch and
+   isn't a testcase subclass -- need to look into it further.
 
 
 MERGE merge trunk -> 0.10 from r9 to pick up trunk changes/fixes
