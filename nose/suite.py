@@ -82,10 +82,10 @@ class ContextSuite(LazySuite):
     was_setup = False
     was_torndown = False
 
-    def __init__(self, tests=(), parent=None, factory=None,
+    def __init__(self, tests=(), context=None, factory=None,
                  config=None, resultProxy=None):
-        log.debug("Context suite for %s (%s) (%s)", tests, parent, id(self))
-        self.parent = parent
+        log.debug("Context suite for %s (%s) (%s)", tests, context, id(self))
+        self.context = context
         self.factory = factory
         if config is None:
             config = Config()
@@ -95,8 +95,8 @@ class ContextSuite(LazySuite):
         LazySuite.__init__(self, tests)
 
     def __repr__(self):
-        return "<%s parent=%s>" % (
-            unittest._strclass(self.__class__), self.parent)
+        return "<%s context=%s>" % (
+            unittest._strclass(self.__class__), self.context)
     __str__ = __repr__
 
     def exc_info(self):
@@ -148,11 +148,11 @@ class ContextSuite(LazySuite):
         if self.was_setup:
             log.debug("suite %s already set up", id(self))
             return
-        parent = self.parent
-        if parent is None:
+        context = self.context
+        if context is None:
             return
-        # before running my own parent's setup, I need to
-        # ask the factory if my parent's parents' setups have been run
+        # before running my own context's setup, I need to
+        # ask the factory if my context's contexts' setups have been run
         factory = self.factory
         if factory:
             # get a copy, since we'll be destroying it as we go
@@ -163,27 +163,27 @@ class ContextSuite(LazySuite):
                 if ancestor in factory.was_setup:
                     continue
                 log.debug("ancestor %s does need setup", ancestor)
-                self.setupParent(ancestor)
-            if not parent in factory.was_setup:
-                self.setupParent(parent)
+                self.setupContext(ancestor)
+            if not context in factory.was_setup:
+                self.setupContext(context)
         else:
-            self.setupParent(parent)
+            self.setupContext(context)
         self.was_setup = True
         log.debug("completed suite setup")
 
-    def setupParent(self, parent):
-        # FIXME plugins.contextSetup(parent)
-        log.debug("%s setup parent %s", self, parent)
+    def setupContext(self, context):
+        # FIXME plugins.contextSetup(context)
+        log.debug("%s setup context %s", self, context)
         if self.factory:
-            # note that I ran the setup for this parent, so that I'll run
+            # note that I ran the setup for this context, so that I'll run
             # the teardown in my teardown
-            self.factory.was_setup[parent] = self
-        if isclass(parent):
+            self.factory.was_setup[context] = self
+        if isclass(context):
             names = ('setup_class',)
         else:
             names = ('setup_module', 'setup')
         # FIXME packages, camelCase
-        try_run(parent, names)
+        try_run(context, names)
 
     def tearDown(self):
         log.debug('context teardown')
@@ -193,16 +193,16 @@ class ContextSuite(LazySuite):
                 % (self.was_setup, self.was_torndown))
             return
         self.was_torndown = True
-        parent = self.parent
-        if parent is None:
-            log.debug("No parent to tear down")
+        context = self.context
+        if context is None:
+            log.debug("No context to tear down")
             return
 
         # for each ancestor... if the ancestor was setup
         # and I did the setup, I can do teardown
         factory = self.factory
         if factory:
-            ancestors = factory.context.get(self, []) + [parent]
+            ancestors = factory.context.get(self, []) + [context]
             for ancestor in ancestors:
                 log.debug('ancestor %s may need teardown', ancestor)
                 if not ancestor in factory.was_setup:
@@ -214,7 +214,7 @@ class ContextSuite(LazySuite):
                 setup = factory.was_setup[ancestor]
                 log.debug("%s setup ancestor %s", setup, ancestor)
                 if setup is self:
-                    self.teardownParent(ancestor)
+                    self.teardownContext(ancestor)
                 # I can run teardown if all other suites
                 # in this context have run, and it's not yet
                 # torn down (supports loadTestsFromNames where
@@ -225,23 +225,23 @@ class ContextSuite(LazySuite):
                 # teardown will never run.
                 #have_run = [s for s in suites if getattr(s, 'has_run', True)]
                 #if suites == have_run:
-                #    self.teardownParent(ancestor)
+                #    self.teardownContext(ancestor)
                 #log.debug("%s / %s == ? %s",
                 #          suites, have_run, suites == have_run)
         else:
-            self.teardownParent(parent)
+            self.teardownContext(context)
         
-    def teardownParent(self, parent):
-        log.debug("%s teardown parent %s", self, parent)
+    def teardownContext(self, context):
+        log.debug("%s teardown context %s", self, context)
         if self.factory:
-            self.factory.was_torndown[parent] = self
-        if isclass(parent):
+            self.factory.was_torndown[context] = self
+        if isclass(context):
             names = ('teardown_class',)
         else:
             names = ('teardown_module', 'teardown')
         # FIXME packages, camelCase
-        try_run(parent, names)
-        # FIXME plugins.contextTeardown(parent)
+        try_run(context, names)
+        # FIXME plugins.contextTeardown(context)
 
     # FIXME the wrapping has to move to the factory
     def _get_wrapped_tests(self):
@@ -276,36 +276,37 @@ class ContextSuiteFactory(object):
         self.was_setup = {}
         self.was_torndown = {}
 
-    def __call__(self, tests, parent=None):
-        """Return ContextSuite for tests with parent. tests may either
+    def __call__(self, tests):
+        """Return ContextSuite for tests. `tests` may either
         be a callable (in which case the resulting ContextSuite will
         have no parent context and be evaluated lazily) or an
-        iterabl. In that case the tests will wrapped in
-        nose.case.Test, be examined and the parent of each found and a
+        iterable. In that case the tests will wrapped in
+        nose.case.Test, be examined and the context of each found and a
         suite of suites returned, organized into a stack with the
-        outermost suites belonging to the outermost parents.
+        outermost suites belonging to the outermost contexts.
         """
 
         log.debug("Create suite for %s", tests)
-        if parent is None:
+        context = getattr(tests, 'context', None)
+        if context is None:
             tests = self.wrapTests(tests)
-            parent = self.findParent(tests)
-            #FIXME handle the complex case where there are tests that don't
-            # all share the same parent. First try to find a common ancestor;
-            # if one is found, wrap the suites/tests in a suite for that
-            # ancestor. Recurse with that suite + all other suites that don't
-            # fall under than ancestor. Continue until we've determined that
-            # no ancestors are in common, or findParent succeeds. Return
-            # the resulting suite.
+            context = self.findContext(tests)
+        #FIXME handle the complex case where there are tests that don't
+        # all share the same context. First try to find a common ancestor;
+        # if one is found, wrap the suites/tests in a suite for that
+        # ancestor. Recurse with that suite + all other suites that don't
+        # fall under than ancestor. Continue until we've determined that
+        # no ancestors are in common, or findContext succeeds. Return
+        # the resulting suite.
         suite = self.suiteClass(
-            tests, parent=parent, factory=self, config=self.config,
+            tests, context=context, factory=self, config=self.config,
             resultProxy=self.resultProxy)
-        if parent is not None:
-            self.suites.setdefault(parent, []).append(suite)
-            self.context.setdefault(suite, []).append(parent)
-            log.debug("suite %s has parent %s", suite,
-                      getattr(parent, '__name__', None))
-            for ancestor in self.ancestry(parent):
+        if context is not None:
+            self.suites.setdefault(context, []).append(suite)
+            self.context.setdefault(suite, []).append(context)
+            log.debug("suite %s has context %s", suite,
+                      getattr(context, '__name__', None))
+            for ancestor in self.ancestry(context):
                 self.suites.setdefault(ancestor, []).append(suite)
                 self.context[suite].append(ancestor)
                 log.debug("suite %s has ancestor %s", suite, ancestor.__name__)
@@ -313,45 +314,45 @@ class ContextSuiteFactory(object):
         #          suite, self.context, self.suites)
         return suite
     
-    def ancestry(self, parent):
-        """Return the ancestry of the parent (that is, all of the
-        packages and modules containing the parent), in order of
+    def ancestry(self, context):
+        """Return the ancestry of the context (that is, all of the
+        packages and modules containing the context), in order of
         descent with the outermost ancestor last.
         This method is a generator.
         """
-        log.debug("get ancestry %s", parent)
-        if parent is None:
+        log.debug("get ancestry %s", context)
+        if context is None:
             return
-        if hasattr(parent, '__module__'):
-            ancestors = parent.__module__.split('.')
-        elif hasattr(parent, '__name__'):
-            ancestors = parent.__name__.split('.')[:-1]
+        if hasattr(context, '__module__'):
+            ancestors = context.__module__.split('.')
+        elif hasattr(context, '__name__'):
+            ancestors = context.__name__.split('.')[:-1]
         else:
-            raise TypeError("%s has no ancestors?" % parent)
+            raise TypeError("%s has no ancestors?" % context)
         while ancestors:
-            log.debug(" %s ancestors %s", parent, ancestors)
+            log.debug(" %s ancestors %s", context, ancestors)
             yield resolve_name('.'.join(ancestors))                
             ancestors.pop()
 
-    def findParent(self, tests):
+    def findContext(self, tests):
         if callable(tests) or isinstance(tests, unittest.TestSuite):
             return None
-        parent = None
+        context = None
         for test in tests:
-            # Don't look at suites for parents, only tests
-            p = getattr(test, 'parent', None)
-            print "%s parent is %s" % (test, p)
-            if p is None:
+            # Don't look at suites for contexts, only tests
+            ctx = getattr(test, 'context', None)
+            print "%s context is %s" % (test, ctx)
+            if ctx is None:
                 continue
-            if parent is None:
-                parent = p
-            elif parent != p:
+            if context is None:
+                context = ctx
+            elif context != ctx:
                 # FIXME raise a specific exception so it can be caught
                 # and then a super-suite constructed
                 raise Exception(
-                    "Tests with different parents in same suite! %s != %s"
-                    % (parent, p))
-        return parent
+                    "Tests with different contexts in same suite! %s != %s"
+                    % (context, ctx))
+        return context
             
     def wrapTests(self, tests):
         if callable(tests) or isinstance(tests, unittest.TestSuite):
@@ -365,3 +366,16 @@ class ContextSuiteFactory(object):
                     Test(test, config=self.config, resultProxy=self.resultProxy)
                     )
         return wrapped
+
+
+class ContextList(object):
+    """Not quite a suite -- a group of tests in a context. This is used
+    to hint the ContextSuiteFactory about what context the tests
+    belong to, in cases where it may be ambiguous or missing.
+    """
+    def __init__(self, tests, context=None):
+        self.tests = tests
+        self.context = context
+
+    def __iter__(self):
+        return iter(self.tests)

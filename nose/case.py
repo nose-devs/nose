@@ -107,9 +107,9 @@ class Test(unittest.TestCase):
             # not a nose case
             return test_address(self.test)
 
-    def _parent(self):
+    def _context(self):
         try:
-            return self.test.parent
+            return self.test.context
         except AttributeError:
             pass
         try:
@@ -121,8 +121,8 @@ class Test(unittest.TestCase):
         except AttributeError:
             pass
         return None                
-    parent = property(_parent, None, None,
-                      """Get the parent object of this test (if any).""")
+    context = property(_context, None, None,
+                      """Get the context object of this test (if any).""")
     
     def run(self, result):
         """Modified run for the test wrapper.
@@ -224,10 +224,10 @@ class FunctionTestCase(TestBase):
         """
         return test_address(self.test)    
 
-    def _parent(self):
+    def _context(self):
         return resolve_name(self.test.__module__)
-    parent = property(_parent, None, None,
-                      """Get parent (module) of this test""")
+    context = property(_context, None, None,
+                      """Get context (module) of this test""")
         
     def setUp(self):
         """Run any setup function attached to the test function
@@ -338,10 +338,10 @@ class MethodTestCase(TestBase):
         """
         return test_address(self.method)
 
-    def _parent(self):
+    def _context(self):
         return self.cls
-    parent = property(_parent, None, None,
-                      """Get parent (class) of this test""")
+    context = property(_context, None, None,
+                      """Get context (class) of this test""")
 
     def setUp(self):
         log.debug("MethodTestCase.setUp(%s)", self)

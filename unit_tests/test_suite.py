@@ -1,6 +1,7 @@
 from nose.config import Config
 from nose import case
-from nose.suite import LazySuite, ContextSuite, ContextSuiteFactory
+from nose.suite import LazySuite, ContextSuite, ContextSuiteFactory, \
+     ContextList
 import imp
 import sys
 import unittest
@@ -135,17 +136,17 @@ class TestContextSuite(unittest.TestCase):
             def teardown(self):
                 self.was_torndown = True
 
-        parent = P()
+        context = P()
         suite = ContextSuite(
             [self.TC('test_one'), self.TC('test_two')],
-            parent=parent)
+            context=context)
         res = unittest.TestResult()
         suite(res)
 
         assert not res.errors, res.errors
         assert not res.failures, res.failures
-        assert parent.was_setup
-        assert parent.was_torndown
+        assert context.was_setup
+        assert context.was_torndown
 
     def test_context_fixtures_for_ancestors(self):
         top = imp.new_module('top')
@@ -165,22 +166,22 @@ class TestContextSuite(unittest.TestCase):
         # suite with just TC test
         # this suite should call top and top.bot setup
         csf = ContextSuiteFactory()
-        suite = csf([TC()], parent=top.bot)
+        suite = csf(ContextList([TC()], context=top.bot))
 
         suite.setUp()
         assert top in csf.was_setup, "Ancestor not set up"
-        assert top.bot in csf.was_setup, "Parent not set up"
+        assert top.bot in csf.was_setup, "Context not set up"
         suite.has_run = True
         suite.tearDown()
         assert top in csf.was_torndown, "Ancestor not torn down"
-        assert top.bot in csf.was_torndown, "Parent not torn down"
+        assert top.bot in csf.was_torndown, "Context not torn down"
 
         # wrapped suites
-        # the outer suite sets up its parent, the inner
-        # its parent only, without re-setting up the outer parent
+        # the outer suite sets up its context, the inner
+        # its context only, without re-setting up the outer context
         csf = ContextSuiteFactory()
-        inner_suite = csf([TC()], parent=top.bot) 
-        suite = csf(inner_suite, parent=top)
+        inner_suite = csf(ContextList([TC()], context=top.bot)) 
+        suite = csf(ContextList(inner_suite, context=top))
 
         suite.setUp()
         assert top in csf.was_setup
@@ -202,17 +203,17 @@ class TestContextSuite(unittest.TestCase):
             def teardown(self):
                 self.was_torndown = True
 
-        parent = P()
+        context = P()
         suite = ContextSuite(
             [self.TC('test_one'), self.TC('test_two')],
-            parent=parent)
+            context=context)
         res = unittest.TestResult()
         suite(res)
 
         assert not res.failures, res.failures
         assert res.errors, res.errors
-        assert parent.was_setup
-        assert not parent.was_torndown
+        assert context.was_setup
+        assert not context.was_torndown
         assert res.testsRun == 0, \
                "Expected to run no tests but ran %s" % res.testsRun
 
@@ -226,15 +227,15 @@ class TestContextSuite(unittest.TestCase):
             def teardown(self):
                 self.was_torndown = True
 
-        parent = P()
-        suite = ContextSuite([], parent=parent)
+        context = P()
+        suite = ContextSuite([], context=context)
         res = unittest.TestResult()
         suite(res)
 
         assert not res.failures, res.failures
         assert not res.errors, res.errors
-        assert not parent.was_setup
-        assert not parent.was_torndown
+        assert not context.was_setup
+        assert not context.was_torndown
         assert res.testsRun == 0, \
                "Expected to run no tests but ran %s" % res.testsRun
 

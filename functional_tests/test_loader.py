@@ -323,11 +323,11 @@ class TreePrintContextSuite(suite.ContextSuite):
             print self, 'teardown <--'
     def __repr__(self):
         return '%s[%s]' % (self.indent,
-                           getattr(self.parent, '__name__', self.parent))
+                           getattr(self.context, '__name__', self.context))
     __str__ = __repr__
 
         
 if __name__ == '__main__':
-    #import logging
-    #logging.basicConfig() #level=logging.DEBUG)
+    import logging
+    logging.basicConfig() #level=logging.DEBUG)
     unittest.main()

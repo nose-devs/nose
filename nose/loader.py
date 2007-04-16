@@ -9,7 +9,7 @@ from nose.importer import Importer, add_path, remove_path
 from nose.selector import defaultSelector, TestAddress
 from nose.util import cmp_lineno, getpackage, isgenerator, ispackage, \
     resolve_name
-from suite import ContextSuiteFactory
+from suite import ContextSuiteFactory, ContextList, LazySuite
 
 log = logging.getLogger(__name__)
 log.setLevel(logging.DEBUG)
@@ -72,7 +72,7 @@ class TestLoader(unittest.TestLoader):
             return sel.wantMethod(item)
         cases = [self.makeTest(getattr(cls, case), cls)
                  for case in filter(wanted, dir(cls))]
-        return self.suiteClass(cases)
+        return self.suiteClass(ContextList(cases, context=cls))
 
     def loadTestsFromDir(self, path):
         """Load tests from the directory at path. This is a generator
@@ -230,7 +230,7 @@ class TestLoader(unittest.TestLoader):
             tests = map(lambda t: self.makeTest(t, parent=module),
                         test_classes + test_funcs)
 
-        # Now, descend into packages
+        # Now, descend into packages, lazily
         paths = getattr(module, '__path__', [])
         for path in paths:
             tests.extend(self.loadTestsFromDir(path))
@@ -242,11 +242,7 @@ class TestLoader(unittest.TestLoader):
         except (TypeError, AttributeError):
             pass
 
-        try:
-            return self.suiteClass(tests, parent=module)
-        except TypeError:
-            # suiteClass that doesn't accept parent argument
-            return self.suiteClass(tests)
+        return self.suiteClass(ContextList(tests, context=module))
     
     def loadTestsFromName(self, name, module=None, discovered=False):
         # FIXME refactor this method into little bites
@@ -270,7 +266,8 @@ class TestLoader(unittest.TestLoader):
             if addr.call:
                 name = addr.call
             parent, obj = self.resolve(name, module)
-            return suite([self.makeTest(obj, parent)])
+            return suite(ContextList([self.makeTest(obj, parent)],
+                                     context=parent))
         else:
             if addr.module:
                 try:
@@ -313,7 +310,7 @@ class TestLoader(unittest.TestLoader):
                         # also know that we're not going to be asked
                         # to load from . and ./some_module.py *as part
                         # of this named test load*
-                        return self.suiteClass(
+                        return LazySuite(
                             lambda: self.loadTestsFromDir(path))
                     elif os.path.isfile(path):
                         return self.loadTestsFromFile(path)
@@ -379,3 +376,4 @@ class TestLoader(unittest.TestLoader):
         return parent, obj
 
 defaultTestLoader = TestLoader
+

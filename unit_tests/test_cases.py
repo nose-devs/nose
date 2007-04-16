@@ -171,7 +171,7 @@ class TestNoseTestWrapper(unittest.TestCase):
         self.assertEqual(case.address(),
                          (fl, __name__, 'Test.test_gen'))
 
-    def test_parent(self):
+    def test_context(self):
         class TC(unittest.TestCase):
             def runTest(self):
                 pass
@@ -183,13 +183,13 @@ class TestNoseTestWrapper(unittest.TestCase):
                 pass
 
         case = nose.case.Test(TC())
-        self.assertEqual(case.parent, TC)
+        self.assertEqual(case.context, TC)
 
         case = nose.case.Test(nose.case.FunctionTestCase(test))
-        self.assertEqual(case.parent, sys.modules[__name__])
+        self.assertEqual(case.context, sys.modules[__name__])
 
         case = nose.case.Test(nose.case.MethodTestCase(Test.test))
-        self.assertEqual(case.parent, Test)
+        self.assertEqual(case.context, Test)
         
 if __name__ == '__main__':
     unittest.main()
