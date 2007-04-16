@@ -14,7 +14,7 @@ class TestNoseTestLoader(unittest.TestCase):
 
     def setUp(self):
         self._mods = sys.modules.copy()
-        suite.ContextSuiteFactory.suiteClass = TreePrintContextSuite
+        #suite.ContextSuiteFactory.suiteClass = TreePrintContextSuite
 
     def tearDown(self):
         to_del = [ m for m in sys.modules.keys() if
@@ -23,7 +23,7 @@ class TestNoseTestLoader(unittest.TestCase):
             for mod in to_del:
                 del sys.modules[mod]
         sys.modules.update(self._mods)
-        suite.ContextSuiteFactory.suiteClass = suite.ContextSuite
+        #suite.ContextSuiteFactory.suiteClass = suite.ContextSuite
 
     def test_load_from_name_file(self):
         res = unittest.TestResult()
@@ -198,6 +198,8 @@ class TestNoseTestLoader(unittest.TestCase):
                   'test_pak.test_sub.test_mod.TestMaths.setup_class',
                   'test_pak.test_sub.test_mod.TestMaths.setup',
                   'test_pak.test_sub.test_mod.TestMaths.test_div',
+                  'test_pak.test_sub.test_mod.TestMaths.teardown',
+                  'test_pak.test_sub.test_mod.TestMaths.setup',
                   'test_pak.test_sub.test_mod.TestMaths.test_two_two',
                   'test_pak.test_sub.test_mod.TestMaths.teardown',
                   'test_pak.test_sub.test_mod.TestMaths.teardown_class',
@@ -209,6 +211,34 @@ class TestNoseTestLoader(unittest.TestCase):
                   'test_pak.teardown']
         self.assertEqual(m.state, expect, diff(expect, m.state))
 
+    def test_fixture_context_multiple_names_some_common_ancestors(self):
+        res = unittest.TestResult()
+        wd = os.path.join(support, 'ltfn')
+        l = loader.TestLoader(workingDir=wd)
+        suite = l.loadTestsFromNames(
+            ['test_pak1.test_mod',
+             'test_pak2.test_two_two',
+             'test_pak1.test_one_one'])
+        print suite
+        suite(res)
+        assert not res.errors, res.errors
+        assert not res.failures, res.failures
+        assert 'state' in sys.modules, \
+               "Context not load state module"
+        m = sys.modules['state']
+        print "state", m.called
+
+        expect = ['test_pak1.setup',
+                  'test_pak1.test_mod.setup',
+                  'test_pak1.test_mod.test_one_mod_one',
+                  'test_pak1.test_mod.teardown',
+                  'test_pak1.test_one_one',
+                  'test_pak1.teardown',
+                  'test_pak2.setup',
+                  'test_pak2.test_two_two',
+                  'test_pak2.teardown']
+        self.assertEqual(m.called, expect, diff(expect, m.called))
+    
     def test_mod_setup_fails_no_tests_run(self):
         ctx = os.path.join(support, 'ctx')
         l = loader.TestLoader(workingDir=ctx)
@@ -328,6 +358,6 @@ class TreePrintContextSuite(suite.ContextSuite):
 
         
 if __name__ == '__main__':
-    import logging
-    logging.basicConfig() #level=logging.DEBUG)
+    #import logging
+    #logging.basicConfig() #level=logging.DEBUG)
     unittest.main()

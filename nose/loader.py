@@ -230,7 +230,9 @@ class TestLoader(unittest.TestLoader):
             tests = map(lambda t: self.makeTest(t, parent=module),
                         test_classes + test_funcs)
 
-        # Now, descend into packages, lazily
+        # Now, descend into packages
+        # FIXME can or should this be lazy?
+        # is this syntax 2.3 (or 2.2) compatible?
         paths = getattr(module, '__path__', [])
         for path in paths:
             tests.extend(self.loadTestsFromDir(path))

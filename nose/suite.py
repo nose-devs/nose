@@ -8,10 +8,17 @@ from nose.proxy import ResultProxyFactory
 from nose.util import resolve_name, try_run
 
 log = logging.getLogger(__name__)
-#log.setLevel(logging.DEBUG)
+log.setLevel(logging.DEBUG)
 
 # Singleton for default value -- see ContextSuite.__init__ below
 _def = object()
+
+
+class MixedContextError(Exception):
+    """Error raised when a context suite sees tests from more than
+    one context.
+    """
+    pass
 
 
 class LazySuite(unittest.TestSuite):
@@ -96,7 +103,8 @@ class ContextSuite(LazySuite):
 
     def __repr__(self):
         return "<%s context=%s>" % (
-            unittest._strclass(self.__class__), self.context)
+            unittest._strclass(self.__class__),
+            getattr(self.context, '__name__', self.context))
     __str__ = __repr__
 
     def exc_info(self):
@@ -290,30 +298,13 @@ class ContextSuiteFactory(object):
         context = getattr(tests, 'context', None)
         if context is None:
             tests = self.wrapTests(tests)
-            context = self.findContext(tests)
-        #FIXME handle the complex case where there are tests that don't
-        # all share the same context. First try to find a common ancestor;
-        # if one is found, wrap the suites/tests in a suite for that
-        # ancestor. Recurse with that suite + all other suites that don't
-        # fall under than ancestor. Continue until we've determined that
-        # no ancestors are in common, or findContext succeeds. Return
-        # the resulting suite.
-        suite = self.suiteClass(
-            tests, context=context, factory=self, config=self.config,
-            resultProxy=self.resultProxy)
-        if context is not None:
-            self.suites.setdefault(context, []).append(suite)
-            self.context.setdefault(suite, []).append(context)
-            log.debug("suite %s has context %s", suite,
-                      getattr(context, '__name__', None))
-            for ancestor in self.ancestry(context):
-                self.suites.setdefault(ancestor, []).append(suite)
-                self.context[suite].append(ancestor)
-                log.debug("suite %s has ancestor %s", suite, ancestor.__name__)
-        #log.debug("after suite %s: context: %s suites: %s",
-        #          suite, self.context, self.suites)
-        return suite
-    
+            try:
+                context = self.findContext(tests)
+            except MixedContextError:
+                self.count = 0
+                return self.makeSuite(self.mixedSuites(tests), None)
+        return self.makeSuite(tests, context)
+        
     def ancestry(self, context):
         """Return the ancestry of the context (that is, all of the
         packages and modules containing the context), in order of
@@ -347,12 +338,103 @@ class ContextSuiteFactory(object):
             if context is None:
                 context = ctx
             elif context != ctx:
-                # FIXME raise a specific exception so it can be caught
-                # and then a super-suite constructed
-                raise Exception(
+                raise MixedContextError(
                     "Tests with different contexts in same suite! %s != %s"
                     % (context, ctx))
         return context
+
+    def makeSuite(self, tests, context):
+        print "make suite %s (%s)" % (tests, context)
+        suite = self.suiteClass(
+            tests, context=context, config=self.config, factory=self,
+            resultProxy=self.resultProxy)
+        if context is not None:
+            self.suites.setdefault(context, []).append(suite)
+            self.context.setdefault(suite, []).append(context)
+            log.debug("suite %s has context %s", suite,
+                      getattr(context, '__name__', None))
+            for ancestor in self.ancestry(context):
+                self.suites.setdefault(ancestor, []).append(suite)
+                self.context[suite].append(ancestor)
+                log.debug("suite %s has ancestor %s", suite, ancestor.__name__)
+        return suite
+
+    def mixedSuites(self, tests):
+        """The complex case where there are tests that don't all share
+        the same context. Groups tests into suites with common ancestors,
+        according to the following procedure:
+
+        starting with the context of the first test, if it is not
+        None, look for tests in the remaining tests that share that
+        ancestor. If any are found, group in into a suite with that
+        ancestor as the context and push back onto the stack. Continue
+        this process for each ancestor of the first test, until all
+        ancestors have been processed.
+
+        First try to find a common ancestor; if one
+        is found, wrap the suites/tests in a suite for that
+        ancestor. Recurse with remaining suites that
+        don't fall under than ancestor. Continue until we've
+        determined that no ancestors are in common, or findContext
+        succeeds. Return list of resulting suites.
+        """
+        self.count += 1
+        if self.count >= 3:
+            raise Exception("Stop!")
+        print "\n\n\n *** mixedSuite %s" % tests
+        if not tests:
+            return []
+        head = tests.pop(0)
+        if not tests:
+            return [head] # short circuit when none are left to combine
+        suite = head # the common ancestry suite, so far
+        tail = tests[:]
+        context = getattr(head, 'context', None)
+        if context is not None:
+            ancestors = [context] + [a for a in self.ancestry(context)]
+            # print "Head %s ancestors %s" % (head, ancestors)
+            count = 0
+            for ancestor in ancestors:
+                # print "Looking for ancestor of %s" % ancestor
+                common = [suite] # tests with ancestor in common, so far
+                remain = [] # tests that remain to be processed
+                print "\nstart loop", ancestor, common, tail
+                for test in tail:
+                    found_common = False
+                    test_ctx = getattr(test, 'context', None)
+                    if test_ctx is None:
+                        remain.append(test)
+                        print "null context in %s" % test
+                        continue
+                    if test_ctx is ancestor:
+                        print "%s context is common ancestor %s" % (test, ancestor)
+                        common.append(test)
+                        continue
+                    
+                    for test_ancestor in self.ancestry(test_ctx):
+                        print "Compare ancestors %s and %s" % (ancestor, test_ancestor)
+                        if test_ancestor is ancestor:
+                            common.append(test)
+                            print "%s has common ancestor %s" % (test, ancestor)
+                            found_common = True
+                            break
+                    # no common ancestor found
+                    if not found_common:
+                        print "%s is not common ancestor %s" % (ancestor, test)
+                        remain.append(test)
+                if common:
+                    suite = self.makeSuite(common, ancestor)
+                    # remain.append(suite)
+                print "Remain is now %s" % remain
+                tail = remain
+                #if remain == [suite]:
+                #    print "Only thing remaining is the suite I just produced"
+                #    tail = []
+                #else:
+                #    tail = remain
+                print "On to %s for next ancestor" % tail
+        print "Going on to process %s" % tail
+        return [suite] + self.mixedSuites(tail)
             
     def wrapTests(self, tests):
         if callable(tests) or isinstance(tests, unittest.TestSuite):
