@@ -268,6 +268,7 @@ class TestLoader(unittest.TestLoader):
             if addr.call:
                 name = addr.call
             parent, obj = self.resolve(name, module)
+            print parent, obj
             return suite(ContextList([self.makeTest(obj, parent)],
                                      context=parent))
         else:
@@ -368,6 +369,7 @@ class TestLoader(unittest.TestLoader):
                            "Can't make a test from %s" % obj)
 
     def resolve(self, name, module):
+        print "resolve name %s in module %s" % (name, module)
         obj = module
         parts = name.split('.')
         for part in parts:
