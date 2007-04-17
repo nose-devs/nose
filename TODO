@@ -1,4 +1,3 @@
-
 logging
  config file opt
  stream setting in config
@@ -7,14 +6,72 @@ plugintester
  set up logging to log to debug stream
 
 fix builtin plugins:
- coverage
- doctest
- prof
  isolation * post merge
    - need loadTestFromNames hook to make this work -- must be able to take over
      completely and be (or use internally at least) a generator. This is 
      needed because the plugin needs to isolate a import time, not just 
      test-run time.
+
+new plugin:
+ testid
+  -- needs loadTestsFromNames hook
+
+
+rename Failure and split into subclasses for Import and other, and make
+it optionally include the name of the file being considered so that
+Failure test logs can be more informative
+
+
+* plugin methods to add
+
+before/after Context [in suite, call with parent? 
+                      or in lazy load situations only?]
+makeTest
+prepareTestCase
+loadTestsFromName
+
+when result prints final result, patch in error classes, eg,
+
+FAILED (todo=10)
+  or
+OK (skipped=2)
+
+** this can only be done in nose test runner
+
+
+BUGS
+
+fix commands module -- use Config.configure to configure
+fix collector func -- configure, return loader.loadTestsFromNames()
+
+--exclude doesn't seem to work? in some cases?
+
+-- when run vs spine suite, makeTest seemingly was called on an object
+   that should not have passed the selector --
+   sqlalchemy.sql._FunctionGateway, which doesn't match testmatch and
+   isn't a testcase subclass -- need to look into it further.
+
+
+CHORES
+
+make setup work with & w/out setuptools
+
+MERGE merge trunk -> 0.10 from r9 to pick up trunk changes/fixes
+
+
+TESTS NEEDED
+
+ deprecated at module/module setup
+ error at module/module setup
+
+
+PROFILE
+
+need to profile -- on 250 tests with discovery, 0.10-dev is ~ 1 second
+slower than 0.9. Profile and optimize.
+
+
+
 
 older notes:
    not sure how this one can be made to work at the module level, since
@@ -55,81 +112,3 @@ older notes:
      can only fix it by forcing full context load & unload around each
      test WHEN USING loadTestFromNames -- this is inefficient, but unavoidable
      without controlling the *order* of tests passed to loadTestsFromNames.
-
-
-new plugin:
- testid
-  -- needs loadTestsFromNames hook
-
-
-rename Failure and split into subclasses for Import and other, and make
-it optionally include the name of the file being considered so that
-Failure test logs can be more informative
-
-
-* plugin methods to add
-
-before/after Context [in suite, call with parent]
-makeTest
-prepareTestCase
-loadTestsFromName
-
-when result prints final result, patch in error classes, eg,
-
-FAILED (todo=10)
-  or
-OK (skipped=2)
-
-** this can only be done in nose test runner
-
-make setup work with & w/out setuptools
-
-fix commands module -- use Config.configure to configure
-
-fix collector func -- configure, return loader.loadTestsFromNames()
-
-
-BUGS
-
---exclude doesn't seem to work? in some cases?
-
--- when run vs spine suite, makeTest seemingly was called on an object
-   that should not have passed the selector --
-   sqlalchemy.sql._FunctionGateway, which doesn't match testmatch and
-   isn't a testcase subclass -- need to look into it further.
-
-
-MERGE merge trunk -> 0.10 from r9 to pick up trunk changes/fixes
-
-...
-
-REMOVE the context class entirely? is it doing anything that 
-suite and case.Test shouldn't more properly do?
-
-tests for:
-
-module-level setup skip: skip all
-likewise deprecated
-likewise error
-
-plugins:
-
-plugin manager class
-replace call_plugins with proxied call through plugin manager
-  how to handle diff cases where plugs may short circuit on first non-None
-  response or where all non-None responses are taken?
-
-result/result proxy:
-
-SUITES also need to proxy their results
-
-result takes config
-implements beforeTest, afterTest
-result proxy should be a plugin?
-what plugin hook is needed for that?
-
-supporting result proxy in context:
-
- call context.prepareTest() before each test? no
- need to have a hook for context (or test case) 
- to replace/wrap the result

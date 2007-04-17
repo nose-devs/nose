@@ -36,41 +36,39 @@ your tests much less tedious.
 """
 import os
 from setuptools import Command
-from nose.core import get_parser, main
+from nose.config import Config, option_blacklist, user_config_files
+from nose.core import TestProgram
+from nose.plugins import DefaultPluginManager
 
 
-parser = get_parser(env={})
-
-
-    
-def get_user_options():
+def get_user_options(parser):
     """convert a optparse option list into a distutils option tuple list"""
     opt_list = []
     for opt in parser.option_list:
         if opt._long_opts[0][2:] in option_blacklist: 
             continue
-        
         long_name = opt._long_opts[0][2:]
         if opt.action != 'store_true':
             long_name = long_name + "="
-        
         short_name = None
         if opt._short_opts:
             short_name =  opt._short_opts[0][1:]
-
         opt_list.append((long_name, short_name, opt.help or ""))
-        
     return opt_list
 
 
 class nosetests(Command):
     description = "Run unit tests using nosetests"
-    user_options = get_user_options()
+    __config = Config(files=user_config_files(),
+                      plugins=DefaultPluginManager())
+    __parser = __config.getParser()
+    user_options = get_user_options(__parser)
+    
     
     def initialize_options(self):
         """create the member variables, but change hyphens to underscores"""
         self.option_to_cmds = {}
-        for opt in parser.option_list:
+        for opt in self.__parser.option_list:
             cmd_name = opt._long_opts[0][2:]
             option_name = cmd_name.replace('-', '_')
             self.option_to_cmds[option_name] = cmd_name
@@ -84,6 +82,7 @@ class nosetests(Command):
     def run(self):
         """ensure tests are capable of being run, then
         run nose.main with a reconstructed argument list"""
+        print dir(self)
         self.run_command('egg_info')
         
         # Build extensions in-place
@@ -99,11 +98,8 @@ class nosetests(Command):
                 continue
             value = getattr(self, option_name)
             if value is not None:
-                if flag(value):
-                    if _bool(value):
-                        argv.append('--' + cmd_name)
-                else:
-                    argv.append('--' + cmd_name)
-                    argv.append(value)
-        main(argv=argv, env=os.environ)
+                argv.extend(
+                    self.__config.cfgToArg(option_name, value,
+                                           lambda o: o.replace('_', '-')))
+        TestProgram(argv=argv, config=self.__config)
 

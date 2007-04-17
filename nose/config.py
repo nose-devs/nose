@@ -12,6 +12,13 @@ log = logging.getLogger(__name__)
 # not allowed in config files
 option_blacklist = ['help', 'verbose']
 
+config_files = [
+    # Linux users will prefer this
+    "~/.noserc",
+    # Windows users will prefer this
+    "~/nose.cfg"
+    ]
+
 
 class Config(object):
     """nose configuration.
@@ -56,6 +63,7 @@ class Config(object):
                             )
         self.include = None
         self.options = ()
+        self.parser = None
         self.plugins = NoPlugins()
         self.srcDirs = ('lib', 'src')
         self.runOnInit = True
@@ -85,26 +93,12 @@ class Config(object):
         collecting tests with nose.TestCollector to enable output capture and
         other features.
         """
-
-        # get a parser
-        # load plugins
-        # let plugins set opts
-        # parse argv
-        # configure self and plugins
-        # testNames = non-option args
-
+        env = self.env
         if argv is None:
             argv = sys.argv
-
         if hasattr(self, 'files'):
             argv = self.loadConfig(self.files, argv)
-        
-        env = self.env
-        
-        parser = self.getParser(doc)
-        self.plugins.loadPlugins()
-        self.pluginOpts(parser)
-        
+        parser = self.getParser(doc)        
         options, args = parser.parse_args(argv)
         # If -c --config has been specified on command line,
         # load those config files to create a new argv set and reparse
@@ -116,7 +110,7 @@ class Config(object):
         except IndexError:
             self.options = options
 
-        # where is an append action, so it can't have a default value 
+        # `where` is an append action, so it can't have a default value 
         # in the parser, or that default will always be in the list
         if not options.where:
             options.where = env.get('NOSE_WHERE', None)
@@ -168,6 +162,8 @@ class Config(object):
         self.__dict__.update(self._default)
 
     def getParser(self, doc=None):
+        if self.parser:
+            return self.parser
         env = self.env
         parser = OptionParser(doc)
         parser.add_option(
@@ -238,6 +234,11 @@ class Config(object):
             "This option is deprecated; you can pass the directories "
             "without using -w for the same behavior. [NOSE_WHERE]"
             )
+
+        self.plugins.loadPlugins()
+        self.pluginOpts(parser)
+
+        self.parser = parser
         return parser
 
     def loadConfig(self, file, argv):
@@ -262,17 +263,24 @@ class Config(object):
             if optname in option_blacklist:
                 continue
             value = cfg.get(self.configSection, optname)
-            if flag(value):
-                if _bool(value):
-                    file_argv.append('--' + optname)
-            else:
-                file_argv.append('--' + optname)
-                file_argv.append(value)
+            file_argv.extend(self.cfgToArg(optname, value))
         # Copy the given args and insert args loaded from file
         # between the program name (first arg) and the rest
         combined = argv[:]
         combined[1:1] = file_argv
         return combined
+
+    def cfgToArg(self, optname, value, tr=None):
+        if tr is not None:
+            optname = tr(optname)
+        argv = []
+        if flag(value):
+            if _bool(value):
+                argv.append('--' + optname)
+        else:
+            argv.append('--' + optname)
+            argv.append(value)
+        return argv
 
     def pluginOpts(self, parser):
         self.plugins.addOptions(parser, self.env)
@@ -297,6 +305,22 @@ class NoPlugins(object):
     def __call__(self, *arg, **kw):
         return
 
+
+def user_config_files():
+    """Return path to any existing user config files
+    """
+    return filter(os.path.exists,
+                  map(os.path.expanduser, config_files))
+
+
+def all_config_files():
+    """Return path to any existing user config files, plus any setup.cfg
+    in the current working directory.
+    """
+    user = user_config_files()
+    if os.path.exists('setup.cfg'):
+        return user + ['setup.cfg']
+    return user
 
 # used when parsing config files
 def flag(val):

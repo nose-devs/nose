@@ -9,7 +9,7 @@ import unittest
 from inspect import isclass
 
 
-from nose.config import Config
+from nose.config import Config, all_config_files
 from nose.importer import add_path
 from nose.loader import defaultTestLoader
 from nose.plugins.manager import DefaultPluginManager
@@ -182,12 +182,6 @@ class TestProgram(unittest.TestProgram):
     that control or produce output) detailed in the options below.
     """
     verbosity = 1
-    userConfigFiles = [
-        # Linux users will prefer this
-        "~/.noserc",
-        # Windows users will prefer this
-        "~/nose.cfg"
-        ]
 
     def __init__(self, module=None, defaultTest='.', argv=None,
                  testRunner=None, testLoader=None, env=None, config=None,
@@ -206,9 +200,7 @@ class TestProgram(unittest.TestProgram):
         """Load a Config, pre-filled with user config files if any are
         found.
         """
-        cfg_files = filter(os.path.exists,
-                           map(os.path.expanduser, self.userConfigFiles) +
-                           ['setup.cfg'])        
+        cfg_files = user_config_files()        
         return Config(
             env=env, files=cfg_files, plugins=DefaultPluginManager())
         

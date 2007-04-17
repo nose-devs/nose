@@ -1,10 +1,26 @@
 import sys
-import ez_setup
-ez_setup.use_setuptools()
-
-from setuptools import setup, find_packages
 from nose import __version__ as VERSION
 
+try:
+    from setuptools import setup, find_packages
+    addl_args = dict(
+        packages = find_packages(),
+        entry_points = {        
+        'console_scripts': [
+            'nosetests = nose:run_exit'
+            ],
+        'distutils.commands': [
+            ' nosetests = nose.commands:nosetests'
+            ],
+        },
+        test_suite = 'nose.collector',
+        )
+except ImportError:
+    addl_args = dict(
+        packages = 'FIXME',
+        # FIXME -- nosetests script
+        )
+    
 setup(
     name = 'nose',
     version = VERSION,
@@ -33,23 +49,6 @@ setup(
     'http://somethingaboutorange.com/mrl/projects/nose/nose-%s.tar.gz' \
     % VERSION,
     package_data = { '': [ '*.txt' ] },
-    packages = find_packages(),
-    entry_points = {        
-        'console_scripts': [
-            'nosetests = nose:run_exit'
-            ],
-        'nose.plugins': [
-            'coverage = nose.plugins.cover:Coverage',
-            'doctest = nose.plugins.doctests:Doctest',
-            'profile = nose.plugins.prof:Profile',
-            'attrib = nose.plugins.attrib:AttributeSelector',
-            'missed = nose.plugins.missed:MissedTests'
-            ],
-        'distutils.commands': [
-            ' nosetests = nose.commands:nosetests'
-            ],
-        },
-    test_suite = 'nose.collector',
     classifiers = [
         'Development Status :: 4 - Beta',
         'Intended Audience :: Developers',
@@ -58,5 +57,6 @@ setup(
         'Operating System :: OS Independent',
         'Programming Language :: Python',
         'Topic :: Software Development :: Testing'
-        ]
+        ],
+    **addl_args
     )
