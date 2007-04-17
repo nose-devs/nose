@@ -207,3 +207,31 @@ try:
         pass
 except ImportError:
     DefaultPluginManager = BuiltinPluginManager
+
+
+class RestrictedPluginManager(DefaultPluginManager):
+    """Plugin manager that restricts the plugin list to those not
+    excluded by a list of exclude methods. Any plugin that implements
+    an excluded method will be removed from the manager's plugin list
+    after plugins are loaded.
+    """
+    def __init__(self, plugins=(), exclude=()):
+        DefaultPluginManager.__init__(self, plugins)
+        self.exclude = exclude
+
+    def loadPlugins(self):
+        DefaultPluginManager.loadPlugins(self)
+        allow = []
+        for plugin in self.plugins:
+            ok = True
+            for method in self.exclude:
+                if hasattr(plugin, method):
+                    warn("Exclude plugin %s: implements %s" % (plugin, method),
+                         RuntimeWarning)
+                    ok = False
+                    break
+            if ok:
+                allow.append(plugin)
+        self.plugins = allow
+
+    

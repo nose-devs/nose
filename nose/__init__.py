@@ -287,7 +287,7 @@ along with this program; if not, write to the Free Software Foundation,
 Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
 """
 
-from nose.core import main, run, run_exit, runmodule
+from nose.core import collector, main, run, run_exit, runmodule
 from nose.exc import SkipTest, DeprecatedTest
 from nose.tools import with_setup # backwards compatibility
 
@@ -297,7 +297,7 @@ __version__ = '.'.join(map(str, __versioninfo__))
 
 __all__ = [
     'main', 'run', 'run_ext', 'runmodule', 'with_setup',
-    'SkipTest', 'DeprecatedTest'
+    'SkipTest', 'DeprecatedTest', 'collector'
     ]
 
 

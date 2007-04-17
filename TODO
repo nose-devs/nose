@@ -21,6 +21,7 @@ rename Failure and split into subclasses for Import and other, and make
 it optionally include the name of the file being considered so that
 Failure test logs can be more informative
 
+* result object needs to call plugins.report()
 
 * plugin methods to add
 
@@ -38,11 +39,18 @@ OK (skipped=2)
 
 ** this can only be done in nose test runner
 
+* Legacy plugin manager
+  This approach won't work
+  Need a mapping in EntryPointPluginManager of entry point -> wrapper
+  Need to finish the LegacyPluginProxy wrapper
+
 
 BUGS
 
 fix commands module -- use Config.configure to configure
 fix collector func -- configure, return loader.loadTestsFromNames()
+
+output capture not working in python setup.py test -- no plugins loaded?
 
 --exclude doesn't seem to work? in some cases?
 

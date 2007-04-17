@@ -6,15 +6,14 @@ import re
 import sys
 import types
 import unittest
-from inspect import isclass
-
+from warnings import warn
 
 from nose.config import Config, all_config_files
 from nose.importer import add_path
 from nose.loader import defaultTestLoader
-from nose.plugins.manager import DefaultPluginManager
+from nose.plugins.manager import DefaultPluginManager, RestrictedPluginManager
 from nose.result import TextTestResult
-from nose.util import absdir, tolist
+from nose.util import absdir, isclass, tolist
 
 
 log = logging.getLogger('nose.core')
@@ -29,7 +28,10 @@ class TestCollector:
     loadTestsFromDir().    
     """
     def __init__(self, conf, loader=None):
-        raise NotImplentedError("TestCollector not yet reimplemented")
+        warn("TestCollector is deprecated and will be removed in the"
+             "next release of nose. "
+             "Use `nose.loader.TestLoader.loadTestsFromNames` instead",
+             DeprecationWarning)
     
         if loader is None:
             loader = defaultTestLoader(conf)
@@ -38,9 +40,8 @@ class TestCollector:
         self.path = conf.where
         
     def loadtests(self):
-        for path in tolist(self.path):
-            for test in self.loader.loadTestsFromDir(path):
-                yield test
+        path = tolist(self.path)
+        return self.loader.loadTestsFromNames(path)
             
     def __repr__(self):
         return "collector in %s" % self.path
@@ -51,33 +52,29 @@ defaultTestCollector = TestCollector
 
 def collector():
     """TestSuite replacement entry point. Use anywhere you might use a
-    unittest.TestSuite. Note: Except with testoob; currently (nose 0.9)
-    testoob's test loading is not compatible with nose's collector
-    implementation.
-
-    Returns a TestCollector configured to use a TestLoader that returns
-    ResultProxySuite test suites, which use a proxy result object to
-    enable output capture and assert introspection.
+    unittest.TestSuite. The collector will, by default, load options from
+    all config files and execute loader.loadTestsFromNames() on the
+    configured testNames or '.' if no testNames are configured.
     """
-    raise NotImplementedError("collector() not yet reimplemented")
     # plugins that implement any of these methods are disabled, since
     # we don't control the test runner and won't be able to run them
-    setuptools_incompat = ( 'finalize', 'prepareTest', 'report',
-                            'setOutputStream')
+    setuptools_incompat = ( 'finalize', 'prepareTest', 'setOutputStream')
     
-    conf = configure(argv=[], env=os.environ,
-                     disable_plugins=setuptools_incompat)
-    Result.conf = conf
+    conf = Config(files=all_config_files(),
+                  plugins=RestrictedPluginManager(exclude=setuptools_incompat))
+    conf.configure(argv=['collector'])
     loader = defaultTestLoader(conf)
-    loader.suiteClass = ResultProxySuite
-    return TestCollector(conf, loader)
+
+    if conf.testNames:
+        return loader.loadTestsFromNames(conf.testNames)
+    else:
+        return loader.loadTestsFromNames(('.',))
 
             
 class TextTestRunner(unittest.TextTestRunner):
-    """Test runner that uses nose's TextTestResult to enable output
-    capture and assert introspection, as well as providing hooks for
-    plugins to override or replace the test output stream, results, and
-    the test case itself.
+    """Test runner that uses nose's TextTestResult to enable errorClasses,
+    as well as providing hooks for plugins to override or replace the test
+    output stream, results, and the test case itself.
     """    
     def __init__(self, stream=sys.stderr, descriptions=1, verbosity=1,
                  config=None):
@@ -157,29 +154,25 @@ class TestProgram(unittest.TestProgram):
       %prog a.test:TestCase
       %prog /path/to/test/file.py:test_function
       
-    Note however that specifying a test name will *not* cause nose to run
-    a test that it does not discover. Test names specified are compared
-    against tests discovered, and only the requested tests are
-    run. Setup and teardown methods are run at all stages. That means
-    that if you run:
-
-      %prog some.tests.test_module:test_function
-
-    And have defined setup or teardown methods in tests and test_module,
-    those setup methods will run before the test_function test, and
-    teardown after, just as if you were running all tests.
-
     You may also change the working directory where nose looks for tests,
     use the -w switch:
 
       %prog -w /path/to/tests
 
+    Note however that the -w switch is deprecated in this version and
+    will be removed in a future release, since as of nose 0.10 you can
+    get the same behavior by specifying the target directory or
+    directories *without* the -w switch:
+
+     %prog /path/to/tests
+
     Further customization of test selection and loading is possible
     through the use of plugins.
 
-    Test result output is identical to that of unittest, except for the
-    additional features (output capture, assert introspection, and any plugins
-    that control or produce output) detailed in the options below.
+    Test result output is identical to that of unittest, except for
+    the additional features (error classes, and plugin-supplied
+    features such as output capture and assert introspection) detailed
+    in the options below.
     """
     verbosity = 1
 
@@ -320,6 +313,9 @@ run_exit = main
 
 def run(*arg, **kw):
     """Collect and run test, returning success or failure
+
+    FIXME logic has flipped -- exit is default -- need
+    to turn exit off here
     """
     return TestProgram(*arg, **kw).success
 
@@ -327,11 +323,7 @@ def runmodule(name='__main__'):
     """Collect and run tests in a single module only. Defaults to running
     tests in __main__.
     """
-    conf = configure()
-    testLoader = defaultTestLoader(conf)
-    def collector(conf, loader):
-        return loader.loadTestsFromModule(name=name)
-    main(defaultTest=collector, testLoader=testLoader)    
+    main(defaultTest=name)    
 
 if __name__ == '__main__':
     main()
