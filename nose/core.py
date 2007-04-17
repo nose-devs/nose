@@ -193,7 +193,7 @@ class TestProgram(unittest.TestProgram):
         """Load a Config, pre-filled with user config files if any are
         found.
         """
-        cfg_files = user_config_files()        
+        cfg_files = all_config_files()        
         return Config(
             env=env, files=cfg_files, plugins=DefaultPluginManager())
         
@@ -259,48 +259,6 @@ class TestProgram(unittest.TestProgram):
         if self.config.exit:
             sys.exit(not self.success)
         return self.success
-
-
-def configure_logging(options):
-    """Configure logging for nose, or optionally other packages. Any logger
-    name may be set with the debug option, and that logger will be set to
-    debug level and be assigned the same handler as the nose loggers, unless
-    it already has a handler.
-    """
-    format = logging.Formatter('%(name)s: %(levelname)s: %(message)s')
-    if options.debug_log:
-        handler = logging.FileHandler(options.debug_log)
-    else:
-        handler = logging.StreamHandler(sys.stderr) # FIXME        
-    handler.setFormatter(format)
-
-    logger = logging.getLogger('nose')
-    logger.propagate = 0
-
-    # only add our default handler if there isn't already one there
-    # this avoids annoying duplicate log messages.
-    if not logger.handlers:
-        logger.addHandler(handler)
-        
-    # default level    
-    lvl = logging.WARNING
-    if options.verbosity >= 5:
-        lvl = 0
-    elif options.verbosity >= 4:
-        lvl = logging.DEBUG
-    elif options.verbosity >= 3:
-        lvl = logging.INFO
-    logger.setLevel(lvl)
-        
-    # individual overrides
-    if options.debug:
-        # no blanks
-        debug_loggers = [ name for name in options.debug.split(',') if name ]
-        for logger_name in debug_loggers:
-            l = logging.getLogger(logger_name)
-            l.setLevel(logging.DEBUG)
-            if not l.handlers and not logger_name.startswith('nose'):
-                l.addHandler(handler)
                 
             
 def main(*arg, **kw):

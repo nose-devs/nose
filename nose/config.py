@@ -62,6 +62,8 @@ class Config(object):
                             re.compile(r'^setup\.py$')
                             )
         self.include = None
+        self.loggingConfig = None
+        self.logStream = sys.stderr
         self.options = ()
         self.parser = None
         self.plugins = NoPlugins()
@@ -121,12 +123,16 @@ class Config(object):
         if not options.exclude:
             options.exclude = env.get('NOSE_EXCLUDE', [])
 
-        self.configureLogging(options)
+
         self.addPaths = options.addPaths
         self.stopOnError = options.stopOnError
         self.verbosity = options.verbosity
         self.includeExe = options.includeExe
-
+        self.debug = options.debug
+        self.debugLog = options.debugLog
+        self.loggingConfig = options.loggingConfig
+        self.configureLogging()
+        
         if options.where is not None:
             for path in tolist(options.where):
                 log.debug('Adding %s as nose working directory', path)
@@ -153,10 +159,51 @@ class Config(object):
         self.plugins.configure(options, self)
         self.plugins.begin()
 
-    def configureLogging(self, options):
-        # FIXME
-        #logging.basicConfig(level=logging.DEBUG)
-        pass
+    def configureLogging(self):
+        """Configure logging for nose, or optionally other packages. Any logger
+        name may be set with the debug option, and that logger will be set to
+        debug level and be assigned the same handler as the nose loggers, unless
+        it already has a handler.
+        """
+        if self.loggingConfig:
+            logging.fileConfig(self.loggingConfig)
+            return
+        
+        format = logging.Formatter('%(name)s: %(levelname)s: %(message)s')
+        if self.debugLog:
+            handler = logging.FileHandler(self.debugLog)
+        else:
+            handler = logging.StreamHandler(self.logStream)
+        handler.setFormatter(format)
+
+        logger = logging.getLogger('nose')
+        logger.propagate = 0
+
+        # only add our default handler if there isn't already one there
+        # this avoids annoying duplicate log messages.
+        if not logger.handlers:
+            logger.addHandler(handler)
+
+        # default level    
+        lvl = logging.WARNING
+        if self.verbosity >= 5:
+            lvl = 0
+        elif self.verbosity >= 4:
+            lvl = logging.DEBUG
+        elif self.verbosity >= 3:
+            lvl = logging.INFO
+        logger.setLevel(lvl)
+
+        # individual overrides
+        if self.debug:
+            # no blanks
+            debug_loggers = [ name for name in self.debug.split(',')
+                              if name ]
+            for logger_name in debug_loggers:
+                l = logging.getLogger(logger_name)
+                l.setLevel(logging.DEBUG)
+                if not l.handlers and not logger_name.startswith('nose'):
+                    l.addHandler(handler)
 
     def default(self):
         self.__dict__.update(self._default)
@@ -194,10 +241,16 @@ class Config(object):
             "nose.inspector, nose.plugins, nose.result and "
             "nose.selector. Separate multiple names with a comma.")
         parser.add_option(
-            "--debug-log", dest="debug_log", action="store",
+            "--debug-log", dest="debugLog", action="store",
             default=self.debugLog,
             help="Log debug messages to this file "
             "(default: sys.stderr)")
+        parser.add_option(
+            "--logging-config", "--log-config",
+            dest="loggingConfig", action="store",
+            default=self.loggingConfig,
+            help="Load logging config from this file -- bypasses all other"
+            " logging config settings.")
         parser.add_option(
             "-e", "--exclude", action="append", dest="exclude",
             help="Don't run tests that match regular "

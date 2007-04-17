@@ -12,7 +12,7 @@ from nose.util import cmp_lineno, getpackage, isclass, isgenerator, ispackage, \
 from suite import ContextSuiteFactory, ContextList, LazySuite
 
 log = logging.getLogger(__name__)
-log.setLevel(logging.DEBUG)
+#log.setLevel(logging.DEBUG)
 
 class TestLoader(unittest.TestLoader):
     

@@ -30,8 +30,8 @@ class TestLoggingConfig(unittest.TestCase):
         root = logging.getLogger('')
         nose = logging.getLogger('nose')
 
-        opt = Bucket()
-        configure_logging(opt)
+        config = Config()
+        config.configureLogging()
         
         root.setLevel(logging.DEBUG)
         self.assertEqual(nose.level, logging.WARN)
