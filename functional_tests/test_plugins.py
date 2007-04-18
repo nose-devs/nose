@@ -23,8 +23,21 @@ class TestPluginCalls(unittest.TestCase):
         conf = Config(exit=False, plugins=man, stream=sys.stdout)
         t = TestProgram(defaultTest=wdir, config=conf,
                         argv=['test_plugin_calls_package1'])
-        print man.called
+        print man.calls()
         assert man.called
+
+        self.assertEqual(
+            man.calls(),
+            ['loadPlugins', 'addOptions', 'configure', 'begin',
+             'prepareTestLoader', 'loadTestsFromName', 'prepareTestRunner',
+             'prepareTest', 'setOutputStream', 'prepareTestResult',
+             'beforeDirectory', 'wantFile', 'wantDirectory', 'beforeImport',
+             'afterImport', 'wantModule', 'wantClass', 'wantFunction',
+             'wantMethod', 'loadTestsFromTestClass', 'loadTestsFromModule',
+             'beforeTest', 'prepareTestCase', 'startTest', 'addSuccess',
+             'stopTest', 'afterTest', 'loadTestsFromDir', 'afterDirectory',
+             'report', 'finalize'])
+
 
 
 if __name__ == '__main__':

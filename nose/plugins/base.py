@@ -560,6 +560,10 @@ class IPluginInterface(object):
         test result object) -- it is recommended that you *do not*
         side-effect the nose.case.Test instance you have been passed.
 
+        Keep in mind that when you replace the test callable you are
+        replacing the run() method of the test case -- including the
+        exception handling and result calls, etc.
+
         Parameters:
          * test:
            the test case
