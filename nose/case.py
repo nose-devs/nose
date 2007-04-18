@@ -152,8 +152,12 @@ class Test(unittest.TestCase):
             self.afterTest(result)
         
     def runTest(self, result):
-        log.debug('run test %s with result %s', self.test, result)
-        self.test(result)
+        test = self.test
+        plug_test = self.config.plugins.prepareTestCase(self)
+        if plug_test is not None:
+            test = plug_test
+        log.debug('run test %s with result %s', test, result)
+        test(result)
         
     def shortDescription(self):
         desc = self.plugins.describeTest(self)

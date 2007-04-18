@@ -533,6 +533,38 @@ class IPluginInterface(object):
          """
         pass
     makeTest._new = True
+
+    def prepareTest(self, test):
+        """Called before the test is run by the test runner. Please
+        note the article *the* in the previous sentence: prepareTest
+        is called *only once*, and is passed the test case or test
+        suite that the test runner will execute. It is *not* called
+        for each individual test case. If you return a non-None value,
+        that return value will be run as the test. Use this hook to
+        wrap or decorate the test with another function. If you need
+        to modify or wrap individual test cases, use `prepareTestCase`
+        instead.
+
+        Parameters:
+         * test:
+           the test case
+        """
+        pass
+
+    def prepareTestCase(self, test):
+        """Prepare or wrap an individual test case. Called before
+        execution of the test. The test passed here is a
+        nose.case.Test instance; the case to be executed is in the
+        test attribute of the passed case. To modify the test to be
+        run, you should return a callable that takes one argument (the
+        test result object) -- it is recommended that you *do not*
+        side-effect the nose.case.Test instance you have been passed.
+
+        Parameters:
+         * test:
+           the test case
+        """
+        pass
     
     def prepareTestLoader(self, loader):
         """Called before tests are loaded. To replace the test loader,
@@ -579,24 +611,7 @@ class IPluginInterface(object):
         """
         pass
     prepareTestRunner._new = True
-    
-    def prepareTest(self, test):
-        """Called before the test is run by the test runner. Please note
-        the article *the* in the previous sentence: prepareTest is
-        called *only once*, and is passed the test case or test suite
-        that the test runner will execute. It is *not* called for each
-        individual test case. If you return a non-None value,
-        that return value will be run as the test. Use this hook to wrap
-        or decorate the test with another function.
-
-        Parameters:
-         * test:
-           the test case
-        """
-        pass
-
-    # FIXME prepareTestCase
-    
+        
     def report(self, stream):
         """Called after all error output has been printed. Print your
         plugin's report to the provided stream. Return None to allow

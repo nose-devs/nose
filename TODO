@@ -4,7 +4,7 @@ DOCUMENTATION
 
  NEWS
 
- sep. upload of index for 0.10
+ sep. upload of index for 0.10 -- link from 0.9 index
  
  sanity check all docstrings
 
@@ -26,8 +26,6 @@ Failure test logs can be more informative
 
 before/after Context [in suite, call with parent? 
                       or in lazy load situations only?]
-makeTest
-prepareTestCase
 loadTestsFromName
 
 when result prints final result, patch in error classes, eg,
@@ -73,6 +71,9 @@ TESTS NEEDED
 
  deprecated at module/module setup
  error at module/module setup
+ plugin api -- comprehensive integration test that runs a suite with a plugin 
+   that tracks calls and ensures that all calls are called with proper 
+   arguments
 
 
 PROFILE
