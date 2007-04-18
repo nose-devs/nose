@@ -1,23 +1,26 @@
+DOCUMENTATION
+
+ CHANGELOG
+
+ NEWS
+
+ sep. upload of index for 0.10
+ 
+ sanity check all docstrings
+
+
+FEATURES
+
 plugintester
  set up logging to log to debug stream
-
-fix builtin plugins:
- isolation * post merge
-   - need loadTestFromNames hook to make this work -- must be able to take over
-     completely and be (or use internally at least) a generator. This is 
-     needed because the plugin needs to isolate a import time, not just 
-     test-run time.
 
 new plugin:
  testid
   -- needs loadTestsFromNames hook
 
-
 rename Failure and split into subclasses for Import and other, and make
 it optionally include the name of the file being considered so that
 Failure test logs can be more informative
-
-* result object needs to call plugins.report()
 
 * plugin methods to add
 
@@ -35,15 +38,12 @@ OK (skipped=2)
 
 ** this can only be done in nose test runner
 
-* Legacy plugin manager
-  This approach won't work
-  Need a mapping in EntryPointPluginManager of entry point -> wrapper
-  Need to finish the LegacyPluginProxy wrapper
-
 * loader
   - support module.callable in addition to module:callable names
   - loadTestsFromTestCase -- override to add plugin call
   - filter filename tests for call
+  - loadTestsFromNames -- plugin hook
+
 
 BUGS
 
@@ -60,6 +60,13 @@ CHORES
 make setup work with & w/out setuptools
 
 MERGE merge trunk -> 0.10 from r9 to pick up trunk changes/fixes
+
+fix builtin plugins:
+ isolation * post merge
+   - need loadTestFromNames hook to make this work -- must be able to take over
+     completely and be (or use internally at least) a generator. This is 
+     needed because the plugin needs to isolate a import time, not just 
+     test-run time.
 
 
 TESTS NEEDED
