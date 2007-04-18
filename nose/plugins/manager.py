@@ -171,7 +171,8 @@ class ZeroNinePlugin:
     def addSuccess(self, test):
         if not hasattr(self.plugin, 'addSuccess'):
             return
-        self.plugin.addSuccess(test.test)
+        capt = test.capturedOutput
+        self.plugin.addSuccess(test.test, capt)
 
     def startTest(self, test):
         if not hasattr(self.plugin, 'startTest'):
