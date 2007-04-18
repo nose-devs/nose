@@ -180,7 +180,7 @@ class IPluginInterface(object):
         pass
     add_options = addOptions
 
-    def addDeprecated(self, test, err):
+    def addDeprecated(self, test):
         """Called when a deprecated test is seen. DO NOT return a value
         unless you want to stop other plugins from seeing the deprecated
         test.
@@ -192,8 +192,9 @@ class IPluginInterface(object):
            the test case 
         """
         pass
+    addDeprecated.deprecated = True
 
-    def addError(self, test, err, capt):
+    def addError(self, test, err):
         """Called when a test raises an uncaught exception. DO NOT return a
         value unless you want to stop other plugins from seeing that the
         test has raised an error.
@@ -205,10 +206,12 @@ class IPluginInterface(object):
            sys.exc_info() tuple
          * capt:
            Captured output, if any
+           DEPRECATED: this parameter will not be passed
         """
         pass
+    addError.changed = True
 
-    def addFailure(self, test, err, capt, tb_info):
+    def addFailure(self, test, err):
         """Called when a test fails. DO NOT return a value unless you
         want to stop other plugins from seeing that the test has failed.
 
@@ -219,12 +222,15 @@ class IPluginInterface(object):
            sys.exc_info() tuple
          * capt:
            Captured output, if any.
+           DEPRECATED: this parameter will not be passed
          * tb_info:
            Introspected traceback info, if any
+           DEPRECATED: this parameter will not be passed
         """
         pass
+    addFailure.changed = True
 
-    def addSkip(self, test, err):
+    def addSkip(self, test):
         """Called when a test is skipped. DO NOT return a value unless
         you want to stop other plugins from seeing the skipped test.
 
@@ -234,7 +240,8 @@ class IPluginInterface(object):
          * test:
            the test case
         """
-        pass        
+        pass
+    addSkip.deprecated = True
 
     def addSuccess(self, test, capt):
         """Called when a test passes. DO NOT return a value unless you
@@ -445,13 +452,29 @@ class IPluginInterface(object):
            The test name. May be a file or module name plus a test
            callable. Use split_test_name to split into parts.
          * module:
-           Module in which the file is found
+           Module from which the name is to be loaded
          * importPath:
            Path from which file (must be a python module) was found
            DEPRECATED: this argument will NOT be passed.
         """
         pass
     loadTestsFromName.generative = True
+
+    def loadTestsFromNames(self, names, module=None):
+        """Return a tuple of (tests loaded, remaining names). Return
+        None if you are not able to load any tests. Multiple plugins
+        may implement loadTestsFromNames; the remaining name list from
+        each will be passed to the next as input.
+
+        Parameters:
+         * names:
+           List of test names.
+         * module:
+           Module from which the names are to be loaded
+        """
+        pass
+    loadTestsFromNames._new = True
+    loadTestsFromNames.chainable = True
 
     def loadTestsFromPath(self, path, module=None, importPath=None):
         """Return tests in this file or directory. Return None if you are not
@@ -484,6 +507,33 @@ class IPluginInterface(object):
         pass
     loadTestsFromTestCase.generative = True
 
+    def loadTestsFromTestClass(self, cls):
+        """Return tests in this test class. Class will *not* be a
+        unittest.TestCase subclass. Return None if you are not able to
+        load any tests, an iterable if you are. May be a generator.
+
+        Parameters:
+         * cls:
+           The test class
+        """
+        pass
+    loadTestsFromTestClass._new = True
+    loadTestsFromTestClass.generative = True
+
+    def makeTest(self, obj, parent):
+        """Given an object and its parent, return a test case. Must be
+        a unittest.TestCase or TestSuite (or subclass) instance. This
+        is called only when default test loading fails.
+
+        Parameters:
+         * obj:
+           The object to be made into a test
+         * parent:
+           The parent of obj (eg, for a method, the class)
+         """
+        pass
+    makeTest._new = True
+    
     def prepareTestLoader(self, loader):
         """Called before tests are loaded. To replace the test loader,
         return a test loader. To allow other plugins to process the

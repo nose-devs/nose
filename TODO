@@ -40,6 +40,10 @@ OK (skipped=2)
   Need a mapping in EntryPointPluginManager of entry point -> wrapper
   Need to finish the LegacyPluginProxy wrapper
 
+* loader
+  - support module.callable in addition to module:callable names
+  - loadTestsFromTestCase -- override to add plugin call
+  - filter filename tests for call
 
 BUGS
 

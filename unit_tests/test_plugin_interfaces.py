@@ -9,8 +9,9 @@ class TestPluginInterfaces(unittest.TestCase):
         from nose.selector import Selector
 
         
-        exclude = [ 'loadTestsFromDir', 'loadTestsFromModuleName',
-                    'loadTestsFromNames' ]
+        exclude = [ 'loadTestsFromGenerator',
+                    'loadTestsFromGeneratorMethod'
+                    ]
         
         selfuncs = [ f for f in dir(Selector)
                      if f.startswith('want') ]

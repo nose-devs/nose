@@ -15,7 +15,7 @@ from warnings import warn
 from nose.plugins.base import IPluginInterface
 
 __all__ = ['DefaultPluginManager', 'PluginManager', 'EntryPointPluginManager',
-           'BuiltinPluginManager']
+           'BuiltinPluginManager', 'RestrictedPluginManager']
 
 log = logging.getLogger(__name__)
 
@@ -132,29 +132,94 @@ class PluginProxy(object):
             if result is not None:
                 return result
 
+
+class ZeroNinePlugin:
+    """Proxy for 0.9 plugins, adapts 0.10 calls to 0.9 standard.
+    """
+    def __init__(self, plugin):
+        self.plugin = plugin
+
+    def options(self, parser, env=os.environ):
+        self.plugin.add_options(parser, env)
+    
+    def addError(self, test, err):
+        if not hasattr(self.plugin, 'addError'):
+            return
+        # switch off to addSkip, addDeprecated if those types
+        from nose.exc import SkipTest, DeprecatedTest
+        ec, ev, tb = err
+        if issubclass(ec, SkipTest):
+            if not hasattr(self.plugin, 'addSkip'):
+                return
+            return self.plugin.addSkip(test.test)
+        elif issubclass(ec, DeprecatedTest):
+            if not hasattr(self.plugin, 'addDeprecated'):
+                return
+            return self.plugin.addDeprecated(test.test)           
+        # add capt
+        capt = test.capturedOutput
+        return self.plugin.addError(test.test, err, capt)
+
+    def addFailure(self, test, err):
+        if not hasattr(self.plugin, 'addFailure'):
+            return
+        # add capt and tbinfo
+        capt = test.capturedOutput
+        tbinfo = test.tbinfo
+        return self.plugin.addFailure(test.test, err, capt, tbinfo)
+
+    def addSuccess(self, test):
+        if not hasattr(self.plugin, 'addSuccess'):
+            return
+        self.plugin.addSuccess(test.test)
+
+    def startTest(self, test):
+        if not hasattr(self.plugin, 'startTest'):
+            return
+        return self.plugin.startTest(test.test)
+
+    def stopTest(self, test):
+        if not hasattr(self.plugin, 'stopTest'):
+            return
+        return self.plugin.stopTest(test.test)
+
+    def __getattr__(self, val):
+        return getattr(self.plugin, val)
+
             
 class EntryPointPluginManager(PluginManager):
-    entry_point = 'nose.plugins.0-10'
+    entry_points = (('nose.plugins.0-10', None),
+                    ('nose.plugins', ZeroNinePlugin))
     
     def loadPlugins(self):
         """Load plugins by iterating the `nose.plugins` entry point.
         """
         super(EntryPointPluginManager, self).loadPlugins()
         from pkg_resources import iter_entry_points
-        
-        for ep in iter_entry_points(self.entry_point):
-            log.debug('%s load plugin %s', self.__class__.__name__, ep)
-            try:
-                plug = ep.load()
-            except KeyboardInterrupt:
-                raise
-            except Exception, e:
-                # never want a plugin load to kill the test run
-                # but we can't log here because the logger is not yet
-                # configured
-                warn("Unable to load plugin %s: %s" % (ep, e), RuntimeWarning)
-                continue
-            self.addPlugin(plug())
+
+        loaded = {}
+        for entry_point, adapt in self.entry_points:
+            for ep in iter_entry_points(entry_point):
+                if ep.name in loaded:
+                    continue
+                loaded[ep.name] = True
+                log.debug('%s load plugin %s', self.__class__.__name__, ep)
+                try:
+                    plugcls = ep.load()
+                except KeyboardInterrupt:
+                    raise
+                except Exception, e:
+                    # never want a plugin load to kill the test run
+                    # but we can't log here because the logger is not yet
+                    # configured
+                    warn("Unable to load plugin %s: %s" % (ep, e),
+                         RuntimeWarning)
+                    continue
+                if adapt:
+                    plug = adapt(plugcls())
+                else:
+                    plug = plugcls
+                self.addPlugin(plug)
 
 
 class BuiltinPluginManager(PluginManager):
@@ -166,41 +231,6 @@ class BuiltinPluginManager(PluginManager):
         for plug in builtin.plugins:
             self.addPlugin(plug())
         
-
-class LegacyPluginManager(EntryPointPluginManager):
-    """Loads 0.9 plugins and wraps each in a LegacyPlugin, which
-    filters or rearranges the plugin calls that have changed since 0.9
-    to call them as 0.9 did.
-    """
-    entry_point = 'nose.plugins'
-
-    def addPlugin(self, plug):
-        super(LegacyPluginManager, self).addPlugin(LegacyPlugin(plug))
-
-
-class LegacyPlugin:
-    """Proxy for 0.9 plugins, adapts 0.10 calls to 0.9 standard.
-    """
-    def __init__(self, plugin):
-        self.plugin = plugin
-
-    def options(self, parser, env=os.environ):
-        # call add_options
-        pass
-    
-    def addError(self, test, err):
-        # add capt
-        # switch off to addSkip, addDeprecated if those types
-        pass
-
-    def addFailure(self, test, err):
-        # add capt, tb_info
-        pass
-
-    def __getattr__(self, val):
-        return getattr(self.plugin, val)
-    
-
 try:
     import pkg_resources
     class DefaultPluginManager(BuiltinPluginManager, EntryPointPluginManager):

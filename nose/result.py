@@ -7,7 +7,7 @@ that uses the capabilities in Result.
 import logging
 from unittest import _TextTestResult
 from nose.config import Config
-
+from nose.util import ln as _ln # backwards compat
 
 log = logging.getLogger('nose.result')
 
@@ -58,6 +58,9 @@ class TextTestResult(_TextTestResult):
         for cls in self.errorClasses.keys():
             storage, label, isfail = self.errorClasses[cls]
             self.printErrorList(label, storage)
+        # Might get patched into a result with no config
+        if hasattr(self, 'config'):
+            self.config.plugins.report(self.stream)
 
     def wasSuccessful(self):
         """Overrides to check that there are no errors in errorClasses
@@ -88,7 +91,12 @@ class TextTestResult(_TextTestResult):
             # 2.3: does not take test arg
             return _TextTestResult._exc_info_to_string(self, err)
 
-        
-        
+
+def ln(*arg, **kw):
+    from warnings import warn
+    warn("ln() has moved to nose.util from nose.result and will be removed "
+         "from nose.result in a future release. Please update your imports ",
+         DeprecationWarning)
+    return _ln(*arg, **kw)
     
 

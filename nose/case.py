@@ -51,7 +51,7 @@ class Test(unittest.TestCase):
         if config is None:
             config = Config()
         self.config = config
-        self.assertDetails = None
+        self.tbinfo = None
         self.capturedOutput = None
         self.resultProxy = resultProxy
         self.plugins = config.plugins

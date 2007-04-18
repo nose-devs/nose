@@ -25,6 +25,6 @@ class FailureDetail(Plugin):
         """
         ec, ev, tb = err
         tbinfo = inspect_traceback(tb)
-        test.assertDetails = tbinfo
+        test.tbinfo = tbinfo
         ev = '\n'.join([str(ev), tbinfo])
         return (ec, ev, tb)

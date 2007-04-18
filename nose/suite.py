@@ -434,3 +434,12 @@ class ContextList(object):
 
     def __iter__(self):
         return iter(self.tests)
+
+
+# backwards compat -- sort of
+class TestModule:
+    def __init__(*arg, **kw):
+        raise NotImplementedError(
+            "TestModule is not usable with nose 0.10. The class is present "
+            "in nose.suite for backwards compatibility purposes but it "
+            "may not be used")

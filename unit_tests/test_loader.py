@@ -238,7 +238,8 @@ class TestTestLoader(unittest.TestCase):
         assert tests
         for test in tests:
             test(res)
-        assert not res.errors, "Got errors %s running tests" % res.errors
+        assert res.errors, \
+               "Expected a ValueError for unresolvable test name, got none"
 
     def test_load_from_name_module_class(self):
         print "load from name module class"

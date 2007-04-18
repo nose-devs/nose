@@ -57,23 +57,6 @@ class TestLoader(unittest.TestLoader):
             cases.sort(self.sortTestMethodsUsing)
         return cases
 
-    def loadTestsFromTestClass(self, cls):
-        """Load tests from a test class that is *not* a unittest.TestCase
-        subclass.
-
-        In this case, we can't depend on the class's `__init__` taking method
-        name arguments, so we have to compose a MethodTestCase for each
-        method in the class that looks testlike.        
-        """
-        def wanted(attr, cls=cls, sel=self.selector):
-            item = getattr(cls, attr, None)
-            if not ismethod(item):
-                return False
-            return sel.wantMethod(item)
-        cases = [self.makeTest(getattr(cls, case), cls)
-                 for case in filter(wanted, dir(cls))]
-        return self.suiteClass(ContextList(cases, context=cls))
-
     def loadTestsFromDir(self, path):
         """Load tests from the directory at path. This is a generator
         -- each suite of tests from a module or other file is yielded
@@ -248,13 +231,16 @@ class TestLoader(unittest.TestLoader):
     
     def loadTestsFromName(self, name, module=None, discovered=False):
         # FIXME refactor this method into little bites
-        suite = self.suiteClass
-        addr = TestAddress(name, workingDir=self.workingDir)
-        log.debug("load from %s (%s) (%s)", name, addr, module)
-        # print addr.filename, addr.module, addr.call
-
-        # FIXME give plugins first crack
+        log.debug("load from %s (%s)", name, module)
         
+        suite = self.suiteClass
+
+        # give plugins first crack
+        plug_tests = self.config.plugins.loadTestsFromName(name, module)
+        if plug_tests:
+            return suite(plug_tests)
+        
+        addr = TestAddress(name, workingDir=self.workingDir)
         if module:
             # Two cases:
             #  name is class.foo
@@ -304,7 +290,8 @@ class TestLoader(unittest.TestLoader):
                 path = addr.filename
                 if addr.call:
                     # FIXME need to filter the returned tests
-                    raise Exception("Need to filter the returned tests")
+                    raise NotImplementedError(
+                        "Filter filename tests for call not implemented")
                 else:
                     if os.path.isdir(path):
                         # In this case we *can* be lazy since we know
@@ -336,6 +323,29 @@ class TestLoader(unittest.TestLoader):
 #                 # FIXME hook after
 #         return LazySuite(load)
 
+    def loadTestsFromTestClass(self, cls):
+        """Load tests from a test class that is *not* a unittest.TestCase
+        subclass.
+
+        In this case, we can't depend on the class's `__init__` taking method
+        name arguments, so we have to compose a MethodTestCase for each
+        method in the class that looks testlike.        
+        """
+        def wanted(attr, cls=cls, sel=self.selector):
+            item = getattr(cls, attr, None)
+            if not ismethod(item):
+                return False
+            return sel.wantMethod(item)
+        cases = [self.makeTest(getattr(cls, case), cls)
+                 for case in filter(wanted, dir(cls))]
+        # Give plugins a chance
+        try:
+            for test in self.config.plugins.loadTestsFromTestClass(cls):
+                cases.append(test)
+        except (TypeError, AttributeError):
+            pass
+        return self.suiteClass(ContextList(cases, context=cls))
+
     def makeTest(self, obj, parent=None):
         """Given a test object and its parent, return a unittest.TestCase
         instance that can be run as a test.
@@ -364,7 +374,10 @@ class TestLoader(unittest.TestLoader):
             else:
                 return FunctionTestCase(obj)
         else:
-            # FIXME give plugins a chance
+            # give plugins a chance
+            plug_test = self.config.plugins.makeTest(obj, parent)
+            if plug_test is not None:
+                return plug_test
             return Failure(TypeError,
                            "Can't make a test from %s" % obj)
 
