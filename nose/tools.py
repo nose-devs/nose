@@ -125,11 +125,14 @@ def timed(limit):
 
 
 def with_setup(setup=None, teardown=None):
-    """Decorator to add setup and/or teardown methods to a test function
+    """Decorator to add setup and/or teardown methods to a test function::
 
-    @with_setup(setup, teardown)
-    def test_something():
-        # ...
+      @with_setup(setup, teardown)
+      def test_something():
+          # ...
+
+    Note that `with_setup` is useful *only* for test functions, not for test
+    methods or inside of TestCase subclasses.
     """
     def decorate(func, setup=setup, teardown=teardown):
         if setup:

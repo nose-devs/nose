@@ -236,6 +236,10 @@ or by direct assignment::
   test.setup = setup_func
   test.teardown = teardown_func
   
+Please note that `with_setup` is useful *only* for test functions, not for
+test methods in TestCase subclasses or other test classes. For those cases,
+define `setUp` and `tearDown` methods in the class.
+  
 Test generators
 ===============
 
