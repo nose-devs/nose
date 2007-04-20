@@ -46,6 +46,17 @@ class TestNoseTestLoader(unittest.TestCase):
         assert not res.errors, res.errors
         assert not res.failures, res.failures
 
+    def test_load_from_name_file_callable(self):
+        res = unittest.TestResult()
+        wd = os.path.join(support, 'package1')
+        l = loader.TestLoader(workingDir=wd)
+        suite = l.loadTestsFromName(
+            'tests/test_example_function.py:test_times_two')
+        suite(res)
+        assert not res.errors, res.errors
+        assert not res.failures, res.failures
+        self.assertEqual(res.testsRun, 1)
+
     def test_fixture_context(self):
         res = unittest.TestResult()
         wd = os.path.join(support, 'package2')

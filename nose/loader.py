@@ -289,9 +289,14 @@ class TestLoader(unittest.TestLoader):
             elif addr.filename:
                 path = addr.filename
                 if addr.call:
-                    # FIXME need to filter the returned tests
-                    raise NotImplementedError(
-                        "Filter filename tests for call not implemented")
+                    package = getpackage(path)
+                    if package is None:
+                        return suite([
+                            Failure(ValueError,
+                                    "Can't find callable %s in file %s: "
+                                    "file is not a python module" %
+                                    (addr.call, path))])
+                    return self.loadTestsFromName(addr.call, module=package)
                 else:
                     if os.path.isdir(path):
                         # In this case we *can* be lazy since we know

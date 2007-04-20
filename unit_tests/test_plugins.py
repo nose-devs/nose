@@ -12,7 +12,6 @@ from nose.plugins.attrib import AttributeSelector
 from nose.plugins.base import Plugin
 from nose.plugins.cover import Coverage
 from nose.plugins.doctests import Doctest
-from nose.plugins.missed import MissedTests
 from nose.plugins.prof import Profile
 
 from mock import *

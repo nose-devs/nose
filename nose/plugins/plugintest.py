@@ -1,6 +1,7 @@
 
 """utilities for testing plugins"""
 
+import copy
 import os
 import sys
 try:
@@ -29,11 +30,14 @@ class PluginTester(object):
       - if set, this is the path of the suite to test.  otherwise, you
         will need to use the hook, makeSuite()
       
-    - debuglog
+    - plugins
 
-      - if not None, becomes the value of --debug=debuglog
+      - the list of plugins to make available during the run. Note
+        that this does not mean these plugins will be *enabled* during
+        the run -- only the plugins enabled by the activate argument
+        or other settings in argv or env will be enabled.
     
-    - args
+    - argv
   
       - a list of arguments to add to the nosetests command, in addition to
         the activate argument
@@ -45,7 +49,6 @@ class PluginTester(object):
     """
     activate = None
     suitepath = None
-    debuglog = False
     args = None
     env = {}
     argv = None
@@ -80,16 +83,14 @@ class PluginTester(object):
                                 
     def setUp(self):
         """runs nosetests within a directory named self.suitepath
-        """  
+        """
         if not self.env:  
             self.env = dict([(k,v) for k,v in os.environ.items()])
         self.argv = ['nosetests', self.activate]
         if self.args:
             self.argv.extend(self.args)
-        if self.debuglog:
-            self.argv.append('--debug=%s' % self.debuglog)
         if self.suitepath:
-            self.argv.append(self.suitepath)
+            self.argv.append(self.suitepath)            
 
         self._execPlugin()
 

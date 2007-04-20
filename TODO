@@ -11,12 +11,6 @@ DOCUMENTATION
 
 FEATURES
 
-plugintester
- set up logging to log to debug stream
- * NEED to find a way to save/restore logging config, or will have to monkey
-   patch tons of stuff in logging to get this to work -- in which case it
-   might be preferable to just remove the feature
-
 new plugin:
  testid
   -- needs loadTestsFromNames hook
@@ -42,7 +36,6 @@ OK (skipped=2)
 * loader
   - support module.callable in addition to module:callable names
   - loadTestsFromTestCase -- override to add plugin call
-  - filter filename tests for call
   - loadTestsFromNames -- plugin hook
 
 
