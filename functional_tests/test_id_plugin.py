@@ -1,45 +1,55 @@
 import os
 import tempfile
 import unittest
-from nose.core import TestProgram, TextTestRunner
-from nose.config import Config
-from nose.exc import SkipTest
-from nose.plugins.manager import PluginManager
-from cStringIO import StringIO
 
-raise SkipTest('Id plugin not yet written')
-
+from nose.plugins import PluginTester
 from nose.plugins.testid import TestId
 
-here = os.path.abspath(os.path.dirname(__file__))
-support = os.path.join(here, 'support')
 
-class TestIdPlugin(unittest.TestCase):
+support = os.path.join(os.path.dirname(__file__), 'support')
+idfile = tempfile.mktemp()
 
-    def setUp(self):
-        self.plugins = PluginManager(plugins=[TestId()])
-    
-    def test_adds_id_to_output(self):
-        tests = os.path.join(support, 'package1')
-        out = StringIO()
-        conf = Config(
-            exit=False,
-            plugins=self.plugins,
-            statusFile=tempfile.mktemp())
-        runner = TextTestRunner(stream=out)
-        TestProgram(config=conf, testRunner=runner,
-                    argv=['test_adds_id_to_output',
-                          '--with-id',
-                          '-v',
-                          tests])
-        print out.getvalue()
-        assert out.getvalue(), "No output from test run"
-        for line in out:
-            if line.startswith('-'):
-                break            
-            assert line.startswith('#'), "Test line %s without id" % line
+def teardown():
+     try:
+         os.remove(idfile)
+     except OSError:
+         pass
+
+class TestVerbose(PluginTester, unittest.TestCase):
+    activate = '--with-id'
+    plugins = [TestId()]
+    args = ['-v', '--id-file=%s' % idfile]
+    suitepath = os.path.join(support, 'idp')
+
+    def test_ids_added_to_output(self):
+        print '#' * 70
+        print str(self.output)
+        print '#' * 70
+
+        for line in self.output:
+            if line.startswith('='):
+                break
+            if not line.strip():
+                continue
+            if 'test_gen' in line and not '(0,)' in line:
+                assert not line.startswith('#'), \
+                       "Generated test line '%s' should not have id" % line
+            else:
+                assert line.startswith('#'), \
+                       "Test line '%s' missing id" % line.strip()
             
+
+    # test that id file is written
+
+    # test that id numbers are intercepted and translated in
+    # loadTestsFromNames hook
+
+    # test that if loadTestsFromNames finds names, id file is not re-written
         
         
 if __name__ == '__main__':
-    unittest.main()
+    try:
+        unittest.main()
+    finally:
+        teardown()
+    

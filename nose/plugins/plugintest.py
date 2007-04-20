@@ -37,7 +37,7 @@ class PluginTester(object):
         the run -- only the plugins enabled by the activate argument
         or other settings in argv or env will be enabled.
     
-    - argv
+    - args
   
       - a list of arguments to add to the nosetests command, in addition to
         the activate argument
