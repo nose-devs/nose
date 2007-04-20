@@ -318,6 +318,17 @@ class TestLoader(unittest.TestLoader):
                 return suite([
                     Failure(ValueError, "Unresolvable test name %s" % name)])
 
+    def loadTestsFromNames(self, names, module=None):
+        plug_res = self.config.plugins.loadTestsFromNames(names, module)
+        if plug_res:
+            suite, names = plug_res
+            if suite:
+                return self.suiteClass([
+                    self.suiteClass(suite),
+                    unittest.TestLoader.loadTestsFromNames(self, names, module)
+                    ])
+        return unittest.TestLoader.loadTestsFromNames(self, names, module)
+    
 #     def loadTestsFromNames(self, names, module=None):
 #         """Load tests from the given names.         
 #         """

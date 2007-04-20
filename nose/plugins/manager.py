@@ -80,6 +80,11 @@ class PluginProxy(object):
     
     def __call__(self, *arg, **kw):
         log.debug("call %s(%s, %s) %s", self.call, arg, kw, self.plugins)
+        # special case -- load tests from names behaves somewhat differently
+        # from other chainable calls, because plugins return a tuple, only
+        # part of which can be chained to the next plugin.
+        if self.call == 'loadTestsFromNames':
+            return self._loadTestsFromNames(*arg, **kw)
         try:
             meth = getattr(self.interface, self.call)
         except AttributeError:
@@ -132,6 +137,23 @@ class PluginProxy(object):
             if result is not None:
                 return result
 
+    def _loadTestsFromNames(self, names, module=None):
+        """Chainable but not quite normal. Plugins return a tuple of
+        (tests, names) after processing the names. The tests are added
+        to a suite that is accumulated throughout the full call, while
+        names are input for the next plugin in the chain.
+        """
+        suite = []
+        for p in self.plugins:
+            meth = getattr(p, self.call, None)
+            if meth is None:
+                continue
+            result = meth(names, module=module)
+            if result is not None:
+                suite_part, names = result
+                if suite_part:
+                    suite.extend(suite_part)
+        return suite, names
 
 class ZeroNinePlugin:
     """Proxy for 0.9 plugins, adapts 0.10 calls to 0.9 standard.
