@@ -31,7 +31,7 @@ should always use the declarative syntax for attaching ErrorClasses to
 an ErrorClass plugin.
     
     >>> TodoError.errorClasses # doctest: +ELLIPSIS
-    ((<class ...Todo at ...>, ('todo', 'TODO', True)),)
+    ((<class ...Todo...>, ('todo', 'TODO', True)),)
 
 Let's see the plugin in action. First some boilerplate.
 
