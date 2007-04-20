@@ -22,9 +22,9 @@ class TestDiscoveryMode(PluginTester, unittest.TestCase):
     suitepath = os.path.join(support, 'idp')
 
     def test_ids_added_to_output(self):
-        #print '#' * 70
-        #print str(self.output)
-        #print '#' * 70
+        print '>' * 70
+        print str(self.output)
+        print '<' * 70
 
         for line in self.output:
             if line.startswith('='):
@@ -83,7 +83,31 @@ class TestLoadNamesMode(PluginTester, unittest.TestCase):
     # test that id numbers are intercepted and translated in
     # loadTestsFromNames hook
     # test that if loadTestsFromNames finds names, id file is not re-written
-        
+
+class TestLoadNamesMode_2(PluginTester, unittest.TestCase):
+    """NOTE that this test passing requires the previous test case to
+    be run! (Otherwise the ids file will not exist)
+
+    Tests that generators still only have id on one line
+    """
+    activate = '--with-id'
+    plugins = [TestId()]
+    args = ['-v', '--id-file=%s' % idfile, '#9']
+    suitepath = None
+
+    def makeSuite(self):
+        return None
+
+    def test_load_ids(self):
+        print '%' * 70
+        print str(self.output)
+        print '%' * 70
+
+        count = 0
+        for line in self.output:
+            if line.startswith('#'):
+                count += 1
+        self.assertEqual(count, 1)
 
     # Test with doctests
     

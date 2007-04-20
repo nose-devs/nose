@@ -11,9 +11,12 @@ DOCUMENTATION
 
 FEATURES
 
+doctest: must return wrapped suite
+
 new plugin:
  testid
-  -- needs loadTestsFromNames hook
+  -- needs tests with doctests
+  -- needs to be able to handle cases w/out address() method
 
 rename Failure and split into subclasses for Import and other, and make
 it optionally include the name of the file being considered so that
@@ -36,7 +39,6 @@ OK (skipped=2)
 * loader
   - support module.callable in addition to module:callable names
   - loadTestsFromTestCase -- override to add plugin call
-  - loadTestsFromNames -- plugin hook
 
 
 BUGS

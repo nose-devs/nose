@@ -12,14 +12,16 @@ from nose.plugins.doctests import Doctest
 from nose.plugins.failuredetail import FailureDetail
 from nose.plugins.prof import Profile
 from nose.plugins.skip import Skip
+from nose.plugins.testid import TestId
 
 plugins = [
     AttributeSelector,
     Capture,
     Coverage,
     Deprecated,
+    Skip,
     Doctest,
     FailureDetail,
     Pdb,
     Profile,
-    Skip]
+    TestId]

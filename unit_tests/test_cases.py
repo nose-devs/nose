@@ -142,6 +142,9 @@ class TestNoseTestWrapper(unittest.TestCase):
             def runTest(self):
                 raise Exception("error")
 
+        def dummy(i):
+            pass
+
         def test():
             pass
 
@@ -150,7 +153,10 @@ class TestNoseTestWrapper(unittest.TestCase):
                 pass
 
             def test_gen(self):
-                pass
+                def tryit(i):
+                    pass
+                for i in range (0, 2):
+                    yield tryit, i
 
             def try_something(self, a, b):
                 pass
@@ -162,12 +168,21 @@ class TestNoseTestWrapper(unittest.TestCase):
         case = nose.case.Test(nose.case.FunctionTestCase(test))
         self.assertEqual(case.address(), (fl, __name__, 'test'))
 
+        case = nose.case.Test(nose.case.FunctionTestCase(
+            dummy, arg=(1,), descriptor=test))
+        self.assertEqual(case.address(), (fl, __name__, 'test'))
+
         case = nose.case.Test(nose.case.MethodTestCase(Test.test))
         self.assertEqual(case.address(), (fl, __name__, 'Test.test'))
 
         case = nose.case.Test(
-            nose.case.MethodTestCase(Test.test_gen,
-                                     'try_something', arg=(1,2,)))
+            nose.case.MethodTestCase(Test.try_something, arg=(1,2,),
+                                     descriptor=Test.test_gen))
+        self.assertEqual(case.address(),
+                         (fl, __name__, 'Test.test_gen'))
+
+        case = nose.case.Test(
+            nose.case.MethodTestCase(Test.test_gen, test=dummy, arg=(1,)))
         self.assertEqual(case.address(),
                          (fl, __name__, 'Test.test_gen'))
 

@@ -329,16 +329,6 @@ class TestLoader(unittest.TestLoader):
                     ])
         return unittest.TestLoader.loadTestsFromNames(self, names, module)
     
-#     def loadTestsFromNames(self, names, module=None):
-#         """Load tests from the given names.         
-#         """
-#         def load(self=self, names=names, module=module):
-#             for name in names:
-#                 # FIXME hook before
-#                 yield self.loadTestsFromName(name, module)
-#                 # FIXME hook after
-#         return LazySuite(load)
-
     def loadTestsFromTestClass(self, cls):
         """Load tests from a test class that is *not* a unittest.TestCase
         subclass.

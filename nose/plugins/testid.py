@@ -10,6 +10,12 @@ except ImportError:
 log = logging.getLogger(__name__)
 
 class TestId(Plugin):
+    """
+    Activate to add a test id (like #1) to each test name
+    output. Once you've run once to generate test ids, you can re-run
+    individual tests by activating the plugin and passing the ids
+    instead of test names.
+    """
     name = 'id'
     idfile = None
     shouldSave = True
@@ -27,6 +33,9 @@ class TestId(Plugin):
         self.id = 1
         self.ids = {}
         self.tests = {}
+        # used to track ids seen when tests is filled from
+        # loaded ids file
+        self._seen = {}
 
     def finalize(self, result):
         if self.shouldSave:
@@ -77,10 +86,11 @@ class TestId(Plugin):
     def startTest(self, test):
         adr = test.address()
         if adr in self.tests:
-            if self.shouldSave:
+            if self.shouldSave or adr in self._seen:
                 self.stream.write('   ')
             else:
                 self.stream.write('#%s ' % self.tests[adr])
+                self._seen[adr] = 1
             return
         self.tests[adr] = self.id
         self.stream.write('#%s ' % self.id)

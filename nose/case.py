@@ -226,7 +226,10 @@ class FunctionTestCase(TestBase):
         fed back as input to loadTestByName and (assuming the same
         plugin configuration) result in the loading of this test.
         """
-        return test_address(self.test)    
+        if self.descriptor is not None:
+            return test_address(self.descriptor)
+        else:
+            return test_address(self.test)    
 
     def _context(self):
         return resolve_name(self.test.__module__)
@@ -340,7 +343,10 @@ class MethodTestCase(TestBase):
         fed back as input to loadTestByName and (assuming the same
         plugin configuration) result in the loading of this test.
         """
-        return test_address(self.method)
+        if self.descriptor is not None:
+            return test_address(self.descriptor)
+        else:
+            return test_address(self.method)
 
     def _context(self):
         return self.cls

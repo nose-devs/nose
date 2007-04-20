@@ -29,11 +29,12 @@ class TestPluginCalls(unittest.TestCase):
         self.assertEqual(
             man.calls(),
             ['loadPlugins', 'addOptions', 'configure', 'begin',
-             'prepareTestLoader', 'loadTestsFromName', 'prepareTestRunner',
-             'prepareTest', 'setOutputStream', 'prepareTestResult',
-             'beforeDirectory', 'wantFile', 'wantDirectory', 'beforeImport',
-             'afterImport', 'wantModule', 'wantClass', 'wantFunction',
-             'wantMethod', 'loadTestsFromTestClass', 'loadTestsFromModule',
+             'prepareTestLoader', 'loadTestsFromNames', 'loadTestsFromName',
+             'prepareTestRunner', 'prepareTest', 'setOutputStream',
+             'prepareTestResult', 'beforeDirectory', 'wantFile',
+             'wantDirectory', 'beforeImport', 'afterImport', 'wantModule',
+             'wantClass', 'wantFunction', 'wantMethod',
+             'loadTestsFromTestClass', 'loadTestsFromModule',
              'beforeTest', 'prepareTestCase', 'startTest', 'addSuccess',
              'stopTest', 'afterTest', 'loadTestsFromDir', 'afterDirectory',
              'report', 'finalize'])
