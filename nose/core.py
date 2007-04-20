@@ -9,6 +9,8 @@ import sys
 import types
 import unittest
 from optparse import OptionParser
+from warnings import warn
+import ConfigParser
 
 from nose.plugins import load_plugins, call_plugins
 from nose.result import start_capture, end_capture, TextTestResult
@@ -21,7 +23,7 @@ from nose.util import absdir, tolist
 from nose.importer import add_path
 
 log = logging.getLogger('nose.core')
-
+compat_24 = sys.version_info >= (2, 4)
 
 class TestCollector(LazySuite):
     """Main nose test collector.
@@ -178,8 +180,29 @@ class TestProgram(unittest.TestProgram):
     Test result output is identical to that of unittest, except for the
     additional features (output capture, assert introspection, and any plugins
     that control or produce output) detailed in the options below.
+
+    Configuration
+    -------------
+
+    In addition to passing command-line options, you may also put configuration
+    options in a .noserc or nose.cfg file in your home directory. These are
+    standard .ini-style config files. Put your nosetests configuration in a
+    [nosetests] section, with the -- prefix removed:
+
+      [nosetests]
+      verbosity=3
+      with-doctest
+
+    All configuration files that are found will be loaded and their options
+    combined.
     """
     verbosity = 1
+    userConfigFiles = [
+        # Linux users will prefer this
+        "~/.noserc",
+        # Windows users will prefer this
+        "~/nose.cfg",
+    ]
 
     def __init__(self, module=None, defaultTest=defaultTestCollector,
                  argv=None, testRunner=None, testLoader=None, env=None,
@@ -200,7 +223,15 @@ class TestProgram(unittest.TestProgram):
             argv = sys.argv
         if env is None:
             env = os.environ
+        okFiles = self.parseUserConfig(argv,
+            map(os.path.expanduser, self.userConfigFiles))
         self.parseArgs(argv, env)
+        # Log after logging was configured (in self.parseArgs)
+        if okFiles:
+            log.info("Configuration was read from the following files: %s",
+                ", ".join(okFiles))
+        elif compat_24:
+            log.info("No user configuration found")
         self.createTests()
         self.runTests()
         
@@ -214,7 +245,47 @@ class TestProgram(unittest.TestProgram):
                 self.conf.tests.append(self.module.__name__)
             except AttributeError:
                 self.conf.tests.append(str(self.module))
-                
+
+    def parseUserConfig(self, argv, confFiles):
+        """Parse user configuration from supplied confFiles.
+        Found configuration options are inserted at the beginning of argv.
+        Returns the list of successful config files.
+        """
+        # XXX Can't do it at top because of recursive imports.
+        # These utility functions should be moved to another module however.
+        from nose.commands import flag, _bool, option_blacklist
+        c = ConfigParser.ConfigParser()
+        try:
+            okFiles = c.read(confFiles)
+        except ConfigParser.Error, e:
+            # log not configured yet
+            warn("Error in configuration file: \n%s" % e,
+                 RuntimeWarning)
+            return []
+        if compat_24 and not okFiles:
+            return []
+        sectionName = "nosetests"
+        if sectionName not in c.sections():
+            # log not configured yet
+            warn("Configuration files lack a 'nosetests' section",
+                 RuntimeWarning)
+            return []
+        confArgv = []
+        for optionName in c.options(sectionName):
+            if optionName in option_blacklist:
+                continue
+            value = c.get(sectionName, optionName)
+            if value:
+                if flag(value):
+                    if _bool(value):
+                        confArgv.append('--' + optionName)
+                else:
+                    confArgv.append('--' + optionName)
+                    confArgv.append(value)
+        # Insert in-place, after the program name but before other options
+        argv[1:1] = confArgv
+        return okFiles
+
     def createTests(self):
         """Create the tests to run. Default behavior is to discover
         tests using TestCollector using nose.loader.TestLoader as the
@@ -434,8 +505,6 @@ def configure_logging(options):
     else:
         handler = logging.StreamHandler(sys.stderr) # FIXME        
     handler.setFormatter(format)
-
-    print "nose handler", handler
 
     logger = logging.getLogger('nose')
     logger.propagate = 0
