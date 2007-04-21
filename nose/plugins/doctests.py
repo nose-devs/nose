@@ -18,6 +18,7 @@ import doctest
 import logging
 import os
 import sys
+from nose.case import TestWrapper
 from nose.plugins.base import Plugin
 from nose.util import anyp, test_address, resolve_name, tolist
 
@@ -106,7 +107,7 @@ class Doctest(Plugin):
             for test in doctests:
                 if len(test.examples) == 0:
                     continue
-                yield TestProxy(doctest.DocTestCase(test), obj)
+                yield DoctestWrapper(doctest.DocTestCase(test), obj)
             
 
     def makeTests(self, doctests):
@@ -114,7 +115,7 @@ class Doctest(Plugin):
             doctest_suite = doctests
         else:
             doctest_suite = doctests._tests
-        return map(TestProxy, doctest_suite)            
+        return map(DoctestWrapper, doctest_suite)            
     
     def matches(self, name):
         """Doctest wants only non-test modules in general.
@@ -147,37 +148,21 @@ class Doctest(Plugin):
         return None
         
 
-class TestProxy(object):
+class DoctestWrapper(TestWrapper):
     """Proxy for DocTestCase: provides an address() method that
     returns the correct address for the doctest case. Otherwise
     acts as a proxy to the test case. To provide hints for address(),
     an obj may also be passed -- this will be used as the test object
     for purposes of determining the test address, if it is provided.
     """
-    def __init__(self, case, obj=None):
-        self.__dict__['case'] = case
-        self.__dict__['_tp_obj'] = obj
-
     def address(self):
-        if self.__dict__['_tp_obj'] is not None:
-            return test_address(self.__dict__['_tp_obj'])
-        return test_address(resolve_name(self.__dict__['case']._dt_test.name))
+        adr = super(DoctestWrapper, self).address()
+        if adr is None:
+            adr = test_address(
+                resolve_name(self.__dict__['_nose_case']._dt_test.name))
+        return adr
 
-    def __getattr__(self, attr):
-        return getattr(self.__dict__['case'], attr)
-
-    def __setattr__(self, attr, val):
-        setattr(self.__dict__['case'], attr, val)
-
-    def __call__(self, *arg, **kw):
-        return self.__dict__['case'](*arg, **kw)
-
+    # FIXME
     # Annoyingly, doctests loaded via find(obj) omit the module name
     # so we need to override id, __str__ and shortDescription
     # bonus: this will squash a 2.3 vs 2.4 incompatiblity
-
-    def __str__(self):
-        return str(self.case)
-
-    def __repr__(self):
-        return repr(self.case)

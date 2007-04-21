@@ -117,9 +117,9 @@ class TestWithDoctest_1(PluginTester, unittest.TestCase):
     suitepath = os.path.join(support, 'idp')
 
     def test_doctests_get_ids(self):
-        #print '*' * 70
-        #print str(self.output)
-        #print '*' * 70
+        print '>' * 70
+        print str(self.output)
+        print '>' * 70
 
         last = None
         for line in self.output:

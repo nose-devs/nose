@@ -375,3 +375,39 @@ class MethodTestCase(TestBase):
             return self.method, self.arg
         
         
+class TestWrapper(object):
+    """A proxy for test cases constructed by plugins. Subclass this
+    class to provide compatible wrappers for your test
+    cases. Instances of this class (or subclasses) act as proxies to
+    test cases, adding two attributes: an address() method that may be
+    used to return the test address of the object made into a test
+    (which you may have to override) and a _nose_case property that
+    the nose ResultProxy can use for sanity checking to be sure that
+    the case it sees belongs to the nose.case.Test to which it is
+    bound."""
+    __test__ = False # do not collect
+    _nose_case = None
+    _nose_obj = None
+
+    def __init__(self, case, obj=None):
+        self.__dict__['_nose_case'] = case
+        self.__dict__['_nose_obj'] = obj
+
+    def address(self):
+        if self.__dict__['_nose_obj'] is not None:
+            return test_address(self.__dict__['_nose_obj'])
+
+    def __getattr__(self, attr):
+        return getattr(self.__dict__['_nose_case'], attr)
+
+    def __setattr__(self, attr, val):
+        setattr(self.__dict__['_nose_case'], attr, val)
+
+    def __call__(self, *arg, **kw):
+        return self.__dict__['_nose_case'](*arg, **kw)
+
+    def __str__(self):
+        return str(self.__dict__['_nose_case'])
+
+    def __repr__(self):
+        return repr(self.__dict__['_nose_case'])
