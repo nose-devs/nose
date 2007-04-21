@@ -523,7 +523,8 @@ class IPluginInterface(object):
     def makeTest(self, obj, parent):
         """Given an object and its parent, return a test case. Must be
         a unittest.TestCase or TestSuite (or subclass) instance. This
-        is called only when default test loading fails.
+        is called before default test loading to allow plugins to load
+        an alternate test case or cases for an object. May be a generator.
 
         Parameters:
          * obj:
@@ -533,6 +534,7 @@ class IPluginInterface(object):
          """
         pass
     makeTest._new = True
+    makeTest.generative = True
 
     def prepareTest(self, test):
         """Called before the test is run by the test runner. Please

@@ -83,12 +83,15 @@ class ResultProxy(object):
 
     def assertMyTest(self, test):
         # The test I was called with must be my .test or my
-        # .test's .test.
-        
-        assert test is self.test or test is getattr(self.test, 'test', None), \
-               "ResultProxy for %r (%s) was called with test %r (%s)" \
-               % (self.test, id(self.test), test, id(test))
+        # .test's .test. or my .test.test's .case
 
+        case = getattr(self.test, 'test', None)
+        assert (test is self.test 
+                or test is case 
+                or test is getattr(case, 'case', None), 
+                "ResultProxy for %r (%s) was called with test %r (%s)" 
+                % (self.test, id(self.test), test, id(test)))
+    
     def afterTest(self, test):
         self.assertMyTest(test)
         self.plugins.afterTest(self.test)

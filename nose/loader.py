@@ -254,7 +254,6 @@ class TestLoader(unittest.TestLoader):
             if addr.call:
                 name = addr.call
             parent, obj = self.resolve(name, module)
-            print parent, obj
             return suite(ContextList([self.makeTest(obj, parent)],
                                      context=parent))
         else:
@@ -357,6 +356,16 @@ class TestLoader(unittest.TestLoader):
         instance that can be run as a test.
         """
         log.debug('Make test for %s parent: %s', obj, parent)
+        
+        # plugins get first crack
+        plug_tests = []
+        try:
+            for test in self.config.plugins.makeTest(obj, parent):
+                plug_tests.append(test)
+            if plug_tests:
+                return self.suiteClass(plug_tests)
+        except (TypeError, AttributeError):
+            pass
         if isinstance(obj, unittest.TestCase):
             return obj
         elif isclass(obj):            
@@ -380,15 +389,10 @@ class TestLoader(unittest.TestLoader):
             else:
                 return FunctionTestCase(obj)
         else:
-            # give plugins a chance
-            plug_test = self.config.plugins.makeTest(obj, parent)
-            if plug_test is not None:
-                return plug_test
             return Failure(TypeError,
                            "Can't make a test from %s" % obj)
 
     def resolve(self, name, module):
-        print "resolve name %s in module %s" % (name, module)
         obj = module
         parts = name.split('.')
         for part in parts:

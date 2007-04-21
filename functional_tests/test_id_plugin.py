@@ -1,9 +1,11 @@
 import os
+import sys
 import tempfile
 import unittest
 
 from nose.plugins import PluginTester
-from nose.plugins.testid import TestId
+from nose.plugins.builtin import Doctest
+from nose.plugins.builtin import TestId
 from cPickle import dump, load
 
 support = os.path.join(os.path.dirname(__file__), 'support')
@@ -22,9 +24,9 @@ class TestDiscoveryMode(PluginTester, unittest.TestCase):
     suitepath = os.path.join(support, 'idp')
 
     def test_ids_added_to_output(self):
-        print '>' * 70
-        print str(self.output)
-        print '<' * 70
+        #print '>' * 70
+        #print str(self.output)
+        #print '<' * 70
 
         for line in self.output:
             if line.startswith('='):
@@ -63,9 +65,9 @@ class TestLoadNamesMode(PluginTester, unittest.TestCase):
         return None
 
     def test_load_ids(self):
-        print '#' * 70
-        print str(self.output)
-        print '#' * 70
+        #print '#' * 70
+        #print str(self.output)
+        #print '#' * 70
 
         for line in self.output:
             if line.startswith('#'):
@@ -79,10 +81,7 @@ class TestLoadNamesMode(PluginTester, unittest.TestCase):
         assert ids.keys()
         self.assertEqual(filter(lambda i: int(i), ids.keys()), ids.keys())
         assert len(ids.keys()) > 2
-    
-    # test that id numbers are intercepted and translated in
-    # loadTestsFromNames hook
-    # test that if loadTestsFromNames finds names, id file is not re-written
+
 
 class TestLoadNamesMode_2(PluginTester, unittest.TestCase):
     """NOTE that this test passing requires the previous test case to
@@ -99,9 +98,9 @@ class TestLoadNamesMode_2(PluginTester, unittest.TestCase):
         return None
 
     def test_load_ids(self):
-        print '%' * 70
-        print str(self.output)
-        print '%' * 70
+        #print '%' * 70
+        #print str(self.output)
+        #print '%' * 70
 
         count = 0
         for line in self.output:
@@ -109,8 +108,66 @@ class TestLoadNamesMode_2(PluginTester, unittest.TestCase):
                 count += 1
         self.assertEqual(count, 1)
 
-    # Test with doctests
-    
+
+
+class TestWithDoctest_1(PluginTester, unittest.TestCase):
+    activate = '--with-id'
+    plugins = [Doctest(), TestId()]
+    args = ['-v', '--id-file=%s' % idfile, '--with-doctest']
+    suitepath = os.path.join(support, 'idp')
+
+    def test_doctests_get_ids(self):
+        #print '*' * 70
+        #print str(self.output)
+        #print '*' * 70
+
+        last = None
+        for line in self.output:
+            if line.startswith('='):
+                break
+            # assert line startswith # or test part matches last
+
+        fh = open(idfile, 'r')
+        ids = load(fh)
+        fh.close()
+        for key, (file, mod, call) in ids.items():
+            assert mod != 'doctest', \
+                   "Doctest test was incorrectly identified as being part of "\
+                   "the doctest module itself (#%s)" % key
+
+
+class TestWithDoctest_2(PluginTester, unittest.TestCase):
+    activate = '--with-id'
+    plugins = [Doctest(), TestId()]
+    args = ['-v', '--id-file=%s' % idfile, '--with-doctest', '#2']
+    suitepath = None
+
+    def setUp(self):
+        sys.path.insert(0, os.path.join(support, 'idp'))
+        super(TestWithDoctest_2, self).setUp()
+
+    def tearDown(self):
+        sys.path.remove(os.path.join(support, 'idp'))
+        super(TestWithDoctest_2, self).tearDown()
+
+    def makeSuite(self):
+        return None
+
+    def test_load_ids_doctest(self):
+        print '*' * 70
+        print str(self.output)
+        print '*' * 70
+
+        # FIXME 2.3 compat problem
+        assert 'Doctest: exm.add_one ... FAIL' in self.output
+        
+        count = 0
+        for line in self.output:
+            if line.startswith('#'):
+                count += 1
+        self.assertEqual(count, 1)
+
+        
 if __name__ == '__main__':
     import logging
     logging.basicConfig()

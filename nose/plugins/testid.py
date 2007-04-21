@@ -40,9 +40,10 @@ class TestId(Plugin):
     def finalize(self, result):
         if self.shouldSave:
             fh = open(self.idfile, 'w')
-            ids = dict(zip(self.tests.values(), self.tests.keys()))
+            ids = dict(zip(self.tests.values(), self.tests.keys()))            
             dump(ids, fh)
-            fh.close()            
+            fh.close()
+            log.debug('Saved test ids: %s to %s', ids, self.idfile)
 
     def loadTestsFromNames(self, names, module=None):
         """Translate ids in the list of requested names into their
@@ -52,7 +53,7 @@ class TestId(Plugin):
         try:
             fh = open(self.idfile, 'r')
             self.ids = load(fh)
-            log.debug('ids %s', self.ids)
+            log.debug('Loaded test ids %s from %s', self.ids, self.idfile)
             fh.close()
         except IOError:
             log.debug('IO error reading %s', self.idfile)
@@ -62,7 +63,8 @@ class TestId(Plugin):
         # into the associated test addresses
         result = (None, map(self.tr, names))
         if not self.shouldSave:
-            # got some ids in names: load my old tests file
+            # got some ids in names, so make sure that the ids line
+            # up in output with what I said they were last time
             self.tests = dict(zip(self.ids.values(), self.ids.keys()))
         return result
 

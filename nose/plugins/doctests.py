@@ -17,8 +17,9 @@ course of running a test.
 import doctest
 import logging
 import os
+import sys
 from nose.plugins.base import Plugin
-from nose.util import anyp, tolist
+from nose.util import anyp, test_address, resolve_name, tolist
 
 log = logging.getLogger(__name__)
 
@@ -64,6 +65,7 @@ class Doctest(Plugin):
         except AttributeError:
             # 2.3, no other-file option
             self.extension = None
+        self.finder = doctest.DocTestFinder()
 
     def loadTestsFromModule(self, module):
         if not self.matches(module.__name__):
@@ -75,26 +77,44 @@ class Doctest(Plugin):
             log.debug("No doctests in %s", module)
             return
         else:
-            # < 2.4 doctest (and unittest) suites don't have iterators
-            log.debug("Doctests found in %s", module)
-            if hasattr(doctests, '__iter__'):
-                doctest_suite = doctests
-            else:
-                doctest_suite = doctests._tests
-            for test in doctest_suite:
-                yield test
+            return self.makeTests(doctests)
             
-    def loadTestsFromPath(self, filename, package=None, importPath=None):
+    def loadTestsFromFile(self, filename):
         if self.extension and anyp(filename.endswith, self.extension):
             try:
-                return doctest.DocFileSuite(filename, module_relative=False)
+                return self.makeTests(
+                    doctest.DocFileSuite(filename, module_relative=False))
             except AttributeError:
                 raise Exception("Doctests in files other than .py "
                                 "(python source) not supported in this "
                                 "version of doctest")
         else:
-            # Don't return None, users may iterate over result
-            return []
+            return
+
+    def makeTest(self, obj, parent):
+        """Look for doctests in the given object, which will be a
+        function, method or class.
+        """
+        try:
+            # FIXME really find the module, don't assume parent
+            # is a module
+            doctests = self.finder.find(obj, module=parent)
+        except ValueError:
+            yield Failure(*sys.exc_info())
+            return
+        if doctests:
+            for test in doctests:
+                if len(test.examples) == 0:
+                    continue
+                yield TestProxy(doctest.DocTestCase(test), obj)
+            
+
+    def makeTests(self, doctests):
+        if hasattr(doctests, '__iter__'):
+            doctest_suite = doctests
+        else:
+            doctest_suite = doctests._tests
+        return map(TestProxy, doctest_suite)            
     
     def matches(self, name):
         """Doctest wants only non-test modules in general.
@@ -126,3 +146,38 @@ class Doctest(Plugin):
             return True
         return None
         
+
+class TestProxy(object):
+    """Proxy for DocTestCase: provides an address() method that
+    returns the correct address for the doctest case. Otherwise
+    acts as a proxy to the test case. To provide hints for address(),
+    an obj may also be passed -- this will be used as the test object
+    for purposes of determining the test address, if it is provided.
+    """
+    def __init__(self, case, obj=None):
+        self.__dict__['case'] = case
+        self.__dict__['_tp_obj'] = obj
+
+    def address(self):
+        if self.__dict__['_tp_obj'] is not None:
+            return test_address(self.__dict__['_tp_obj'])
+        return test_address(resolve_name(self.__dict__['case']._dt_test.name))
+
+    def __getattr__(self, attr):
+        return getattr(self.__dict__['case'], attr)
+
+    def __setattr__(self, attr, val):
+        setattr(self.__dict__['case'], attr, val)
+
+    def __call__(self, *arg, **kw):
+        return self.__dict__['case'](*arg, **kw)
+
+    # Annoyingly, doctests loaded via find(obj) omit the module name
+    # so we need to override id, __str__ and shortDescription
+    # bonus: this will squash a 2.3 vs 2.4 incompatiblity
+
+    def __str__(self):
+        return str(self.case)
+
+    def __repr__(self):
+        return repr(self.case)

@@ -300,7 +300,7 @@ def test_address(test):
     # appropriate here
     t = type(test)
     if t == types.ModuleType:
-        return (os.path.abspath(test.__file__), test.__name__)
+        return (os.path.abspath(test.__file__), test.__name__, None)
     if t == types.FunctionType:
         m = sys.modules[test.__module__]
         return (os.path.abspath(m.__file__), test.__module__, test.__name__)

@@ -26,7 +26,7 @@ Failure test logs can be more informative
 
 before/after Context [in suite, call with parent? 
                       or in lazy load situations only?]
-loadTestsFromName
+
 
 when result prints final result, patch in error classes, eg,
 
@@ -43,7 +43,19 @@ OK (skipped=2)
 
 BUGS
 
---exclude doesn't seem to work? in some cases?
+BIG PROBLEM
+
+given an input like:
+
+python nose/core.py functional_tests/support/idp/example.py:add_one --with-doctest
+
+the natural expectation is that the target function will be loaded as
+a DOCTEST not as a regular test. Doctest probably needs to implement
+loadTestsFromName? or makeTest? -- maybe plugins need FIRST crack at
+makeTest? One way or another, the doctest plugin has to be allowed to 
+examine the proposed test object first and turn it into a test if it 
+wants to.
+
 
 -- when run vs spine suite, makeTest seemingly was called on an object
    that should not have passed the selector --

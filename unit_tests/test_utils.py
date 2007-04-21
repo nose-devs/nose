@@ -82,7 +82,7 @@ class TestUtils(unittest.TestCase):
                                               'Foo.bar')
         assert test_address(f) == (me, __name__, 'Foo')
         assert test_address(f.bar) == (me, __name__, 'Foo.bar')
-        assert test_address(nose) == (absfile(nose.__file__), 'nose')
+        assert test_address(nose) == (absfile(nose.__file__), 'nose', None)
 
         # test passing the actual test callable, as the
         # missed test plugin must do

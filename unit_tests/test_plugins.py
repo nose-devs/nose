@@ -159,6 +159,26 @@ class TestDoctestPlugin(unittest.TestCase):
             expect = ['unittest.FunctionTestCase (runit)']            
         for test in suite:
             self.assertEqual(str(test), expect.pop(0))
+
+    def test_addresses(self):
+        here = os.path.dirname(__file__)
+        support = os.path.join(here, 'support')
+        if not support in sys.path:
+            sys.path.insert(0, support)
+        import foo.bar.buz
+        
+        conf = Config()
+        opt = Bucket()
+        plug = Doctest()
+        plug.can_configure = True
+        plug.configure(opt, conf)
+        suite = plug.loadTestsFromModule(foo.bar.buz)
+        for test in suite:
+            print test.address()
+            file, mod, call = test.address()
+            self.assertEqual(mod, 'foo.bar.buz')
+            self.assertEqual(call, 'afunc')
+
             
     def test_collect_txtfile(self):
         if not compat_24:
@@ -175,7 +195,7 @@ class TestDoctestPlugin(unittest.TestCase):
         plug.can_configure = True
         plug.configure(opt, conf)
         plug.extension = ['.txt']
-        suite = plug.loadTestsFromPath(fn)
+        suite = plug.loadTestsFromFile(fn)
         for test in suite:
             assert str(test).endswith('doctests.txt')
         
@@ -185,10 +205,8 @@ class TestDoctestPlugin(unittest.TestCase):
         here = os.path.abspath(os.path.dirname(__file__))
         support = os.path.join(here, 'support')
         plug = Doctest()
-        suite = plug.loadTestsFromPath(os.path.join(support, 'foo'))
-        for test in suite:
-            pass
-        
+        suite = plug.loadTestsFromFile(os.path.join(support, 'foo'))
+        assert not suite
 
 class TestAttribPlugin(unittest.TestCase):
 
