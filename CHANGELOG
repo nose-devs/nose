@@ -14,7 +14,10 @@
   report.
 - Altered plugin loading so that builtin plugins can be loaded without
   setuptools. Thanks to Allen Bierbaum for the suggestion.
-
+- Fixed a bug in the doctests plugin that caused an error when multiple
+  exclude arguments were specified. Thanks to mbeachy for the bug report and
+  patch.
+  
 0.9.2
 
 - Added nosetests setuptools command. Now you can run python setup.py

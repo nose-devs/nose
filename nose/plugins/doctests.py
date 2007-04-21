@@ -152,8 +152,10 @@ class Doctest(Plugin):
         # also want files that match my extension
         if (self.extension
             and anyp(file.endswith, self.extension)
-            and (self.conf.exclude is None
-                 or not self.conf.exclude.search(file))):
+            and (not self.conf.exclude
+                 or not filter(None, 
+                               [exc.search(file)
+                                for exc in self.conf.exclude]))):
             return True
         return None
         
