@@ -33,7 +33,7 @@ class TestPluginCalls(unittest.TestCase):
              'prepareTestRunner', 'prepareTest', 'setOutputStream',
              'prepareTestResult', 'beforeDirectory', 'wantFile',
              'wantDirectory', 'beforeImport', 'afterImport', 'wantModule',
-             'wantClass', 'wantFunction', 'wantMethod',
+             'wantClass', 'wantFunction', 'makeTest', 'wantMethod', 
              'loadTestsFromTestClass', 'loadTestsFromModule',
              'beforeTest', 'prepareTestCase', 'startTest', 'addSuccess',
              'stopTest', 'afterTest', 'loadTestsFromDir', 'afterDirectory',

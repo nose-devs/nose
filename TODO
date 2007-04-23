@@ -11,12 +11,22 @@ DOCUMENTATION
 
 FEATURES
 
-doctest: must return wrapped suite
+doctest:
+  -- can't use DocTestCase/DocTestSuite/DocFileSuite -- the cases
+     returned don't implement things correctly. Need to subclass DocTestCase
+     locally and return instances of that subclass. May have to do something
+     icky like call DocTestSuite and then pull the ._dt_test out of the cases?
+
+     - good thing: might make it possible to support file tests in 2.3
 
 new plugin:
  testid
   -- needs tests with doctests
-  -- needs to be able to handle cases w/out address() method
+  -- change the command line parsing to look for just digits -- # is a shell
+     meta character that causes parsing to stop othe options:
+     * digit-dot: 3.
+     * dash digit -3
+     * -id digit -id 3
 
 rename Failure and split into subclasses for Import and other, and make
 it optionally include the name of the file being considered so that
@@ -43,18 +53,6 @@ OK (skipped=2)
 
 BUGS
 
-BIG PROBLEM
-
-given an input like:
-
-python nose/core.py functional_tests/support/idp/example.py:add_one --with-doctest
-
-the natural expectation is that the target function will be loaded as
-a DOCTEST not as a regular test. Doctest probably needs to implement
-loadTestsFromName? or makeTest? -- maybe plugins need FIRST crack at
-makeTest? One way or another, the doctest plugin has to be allowed to 
-examine the proposed test object first and turn it into a test if it 
-wants to.
 
 
 -- when run vs spine suite, makeTest seemingly was called on an object
@@ -105,7 +103,9 @@ PROFILE
 need to profile -- on 250 tests with discovery, 0.10-dev is ~ 1 second
 slower than 0.9. Profile and optimize.
 
-
+one possiblity -- instead of instantiating a result proxy for every
+test, tag each test with a weakref to the nose.case.Test that wraps
+it.
 
 
 older notes:

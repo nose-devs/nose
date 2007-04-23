@@ -18,9 +18,9 @@ import doctest
 import logging
 import os
 import sys
-from nose.case import TestWrapper
+from inspect import getmodule
 from nose.plugins.base import Plugin
-from nose.util import anyp, test_address, resolve_name, tolist
+from nose.util import anyp, getpackage, test_address, resolve_name, tolist
 
 log = logging.getLogger(__name__)
 
@@ -72,50 +72,44 @@ class Doctest(Plugin):
         if not self.matches(module.__name__):
             log.debug("Doctest doesn't want module %s", module)
             return
-        try:
-            doctests = doctest.DocTestSuite(module)
-        except ValueError:
-            log.debug("No doctests in %s", module)
+        tests = self.finder.find(module)
+        if not tests:
             return
-        else:
-            return self.makeTests(doctests)
+        tests.sort()
+        module_file = module.__file__
+        if module_file[-4:] in ('.pyc', '.pyo'):
+            module_file = module_file[:-1]
+        for test in tests:
+            if not test.examples:
+                continue
+            if not test.filename:
+                test.filename = module_file
+            yield DocTestCase(test)
             
     def loadTestsFromFile(self, filename):
         if self.extension and anyp(filename.endswith, self.extension):
+            name = os.path.basename(filename)
+            dh = open(filename)
             try:
-                return self.makeTests(
-                    doctest.DocFileSuite(filename, module_relative=False))
-            except AttributeError:
-                raise Exception("Doctests in files other than .py "
-                                "(python source) not supported in this "
-                                "version of doctest")
-        else:
-            return
-
+                doc = dh.read()
+            finally:
+                dh.close()
+            parser = doctest.DocTestParser()
+            test = parser.get_doctest(
+                doc, globs={}, name=name, filename=filename, lineno=0)
+            if test.examples:
+                yield DocFileCase(test)
+            
     def makeTest(self, obj, parent):
         """Look for doctests in the given object, which will be a
         function, method or class.
         """
-        try:
-            # FIXME really find the module, don't assume parent
-            # is a module
-            doctests = self.finder.find(obj, module=parent)
-        except ValueError:
-            yield Failure(*sys.exc_info())
-            return
+        doctests = self.finder.find(obj, module=getmodule(parent))
         if doctests:
             for test in doctests:
                 if len(test.examples) == 0:
                     continue
-                yield DoctestWrapper(doctest.DocTestCase(test), obj)
-            
-
-    def makeTests(self, doctests):
-        if hasattr(doctests, '__iter__'):
-            doctest_suite = doctests
-        else:
-            doctest_suite = doctests._tests
-        return map(DoctestWrapper, doctest_suite)            
+                yield DocTestCase(test, obj=obj)            
     
     def matches(self, name):
         """Doctest wants only non-test modules in general.
@@ -148,21 +142,49 @@ class Doctest(Plugin):
         return None
         
 
-class DoctestWrapper(TestWrapper):
+class DocTestCase(doctest.DocTestCase):
     """Proxy for DocTestCase: provides an address() method that
     returns the correct address for the doctest case. Otherwise
     acts as a proxy to the test case. To provide hints for address(),
     an obj may also be passed -- this will be used as the test object
     for purposes of determining the test address, if it is provided.
     """
+    def __init__(self, test, optionflags=0, setUp=None, tearDown=None,
+                 checker=None, obj=None):
+        self._nose_obj = obj
+        super(DocTestCase, self).__init__(
+            test, optionflags=optionflags, setUp=None, tearDown=None,
+            checker=None)
+    
     def address(self):
-        adr = super(DoctestWrapper, self).address()
-        if adr is None:
-            adr = test_address(
-                resolve_name(self.__dict__['_nose_case']._dt_test.name))
-        return adr
-
-    # FIXME
+        if self._nose_obj is not None:
+            return test_address(self._nose_obj)
+        return test_address(resolve_name(self._dt_test.name))
+    
     # Annoyingly, doctests loaded via find(obj) omit the module name
-    # so we need to override id, __str__ and shortDescription
+    # so we need to override id, __repr__ and shortDescription
     # bonus: this will squash a 2.3 vs 2.4 incompatiblity
+    def id(self):
+        name = self._dt_test.name
+        filename = self._dt_test.filename
+        if filename is not None:
+            pk = getpackage(filename)
+            if not name.startswith(pk):
+                name = "%s.%s" % (pk, name)
+        return name
+    
+    def __repr__(self):
+        name = self.id()
+        name = name.split('.')
+        return "%s (%s)" % (name[-1], '.'.join(name[:-1]))
+    __str__ = __repr__
+                           
+    def shortDescription(self):
+        return 'Doctest: %s' % self.id()
+
+
+class DocFileCase(doctest.DocFileCase):
+    """Overrides to provide filename
+    """
+    def address(self):
+        return (self._dt_test_filename, None, None)

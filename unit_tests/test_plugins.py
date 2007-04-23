@@ -205,8 +205,8 @@ class TestDoctestPlugin(unittest.TestCase):
         here = os.path.abspath(os.path.dirname(__file__))
         support = os.path.join(here, 'support')
         plug = Doctest()
-        suite = plug.loadTestsFromFile(os.path.join(support, 'foo'))
-        assert not suite
+        for test in plug.loadTestsFromFile(os.path.join(support, 'foo')):
+            self.fail("Expected no tests, got %s" % test)
 
 class TestAttribPlugin(unittest.TestCase):
 
