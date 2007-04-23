@@ -58,7 +58,8 @@ class TestLoadNamesMode(PluginTester, unittest.TestCase):
     """
     activate = '--with-id'
     plugins = [TestId()]
-    args = ['-v', '--id-file=%s' % idfile, '#2', '#5']
+    # Not a typo: # is optional before ids
+    args = ['-v', '--id-file=%s' % idfile, '2', '#5']
     suitepath = None
 
     def makeSuite(self):
@@ -91,7 +92,7 @@ class TestLoadNamesMode_2(PluginTester, unittest.TestCase):
     """
     activate = '--with-id'
     plugins = [TestId()]
-    args = ['-v', '--id-file=%s' % idfile, '#9']
+    args = ['-v', '--id-file=%s' % idfile, '9']
     suitepath = None
 
     def makeSuite(self):
@@ -158,7 +159,6 @@ class TestWithDoctest_2(PluginTester, unittest.TestCase):
         print str(self.output)
         print '*' * 70
 
-        # FIXME 2.3 compat problem
         assert 'Doctest: exm.add_one ... FAIL' in self.output
         
         count = 0

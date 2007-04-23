@@ -11,22 +11,11 @@ DOCUMENTATION
 
 FEATURES
 
-doctest:
-  -- can't use DocTestCase/DocTestSuite/DocFileSuite -- the cases
-     returned don't implement things correctly. Need to subclass DocTestCase
-     locally and return instances of that subclass. May have to do something
-     icky like call DocTestSuite and then pull the ._dt_test out of the cases?
-
-     - good thing: might make it possible to support file tests in 2.3
 
 new plugin:
  testid
   -- needs tests with doctests
-  -- change the command line parsing to look for just digits -- # is a shell
-     meta character that causes parsing to stop othe options:
-     * digit-dot: 3.
-     * dash digit -3
-     * -id digit -id 3
+     -- doctests from non module files
 
 rename Failure and split into subclasses for Import and other, and make
 it optionally include the name of the file being considered so that

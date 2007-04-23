@@ -1,3 +1,6 @@
+"""
+DOCME
+"""
 import logging
 import os
 from nose.plugins import Plugin
@@ -11,10 +14,10 @@ log = logging.getLogger(__name__)
 
 class TestId(Plugin):
     """
-    Activate to add a test id (like #1) to each test name
-    output. Once you've run once to generate test ids, you can re-run
-    individual tests by activating the plugin and passing the ids
-    instead of test names.
+    Activate to add a test id (like #1) to each test name output. Once
+    you've run once to generate test ids, you can re-run individual
+    tests by activating the plugin and passing the ids (with or
+    without the # prefix) instead of test names.
     """
     name = 'id'
     idfile = None
@@ -72,10 +75,9 @@ class TestId(Plugin):
         log.debug("Make name %s", addr)
         filename, module, call = addr
         if filename is not None:
-            base, ext = os.path.splitext(filename)
-            if ext in ('.pyc', '.pyo'):
-                ext = '.py'
-            head = base + ext
+            if filename[-4:] in ('.pyc', '.pyo'):
+                filename = filename[:-1]
+            head = filename
         else:
             head = module
         if call is not None:
@@ -100,14 +102,13 @@ class TestId(Plugin):
 
     def tr(self, name):
         log.debug("tr '%s'", name)
-        if name.startswith('#'):
-            try:
-                key = int(name.replace('#', ''))
-            except ValueError:
-                return name
-            log.debug("Got key %s", key)
-            self.shouldSave = False
-            if key in self.ids:
-                return self.makeName(self.ids[key])
+        try:
+            key = int(name.replace('#', ''))
+        except ValueError:
+            return name
+        log.debug("Got key %s", key)
+        self.shouldSave = False
+        if key in self.ids:
+            return self.makeName(self.ids[key])
         return name
         

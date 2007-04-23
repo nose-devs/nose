@@ -24,10 +24,6 @@ from nose.util import anyp, getpackage, test_address, resolve_name, tolist
 
 log = logging.getLogger(__name__)
 
-# FIXME can't return a naked doctest suite -- the parent will be wrong (it
-# will be set to doctest, not the module the doctests were loaded from) so
-# we need to wrap the returned suite in a test or something that has the
-# proper parent set
 
 class Doctest(Plugin):
     """
