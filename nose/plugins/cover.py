@@ -125,12 +125,10 @@ class Coverage(Plugin):
         # module, we would have already returned True
         return not self.coverPackages
 
-    # FIXME this is needed to force inclusion in coverage of
-    # modules that are never loaded. But it should be under a different
-    # hook in this version I think
     def wantFile(self, file, package=None):    
         """If inclusive coverage enabled, return true for all source files 
-        in wanted packages."""    
+        in wanted packages.
+        """
         if self.coverInclusive:
             if file.endswith(".py"): 
                 if package and self.coverPackages:

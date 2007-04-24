@@ -32,11 +32,13 @@ class TestPluginCalls(unittest.TestCase):
              'prepareTestLoader', 'loadTestsFromNames', 'loadTestsFromName',
              'prepareTestRunner', 'prepareTest', 'setOutputStream',
              'prepareTestResult', 'beforeDirectory', 'wantFile',
-             'wantDirectory', 'beforeImport', 'afterImport', 'wantModule',
-             'wantClass', 'wantFunction', 'makeTest', 'wantMethod', 
-             'loadTestsFromTestClass', 'loadTestsFromModule',
+             'wantDirectory', 'beforeContext', 'beforeImport',
+             'afterImport', 'wantModule', 'wantClass', 'wantFunction',
+             'makeTest', 'wantMethod', 'loadTestsFromTestClass',
+             'loadTestsFromModule', 'startContext',
              'beforeTest', 'prepareTestCase', 'startTest', 'addSuccess',
-             'stopTest', 'afterTest', 'loadTestsFromDir', 'afterDirectory',
+             'stopTest', 'afterTest', 'stopContext', 'afterContext',
+             'loadTestsFromDir', 'afterDirectory',
              'report', 'finalize'])
 
 

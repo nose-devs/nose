@@ -257,7 +257,15 @@ class IPluginInterface(object):
          * capt:
            Captured output, if any.
         """
-        pass        
+        pass
+
+    def afterContext(self):
+        """Called after a context (generally a module) has been
+        lazy-loaded, imported, setup, had its tests loaded and
+        executed, and torn down.
+        """
+        pass
+    afterContext._new = True
 
     def afterDirectory(self, path):
         """Called after all tests have been loaded from directory at path
@@ -293,6 +301,24 @@ class IPluginInterface(object):
         """
         pass
     afterTest._new = True
+
+    def beforeContext(self):
+        """Called before a context (generally a module) is
+        examined. Since the context is not yet loaded, plugins don't
+        get to know what the context is; so any context operations
+        should use a stack that is pushed in beforeContext and popped
+        in `afterContext`.
+
+        `beforeContext` and `afterContext` are mainly
+        useful for tracking and restoring global state around possible
+        changes from within a context, whatever the context may be. If
+        you need to operate on contexts themselves, see `startContext`
+        and `stopContext`, which are passed the context in question, but
+        are called after it has been loaded (imported in the module
+        case).
+        """
+        pass
+    beforeContext._new = True
 
     def beforeDirectory(self, path):
         """Called before tests are loaded from directory at path.
@@ -643,6 +669,19 @@ class IPluginInterface(object):
          * stream:
            the original output stream
         """
+
+    def startContext(self, context):
+        """Called before context setup and the running of tests in the
+        context. Note that tests have already been *loaded* from the
+        context before this call.
+
+        Parameters:
+         * context:
+           the context about to be setup. May be a module or class, or any
+           other object that contains tests.
+        """
+        pass
+    startContext._new = True
     
     def startTest(self, test):
         """Called before each test is run. DO NOT return a value unless
@@ -653,6 +692,17 @@ class IPluginInterface(object):
            the test case
         """
         pass
+
+    def stopContext(self, context):
+        """Called after the tests in a context have run and the
+        context has been torn down.
+
+        Parameters:
+         * context:
+           the context that has just been torn down.
+        """
+        pass
+    stopContext._new = True
     
     def stopTest(self, test):
         """Called after each test is run. DO NOT return a value unless

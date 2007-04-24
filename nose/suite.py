@@ -182,7 +182,7 @@ class ContextSuite(LazySuite):
         log.debug("completed suite setup")
 
     def setupContext(self, context):
-        # FIXME plugins.contextSetup(context)
+        self.config.plugins.startContext(context)
         log.debug("%s setup context %s", self, context)
         if self.factory:
             # note that I ran the setup for this context, so that I'll run
@@ -225,19 +225,6 @@ class ContextSuite(LazySuite):
                 log.debug("%s setup ancestor %s", setup, ancestor)
                 if setup is self:
                     self.teardownContext(ancestor)
-                # I can run teardown if all other suites
-                # in this context have run, and it's not yet
-                # torn down (supports loadTestsFromNames where
-                # N names are from the same/overlapping contexts)
-                #suites = factory.suites[ancestor]
-                # assume true for suites missing the has_run attribute;
-                # otherwise if a non-context suite sneaks in somehow,
-                # teardown will never run.
-                #have_run = [s for s in suites if getattr(s, 'has_run', True)]
-                #if suites == have_run:
-                #    self.teardownContext(ancestor)
-                #log.debug("%s / %s == ? %s",
-                #          suites, have_run, suites == have_run)
         else:
             self.teardownContext(context)
         
@@ -251,7 +238,7 @@ class ContextSuite(LazySuite):
             names = ('teardown_module', 'teardown')
         # FIXME packages, camelCase
         try_run(context, names)
-        # FIXME plugins.contextTeardown(context)
+        self.config.plugins.stopContext(context)
 
     # FIXME the wrapping has to move to the factory?
     def _get_wrapped_tests(self):

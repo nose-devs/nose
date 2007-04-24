@@ -64,9 +64,10 @@ class TestLoader(unittest.TestLoader):
         -- each suite of tests from a module or other file is yielded
         and is expected to be executed before the next file is
         examined.
-        """
+        """        
         log.debug("load from dir %s", path)
-        self.config.plugins.beforeDirectory(path)
+        plugins = self.config.plugins
+        plugins.beforeDirectory(path)
         if self.config.addPaths:
             paths_added = add_path(path)
 
@@ -87,11 +88,13 @@ class TestLoader(unittest.TestLoader):
                     is_test = self.selector.wantDirectory(entry_path)
             is_package = ispackage(entry_path)
             if is_test and is_file:
+                plugins.beforeContext()
                 if entry.endswith('.py'):
                     yield self.loadTestsFromName(
                         entry_path, discovered=True)
                 else:
                     yield self.loadTestsFromFile(entry_path)
+                plugins.afterContext()
             elif is_dir:
                 if is_package:
                     # Load the entry as a package: given the full path,
@@ -105,7 +108,7 @@ class TestLoader(unittest.TestLoader):
         # give plugins a chance
         try:
             tests = []
-            for test in self.config.plugins.loadTestsFromDir(path):
+            for test in plugins.loadTestsFromDir(path):
                 tests.append(test)
             yield self.suiteClass(tests)
         except (TypeError, AttributeError):
@@ -113,7 +116,7 @@ class TestLoader(unittest.TestLoader):
         # pop paths
         if self.config.addPaths:
             map(remove_path, paths_added)
-        self.config.plugins.afterDirectory(path)
+        plugins.afterDirectory(path)
 
     def loadTestsFromFile(self, filename):
         # only called for non-module
