@@ -6,23 +6,30 @@ nose.tools provides a few convenience functions to make writing tests
 easier. You don't have to use them; nothing in the rest of nose depends
 on any of these methods.
 """
+import re
 import time
+import unittest
+
 
 __all__ = ['ok_', 'eq_', 'make_decorator', 'raises', 'timed', 'with_setup',
            'TimeExpired']
 
+
 class TimeExpired(AssertionError):
     pass
+
 
 def ok_(expr, msg=None):
     """Shorthand for assert. Saves 3 whole characters!
     """
     assert expr, msg
 
+
 def eq_(a, b, msg=None):
     """Shorthand for 'assert a == b, "%r != %r" % (a, b)
     """
     assert a == b, msg or "%r != %r" % (a, b)
+
 
 def make_decorator(func):
     """
@@ -47,6 +54,7 @@ def make_decorator(func):
             newfunc.compat_func_name = name
         return newfunc
     return decorate
+
 
 def raises(*exceptions):
     """Test must raise one of expected exceptions to pass. Example use::
@@ -76,6 +84,7 @@ def raises(*exceptions):
         return newfunc
     return decorate
 
+
 def timed(limit):
     """Test must finish within specified time limit to pass. Example use::
 
@@ -93,6 +102,7 @@ def timed(limit):
         newfunc = make_decorator(func)(newfunc)
         return newfunc
     return decorate
+
 
 def with_setup(setup=None, teardown=None):
     """Decorator to add setup and/or teardown methods to a test function::
@@ -125,3 +135,24 @@ def nottest(func):
     """
     func.__test__ = False
     return func
+
+
+#
+# Expose assert* from unittest.TestCase
+# - give them pep8 style names
+#
+caps = re.compile('([A-Z])')
+
+def pep8(name):
+    return caps.sub(lambda m: '_' + m.groups()[0].lower(), name)
+
+class Dummy(unittest.TestCase):
+    def nop():
+        pass
+_t = Dummy('nop')
+
+for at in [ at for at in dir(_t)
+            if at.startswith('assert') and not '_' in at ]:
+    pepd = pep8(at)
+    vars()[pepd] = getattr(_t, at)
+    __all__.append(pepd)

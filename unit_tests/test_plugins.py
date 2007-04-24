@@ -180,13 +180,12 @@ class TestDoctestPlugin(unittest.TestCase):
             file, mod, call = test.address()
             self.assertEqual(mod, 'foo.bar.buz')
             self.assertEqual(call, 'afunc')
-
             
     def test_collect_txtfile(self):
-        if not compat_24:
-            warn("No support for doctests in files other than python modules"
-                 " in python versions older than 2.4")
-            return
+        #if not compat_24:
+        #    warn("No support for doctests in files other than python modules"
+        #         " in python versions older than 2.4")
+        #    return
         here = os.path.abspath(os.path.dirname(__file__))
         support = os.path.join(here, 'support')
         fn = os.path.join(support, 'foo', 'doctests.txt')
@@ -209,6 +208,7 @@ class TestDoctestPlugin(unittest.TestCase):
         plug = Doctest()
         for test in plug.loadTestsFromFile(os.path.join(support, 'foo')):
             self.fail("Expected no tests, got %s" % test)
+
 
 class TestAttribPlugin(unittest.TestCase):
 
@@ -406,7 +406,8 @@ class TestProfPlugin(unittest.TestCase):
             assert os.path.exists(pfile)
         finally:
             plug.finalize(None)
-        assert not os.path.exists(pfile)
+        assert not os.path.exists(pfile), \
+               "finalize did not remove temp file %s" % pfile
 
 if __name__ == '__main__':
     unittest.main()

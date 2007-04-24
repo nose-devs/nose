@@ -97,3 +97,4 @@ class Profile(Plugin):
     def _create_pfile(self):
         if not self.pfile:
             self.fileno, self.pfile = tempfile.mkstemp()
+            self.clean_stats_file = True
