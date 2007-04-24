@@ -68,10 +68,10 @@ CHORES
 
 make setup work with & w/out setuptools
 
-MERGE merge trunk -> 0.10 from r9 to pick up trunk changes/fixes
+compare files after merge-- look for missing files/dirs in 0.10
 
 fix builtin plugins:
- isolation * post merge
+ isolation 
    - need loadTestFromNames hook to make this work -- must be able to take over
      completely and be (or use internally at least) a generator. This is 
      needed because the plugin needs to isolate a import time, not just 
