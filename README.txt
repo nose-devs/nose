@@ -30,7 +30,7 @@ understand and hack. Other goals include:
   interact with tests more easily.
 
 This involves some major changes to how nose loads and runs tests.
-
+  
 Changes to loading
 ==================
 

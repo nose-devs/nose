@@ -11,7 +11,17 @@ Use the nosetests script (after installation by setuptools)::
 
   nosetests [options] [(optional) test files or directories]
 
-You may also use nose in a test script::
+In addition to passing command-line options, you may also put configuration
+options in a .noserc or nose.cfg file in your home directory. These are
+standard .ini-style config files. Put your nosetests configuration in a
+[nosetests] section, with the -- prefix removed::
+
+ [nosetests]
+ verbosity=3
+ with-doctest 
+  
+There are several other ways to use the nose test runner besides the
+`nosetests` script. You may use nose in a test script::
 
   import nose
   nose.main()
@@ -27,19 +37,48 @@ or raised an uncaught exception. Lastly, you can run nose.core directly, which
 will run nose.main()::
 
   python /path/to/nose/core.py
-
+  
 Please see the usage message for the nosetests script for information
 about how to control which tests nose runs, which plugins are loaded,
 and the test output.
-  
+ 
 Features
 --------
 
-Run as collect
-==============
+Writing tests is easier
+=======================
 
-nose begins running tests as soon as the first test module is loaded, it
-does not wait to collect all tests before running the first.
+nose collects tests from `unittest.TestCase` subclasses, of course. But you can
+also write simple test functions, and test classes that are not subclasses of
+`unittest.TestCase`. nose also supplies a number of helpful functions for
+writing timed tests, testing for exceptions, and other common use cases. See
+`Writing tests`_ and `Testing tools`_ for more.
+
+Running tests is easier
+=======================
+
+nose collects tests automatically, as long as you follow some simple
+guidelines for organizing your library and test code. There's no need to
+manually collect test cases into test suites. Running tests is also more
+responsive, since nose begins running tests as soon as the first test module
+is loaded. See `Finding and running tests`_ for more.
+
+Setting up your test environment is easier
+==========================================
+
+nose supports fixtures at the package, module, and test case level, so
+expensive initialization can be done as infrequently as possible. See
+Fixtures_ for more.
+
+Doing what you want to do is easier
+===================================
+
+nose has plugin hooks for loading, running, watching and reporting on tests
+and test runs. If you don't like the default collection scheme, or it doesn't
+suit the layout of your project, or you need reports in a format different
+from the unittest standard, or you need to collect some additional information
+about tests (like code coverage or profiling data), you can write a plugin to
+do so. See `Writing plugins`_ for more.
 
 Output capture
 ==============
@@ -72,6 +111,9 @@ You will get output like::
         assert a == 4, "assert 2 is 4"
   AssertionError: assert 2 is 4
     >>  assert 2 == 4, "assert 2 is 4"
+
+Please note that dotted names are not expanded, and callables are not called
+in the expansion.
     
 Setuptools integration
 ======================
@@ -102,19 +144,20 @@ using the setup.cfg file. See nose.commands_ for more information about the
 
 .. _setuptools: http://peak.telecommunity.com/DevCenter/setuptools
 .. _nose.commands: #commands
+.. _Writing plugins: http://code.google.com/p/python-nose/wiki/WritingPlugins
 
 Writing tests
 -------------
 
-As with py.test, nose tests need not be subclasses of TestCase. Any function
-or class that matches the configured testMatch regular expression
-('(?:^|[\\b_\\.-])[Tt]est)'' by default) and lives in a module that also
-matches that expression will be run as a test. For the sake of compatibility
-with legacy unittest test cases, nose will also load tests from
-unittest.TestCase subclasses just like unittest does. Like py.test, functional
-tests will be run in the order in which they appear in the module
-file. TestCase derived tests and other test classes are run in alphabetical
-order.
+As with py.test, nose tests need not be subclasses of
+`unittest.TestCase`. Any function or class that matches the configured
+testMatch regular expression (`(?:^|[\\b_\\.-])[Tt]est)` by default)
+and lives in a module that also matches that expression will be run as
+a test. For the sake of compatibility with legacy unittest test cases,
+nose will also load tests from `unittest.TestCase` subclasses just like
+unittest does. Like py.test, functional tests will be run in the order
+in which they appear in the module file. TestCase derived tests and
+other test classes are run in alphabetical order.
 
 Fixtures
 ========
@@ -135,9 +178,9 @@ and remove it in package teardown once per test run, rather than having to
 create and tear it down once per test module or test case.
 
 To create package-level setup and teardown methods, define setup and/or
-teardown functions in the __init__.py of a test package. Setup methods may
-be named 'setup', 'setup_package', 'setUp',or 'setUpPackage'; teardown may
-be named 'teardown', 'teardown_package', 'tearDown' or 'tearDownPackage'.
+teardown functions in the `__init__.py` of a test package. Setup methods may
+be named `setup`, `setup_package`, `setUp`, or `setUpPackage`; teardown may
+be named `teardown`, `teardown_package`, `tearDown` or `tearDownPackage`.
 Execution of tests in a test package begins as soon as the first test
 module is loaded from the test package.
 
@@ -146,26 +189,26 @@ Test modules
 
 A test module is a python module that matches the testMatch regular
 expression. Test modules offer module-level setup and teardown; define the
-method 'setup', 'setup_module', 'setUp' or 'setUpModule' for setup,
-'teardown', 'teardown_module', or 'tearDownModule' for teardown. Execution
+method `setup`, `setup_module`, `setUp` or `setUpModule` for setup,
+`teardown`, `teardown_module`, or `tearDownModule` for teardown. Execution
 of tests in a test module begins after all tests are collected.
 
 Test classes
 ============
 
 A test class is a class defined in a test module that is either a subclass
-of unittest.TestCase, or matches testMatch. Test classes that don't
-descend from unittest.TestCase are run in the same way as those that do:
+of `unittest.TestCase`, or matches testMatch. Test classes that don't
+descend from `unittest.TestCase` are run in the same way as those that do:
 methods in the class that match testMatch are discovered, and a test case
 constructed to run each with a fresh instance of the test class. Like
-unittest.TestCase subclasses, other test classes may define setUp and
+`unittest.TestCase` subclasses, other test classes may define setUp and
 tearDown methods that will be run before and after each test method.
 
 Test functions
 ==============
 
 Any function in a test module that matches testMatch will be wrapped in a
-FunctionTestCase and run as a test. The simplest possible failing test is
+`FunctionTestCase` and run as a test. The simplest possible failing test is
 therefore::
 
   def test():
@@ -187,7 +230,7 @@ the same setup, is to use the provided with_setup decorator::
   def teardown_func():
       # ...
 
-  @with_setup(setup_func,teardown_func)
+  @with_setup(setup_func, teardown_func)
   def test():
       # ...
 
@@ -196,12 +239,16 @@ so::
 
   def test():
       # ...
-  test = with_setup(setup_func,teardown_func)(test)
+  test = with_setup(setup_func, teardown_func)(test)
 
 or by direct assignment::
 
   test.setup = setup_func
   test.teardown = teardown_func
+  
+Please note that `with_setup` is useful *only* for test functions, not for
+test methods in TestCase subclasses or other test classes. For those cases,
+define `setUp` and `tearDown` methods in the class.
   
 Test generators
 ===============
@@ -235,9 +282,49 @@ generator returns.
 For generator methods, the setUp and tearDown methods of the class (if any)
 will be run before and after each generated test case.
 
-Please note that method generators `are not` supported in unittest.TestCase
+Please note that method generators *are not* supported in `unittest.TestCase`
 subclasses.
-      
+
+Finding and running tests
+-------------------------
+
+nose, by default, follows a few simple rules for test discovery.
+
+* If it looks like a test, it's a test. Names of directories, modules,
+  classes and functions are compared against the testMatch regular
+  expression, and those that match are considered tests. Any class that is a
+  `unittest.TestCase` subclass is also collected, so long as it is inside of a
+  module that looks like a test.
+   
+* Directories that don't look like tests and aren't packages are not
+  inspected.
+
+* Packages are always inspected, but they are only collected if they look
+  like tests. This means that you can include your tests inside of your
+  packages (somepackage/tests) and nose will collect the tests without
+  running package code inappropriately.
+
+* When a project appears to have library and test code organized into
+  separate directories, library directories are examined first.
+
+* When nose imports a module, it adds that module's directory to sys.path;
+  when the module is inside of a package, like package.module, it will be
+  loaded as package.module and the directory of *package* will be added to
+  sys.path.
+
+Be aware that plugins and command line options can change any of those rules.
+   
+Testing tools
+-------------
+
+The nose.tools module provides a number of testing aids that you may
+find useful, including decorators for restricting test execution time
+and testing for exceptions, and all of the same assertX methods found
+in `unittest.TestCase` (only spelled in pep08 fashion, so assert_equal
+rather than assertEqual). See `nose.tools`_ for a complete list.
+
+.. _nose.tools: http://code.google.com/p/python-nose/wiki/TestingTools
+
 About the name
 --------------
 
@@ -250,10 +337,11 @@ About the name
 Contact the author
 ------------------
 
-To report bugs, ask questions, or request features, please use the trac
-instance provided by the great folks at python hosting, here:
-http://nose.python-hosting.com. Or, email the author at
-jpellerin+nose at gmail dot com. Patches are welcome!
+You can email me at jpellerin+nose at gmail dot com.
+
+To report bugs, ask questions, or request features, please use the *issues*
+tab at the Google code site: http://code.google.com/p/python-nose/issues/list.
+Patches are welcome!
 
 Similar test runners
 --------------------
@@ -270,7 +358,7 @@ arguments for the respective tools.
 License and copyright
 ---------------------
 
-nose is copyright Jason Pellerin 2005-2006
+nose is copyright Jason Pellerin 2005-2007
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of the GNU Lesser General Public License as published by

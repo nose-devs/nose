@@ -1,5 +1,7 @@
 """Implements nose test program and collector.
 """
+from __future__ import generators
+
 import logging
 import os
 import re
@@ -7,6 +9,8 @@ import sys
 import types
 import unittest
 from warnings import warn
+from warnings import warn
+import ConfigParser
 
 from nose.config import Config, all_config_files
 from nose.importer import add_path
@@ -17,7 +21,7 @@ from nose.util import absdir, isclass, tolist
 
 
 log = logging.getLogger('nose.core')
-
+compat_24 = sys.version_info >= (2, 4)
 
 class TestCollector:
     """Main nose test collector.
@@ -107,7 +111,7 @@ class TextTestRunner(unittest.TextTestRunner):
 
     
 class TestProgram(unittest.TestProgram):
-    """usage: %prog [options] [names]
+    r"""usage: %prog [options] [names]
     
     nose provides an alternate test discovery and running process for
     unittest, one that is intended to mimic the behavior of py.test as much as
@@ -117,7 +121,7 @@ class TestProgram(unittest.TestProgram):
     directories and packages found in its working directory (which
     defaults to the current working directory). Any python source file,
     directory or package that matches the testMatch regular expression
-    (by default: (?:^|[\\b_\\.-])[Tt]est) will be collected as a test (or
+    (by default: (?:^|[\b_\.-])[Tt]est) will be collected as a test (or
     source for collection of tests). In addition, all other packages
     found in the working directory are examined for python source files
     or directories that match testMatch. Package discovery descends all
@@ -174,6 +178,21 @@ class TestProgram(unittest.TestProgram):
     the additional features (error classes, and plugin-supplied
     features such as output capture and assert introspection) detailed
     in the options below.
+
+    Configuration
+    -------------
+
+    In addition to passing command-line options, you may also put configuration
+    options in a .noserc or nose.cfg file in your home directory. These are
+    standard .ini-style config files. Put your nosetests configuration in a
+    [nosetests] section, with the -- prefix removed:
+
+      [nosetests]
+      verbosity=3
+      with-doctest
+
+    All configuration files that are found will be loaded and their options
+    combined.
     """
     verbosity = 1
 

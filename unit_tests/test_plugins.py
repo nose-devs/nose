@@ -90,6 +90,8 @@ class TestDoctestPlugin(unittest.TestCase):
             assert len(parser.opts) == 2
 
     def test_config(self):
+        if not compat_24:
+            return
         # test that configuration works properly when both environment
         # and command line specify a doctest extension
         parser = OptionParser()
@@ -267,6 +269,20 @@ class TestAttribPlugin(unittest.TestCase):
         assert plug.wantFunction(f) is not False
         assert not plug.wantFunction(g)
 
+    def test_class_attr(self):
+        class TestP:
+            foo = True
+            def h():
+                pass
+
+        def i():
+            pass
+        
+        plug = AttributeSelector()
+        plug.attribs = [[('foo', True)]]
+        assert plug.wantMethod(TestP.h) is not False
+        assert plug.wantFunction(i) is False
+        
     def test_eval_attr(self):
         if not compat_24:
             warn("No support for eval attributes in python versions older"
@@ -355,8 +371,11 @@ class TestProfPlugin(unittest.TestCase):
     def test_begin(self):
         plug = Profile()
         plug.pfile = tempfile.mkstemp()[1]
-        plug.begin()
-        assert plug.prof
+        try:
+            plug.begin()
+            assert plug.prof
+        finally:
+            plug.finalize(None)
 
     def test_prepare_test(self):
         r = {}
@@ -369,8 +388,25 @@ class TestProfPlugin(unittest.TestCase):
         plug = Profile()
         plug.prof = dummy()
         result = plug.prepareTest(func)
-        result(r)
-        assert r[1] == ("func", "wrapped")
-        
+        try:
+            result(r)
+            assert r[1] == ("func", "wrapped")
+        finally:
+            plug.finalize(None)
+
+    def test_finalize(self):
+        def func():
+            pass
+
+        plug = Profile()
+        plug.begin()
+        plug.prepareTest(func)
+        pfile = plug.pfile
+        try:
+            assert os.path.exists(pfile)
+        finally:
+            plug.finalize(None)
+        assert not os.path.exists(pfile)
+
 if __name__ == '__main__':
     unittest.main()

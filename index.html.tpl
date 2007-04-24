@@ -125,6 +125,11 @@
       margin-bottom: 0px;
       }
 
+      p.note {
+      background: #fed;
+      border: 1px solid black;
+      padding: 6px;
+      }
     </style>
   </head>
   <body>
@@ -157,11 +162,11 @@
       <p>Sign up to receive email announcements
         of new releases</p>
 
-      <h2><a href="http://nose.python-hosting.com/">Trac</a></h2>
+      <h2><a href="http://code.google.com/p/python-nose/">Tracker</a></h2>
       <p>Report bugs, request features, wik the wiki, browse source.</p>
 
       <h2>Get the code</h2>
-      <p><tt>svn co http://svn.nose.python-hosting.com/trunk</tt></p>      
+      <p><tt>svn co http://python-nose.googlecode.com/svn/trunk/ nose</tt></p>      
       
       <h2>Other links</h2>
       <ul>
@@ -191,6 +196,11 @@
 
       <h2>Install</h2>
 
+      <p class="note">
+        On most UNIX-like systems, you'll probably need to run these commands
+        as root or using sudo.
+      </p>
+
       <p>Install nose using setuptools:
         <pre>easy_install nose</pre>
       </p>
@@ -201,14 +211,27 @@
 
         <pre>python setup.py install</pre>
       </p>
-      
+
+      <p>If you have an older version of setuptools installed, you may see an
+        error like this:
+        
+        <blockquote>
+          <tt>The required version of setuptools (>=0.6c5) is not available, and
+          can't be installed while this script is running. Please install
+          a more recent version first.</tt>
+        </blockquote>
+        
+        In that case, you'll need to update your setuptools install first,
+        either by running:
+
+        <pre>easy_install -U setuptools</pre>
+
+        or:
+
+        <pre>python ez_setup.py</pre>
+      </p>
+        
       %(body)s
-
-      <h2><a name="tools"></a>nose.tools</h2>
-
-      %(tools)s
-
-      <p><b>FIXME:</b> use pudge to generate rst docs for all tools funcs</p>
       
       <h2><a name="commands"></a>nosetests setuptools command</h2>
 
@@ -221,15 +244,15 @@
       <h2>Bug reports</h2>
 
       <p>Please report bugs and make feature
-      requests <a href="http://nose.python-hosting.com">here</a>.</p>
+      requests <a href="http://code.google.com/p/python-nose/">here</a>.</p>
       
       <h2>Hack</h2>
 
-      <p><a href="http://nose.python-hosting.com/wiki/WritingPlugins">Write
+      <p><a href="http://code.google.com/p/python-nose/wiki/WritingPlugins">Write
           plugins!</a> It's easy and fun.</p>
       
       <p>Get the code:
-        <pre>svn co http://svn.nose.python-hosting.com/trunk</pre>
+        <pre>svn checkout http://python-nose.googlecode.com/svn/trunk/ nose</pre>
       </p>
 
       <p><a href="mailto:jpellerin+nose@gmail.com">Patches are
@@ -239,8 +262,7 @@
           tree easily.
       </p>
       
-      <p>Thanks to the great folks at python hosting for providing the
-      subversion repository and trac instance.</p>
+      <p>Thanks to Google for providing the Google code hosting service.</p>
       
       <h2><a name="changelog"></a>Changelog</h2>
       %(changelog)s

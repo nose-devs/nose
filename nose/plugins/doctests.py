@@ -14,6 +14,8 @@ course of running a test.
 
 .. _doctest: http://docs.python.org/lib/module-doctest.html
 """
+from __future__ import generators
+
 import doctest
 import logging
 import os
@@ -24,6 +26,35 @@ from nose.util import anyp, getpackage, test_address, resolve_name, tolist
 
 log = logging.getLogger(__name__)
 
+#
+# Doctest and coverage don't get along, so we need to create
+# a monkeypatch that will replace the part of doctest that
+# interferes with coverage reports.
+#
+# The monkeypatch is based on this zope patch:
+# http://svn.zope.org/Zope3/trunk/src/zope/testing/doctest.py?rev=28679&r1=28703&r2=28705
+#
+try:
+    _orp = doctest._OutputRedirectingPdb
+
+    class NoseOutputRedirectingPdb(_orp):
+        def __init__(self, out):
+            self.__debugger_used = False
+            _orp.__init__(self, out)
+
+        def set_trace(self):
+            self.__debugger_used = True
+            _orp.set_trace(self)
+
+        def set_continue(self):
+            # Calling set_continue unconditionally would break unit test 
+            # coverage reporting, as Bdb.set_continue calls sys.settrace(None).
+            if self.__debugger_used:
+                _orp.set_continue(self)
+    doctest._OutputRedirectingPdb = NoseOutputRedirectingPdb
+except AttributeError:
+    # Python 2.3: no support
+    pass
 
 class Doctest(Plugin):
     """
@@ -132,8 +163,10 @@ class Doctest(Plugin):
         # also want files that match my extension
         if (self.extension
             and anyp(file.endswith, self.extension)
-            and (self.conf.exclude is None
-                 or not self.conf.exclude.search(file))):
+            and (not self.conf.exclude
+                 or not filter(None, 
+                               [exc.search(file)
+                                for exc in self.conf.exclude]))):
             return True
         return None
         
@@ -157,7 +190,7 @@ class DocTestCase(doctest.DocTestCase):
             return test_address(self._nose_obj)
         return test_address(resolve_name(self._dt_test.name))
     
-    # Annoyingly, doctests loaded via find(obj) omit the module name
+    # doctests loaded via find(obj) omit the module name
     # so we need to override id, __repr__ and shortDescription
     # bonus: this will squash a 2.3 vs 2.4 incompatiblity
     def id(self):

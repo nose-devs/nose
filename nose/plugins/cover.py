@@ -85,6 +85,7 @@ class Coverage(Plugin):
         if self.coverErase:
             log.debug("Clearing previously collected coverage statistics")
             coverage.erase()
+        coverage.exclude('#pragma[: ]+[nN][oO] [cC][oO][vV][eE][rR]')
         coverage.start()
         
     def report(self, stream):

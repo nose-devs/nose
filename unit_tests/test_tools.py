@@ -1,6 +1,9 @@
+import sys
 import time
 import unittest
 from nose.tools import *
+
+compat_24 =  sys.version_info >= (2, 4)
 
 class TestTools(unittest.TestCase):
 
@@ -90,6 +93,62 @@ class TestTools(unittest.TestCase):
         
         assert f2.setup == 'setup'
         assert f2.teardown == 'teardown'
+
+    def test_nested_decorators(self):
+        from nose.tools import raises, timed, with_setup
+        
+        def test():
+            pass
+        
+        def foo():
+            pass
+        
+        test = with_setup(foo, foo)(test)
+        test = timed(1.0)(test)
+        test = raises(TypeError)(test)
+        assert test.setup == foo
+        assert test.teardown == foo
+
+    def test_decorator_func_sorting(self):
+        from nose.tools import raises, timed, with_setup
+        from nose.util import func_lineno
+        
+        def test1():
+            pass
+
+        def test2():
+            pass
+
+        def test3():
+            pass
+
+        def foo():
+            pass
+
+        test1_pos = func_lineno(test1)
+        test2_pos = func_lineno(test2)
+        test3_pos = func_lineno(test3)
+
+        test1 = raises(TypeError)(test1)
+        test2 = timed(1.0)(test2)
+        test3 = with_setup(foo)(test3)
+
+        self.assertEqual(func_lineno(test1), test1_pos)
+        self.assertEqual(func_lineno(test2), test2_pos)
+        self.assertEqual(func_lineno(test3), test3_pos)
+        
+    def test_testcase_funcs(self):
+        import nose.tools
+        tc_asserts = [ at for at in dir(nose.tools)
+                       if at.startswith('assert_') ]
+        print tc_asserts
+        
+        # FIXME: not sure which of these are in all supported
+        # versions of python
+        assert 'assert_raises' in tc_asserts
+        if compat_24:
+            assert 'assert_true' in tc_asserts
+
             
 if __name__ == '__main__':
     unittest.main()

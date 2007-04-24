@@ -26,6 +26,7 @@ Eval expression syntax (-A, --eval-attr) examples:
   * nosetests -A "(priority > 5) and not slow"
 
 """
+import logging
 import os
 import re
 import sys
@@ -34,6 +35,7 @@ from inspect import isfunction
 from nose.plugins.base import Plugin
 from nose.util import tolist
 
+log = logging.getLogger('nose.plugins.attrib')
 compat_24 = sys.version_info >= (2, 4)
 
 class ContextHelper:
@@ -43,6 +45,29 @@ class ContextHelper:
         
     def __getitem__(self, name):
         return self.obj.get(name, False)
+
+
+class AttributeGetter:
+    """Helper for looking up attributes
+    
+    First we check the method, and if the attribute is not present,
+    we check the method's class.
+    """
+    missing = object()
+
+    def __init__(self, cls, method):
+        self.cls = cls
+        self.method = method
+
+    def get(self, name, default=None):
+        log.debug('Get %s from %s.%s', name, self.cls, self.method)
+        val = self.method.__dict__.get(name, self.missing)
+        if val is self.missing:
+            log.debug('No attribute %s in method, getting from class',
+                      name)
+            val = getattr(self.cls, name, default)
+            log.debug('Class attribute %s value: %s', name, val)
+        return val
 
 class AttributeSelector(Plugin):
     """Selects test cases to be run based on their attributes.
@@ -182,9 +207,5 @@ class AttributeSelector(Plugin):
         return self.validateAttrib(function.__dict__)
         
     def wantMethod(self, method):
-        # start with class attributes...
-        cls = method.im_class
-        attribs = cls.__dict__.copy()
-        # method attributes override class attributes
-        attribs.update(method.__dict__)
+        attribs = AttributeGetter(method.im_class, method)
         return self.validateAttrib(attribs)

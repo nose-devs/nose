@@ -1,19 +1,16 @@
-New in version 0.9.1
+New in version 0.9.3
 --------------------
 
-Nose 0.9.1 is mainly a bug-fix release, but it does contain a few new
-features.
+nose 0.9.3 is mainly a bugfix release. The one new feature is support for user
+configuration files: now you can put your frequently used configuration
+options in .noserc or nose.cfg files, rather than typing them over and over
+and over again. Many thanks to Antoine Pitrou for that patch, and thanks to
+all of the other users who reported bugs and submitted patches and
+suggestions.
 
-* The --where (-w), --include and --exclude arguments may now all appear
-  multiple times in a single command line, allowing easier running of
-  multiple test suites and test suites with more diverse layouts.
-* For programmatic use, nose.runmodule() was added. Similar to
-  doctest.runmodule() and unittest.main(), nose.runmodule() will load and run
-  tests in the current module, which defaults to __main__.
-* A number of changes to plugins and plugin hooks make current plugins work
-  better and allow more interesting plugins to be written.
+Barring catastrophic bugs, this will be the last release of nose in the 0.9
+series. An alpha release of nose 0.10 should be forthcoming within a few
+weeks. Details about the new features and architecture changes in nose 0.10
+may be found here_.
 
-Just about everything in this release was driven by requests from
-users. Thanks to the many folks who filed bug reports and suggested features,
-ideas and solutions to thorny problems.
-     
+.. _here: http://code.google.com/p/python-nose/wiki/VersionZeroTen

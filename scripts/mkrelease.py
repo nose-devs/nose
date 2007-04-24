@@ -4,14 +4,17 @@
 # create and upload a release
 import os
 import nose
+import sys
 from commands import getstatusoutput
 
 success = 0
 
 current = os.getcwd()
 
-here = os.path.dirname(os.path.dirname(__file__))
-svnroot = os.path.abspath(os.path.join(here, '..', '..', 'nose_svn'))
+here = os.path.abspath(os.path.dirname(os.path.dirname(__file__)))
+svnroot = os.path.abspath(os.path.dirname(here))
+branchroot = os.path.join(svnroot, 'branches')
+tagroot = os.path.join(svnroot, 'tags')
 svntrunk = os.path.join(svnroot, 'trunk')
 
 def runcmd(cmd):
@@ -31,6 +34,7 @@ print "cd %s" % svnroot
 branch = 'branches/%s.%s.%s-stable' % (versioninfo[0],
                                        versioninfo[1], versioninfo[2])
 tag =  'tags/%s-release' % version
+
 if os.path.isdir(tag):
     raise Exception("Tag path %s already exists. Can't release same version "
                     "twice!")
@@ -69,11 +73,16 @@ print "cd %s" % tag
 runcmd('svn rm setup.cfg --force') # remove dev tag from setup
 
 # check in
-os.chdir(svnroot)
-print "cd %s" % svnroot
-runcmd("svn ci -m 'Release branch/tag for %s'" % version)
+os.chdir(branchroot)
+print "cd %s" % branchroot
+runcmd("svn ci -m 'Release branch for %s'" % version)
+
+os.chdir(tagroot)
+print "cd %s" % tagroot
+runcmd("svn ci -m 'Release tag for %s'" % version)
 
 # make docs
+os.chdir(svnroot)
 os.chdir(tag)
 print "cd %s" % tag
 

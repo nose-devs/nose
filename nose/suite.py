@@ -1,3 +1,5 @@
+from __future__ import generators
+
 import logging
 import sys
 import unittest
@@ -251,7 +253,7 @@ class ContextSuite(LazySuite):
         try_run(context, names)
         # FIXME plugins.contextTeardown(context)
 
-    # FIXME the wrapping has to move to the factory
+    # FIXME the wrapping has to move to the factory?
     def _get_wrapped_tests(self):
         for test in self._get_tests():
             if isinstance(test, Test) or isinstance(test, unittest.TestSuite):
@@ -293,7 +295,6 @@ class ContextSuiteFactory(object):
         suite of suites returned, organized into a stack with the
         outermost suites belonging to the outermost contexts.
         """
-
         log.debug("Create suite for %s", tests)
         context = getattr(tests, 'context', None)
         if context is None:
@@ -401,7 +402,6 @@ class ContextSuiteFactory(object):
                             common.append(test)
                             found_common = True
                             break
-                    # no common ancestor found
                     if not found_common:
                         remain.append(test)
                 if common:
@@ -442,4 +442,4 @@ class TestModule:
         raise NotImplementedError(
             "TestModule is not usable with nose 0.10. The class is present "
             "in nose.suite for backwards compatibility purposes but it "
-            "may not be used")
+            "may not be used.")

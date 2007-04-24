@@ -120,7 +120,10 @@ class Selector(object):
         """Is the function a test function?
         """
         try:
-            funcname = function.__name__
+            if hasattr(function, 'compat_func_name'):
+                funcname = function.compat_func_name
+            else:
+                funcname = function.__name__
         except AttributeError:
             # not a function
             return False

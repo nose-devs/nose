@@ -102,4 +102,3 @@ class nosetests(Command):
                     self.__config.cfgToArg(option_name, value,
                                            lambda o: o.replace('_', '-')))
         TestProgram(argv=argv, config=self.__config)
-

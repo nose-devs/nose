@@ -1,14 +1,59 @@
+0.9.3
+
+- Added support for user configuration files. Thanks to Antoine Pitrou for the
+  patch.
+- Fixed bug that caused profiler plugin to leak 0-byte temp files. Thanks to
+  Antoine Pitrou for the patch.
+- Made usage of temp files in profiler plugin more sensible. Thanks to Michael
+  Sclenker for the bug report.
+- Fixed bug that stopped loading of twisted TestCase tests. Thanks to Kumar
+  McMillan for the bug report.
+- Corrected man page location. Thanks to luke macken for the bug report and
+  patch.
+- Added with_setup to nose.tools.__all__. Thanks to Allen Bierbaum for the bug
+  report.
+- Altered plugin loading so that builtin plugins can be loaded without
+  setuptools. Thanks to Allen Bierbaum for the suggestion.
+- Fixed a bug in the doctests plugin that caused an error when multiple
+  exclude arguments were specified. Thanks to mbeachy for the bug report and
+  patch.
+  
 0.9.2
 
+- Added nosetests setuptools command. Now you can run python setup.py
+  nosetests and have access to all nose features and plugins. Thanks to James
+  Casbon for the patch.
 - Added make_decorator function to nose.tools. Used to construct decorator
   functions that are well-behaved and preserve as much of the original
   function's metadata as possible. Thanks to Antoine Pitrou for the patch.
 - Added nose.twistedtools, contributed by Antoine Pitrou. This module adds
   @deferred decorator that makes it simple to write deferred tests, with or
   without timeouts.
-- Added nosetests setuptools command. Now you can run python setup.py
-  nosetests and have access to all nose features and plugins. Thanks to James
-  Casbon for the patch.
+- Added monkeypatch to doctests that keeps doctest from stepping on coverage 
+  when the two plugins are used together. Thanks to David Avraamides for the 
+  bug report.
+- Added isolation plugin. Use this plugin to automatically restore sys.modules
+  after each test module or package. Thanks to Michal Kwiatkowski for the 
+  feature request.
+- Fixed bug where -vvvv turned off verbose logging instead of making it even 
+  more verbose. Thanks to Ian Bicking for the bug report.
+- Fixed bug where assert inspection would fail when the trailing """ of a 
+  docstring was one of the inspected lines. Thanks to cito at online dot de 
+  for the bug report.
+- Updated attrib plugin to allow selection of test methods by attributes of
+  the test case class. Thanks to Jason Hildebrand for the patch.
+- Improved compatibility with python 2.2. Thanks to Chad Whitacre for the 
+  patch.
+- Fixed bug in handling of options from setup.cfg. Thanks to Kumar McMillan for
+  the patch.
+- Fixed bug in generator methods, where a generator method using an inline
+  funciton would result in an AttributeError. Thanks to Antoine Pitrou for the
+  bug report.
+- Updated coverage plugin to ignore lines tagged with #pragma: no cover, 
+  matching the behavior of coverage.py on the command line. Thanks to Bill 
+  Zingler for the bug report.
+- Added a man page for nosetests. Thanks to Gustavo Noronha Silva for the 
+  request and providing an example.
 
 0.9.1
 

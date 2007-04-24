@@ -8,3 +8,4 @@ include CHANGELOG
 include NEWS
 include README.txt
 include lgpl.txt
+include nosetests.1

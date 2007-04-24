@@ -1,6 +1,9 @@
 import re
+import os
+import tempfile
 import unittest
 import nose.config
+
 
 class TestNoseConfig(unittest.TestCase):
 

@@ -8,6 +8,8 @@ on any of these methods.
 """
 import time
 
+__all__ = ['ok_', 'eq_', 'make_decorator', 'raises', 'timed', 'with_setup',
+           'TimeExpired']
 
 class TimeExpired(AssertionError):
     pass
@@ -29,11 +31,16 @@ def make_decorator(func):
     (namely, setup and teardown).
     """
     def decorate(newfunc):
-        name = func.__name__
+        if hasattr(func, 'compat_func_name'):
+            name = func.compat_func_name
+        else:
+            name = func.__name__
+        newfunc.__dict__ = func.__dict__
+        newfunc.__doc__ = func.__doc__
+        newfunc.__module__ = func.__module__
+        if not hasattr(newfunc, 'compat_co_firstlineno'):
+            newfunc.compat_co_firstlineno = func.func_code.co_firstlineno
         try:
-            newfunc.__doc__ = func.__doc__
-            newfunc.__module__ = func.__module__
-            newfunc.__dict__ = func.__dict__
             newfunc.__name__ = name
         except TypeError:
             # can't set func name in 2.3
@@ -88,11 +95,14 @@ def timed(limit):
     return decorate
 
 def with_setup(setup=None, teardown=None):
-    """Decorator to add setup and/or teardown methods to a test function
+    """Decorator to add setup and/or teardown methods to a test function::
 
-    @with_setup(setup, teardown)
-    def test_something():
-        # ...
+      @with_setup(setup, teardown)
+      def test_something():
+          # ...
+
+    Note that `with_setup` is useful *only* for test functions, not for test
+    methods or inside of TestCase subclasses.
     """
     def decorate(func, setup=setup, teardown=teardown):
         if setup:

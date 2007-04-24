@@ -20,9 +20,9 @@ docs = publish_parts(txt, writer_name='html')
 docs.update({'version': nose.__version__,
              'date': time.ctime()})
 
-print "Tools..."
-tools = publish_parts(nose.tools.__doc__, writer_name='html')
-docs['tools'] = tools['body']
+#print "Tools..."
+#tools = publish_parts(nose.tools.__doc__, writer_name='html')
+#docs['tools'] = tools['body']
 
 print "Commands..."
 cmds = publish_parts(nose.commands.__doc__, writer_name='html')
