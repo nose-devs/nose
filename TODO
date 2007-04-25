@@ -11,25 +11,10 @@ DOCUMENTATION
 
 FEATURES
 
- DO NOT deprecate -w -- make it mean what it used to mean (working dir) -- cd
-   to that dir before running tests
-   if see multiple -w, deprecation warning and push them into testNames
- ADD --test argument -- so cfg files can put tests into testNames
-
-new plugin:
- testid
-  -- needs tests with doctests
-     -- doctests from non module files
 
 rename Failure and split into subclasses for Import and other, and make
 it optionally include the name of the file being considered so that
 Failure test logs can be more informative
-
-* plugin methods to add
-
-before/after Context [in suite, call with parent? 
-                      or in lazy load situations only?]
-
 
 when result prints final result, patch in error classes, eg,
 
@@ -42,6 +27,9 @@ OK (skipped=2)
 * loader
   - support module.callable in addition to module:callable names
   - loadTestsFromTestCase -- override to add plugin call
+
+* result/proxy
+  - don't use sep proxy obj for each test? -- see under PROFILE
 
 
 BUGS
@@ -68,8 +56,8 @@ need to add shortDescription() to suite?
 
 2.3 COMPAT
 
--- 2.3 doctest is just too different. Include 2.4's doctest (under some other
-     name -- dtcompat.py ? and use that iff DocTestCase is missing from the
+-- 2.3 doctest is just too different. Include 2.5's doctest (under some other
+     name -- dtcompat.py ? and use that iff SKIP is missing from the
      system doctest module
 
 -- fixtures aren't running
@@ -80,15 +68,6 @@ CHORES
 
 make setup work with & w/out setuptools
 
-compare files after merge-- look for missing files/dirs in 0.10
-
-fix builtin plugins:
- isolation 
-   - need loadTestFromNames hook to make this work -- must be able to take over
-     completely and be (or use internally at least) a generator. This is 
-     needed because the plugin needs to isolate a import time, not just 
-     test-run time.
-
 
 TESTS NEEDED
 
@@ -97,7 +76,11 @@ TESTS NEEDED
  plugin api -- comprehensive integration test that runs a suite with a plugin 
    that tracks calls and ensures that all calls are called with proper 
    arguments
-
+ testid
+  -- needs tests with doctests
+     -- doctests from non module files
+ doctest
+  -- needs tests from non-module files
 
 PROFILE
 

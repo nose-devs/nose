@@ -95,6 +95,9 @@ class Config(object):
         except IndexError:
             self.options = options
 
+        if options.testNames is not None:
+            self.testNames.extend(tolist(options.testNames))
+
         # `where` is an append action, so it can't have a default value 
         # in the parser, or that default will always be in the list
         if not options.where:
@@ -178,7 +181,7 @@ class Config(object):
     def configureWhere(self, where):
         from nose.importer import add_path
         where = tolist(where)
-        
+        warned = False
         for path in where:
             if not self.workingDir:
                 abs_path = absdir(path)
@@ -193,6 +196,13 @@ class Config(object):
                              "adding to sys.path" % abs_path)
                     add_path(abs_path)
                 continue
+            if not warned:
+                warn("Use of multiple -w arguments is deprecated and "
+                     "support may be removed in a future release. You can "
+                     "get the same behavior by passing directories without "
+                     "the -w argument on the command line, or by using the "
+                     "--tests argument in a configuration file.",
+                     DeprecationWarning)
             self.testNames.append(path)
 
     def default(self):
@@ -223,6 +233,20 @@ class Config(object):
             help="Load configuration from config file(s). May be specified "
             "multiple times; in that case, all config files will be "
             "loaded and combined")
+        parser.add_option(
+            "-w", "--where", action="append", dest="where",
+            help="Look for tests in this directory. "
+            "May be specified multiple times. The first directory passed "
+            "will be used as the working directory, in place of the current "
+            "working directory, which is the default. Others will be added "
+            "to the list of tests to execute. [NOSE_WHERE]"
+            )
+        parser.add_option(
+            "--tests", action="store", dest="testNames", default=None,
+            help="Run these tests (comma-separated list). This argument is "
+            "useful mainly from configuration files; on the command line, "
+            "just pass the tests to run as additional arguments with no "
+            "switch.")
         parser.add_option(
             "-l", "--debug", action="store",
             dest="debug", default=self.debug,
@@ -271,14 +295,7 @@ class Config(object):
             help="DO NOT look for tests in python modules that are "
             "executable. (The default on the windows platform is to "
             "do so.)")
-        parser.add_option(
-            "-w", "--where", action="append", dest="where",
-            help="Look for tests in this directory. "
-            "May be specified multiple times. The first directory passed "
-            "will be used as the working directory, in place of the current "
-            "working directory, which is the default. Others will be added "
-            "to the list of tests to execute. [NOSE_WHERE]"
-            )
+
 
         self.plugins.loadPlugins()
         self.pluginOpts(parser)
@@ -377,35 +394,3 @@ def flag(val):
 
 def _bool(val):
     return val.upper() in ('1', 'T', 'TRUE', 'ON')
-
-
-
-# deprecated
-    # FIXME maybe kill all this and instantiate a new config for each
-    # working dir
-#     def get_where(self):
-#         return self._where
-
-#     def set_where(self, val):
-#         self._where = val
-#         self._working_dir = None
-
-#     def get_working_dir(self):
-#         val = self._working_dir
-#         if val is None:
-#             if isinstance(self.where, list) or isinstance(self.where, tuple):
-#                 val = self._working_dir = self.where[0]
-#             else:
-#                 val = self._working_dir = self.where
-#         return val
-
-#     def set_working_dir(self, val):
-#         self._working_dir = val
-        
-
-#     # properties
-#     where = property(get_where, set_where, None,
-#                      "The list of directories where tests will be discovered")
-#     working_dir = property(get_working_dir, set_working_dir, None,
-#                            "The current working directory (the root "
-#                            "directory of the current test run).")
