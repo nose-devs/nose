@@ -109,6 +109,10 @@ class ContextSuite(LazySuite):
             getattr(self.context, '__name__', self.context))
     __str__ = __repr__
 
+    # 2.3 compat -- force 2.4 call sequence
+    def __call__(self, *arg, **kw):
+        return self.run(*arg, **kw)
+
     def exc_info(self):
         """Hook for replacing error tuple output
         """
