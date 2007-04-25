@@ -46,6 +46,11 @@ OK (skipped=2)
 
 BUGS
 
+-- something in doctests or in importing of all modules causes 
+   unit_tests/test_core.TestAPI_run.test_restore_stdout to fail
+
+-- doctests: name of package-level doctests is wrong, prepends pak.__init__
+
 -- when run vs spine suite, makeTest seemingly was called on an object
    that should not have passed the selector --
    sqlalchemy.sql._FunctionGateway, which doesn't match testmatch and
