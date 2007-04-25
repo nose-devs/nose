@@ -34,9 +34,14 @@ class TextTestResult(_TextTestResult):
         """
         stream = getattr(self, 'stream', None)
         ec, ev, tb = err
+        try:
+            exc_info = self._exc_info_to_string(err, test)
+        except TypeError:
+            # 2.3 compat
+            exc_info = self._exc_info_to_string(err)
         for cls, (storage, label, isfail) in self.errorClasses.items():
             if issubclass(ec, cls):
-                storage.append((test, self._exc_info_to_string(err, test)))
+                storage.append((test, exc_info))
                 # Might get patched into a streamless result
                 if stream is not None:
                     if self.showAll:
@@ -44,7 +49,7 @@ class TextTestResult(_TextTestResult):
                     elif self.dots:
                         stream.write(label[:1])
                 return
-        self.errors.append((test, self._exc_info_to_string(err, test)))
+        self.errors.append((test, exc_info))
         if stream is not None:
             if self.showAll:
                 self.stream.writeln('ERROR')
@@ -78,13 +83,19 @@ class TextTestResult(_TextTestResult):
         return True
 
     def _addError(self, test, err):
-        self.errors.append((test, self._exc_info_to_string(err, test)))
+        try:
+            exc_info = self._exc_info_to_string(err, test)
+        except TypeError:
+            # 2.3: does not take test arg
+            exc_info = self._exc_info_to_string(err)
+        self.errors.append((test, exc_info))
         if self.showAll:
             self.stream.write('ERROR')
         elif self.dots:
             stream.write('E')
 
-    def _exc_info_to_string(self, err, test):
+    def _exc_info_to_string(self, err, test=None):
+        # 2.3/2.4 -- 2.4 passes test, 2.3 does not
         try:
             return _TextTestResult._exc_info_to_string(self, err, test)
         except TypeError:

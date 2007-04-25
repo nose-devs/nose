@@ -42,8 +42,6 @@ OK (skipped=2)
 
 BUGS
 
-
-
 -- when run vs spine suite, makeTest seemingly was called on an object
    that should not have passed the selector --
    sqlalchemy.sql._FunctionGateway, which doesn't match testmatch and
@@ -63,7 +61,16 @@ AttributeError: 'ContextSuite' object has no attribute 'shortDescription'
 
 need to add shortDescription() to suite?
 
+2.3 COMPAT
 
+-- 2.3 doctest is just too different. Include 2.4's doctest (under some other
+     name -- dtcompat.py ? and use that iff DocTestCase is missing from the
+     system doctest module
+
+-- fixtures aren't running
+
+-- result patching doesn't seem to be working
+     
 CHORES
 
 make setup work with & w/out setuptools

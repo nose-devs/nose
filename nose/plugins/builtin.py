@@ -19,7 +19,9 @@ builtins = (
 for module, cls in builtins:
     try:
         plugmod = __import__(module, globals(), locals(), [cls])
-    except ImportError:
+    except KeyboardInterrupt:
+        raise
+    except:
         continue
     plug = getattr(plugmod, cls)
     plugins.append(plug)
