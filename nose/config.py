@@ -56,6 +56,7 @@ class Config(object):
         self.testNames = ()
         self.verbosity = int(env.get('NOSE_VERBOSE', 1))
         self.where = ()
+        self.workingDir = None
         
         self._default = self.__dict__.copy()
         self.update(kw)
@@ -115,19 +116,7 @@ class Config(object):
         self.configureLogging()
         
         if options.where is not None:
-            for path in tolist(options.where):
-                log.debug('Adding %s as nose working directory', path)
-                abs_path = absdir(path)
-                if abs_path is None:
-                    raise ValueError("Working directory %s not found, or "
-                                     "not a directory" % path)
-                self.testNames.append(abs_path)
-                log.info("Looking for tests in %s", abs_path)
-                if self.addPaths and \
-                       os.path.exists(os.path.join(abs_path, '__init__.py')):
-                    log.info("Working directory %s is a package; "
-                             "adding to sys.path" % abs_path)
-                    add_path(abs_path)
+            self.configureWhere(options.where)
 
         if options.include:
             self.include = map(re.compile, tolist(options.include))
@@ -185,6 +174,26 @@ class Config(object):
                 l.setLevel(logging.DEBUG)
                 if not l.handlers and not logger_name.startswith('nose'):
                     l.addHandler(handler)
+
+    def configureWhere(self, where):
+        from nose.importer import add_path
+        where = tolist(where)
+        
+        for path in where:
+            if not self.workingDir:
+                abs_path = absdir(path)
+                if abs_path is None:
+                    raise ValueError("Working directory %s not found, or "
+                                     "not a directory" % path)
+                log.info("Set working dir to %s", abs_path)
+                self.workingDir = abs_path
+                if self.addPaths and \
+                       os.path.exists(os.path.join(abs_path, '__init__.py')):
+                    log.info("Working directory %s is a package; "
+                             "adding to sys.path" % abs_path)
+                    add_path(abs_path)
+                continue
+            self.testNames.append(path)
 
     def default(self):
         self.__dict__.update(self._default)
@@ -264,9 +273,11 @@ class Config(object):
             "do so.)")
         parser.add_option(
             "-w", "--where", action="append", dest="where",
-            help="DEPRECATED Look for tests in this directory. "
-            "This option is deprecated; you can pass the directories "
-            "without using -w for the same behavior. [NOSE_WHERE]"
+            help="Look for tests in this directory. "
+            "May be specified multiple times. The first directory passed "
+            "will be used as the working directory, in place of the current "
+            "working directory, which is the default. Others will be added "
+            "to the list of tests to execute. [NOSE_WHERE]"
             )
 
         self.plugins.loadPlugins()

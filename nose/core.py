@@ -224,7 +224,9 @@ class TestProgram(unittest.TestProgram):
 
         self.config.configure(argv, doc=TestProgram.__doc__)
         if self.config.options.version:
+            import sys
             from nose import __version__
+            sys.stdout = sys.__stdout__
             print "%s version %s" % (os.path.basename(sys.argv[0]), __version__)
             sys.exit(0)
 
@@ -247,6 +249,8 @@ class TestProgram(unittest.TestProgram):
         else:
             self.testNames = (self.defaultTest,)
         log.debug('Test names are %s', self.testNames)
+        if self.config.workingDir is not None:
+            os.chdir(self.config.workingDir)
         self.createTests()
         
     def createTests(self):

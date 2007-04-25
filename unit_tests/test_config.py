@@ -44,5 +44,14 @@ class TestNoseConfig(unittest.TestCase):
         c.configure(['program', 'foo', 'bar', 'baz.buz.biz'])
         self.assertEqual(c.testNames, ['foo', 'bar', 'baz.buz.biz'])
 
+    def test_where(self):
+        here = os.path.dirname(__file__)
+        support = os.path.join(here, 'support')
+        foo = os.path.abspath(os.path.join(support, 'foo'))
+        c = nose.config.Config()
+        c.configure(['program', '-w', foo, '-w', 'bar'])
+        self.assertEqual(c.workingDir, foo)
+        self.assertEqual(c.testNames, ['bar'])
+
 if __name__ == '__main__':
     unittest.main()
