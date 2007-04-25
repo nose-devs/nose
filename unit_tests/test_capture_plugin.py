@@ -6,6 +6,12 @@ from nose.plugins.capture import Capture
 
 class TestCapturePlugin(unittest.TestCase):
 
+    def setUp(self):
+        self._stdout = sys.stdout
+
+    def tearDown(self):
+        sys.stdout = self._stdout
+
     def test_enabled_by_default(self):
         c = Capture()
         assert c.enabled

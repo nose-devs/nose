@@ -424,6 +424,14 @@ class ContextList(object):
 
 
 # backwards compat -- sort of
+class TestDir:
+    def __init__(*arg, **kw):
+        raise NotImplementedError(
+            "TestDir is not usable with nose 0.10. The class is present "
+            "in nose.suite for backwards compatibility purposes but it "
+            "may not be used.")
+
+
 class TestModule:
     def __init__(*arg, **kw):
         raise NotImplementedError(

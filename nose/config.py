@@ -23,25 +23,7 @@ config_files = [
 class Config(object):
     """nose configuration.
 
-    self.testMatch = re.compile(r'(?:^|[\b_\.%s-])[Tt]est' % os.sep)
-    self.addPaths = True
-    self.detailedErrors = False
-    self.exclude = None
-    self.exit = True
-    self.includeExe = sys.platform=='win32'
-    self.ignoreFiles = ( re.compile(r'^\.'),
-                         re.compile(r'^_'),
-                         re.compile(r'^setup\.py$')
-                         )
-    self.include = None
-    self.plugins = NoPlugins()
-    self.srcDirs = ('lib', 'src')
-    self.runOnInit = True
-    self.stopOnError = False
-    self.stream = sys.stderr
-    self.testNames = ()
-    self.verbosity = 1
-    self.where = ('.',)
+    FIXME document all config options
     """
 
     def __init__(self, **kw):
@@ -106,7 +88,7 @@ class Config(object):
         # load those config files to create a new argv set and reparse
         if options.files:
             argv = self.loadConfig(options.files, argv)
-            options, args = parser.parse_args(argv)        
+            options, args = parser.parse_args(argv)       
         try:
             self.options, self.testNames = options, args[1:]
         except IndexError:
@@ -122,7 +104,6 @@ class Config(object):
             options.include = env.get('NOSE_INCLUDE', [])
         if not options.exclude:
             options.exclude = env.get('NOSE_EXCLUDE', [])
-
 
         self.addPaths = options.addPaths
         self.stopOnError = options.stopOnError

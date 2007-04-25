@@ -122,7 +122,8 @@ class TestLoader(unittest.TestLoader):
         # only called for non-module
         log.debug("Load from non-module file %s", filename)
         try:
-            tests = [test for test in plugins.loadTestsFromFile(filename)]
+            tests = [test for test in
+                     self.config.plugins.loadTestsFromFile(filename)]
             if tests:
                 return self.suiteClass(tests)
             else:

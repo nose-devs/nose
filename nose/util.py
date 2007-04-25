@@ -180,6 +180,11 @@ def getpackage(filename):
     >>> getpackage('nose/plugins')
     'nose.plugins'
 
+    And __init__ files stuck onto directories
+
+    >>> getpackage('nose/plugins/__init__.py')
+    'nose.plugins'
+
     Absolute paths also work.
 
     >>> path = os.path.abspath(os.path.join('nose', 'plugins'))
@@ -190,7 +195,10 @@ def getpackage(filename):
     if not src_file.endswith('.py') and not ispackage(src_file):
         return None
     base, ext = os.path.splitext(os.path.basename(src_file))
-    mod_parts = [base]
+    if base == '__init__':
+        mod_parts = []
+    else:
+        mod_parts = [base]
     path, part = os.path.split(os.path.split(src_file)[0])
     while part:
         if ispackage(os.path.join(path, part)):

@@ -213,7 +213,7 @@ class TestProgram(unittest.TestProgram):
         """Load a Config, pre-filled with user config files if any are
         found.
         """
-        cfg_files = all_config_files()        
+        cfg_files = all_config_files()
         return Config(
             env=env, files=cfg_files, plugins=DefaultPluginManager())
         
