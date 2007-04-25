@@ -11,6 +11,10 @@ DOCUMENTATION
 
 FEATURES
 
+ DO NOT deprecate -w -- make it mean what it used to mean (working dir) -- cd
+   to that dir before running tests
+   if see multiple -w, deprecation warning and push them into testNames
+ ADD --test argument -- so cfg files can put tests into testNames
 
 new plugin:
  testid

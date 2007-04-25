@@ -1,7 +1,7 @@
-from ipthelp import help
+import sys
+print 'ipthelp', sys.modules.get('ipthelp')
 import ipthelp
-
 print ipthelp
 
-def test():
-    help()
+def test1():
+    ipthelp.help()
