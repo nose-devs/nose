@@ -57,11 +57,7 @@ need to add shortDescription() to suite?
 
 2.3 COMPAT
 
--- 2.3 doctest is just too different. Include 2.4's doctest (under some other
-     name -- dtcompat.py ? and use that iff DocTestCase is missing from the
-     system doctest module
-
--- result patching doesn't seem to be working?
+-- need to install twisted
 
      
 CHORES

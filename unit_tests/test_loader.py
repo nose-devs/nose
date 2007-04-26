@@ -340,6 +340,8 @@ class TestTestLoader(unittest.TestCase):
         assert filter(lambda t: isinstance(t, nose.case.Test), tests)
         print tests
         class_tests = tests[0]
+        for t in class_tests:
+            print "class test: ", t
         func_tests = tests[1:]
         assert class_tests, \
                "Expected class suite got %s" % class_tests
@@ -440,6 +442,6 @@ class TestTestLoader(unittest.TestCase):
                "Expected to generate 4 tests, but got %s" % count
         
 if __name__ == '__main__':
-    import logging
-    logging.basicConfig(level=logging.DEBUG)
+    #import logging
+    #logging.basicConfig(level=logging.DEBUG)
     unittest.main()

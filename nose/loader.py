@@ -55,6 +55,9 @@ class TestLoader(unittest.TestLoader):
             for case in self.getTestCaseNames(base):
                 if case not in cases:
                     cases.append(case)
+        # add runTest if nothing else picked
+        if not cases and hasattr(testCaseClass, 'runTest'):
+            cases = ['runTest']
         if self.sortTestMethodsUsing:
             cases.sort(self.sortTestMethodsUsing)
         return cases
@@ -333,6 +336,10 @@ class TestLoader(unittest.TestLoader):
                     unittest.TestLoader.loadTestsFromNames(self, names, module)
                     ])
         return unittest.TestLoader.loadTestsFromNames(self, names, module)
+
+#    def loadTestsFromTestCase(self, testCaseClass):
+#        names = self.getTestCaseNames(testCaseClass)
+        
     
     def loadTestsFromTestClass(self, cls):
         """Load tests from a test class that is *not* a unittest.TestCase
