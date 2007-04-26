@@ -41,7 +41,6 @@ class Test(unittest.TestCase):
     """
     __test__ = False # do not collect
     def __init__(self, test, config=None, resultProxy=None):
-        log.debug("Test(%s)", test)
         # sanity check
         if not callable(test):
             raise TypeError("nose.case.Test called with argument %r that "
@@ -58,7 +57,6 @@ class Test(unittest.TestCase):
         unittest.TestCase.__init__(self)
         
     def __call__(self, *arg, **kwarg):
-        log.debug("Test call %s %s %s", self, arg, kwarg)
         return self.run(*arg, **kwarg)
 
     def __str__(self):
@@ -71,14 +69,12 @@ class Test(unittest.TestCase):
         return "Test(%r)" % self.test
 
     def afterTest(self, result):
-        log.debug("Test afterTest %s", self)
         try:
             result.afterTest(self.test)
         except AttributeError:
             pass
 
     def beforeTest(self, result):
-        log.debug("Test beforeTest %s", self)
         try:
             result.beforeTest(self.test)
         except AttributeError:
@@ -156,7 +152,6 @@ class Test(unittest.TestCase):
         plug_test = self.config.plugins.prepareTestCase(self)
         if plug_test is not None:
             test = plug_test
-        log.debug('run test %s with result %s', test, result)
         test(result)
         
     def shortDescription(self):
@@ -174,7 +169,6 @@ class TestBase(unittest.TestCase):
         return str(self)
         
     def runTest(self):
-        log.debug("%s.runTest(%s)", self.__class__.__name__, self)
         self.test(*self.arg)
     
     def shortDescription(self):
@@ -314,7 +308,6 @@ class MethodTestCase(TestBase):
         * descriptor -- the function, other than the test, that should be used
           to construct the test name. This is to support generator methods.
         """
-        log.debug("MethodTestCase for %s", method)
         self.method = method
         self.test = test
         self.arg = arg
@@ -356,11 +349,9 @@ class MethodTestCase(TestBase):
                       """Get context (class) of this test""")
 
     def setUp(self):
-        log.debug("MethodTestCase.setUp(%s)", self)
         try_run(self.inst, ('setup', 'setUp'))
 
     def tearDown(self):
-        log.debug("MethodTestCase.tearDown(%s)", self)
         try_run(self.inst, ('teardown', 'tearDown'))
         
     def _descriptors(self):

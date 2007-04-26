@@ -368,8 +368,6 @@ class TestLoader(unittest.TestLoader):
         """Given a test object and its parent, return a unittest.TestCase
         instance that can be run as a test.
         """
-        log.debug('Make test for %s parent: %s', obj, parent)
-        
         # plugins get first crack
         plug_tests = []
         try:

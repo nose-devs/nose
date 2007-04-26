@@ -39,7 +39,6 @@ class Capture(Plugin):
             self.enabled = False
 
     def afterTest(self, test):
-        log.debug("%s afterTest %s", self, test)
         self.end()
         self._buf = None
         
@@ -47,7 +46,6 @@ class Capture(Plugin):
         self.start() # get an early handle on sys.stdout
 
     def beforeTest(self, test):
-        log.debug("%s beforeTest %s", self, test)
         self.start()
         
     def formatError(self, test, err):
@@ -69,12 +67,10 @@ class Capture(Plugin):
         self.stdout.append(sys.stdout)
         self._buf = StringIO()
         sys.stdout = self._buf
-        log.debug("%s start capture. sys.stdout: %r", self, sys.stdout)
 
     def end(self):
         if self.stdout:
             sys.stdout = self.stdout.pop(0)
-        log.debug("%s end capture. sys.stdout: %r", self, sys.stdout)
 
     def _get_buffer(self):
         if self._buf is not None:

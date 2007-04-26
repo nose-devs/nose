@@ -38,7 +38,6 @@ class LazySuite(unittest.TestSuite):
     __str__ = __repr__
 
     def addTest(self, test):
-        log.debug("Adding precached test %s (%s)", test, id(self))
         self._precache.append(test)
 
     def __nonzero__(self):
@@ -69,7 +68,6 @@ class LazySuite(unittest.TestSuite):
         self._precache = []
         is_suite = isinstance(tests, unittest.TestSuite)
         if callable(tests) and not is_suite:
-            log.debug("tests is callable and not a test suite")
             self.test_generator = tests()
         elif is_suite:
             # Suites need special treatment: they must be called like
@@ -77,7 +75,6 @@ class LazySuite(unittest.TestSuite):
             self.addTests([tests])
             self.test_generator = None
         else:
-            log.debug("tests is not callable, spooling it out")
             self.addTests(tests)
             self.test_generator = None
 
@@ -139,7 +136,6 @@ class ContextSuite(LazySuite):
                 if result.shouldStop:
                     log.debug("stopping")
                     break
-                log.debug("running test %s (%s)", test, id(self))
                 # each nose.case.Test will create its own result proxy
                 # so the cases need the original result, to avoid proxy
                 # chains

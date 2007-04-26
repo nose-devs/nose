@@ -79,7 +79,6 @@ class PluginProxy(object):
         self.plugins = plugins[:]
     
     def __call__(self, *arg, **kw):
-        log.debug("call %s(%s, %s) %s", self.call, arg, kw, self.plugins)
         # special case -- load tests from names behaves somewhat differently
         # from other chainable calls, because plugins return a tuple, only
         # part of which can be chained to the next plugin.
@@ -99,6 +98,9 @@ class PluginProxy(object):
             # return a value from the first plugin that returns non-None
             return self.simple(*arg, **kw)
 
+    # FIXME optimization: on first call, cache list of plugins with the method
+    # and use that list only on each successive call
+    
     def chain(self, *arg, **kw):
         """Call plugins in a chain, where the result of each plugin call is
         sent to the next plugin as input. The final output result is returned.
@@ -129,11 +131,9 @@ class PluginProxy(object):
         """
         for p in self.plugins:
             meth = getattr(p, self.call, None)
-            log.debug("%s.%s: %s", p, self.call, meth)
             if meth is None:
                 continue
             result = meth(*arg, **kw)
-            log.debug("called %s %s: %s", p, self.call, result)
             if result is not None:
                 return result
 
@@ -181,6 +181,8 @@ class ZeroNinePlugin:
         # add capt
         capt = test.capturedOutput
         return self.plugin.addError(test.test, err, capt)
+
+    # FIXME loadTestsFromFile -> loadTestsFromPath
 
     def addFailure(self, test, err):
         if not hasattr(self.plugin, 'addFailure'):
