@@ -408,6 +408,7 @@ class TreePrintContextSuite(suite.ContextSuite):
 
         
 if __name__ == '__main__':
-    import logging
-    logging.basicConfig() #level=logging.DEBUG)
+    #import logging
+    #logging.basicConfig() #level=logging.DEBUG)
+    #logging.getLogger('nose.suite').setLevel(logging.DEBUG)
     unittest.main()

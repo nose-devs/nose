@@ -16,7 +16,6 @@ course of running a test.
 """
 from __future__ import generators
 
-import doctest
 import logging
 import os
 import sys
@@ -26,6 +25,14 @@ from nose.util import anyp, getpackage, test_address, resolve_name, tolist
 
 log = logging.getLogger(__name__)
 
+try:
+    import doctest
+    doctest.DocTestCase
+    # system version of doctest is acceptable, but needs a monkeypatch
+except (ImportError, AttributeError):
+    # system version is too old
+    import nose.ext.dtcompat as doctest
+
 #
 # Doctest and coverage don't get along, so we need to create
 # a monkeypatch that will replace the part of doctest that
@@ -34,27 +41,24 @@ log = logging.getLogger(__name__)
 # The monkeypatch is based on this zope patch:
 # http://svn.zope.org/Zope3/trunk/src/zope/testing/doctest.py?rev=28679&r1=28703&r2=28705
 #
-try:
-    _orp = doctest._OutputRedirectingPdb
+_orp = doctest._OutputRedirectingPdb
 
-    class NoseOutputRedirectingPdb(_orp):
-        def __init__(self, out):
-            self.__debugger_used = False
-            _orp.__init__(self, out)
+class NoseOutputRedirectingPdb(_orp):
+    def __init__(self, out):
+        self.__debugger_used = False
+        _orp.__init__(self, out)
 
-        def set_trace(self):
-            self.__debugger_used = True
-            _orp.set_trace(self)
+    def set_trace(self):
+        self.__debugger_used = True
+        _orp.set_trace(self)
 
-        def set_continue(self):
-            # Calling set_continue unconditionally would break unit test 
-            # coverage reporting, as Bdb.set_continue calls sys.settrace(None).
-            if self.__debugger_used:
-                _orp.set_continue(self)
-    doctest._OutputRedirectingPdb = NoseOutputRedirectingPdb
-except AttributeError:
-    # Python 2.3: no support
-    pass
+    def set_continue(self):
+        # Calling set_continue unconditionally would break unit test 
+        # coverage reporting, as Bdb.set_continue calls sys.settrace(None).
+        if self.__debugger_used:
+            _orp.set_continue(self)
+doctest._OutputRedirectingPdb = NoseOutputRedirectingPdb    
+
 
 class Doctest(Plugin):
     """

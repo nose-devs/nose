@@ -82,16 +82,11 @@ class TestDoctestPlugin(unittest.TestCase):
 
         o2, d2 = parser.opts[1]
         assert o2[0] == '--doctest-tests'
-
-        if compat_24:
-            o3, d3 = parser.opts[2]
-            assert o3[0] == '--doctest-extension'
-        else:
-            assert len(parser.opts) == 2
+        
+        o3, d3 = parser.opts[2]
+        assert o3[0] == '--doctest-extension'
 
     def test_config(self):
-        if not compat_24:
-            return
         # test that configuration works properly when both environment
         # and command line specify a doctest extension
         parser = OptionParser()
@@ -154,11 +149,8 @@ class TestDoctestPlugin(unittest.TestCase):
         plug = Doctest()
         plug.can_configure = True
         plug.configure(opt, conf)
-        suite = plug.loadTestsFromModule(foo.bar.buz)
-        if compat_24:
-            expect = ['afunc (foo.bar.buz)']
-        else:
-            expect = ['unittest.FunctionTestCase (runit)']            
+        suite = plug.loadTestsFromModule(foo.bar.buz)        
+        expect = ['afunc (foo.bar.buz)']
         for test in suite:
             self.assertEqual(str(test), expect.pop(0))
 
@@ -182,10 +174,6 @@ class TestDoctestPlugin(unittest.TestCase):
             self.assertEqual(call, 'afunc')
             
     def test_collect_txtfile(self):
-        #if not compat_24:
-        #    warn("No support for doctests in files other than python modules"
-        #         " in python versions older than 2.4")
-        #    return
         here = os.path.abspath(os.path.dirname(__file__))
         support = os.path.join(here, 'support')
         fn = os.path.join(support, 'foo', 'doctests.txt')
