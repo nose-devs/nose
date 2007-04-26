@@ -190,6 +190,8 @@ class FunctionTestCase(TestBase):
 
     Don't use this class directly; it is used internally in nose to
     create test cases for test functions.
+
+    FIXME DOC
     
     This class is very similar to unittest.FunctionTestCase, with a few
     extensions:

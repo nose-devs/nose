@@ -34,6 +34,7 @@ OK (skipped=2)
 
 BUGS
 
+-- missing several name variants for context fixture func calls
 
 -- when run vs spine suite, makeTest seemingly was called on an object
    that should not have passed the selector --
@@ -57,7 +58,7 @@ need to add shortDescription() to suite?
 
 2.3 COMPAT
 
--- need to install twisted
+all tests passing as of r203
 
      
 CHORES
