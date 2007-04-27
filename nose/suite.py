@@ -189,10 +189,13 @@ class ContextSuite(LazySuite):
             # the teardown in my teardown
             self.factory.was_setup[context] = self
         if isclass(context):
-            names = ('setup_class',)
+            names = ('setup_class', 'setup_all', 'setupClass', 'setupAll',
+                     'setUpClass', 'setUpAll')
         else:
-            names = ('setup_module', 'setup')
-        # FIXME packages, camelCase
+            names = ('setup_module', 'setupModule', 'setUpModule', 'setup')
+            if hasattr(context, '__path__'):
+                names = ('setup_package', 'setupPackage',
+                         'setUpPackage') + names
         try_run(context, names)
 
     def tearDown(self):
@@ -233,10 +236,14 @@ class ContextSuite(LazySuite):
         if self.factory:
             self.factory.was_torndown[context] = self
         if isclass(context):
-            names = ('teardown_class',)
+            names = ('teardown_class', 'teardown_all', 'teardownClass',
+                     'teardownAll', 'tearDownClass', 'tearDownAll')
         else:
-            names = ('teardown_module', 'teardown')
-        # FIXME packages, camelCase
+            names = ('teardown_module', 'teardownModule', 'tearDownModule',
+                     'teardown')
+            if hasattr(context, '__path__'):
+                names = ('teardown_package', 'teardownPackage',
+                         'tearDownPackage') + names
         try_run(context, names)
         self.config.plugins.stopContext(context)
 

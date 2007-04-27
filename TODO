@@ -12,6 +12,10 @@ DOCUMENTATION
 
 FEATURES
 
+add --plugins option displays loadable plugins, with version (if
+  applicable), score, description for each. options for each also if
+  verbosity >= 2
+
 make sure lib-first collection is still working (dir contents sorted test-last)
 
 rename Failure and split into subclasses for Import and other, and make
@@ -35,8 +39,6 @@ OK (skipped=2)
 
 
 BUGS
-
--- missing several name variants for context fixture func calls
 
 -- when run vs spine suite, makeTest seemingly was called on an object
    that should not have passed the selector --
