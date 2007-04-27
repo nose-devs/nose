@@ -198,6 +198,11 @@ class ContextSuite(LazySuite):
                          'setUpPackage') + names
         try_run(context, names)
 
+    def shortDescription(self):
+        if self.context is None:
+            return "test suite"
+        return "test suite for %s" % self.context
+
     def tearDown(self):
         log.debug('context teardown')
         if not self.was_setup or self.was_torndown:

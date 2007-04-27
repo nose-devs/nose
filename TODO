@@ -45,20 +45,6 @@ BUGS
    sqlalchemy.sql._FunctionGateway, which doesn't match testmatch and
    isn't a testcase subclass -- need to look into it further.
 
--- incorrectly defined test class generator method causes failure of whole
-   test run: 
-
-    _TextTestResult.printErrors(self)
-  File "unittest.py", line 667, in printErrors
-    self.printErrorList('ERROR', self.errors)
-  File "unittest.py", line 673, in printErrorList
-    self.stream.writeln("%s: %s" % (flavour,self.getDescription(test)))
-  File "unittest.py", line 633, in getDescription
-    return test.shortDescription() or str(test)
-AttributeError: 'ContextSuite' object has no attribute 'shortDescription'
-
-need to add shortDescription() to suite?
-
 
 2.3 COMPAT
 
