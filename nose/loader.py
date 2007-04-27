@@ -128,9 +128,14 @@ class TestLoader(unittest.TestLoader):
             tests = [test for test in
                      self.config.plugins.loadTestsFromFile(filename)]
             if tests:
+                # Plugins can yield False to indicate that they were
+                # unable to load tests from a file, but it was not an
+                # error -- the file just had no tests to load.
+                tests = filter(None, tests)
                 return self.suiteClass(tests)
             else:
-                open(filename, 'r').close() # trigger os error 
+                # Nothing was able to even try to load from this file
+                open(filename, 'r').close() # trigger os error
                 raise ValueError("Unable to load tests from file %s"
                                  % filename)
         except KeyboardInterrupt:

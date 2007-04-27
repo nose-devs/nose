@@ -189,7 +189,8 @@ class ZeroNinePlugin:
         capt = test.capturedOutput
         return self.plugin.addError(test.test, err, capt)
 
-    # FIXME loadTestsFromFile -> loadTestsFromPath
+    def loadTestsFromFile(self, filename):
+        return self.plugin.loadTestsFromPath(filename)
 
     def addFailure(self, test, err):
         if not hasattr(self.plugin, 'addFailure'):

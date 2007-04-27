@@ -16,7 +16,7 @@ add --plugins option displays loadable plugins, with version (if
   applicable), score, description for each. options for each also if
   verbosity >= 2
 
-make sure lib-first collection is still working (dir contents sorted test-last)
+** make sure lib-first collection is still working (dir contents sorted test-last)
 
 rename Failure and split into subclasses for Import and other, and make
 it optionally include the name of the file being considered so that
@@ -65,9 +65,9 @@ TESTS NEEDED
    arguments
  testid
   -- needs tests with doctests
-     -- doctests from non module files
- doctest
-  -- needs tests from non-module files
+ **    -- doctests from non module files
+ ** doctest
+ **  -- needs tests from non-module files
 
  coverage/doctest -- need tests for coverage/doctest interaction
 

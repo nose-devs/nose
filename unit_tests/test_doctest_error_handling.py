@@ -5,9 +5,6 @@ from nose.config import Config
 from nose.plugins import doctests
 from mock import Bucket
 
-# some plugins have 2.4-only features
-compat_24 = sys.version_info >= (2, 4)
-
 class TestDoctestErrorHandling(unittest.TestCase):
 
     def setUp(self):
@@ -37,10 +34,7 @@ class TestDoctestErrorHandling(unittest.TestCase):
         except ValueError:
             pass
         else:
-            if compat_24:
-                self.fail("Error doctests file did not raise ValueError")
-            else:
-                self.assert_(loaded,
-                             "No value error, nothing loaded from err tests")
+            self.fail("Error doctests file did not raise ValueError")
+
 if __name__ == '__main__':
     unittest.main()

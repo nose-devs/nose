@@ -187,6 +187,7 @@ class TestDoctestPlugin(unittest.TestCase):
         suite = plug.loadTestsFromFile(fn)
         for test in suite:
             assert str(test).endswith('doctests.txt')
+            assert test.address(), "Test %s has no address"
         
     def test_collect_no_collect(self):
         # bug http://nose.python-hosting.com/ticket/55 

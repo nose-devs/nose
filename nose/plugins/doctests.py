@@ -73,21 +73,16 @@ class Doctest(Plugin):
                           default=env.get('NOSE_DOCTEST_TESTS'),
                           help="Also look for doctests in test modules "
                           "[NOSE_DOCTEST_TESTS]")
-        try:
-            # 2.4 or better supports loading tests from non-modules
-            doctest.DocFileSuite
-            parser.add_option('--doctest-extension', action="append",
-                              dest="doctestExtension",
-                              help="Also look for doctests in files with "
-                              "this extension [NOSE_DOCTEST_EXTENSION]")
-            # Set the default as a list, if given in env; otherwise
-            # an additional value set on the command line will cause
-            # an error.
-            env_setting = env.get('NOSE_DOCTEST_EXTENSION')
-            if env_setting is not None:
-                parser.set_defaults(doctestExtension=tolist(env_setting))
-        except AttributeError:
-            pass
+        parser.add_option('--doctest-extension', action="append",
+                          dest="doctestExtension",
+                          help="Also look for doctests in files with "
+                          "this extension [NOSE_DOCTEST_EXTENSION]")
+        # Set the default as a list, if given in env; otherwise
+        # an additional value set on the command line will cause
+        # an error.
+        env_setting = env.get('NOSE_DOCTEST_EXTENSION')
+        if env_setting is not None:
+            parser.set_defaults(doctestExtension=tolist(env_setting))
 
     def configure(self, options, config):
         Plugin.configure(self, options, config)
@@ -130,6 +125,8 @@ class Doctest(Plugin):
                 doc, globs={}, name=name, filename=filename, lineno=0)
             if test.examples:
                 yield DocFileCase(test)
+            else:
+                yield False # no tests to load
             
     def makeTest(self, obj, parent):
         """Look for doctests in the given object, which will be a
@@ -220,4 +217,4 @@ class DocFileCase(doctest.DocFileCase):
     """Overrides to provide filename
     """
     def address(self):
-        return (self._dt_test_filename, None, None)
+        return (self._dt_test.filename, None, None)

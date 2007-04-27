@@ -506,22 +506,24 @@ class IPluginInterface(object):
     loadTestsFromNames._new = True
     loadTestsFromNames.chainable = True
 
-    def loadTestsFromPath(self, path, module=None, importPath=None):
-        """Return tests in this file or directory. Return None if you are not
-        able to load any tests, or an iterable if you are. May be a
-        generator.
+    def loadTestsFromFile(self, filename):
+        """Return tests in this file. Return None if you are not able
+        to load any tests, or an iterable if you are. May be a
+        generator. If you are interested in loading tests from the
+        file and encounter no errors, but find no tests, yield False
+        or return [False].
 
+        NOTE that this method replaces loadTestsFromPath from the 0.9
+        API.
+        
         Parameters:
-         * path:
+         * filename:
            The full path to the file or directory.
-         * module:
-           Module in which the file/dir is found
-         * importPath:
-           Path from which file (must be a python module) was found        
         """
         pass
-    loadTestsFromPath.generative = True
-    loadTestsFromFile = loadTestsFromPath
+    loadTestsFromFile.generative = True
+    loadTestsFromFile._new = True
+    loadTestsFromPath = loadTestsFromFile
     
     def loadTestsFromTestCase(self, cls):
         """Return tests in this test case class. Return None if you are
