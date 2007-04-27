@@ -19,15 +19,107 @@ __all__ = ['DefaultPluginManager', 'PluginManager', 'EntryPointPluginManager',
 
 log = logging.getLogger(__name__)
 
-class PluginManager(object):
 
-    def __init__(self, plugins=()):
+class PluginProxy(object):
+    """Proxy for plugin calls. Essentially a closure bound to the
+    given call and plugin list.
+    """
+    interface = IPluginInterface
+    def __init__(self, call, plugins):
+        self.call = self.makeCall(call)
+        self.plugins = []
+        for p in plugins:
+            self.addPlugin(p, call)
+    
+    def __call__(self, *arg, **kw):
+        return self.call(*arg, **kw)
+    
+    def addPlugin(self, plugin, call):
+        meth = getattr(plugin, call, None)
+        if meth is not None:
+            self.plugins.append((plugin, meth))
+
+    def makeCall(self, call):
+        if call == 'loadTestsFromNames':
+            # special case -- load tests from names behaves somewhat differently
+            # from other chainable calls, because plugins return a tuple, only
+            # part of which can be chained to the next plugin.
+            return self._loadTestsFromNames
+        try:
+            meth = getattr(self.interface, call)
+        except AttributeError:
+            raise AttributeError("%s is not a valid %s method"
+                                 % (call, self.interface.__name__))
+        if getattr(meth, 'generative', False):
+            # call all plugins and yield a flattened iterator of their results
+            return lambda *arg, **kw: list(self.generate(*arg, **kw))
+        elif getattr(meth, 'chainable', False):
+            return self.chain
+        else:
+            # return a value from the first plugin that returns non-None
+            return self.simple        
+            
+    def chain(self, *arg, **kw):
+        """Call plugins in a chain, where the result of each plugin call is
+        sent to the next plugin as input. The final output result is returned.
+        """
+        result = None
+        for p, meth in self.plugins:
+            result = meth(*arg, **kw)
+            arg = (result,)
+        return result
+
+    def generate(self, *arg, **kw):
+        """Call all plugins, yielding each item in each non-None result.
+        """
+        for p, meth in self.plugins:
+            result = meth(*arg, **kw)
+            if result is not None:
+                for r in result:
+                    yield r
+
+    def simple(self, *arg, **kw):
+        """Call all plugins, returning the first non-None result.
+        """
+        for p, meth in self.plugins:
+            result = meth(*arg, **kw)
+            if result is not None:
+                return result
+
+    def _loadTestsFromNames(self, names, module=None):
+        """Chainable but not quite normal. Plugins return a tuple of
+        (tests, names) after processing the names. The tests are added
+        to a suite that is accumulated throughout the full call, while
+        names are input for the next plugin in the chain.
+        """
+        suite = []
+        for p, meth in self.plugins:
+            result = meth(names, module=module)
+            if result is not None:
+                suite_part, names = result
+                if suite_part:
+                    suite.extend(suite_part)
+        return suite, names
+
+
+class PluginManager(object):
+    proxyClass = PluginProxy
+    
+    def __init__(self, plugins=(), proxyClass=None):
         self._plugins = []
+        self._proxies = {}
         if plugins:
             self.addPlugins(plugins)
-
+        if proxyClass is not None:
+            self.proxyClass = proxyClass
+        
     def __getattr__(self, call):
-        return PluginProxy(call, self._plugins)
+        try:
+            return self._proxies[call]
+        except KeyError:
+            proxy = self.proxyClass(call, self._plugins)
+            self._proxies[call] = proxy
+        return proxy
 
     def __iter__(self):
         return iter(self.plugins)
@@ -69,91 +161,6 @@ class PluginManager(object):
                        this plugin manager""")
 
 
-class PluginProxy(object):
-    """Proxy for plugin calls. Essentially a closure bound to the
-    given call and plugin list.
-    """
-    interface = IPluginInterface
-    def __init__(self, call, plugins):
-        self.call = call
-        self.plugins = plugins[:]
-    
-    def __call__(self, *arg, **kw):
-        # special case -- load tests from names behaves somewhat differently
-        # from other chainable calls, because plugins return a tuple, only
-        # part of which can be chained to the next plugin.
-        if self.call == 'loadTestsFromNames':
-            return self._loadTestsFromNames(*arg, **kw)
-        try:
-            meth = getattr(self.interface, self.call)
-        except AttributeError:
-            raise AttributeError("%s is not a valid %s method"
-                                 % (self.call, self.interface.__name__))
-        if getattr(meth, 'generative', False):
-            # call all plugins and yield a flattened iterator of their results
-            return list(self.generate(*arg, **kw))
-        elif getattr(meth, 'chainable', False):
-            return self.chain(*arg, **kw)
-        else:
-            # return a value from the first plugin that returns non-None
-            return self.simple(*arg, **kw)
-
-    # FIXME optimization: on first call, cache list of plugins with the method
-    # and use that list only on each successive call
-    
-    def chain(self, *arg, **kw):
-        """Call plugins in a chain, where the result of each plugin call is
-        sent to the next plugin as input. The final output result is returned.
-        """
-        result = None
-        for p in self.plugins:
-            meth = getattr(p, self.call, None)
-            if meth is None:
-                continue
-            result = meth(*arg, **kw)
-            arg = (result,)
-        return result
-
-    def generate(self, *arg, **kw):
-        """Call all plugins, yielding each item in each non-None result.
-        """
-        for p in self.plugins:
-            meth = getattr(p, self.call, None)
-            if meth is None:
-                continue
-            result = meth(*arg, **kw)
-            if result is not None:
-                for r in result:
-                    yield r
-
-    def simple(self, *arg, **kw):
-        """Call all plugins, returning the first non-None result.
-        """
-        for p in self.plugins:
-            meth = getattr(p, self.call, None)
-            if meth is None:
-                continue
-            result = meth(*arg, **kw)
-            if result is not None:
-                return result
-
-    def _loadTestsFromNames(self, names, module=None):
-        """Chainable but not quite normal. Plugins return a tuple of
-        (tests, names) after processing the names. The tests are added
-        to a suite that is accumulated throughout the full call, while
-        names are input for the next plugin in the chain.
-        """
-        suite = []
-        for p in self.plugins:
-            meth = getattr(p, self.call, None)
-            if meth is None:
-                continue
-            result = meth(names, module=module)
-            if result is not None:
-                suite_part, names = result
-                if suite_part:
-                    suite.extend(suite_part)
-        return suite, names
 
 class ZeroNinePlugin:
     """Proxy for 0.9 plugins, adapts 0.10 calls to 0.9 standard.
