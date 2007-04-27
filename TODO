@@ -9,6 +9,8 @@ DOCUMENTATION
  sanity check all docstrings
 
  generate new plugin api docs, highlighting new and changed methods
+ generate new docs for all wiki'd docs, flat html, interlinked, for 0.10 doc dir
+ generate pydoctor(?) or pudge(?) api docs for 0.10 doc dir
 
 FEATURES
 
@@ -16,7 +18,8 @@ add --plugins option displays loadable plugins, with version (if
   applicable), score, description for each. options for each also if
   verbosity >= 2
 
-** make sure lib-first collection is still working (dir contents sorted test-last)
+** make sure lib-first collection is still working (dir contents sorted test-last)-- needs a functional test, too difficult to introspect in unit test
+
 
 rename Failure and split into subclasses for Import and other, and make
 it optionally include the name of the file being considered so that
@@ -28,7 +31,7 @@ FAILED (todo=10)
   or
 OK (skipped=2)
 
-** this can only be done in nose test runner
+NOTE this can only be done in nose test runner
 
 * loader
   - support module.callable in addition to module:callable names
@@ -66,9 +69,7 @@ TESTS NEEDED
  testid
   -- needs tests with doctests
  **    -- doctests from non module files
- ** doctest
- **  -- needs tests from non-module files
-
+ 
  coverage/doctest -- need tests for coverage/doctest interaction
 
 

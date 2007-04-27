@@ -128,12 +128,16 @@ def mock_listdir(path):
         return ['.', '..', 'subpackage', '__init__.py']
     elif path.endswith('/subpackage'):
         return ['.', '..', '__init__.py']
+    elif path.endswith('/sort'):
+        return ['.', '..', 'lib', 'src', 'test', 'test_module.py', 'a_test']
     return ['.', '..', 'test_module.py', 'module.py']
 
 
 def mock_isdir(path):
     print "is dir '%s'?" % path
-    if path in ('/a/dir/path', '/package', '/package/subpackage'):
+    if path in ('/a/dir/path', '/package', '/package/subpackage',
+                '/sort/lib', '/sort/src', '/sort/a_test', '/sort/test',
+                '/sort'):
         return True
     return False
 

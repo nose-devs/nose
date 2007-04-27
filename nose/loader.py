@@ -10,7 +10,7 @@ from nose.config import Config
 from nose.importer import Importer, add_path, remove_path
 from nose.selector import defaultSelector, TestAddress
 from nose.util import cmp_lineno, getpackage, isclass, isgenerator, ispackage, \
-    resolve_name
+    match_last, resolve_name
 from suite import ContextSuiteFactory, ContextList, LazySuite
 
 log = logging.getLogger(__name__)
@@ -75,7 +75,7 @@ class TestLoader(unittest.TestLoader):
             paths_added = add_path(path)
 
         entries = os.listdir(path)
-        entries.sort()
+        entries.sort(lambda a, b: match_last(a, b, self.config.testMatch))
         for entry in entries:
             if entry.startswith('.') or entry.startswith('_'):
                 continue

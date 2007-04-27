@@ -209,6 +209,7 @@ def getpackage(filename):
     mod_parts.reverse()
     return '.'.join(mod_parts)
 
+
 def ln(label):
     """Draw a 70-char-wide divider, with label in the middle.
 
@@ -222,6 +223,7 @@ def ln(label):
     if pad > 0:
         out = out + ('-' * pad)
     return out
+
 
 def resolve_name(name, module=None):
     """Resolve a dotted name to a module and its parts. This is stolen
@@ -381,6 +383,25 @@ def src(filename):
     if ext in ('.pyc', '.pyo', '.py'):
         return '.'.join((base, 'py'))
     return filename
+
+
+def match_last(a, b, regex):
+    """Sort compare function that puts items that match a
+    regular expression last.
+
+    >>> from nose.config import Config
+    >>> c = Config()
+    >>> regex = c.testMatch
+    >>> entries = ['.', '..', 'a_test', 'src', 'lib', 'test', 'foo.py']
+    >>> entries.sort(lambda a, b: match_last(a, b, regex))
+    >>> entries
+    ['.', '..', 'foo.py', 'lib', 'src', 'a_test', 'test']
+    """
+    if regex.search(a) and not regex.search(b):
+        return 1
+    elif regex.search(b) and not regex.search(a):
+        return -1
+    return cmp(a, b)
 
         
 def tolist(val):
