@@ -58,7 +58,7 @@ def collector():
     """TestSuite replacement entry point. Use anywhere you might use a
     unittest.TestSuite. The collector will, by default, load options from
     all config files and execute loader.loadTestsFromNames() on the
-    configured testNames or '.' if no testNames are configured.
+    configured testNames, or '.' if no testNames are configured.
     """
     # plugins that implement any of these methods are disabled, since
     # we don't control the test runner and won't be able to run them
@@ -113,9 +113,8 @@ class TextTestRunner(unittest.TextTestRunner):
 class TestProgram(unittest.TestProgram):
     r"""usage: %prog [options] [names]
     
-    nose provides an alternate test discovery and running process for
-    unittest, one that is intended to mimic the behavior of py.test as much as
-    is reasonably possible without resorting to magic.
+    nose provides extended test discovery and running features for
+    unittest.
     
     nose collects tests automatically from python source files,
     directories and packages found in its working directory (which
@@ -123,24 +122,18 @@ class TestProgram(unittest.TestProgram):
     directory or package that matches the testMatch regular expression
     (by default: (?:^|[\b_\.-])[Tt]est) will be collected as a test (or
     source for collection of tests). In addition, all other packages
-    found in the working directory are examined for python source files
+    found in the working directory will be examined for python source files
     or directories that match testMatch. Package discovery descends all
     the way down the tree, so package.tests and package.sub.tests and
     package.sub.sub2.tests will all be collected.
     
     Within a test directory or package, any python source file matching
-    testMatch will be examined for test cases. Within a test file,
+    testMatch will be examined for test cases. Within a test module,
     functions and classes whose names match testMatch and TestCase
     subclasses with any name will be loaded and executed as tests. Tests
     may use the assert keyword or raise AssertionErrors to indicate test
     failure. TestCase subclasses may do the same or use the various
     TestCase methods available.
-
-    Tests may raise nose.SkipTest to indicate that they should be
-    skipped or nose.DeprecatedTest to indicate that they are
-    deprecated. Skipped and deprecated tests do not count as failures,
-    but details on them are printed at the end of the test run along
-    with any failures and errors.
         
     Selecting Tests
     ---------------
@@ -164,12 +157,12 @@ class TestProgram(unittest.TestProgram):
 
       %prog -w /path/to/tests
 
-    Note however that the -w switch is deprecated in this version and
-    will be removed in a future release, since as of nose 0.10 you can
-    get the same behavior by specifying the target directory or
-    directories *without* the -w switch:
+    Note however that support for multiple -w arguments is deprecated
+    in this version and will be removed in a future release, since as
+    of nose 0.10 you can get the same behavior by specifying the
+    target directories *without* the -w switch:
 
-     %prog /path/to/tests
+     %prog /path/to/tests /another/path/to/tests
 
     Further customization of test selection and loading is possible
     through the use of plugins.
@@ -189,7 +182,7 @@ class TestProgram(unittest.TestProgram):
 
       [nosetests]
       verbosity=3
-      with-doctest
+      with-doctest=1
 
     All configuration files that are found will be loaded and their options
     combined.

@@ -8,9 +8,11 @@ DOCUMENTATION
  
  sanity check all docstrings
 
+ generate new plugin api docs, highlighting new and changed methods
 
 FEATURES
 
+make sure lib-first collection is still working (dir contents sorted test-last)
 
 rename Failure and split into subclasses for Import and other, and make
 it optionally include the name of the file being considered so that

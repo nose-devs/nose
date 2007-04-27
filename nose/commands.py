@@ -30,9 +30,18 @@ Here's an example [nosetests] setup.cfg section::
   pdb=1
   pdb-failures=1
 
-If you commonly run nosetests with a large number of options, using the
-nosetests setuptools command and configuring with setup.cfg can make running
-your tests much less tedious.
+If you commonly run nosetests with a large number of options, using
+the nosetests setuptools command and configuring with setup.cfg can
+make running your tests much less tedious. (Note that the same options
+and format supported in setup.cfg are supported in all other config
+files, and the nosetests script will also load config files.)
+
+Another reason to run tests with the command is that the command will
+install packages listed in your `tests_require`, as well as doing a
+complete build of your package before running tests. For packages with
+dependencies or that build C extensions, using the setuptools command
+can be more convenient than building by hand and running the nosetests
+script.
 """
 import os
 from setuptools import Command

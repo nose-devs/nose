@@ -23,7 +23,40 @@ config_files = [
 class Config(object):
     """nose configuration.
 
-    FIXME document all config options
+    Instances of Config are used throughout nose to configure
+    behavior, including plugin lists. Here are the default values for
+    all config keys::
+
+      self.env = env = kw.pop('env', os.environ)
+      self.args = ()
+      self.testMatch = re.compile(r'(?:^|[\b_\.%s-])[Tt]est' % os.sep)
+      self.addPaths = not env.get('NOSE_NOPATH', False)
+      self.configSection = 'nosetests'
+      self.debug = env.get('NOSE_DEBUG')
+      self.debugLog = env.get('NOSE_DEBUG_LOG')
+      self.exclude = None
+      self.exit = True
+      self.getTestCaseNamesCompat = False
+      self.includeExe = env.get('NOSE_INCLUDE_EXE',
+                                sys.platform == 'win32')
+      self.ignoreFiles = (re.compile(r'^\.'),
+                          re.compile(r'^_'),
+                          re.compile(r'^setup\.py$')
+                          )
+      self.include = None
+      self.loggingConfig = None
+      self.logStream = sys.stderr
+      self.options = ()
+      self.parser = None
+      self.plugins = NoPlugins()
+      self.srcDirs = ('lib', 'src')
+      self.runOnInit = True
+      self.stopOnError = env.get('NOSE_STOP', False)
+      self.stream = sys.stderr
+      self.testNames = ()
+      self.verbosity = int(env.get('NOSE_VERBOSE', 1))
+      self.where = ()
+      self.workingDir = None   
     """
 
     def __init__(self, **kw):
@@ -179,6 +212,8 @@ class Config(object):
                     l.addHandler(handler)
 
     def configureWhere(self, where):
+        """Configure the working director for the test run.
+        """
         from nose.importer import add_path
         where = tolist(where)
         warned = False
@@ -206,9 +241,13 @@ class Config(object):
             self.testNames.append(path)
 
     def default(self):
+        """Reset all config values to defaults.
+        """
         self.__dict__.update(self._default)
 
     def getParser(self, doc=None):
+        """Get the command line option parser.
+        """
         if self.parser:
             return self.parser
         env = self.env
@@ -296,7 +335,6 @@ class Config(object):
             "executable. (The default on the windows platform is to "
             "do so.)")
 
-
         self.plugins.loadPlugins()
         self.pluginOpts(parser)
 
@@ -383,6 +421,7 @@ def all_config_files():
     if os.path.exists('setup.cfg'):
         return user + ['setup.cfg']
     return user
+
 
 # used when parsing config files
 def flag(val):

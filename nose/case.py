@@ -85,7 +85,6 @@ class Test(unittest.TestCase):
         appending captured output and assert introspection information, if
         so configured.
         """
-        # FIXME add in the stdout capture and such
         exc, exv, tb = sys.exc_info()
         return (exc, exv, tb)
         
@@ -148,6 +147,10 @@ class Test(unittest.TestCase):
             self.afterTest(result)
         
     def runTest(self, result):
+        """Run the test. Plugins may alter the test by returning a
+        value from prepareTestCase. The value must be callable and
+        must accept one argument, the result instance.
+        """        
         test = self.test
         plug_test = self.config.plugins.prepareTestCase(self)
         if plug_test is not None:
@@ -184,32 +187,29 @@ class FunctionTestCase(TestBase):
 
     Don't use this class directly; it is used internally in nose to
     create test cases for test functions.
-
-    FIXME DOC
-    
-    This class is very similar to unittest.FunctionTestCase, with a few
-    extensions:
-      * The test descriptions are disambiguated by including the full
-        module path when a test with a similar name has been seen in
-        the test run. 
-      * It allows setup and teardown functions to be defined as attributes
-        of the test function. A convenient way to set this up is via the
-        provided with_setup decorator:
-
-        def setup_func():
-            # ...
-
-        def teardown_func():
-            # ...
-        
-        @with_setup(setup_func, teardown_func)        
-        def test_something():
-            # ...
-
     """
     __test__ = False # do not collect
     def __init__(self, test, setUp=None, tearDown=None, arg=tuple(),
                  descriptor=None):
+        """Initialize the MethodTestCase.
+
+        Required argument:
+
+        * test -- the test function to call.
+
+        Optional arguments:
+
+        * setUp -- function to run at setup.
+
+        * tearDown -- function to run at teardown.
+
+        * arg -- arguments to pass to the test function. This is to support
+          generator functions that yield arguments.
+
+        * descriptor -- the function, other than the test, that should be used
+          to construct the test name. This is to support generator functions.
+        """
+        
         self.test = test
         self.setUpFunc = setUp
         self.tearDownFunc = tearDown
