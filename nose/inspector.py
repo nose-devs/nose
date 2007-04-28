@@ -34,16 +34,22 @@ def inspect_traceback(tb):
     # figure out the set of lines to grab.
     inspect_lines, mark_line = find_inspectable_lines(lines, exc_line)
     src = StringIO(textwrap.dedent(''.join(inspect_lines)))
-
-    # FIXME
-    # if a token error results, try just doing the one line,
-    # stripped of any \ it might have
     exp = Expander(frame.f_locals, frame.f_globals)
-    try:
-        tokenize.tokenize(src.readline, exp)
-    except tokenize.TokenError:
-        pass
 
+    while inspect_lines:
+        try:
+            tokenize.tokenize(src.readline, exp)
+        except tokenize.TokenError, e:
+            # this can happen if our inspectable region happens to butt up
+            # against the end of a construct like a docstring with the closing
+            # """ on separate line
+            log.debug("Tokenizer error: %s", e)
+            inspect_lines.pop(0)
+            mark_line -= 1
+            src = StringIO(textwrap.dedent(''.join(inspect_lines)))
+            exp = Expander(frame.f_locals, frame.f_globals)
+            continue
+        break
     padded = []
     if exp.expanded_source:
         exp_lines = exp.expanded_source.split('\n')
@@ -78,7 +84,6 @@ def tbsource(tb, context=6):
     if context > 0:
         start = lineno - 1 - context//2
         log.debug("lineno: %s start: %s", lineno, start)
-
         
         try:
             lines, dummy = inspect.findsource(frame)
@@ -99,7 +104,7 @@ def tbsource(tb, context=6):
                     lines = all_lines[start:start+context]
     else:
         lines = index = None
-    # log.debug("Inspecting lines '''%s''' around index %s", lines, index)
+    log.debug("tbsource lines '''%s''' around index %s", lines, index)
     return (lines, index)    
 
     
@@ -139,6 +144,7 @@ def find_inspectable_lines(lines, pos):
             continued = cnt.search(line)
         else:
             break
+    log.debug("Inspecting lines '''%s''' around %s", toinspect, home_pos)
     return toinspect, home_pos
 
 

@@ -116,10 +116,25 @@ class TestExpander(unittest.TestCase):
                              "    print 1, 3\n"
                              ">>  assert 1 % 2 == 0 or 3 % 2 == 0")
             
+    def test_bug_95(self):
+        """Test that inspector can handle multi-line docstrings"""
+        try:
+            """docstring line 1
+            docstring line 2
+            """
+            a = 2
+            assert a == 4
+        except AssertionError:
+            et, ev, tb = sys.exc_info()
+            out = inspect_traceback(tb)
+            print "'%s'" % out.strip()
+            self.assertEqual(out.strip(),
+                             "2 = 2\n"
+                             ">>  assert 2 == 4")
         
 if __name__ == '__main__':
     #import logging
     #logging.basicConfig()
-    #logging.getLogger('').setLevel(0)
+    #logging.getLogger('').setLevel(10)
     unittest.main()
     
