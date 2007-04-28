@@ -1,3 +1,13 @@
+"""
+Test Suites
+-----------
+
+Provides a LazySuite, which is a suite whose test list is a generator
+function, and ContextSuite, a suite that can run fixtures
+(setup/teardown functions or methods) for the context that contains
+its tests.
+
+"""
 from __future__ import generators
 
 import logging
@@ -24,8 +34,11 @@ class MixedContextError(Exception):
 
 
 class LazySuite(unittest.TestSuite):
-
+    """A suite that may use a generator as its list of tests
+    """
     def __init__(self, tests=()):
+        """Initialize the suite. tests may be an iterable or a generator
+        """
         self._set_tests(tests)
                 
     def __iter__(self):
@@ -84,6 +97,11 @@ class LazySuite(unittest.TestSuite):
 
         
 class ContextSuite(LazySuite):
+    """A suite with context.
+
+    `ContextSuite`s execute fixtures (setup and teardown functions or
+    methods) for the context containing their tests.
+    """    
     failureException = unittest.TestCase.failureException
     was_setup = False
     was_torndown = False
@@ -268,6 +286,12 @@ class ContextSuite(LazySuite):
 
 
 class ContextSuiteFactory(object):
+    """Factory for `ContextSuite`s. Called with a collection of tests,
+    the factory decides on a hierarchy of contexts by introspecting
+    the collection or the tests them selves to find the objects
+    containing the test objects. It always returns one suite, but that
+    suite may consist of a hierarchy of nested suites.
+    """
     suiteClass = ContextSuite
     def __init__(self, config=None, suiteClass=None, resultProxy=_def):
         if config is None:

@@ -146,6 +146,7 @@ def ispackage(path):
             return True
     return False
 
+
 def getfilename(package, relativeTo=None):
     """Find the python source file for a package, relative to a
     particular directory (defaults to current working directory if not
@@ -161,6 +162,7 @@ def getfilename(package, relativeTo=None):
             return filename
     return None
     
+
 def getpackage(filename):
     """
     Find the full dotted package name for a given python source file

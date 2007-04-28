@@ -1,3 +1,11 @@
+"""
+Test Loader
+-----------
+
+nose's test loader implements the same basic functionality as its
+superclass, unittest.TestLoader, but extends it by more liberal
+interpretations of what may be a test and how a test may be named.
+"""
 from __future__ import generators
 
 import logging
@@ -17,9 +25,32 @@ log = logging.getLogger(__name__)
 #log.setLevel(logging.DEBUG)
 
 class TestLoader(unittest.TestLoader):
-    
+    """Test loader that extends unittest.TestLoader to:
+
+    * Load tests from test-like functions and classes that are not
+      unittest.TestCase subclasses
+    * Find and load test modules in a directory
+    * Support tests that are generators
+    * Support easy extensions of or changes to that behavior through plugins
+    """
     def __init__(self, config=None, importer=None, workingDir=None,
                  selector=None):
+        """Initialize a test loader.
+
+        Parameters (all optional):
+
+        * config: provide a `nose.config.Config` or other config class
+          instance; if not provided a `nose.config.Config` with
+          default values is used.          
+        * importer: provide an importer instance that implenents
+          `importFromPath`. If not provided, a
+          `nose.importer.Importer` is used.
+        * workingDir: the directory to which file and module names are
+          relative. If not provided, assumed to be the current working
+          directory.
+        * selector: a selector class. If not provided, a
+          `nose.selector.Selector1 is used.
+        """
         # FIXME would get selector too
         if config is None:
             config = Config()
@@ -122,7 +153,10 @@ class TestLoader(unittest.TestLoader):
         plugins.afterDirectory(path)
 
     def loadTestsFromFile(self, filename):
-        # only called for non-module
+        """Load tests from a non-module file. Default is to raise a
+        ValueError; plugins may implement `loadTestsFromFile` to
+        provide a list of tests loaded from the file.
+        """
         log.debug("Load from non-module file %s", filename)
         try:
             tests = [test for test in
@@ -169,7 +203,7 @@ class TestLoader(unittest.TestLoader):
         since a generator method may yield:
 
         * a function
-        * an unbound method, or
+        * a bound or unbound method, or
         * a method name
         """
         # convert the unbound generator method
@@ -244,7 +278,13 @@ class TestLoader(unittest.TestLoader):
         return self.suiteClass(ContextList(tests, context=module))
     
     def loadTestsFromName(self, name, module=None, discovered=False):
-        # FIXME refactor this method into little bites
+        """Load tests from the entity with the given name.
+
+        The name may indicate a file, directory, module, or any object
+        within a module. See `nose.util.split_test_name` for details on
+        test name parsing.
+        """
+        # FIXME refactor this method into little bites?
         log.debug("load from %s (%s)", name, module)
         
         suite = self.suiteClass
@@ -332,6 +372,9 @@ class TestLoader(unittest.TestLoader):
                     Failure(ValueError, "Unresolvable test name %s" % name)])
 
     def loadTestsFromNames(self, names, module=None):
+        """Load tests from all names, returning a suite containing all
+        tests.
+        """
         plug_res = self.config.plugins.loadTestsFromNames(names, module)
         if plug_res:
             suite, names = plug_res
@@ -370,8 +413,8 @@ class TestLoader(unittest.TestLoader):
         return self.suiteClass(ContextList(cases, context=cls))
 
     def makeTest(self, obj, parent=None):
-        """Given a test object and its parent, return a unittest.TestCase
-        instance that can be run as a test.
+        """Given a test object and its parent, return a test case
+        or test suite.
         """
         # plugins get first crack
         plug_tests = []
@@ -409,6 +452,8 @@ class TestLoader(unittest.TestLoader):
                            "Can't make a test from %s" % obj)
 
     def resolve(self, name, module):
+        """Resolve name within module
+        """
         obj = module
         parts = name.split('.')
         for part in parts:

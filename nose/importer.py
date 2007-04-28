@@ -4,8 +4,6 @@ necessary because test modules in different directories frequently have the
 same names, which means that the first loaded would mask the rest when using
 the builtin importer.
 """
-from __future__ import generators
-
 import logging
 import os
 import sys
@@ -16,7 +14,10 @@ from imp import find_module, load_module, acquire_lock, release_lock
 log = logging.getLogger(__name__)
 
 class Importer(object):
-    
+    """An importer class that does only path-specific imports. That
+    is, the given module is not searched for on sys.path, but only at
+    the path or in the directory specified.
+    """
     def __init__(self, config=None):
         if config is None:
             config = Config()
@@ -110,7 +111,8 @@ class Importer(object):
             "module already loaded? mod: %s new: %s",
             mod_path, new_path)
         return mod_path == new_path
-        
+
+
 def add_path(path):
     """Ensure that the path, or the root of the current package (if
     path is in a package) is in sys.path.
@@ -131,6 +133,7 @@ def add_path(path):
         sys.path.insert(0, path)
         added.append(path)
     return added
+
 
 def remove_path(path):
     log.debug('Remove path %s' % path)

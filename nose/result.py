@@ -1,7 +1,11 @@
-"""Test result handlers. Base class (Result) implements plugin handling,
-output capture, and assert introspection, and handles deprecated and skipped
-tests. TextTestResult is a drop-in replacement for unittest._TextTestResult
-that uses the capabilities in Result.
+"""
+Test Result
+-----------
+
+Provides a TextTestResult that extends unittest._TextTestResult to
+provide support for error classes (such as the builtin skip and
+deprecated classes), and hooks for plugins to take over or extend
+reporting.
 """
 
 import logging
