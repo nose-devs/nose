@@ -1,4 +1,5 @@
 import os
+import re
 import sys
 import tempfile
 import unittest
@@ -10,6 +11,7 @@ from cPickle import dump, load
 
 support = os.path.join(os.path.dirname(__file__), 'support')
 idfile = tempfile.mktemp()
+test_part = re.compile(r'(#\d+)? +([^(]+)')
 
 def teardown():
      try:
@@ -110,7 +112,6 @@ class TestLoadNamesMode_2(PluginTester, unittest.TestCase):
         self.assertEqual(count, 1)
 
 
-
 class TestWithDoctest_1(PluginTester, unittest.TestCase):
     activate = '--with-id'
     plugins = [Doctest(), TestId()]
@@ -118,16 +119,24 @@ class TestWithDoctest_1(PluginTester, unittest.TestCase):
     suitepath = os.path.join(support, 'idp')
 
     def test_doctests_get_ids(self):
-        print '>' * 70
-        print str(self.output)
-        print '>' * 70
+        #print '>' * 70
+        #print str(self.output)
+        #print '>' * 70
 
         last = None
         for line in self.output:
             if line.startswith('='):
                 break
+            if not line.strip():
+                continue
             # assert line startswith # or test part matches last
-
+            m = test_part.match(line.rstrip())
+            assert m
+            idx, name = m.groups()
+            assert idx or last is None or name == last, \
+                   "Expected an id on line %s" % line.strip()
+            last = name
+            
         fh = open(idfile, 'r')
         ids = load(fh)
         fh.close()
@@ -166,6 +175,73 @@ class TestWithDoctest_2(PluginTester, unittest.TestCase):
             if line.startswith('#'):
                 count += 1
         self.assertEqual(count, 1)
+
+
+class TestWithDoctestFileTests_1(PluginTester, unittest.TestCase):
+    activate = '--with-id'
+    plugins = [Doctest(), TestId()]
+    args = ['-v', '--id-file=%s' % idfile, '--with-doctest',
+            '--doctest-extension=.txt']
+    suitepath = os.path.join(support, 'dtt', 'docs')
+
+    def test_docfile_tests_get_ids(self):
+        print '>' * 70
+        print str(self.output)
+        print '>' * 70
+
+        last = None
+        for line in self.output:
+            if line.startswith('='):
+                break
+            # assert line startswith # or test part matches last
+            if not line.strip():
+                continue
+            m = test_part.match(line.rstrip())
+            assert m, "line %s does not match expected pattern" % line.strip()
+            idx, name = m.groups()
+            assert idx or last is None or name == last, \
+                   "Expected an id on line %s" % line.strip()
+            
+            last = name
+        fh = open(idfile, 'r')
+        ids = load(fh)
+        fh.close()
+        for key, (file, mod, call) in ids.items():
+            assert mod != 'doctest', \
+                   "Doctest test was incorrectly identified as being part of "\
+                   "the doctest module itself (#%s)" % key    
+
+
+class TestWithDoctestFileTests_2(PluginTester, unittest.TestCase):
+    activate = '--with-id'
+    plugins = [Doctest(), TestId()]
+    args = ['-v', '--id-file=%s' % idfile, '--with-doctest',
+            '--doctest-extension=.txt', '2']
+    suitepath = None
+
+    def setUp(self):
+        sys.path.insert(0, os.path.join(support, 'dtt', 'docs'))
+        super(TestWithDoctestFileTests_2, self).setUp()
+
+    def tearDown(self):
+        sys.path.remove(os.path.join(support, 'dtt', 'docs'))
+        super(TestWithDoctestFileTests_2, self).tearDown()
+
+    def makeSuite(self):
+        return None
+
+    def test_load_from_name_id_docfile_test(self):
+        print '*' * 70
+        print str(self.output)
+        print '*' * 70
+
+        assert 'Doctest: errdoc.txt ... FAIL' in self.output
+        
+        count = 0
+        for line in self.output:
+            if line.startswith('#'):
+                count += 1
+        assert count == 1
 
         
 if __name__ == '__main__':

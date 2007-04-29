@@ -7,6 +7,7 @@ DOCUMENTATION
  sep. upload of index for 0.10 -- link from 0.9 index
  
  sanity check all docstrings
+   --- all but plugins done
 
  generate new plugin api docs, highlighting new and changed methods
  generate new docs for all wiki'd docs, flat html, interlinked, for 0.10 doc dir
@@ -56,7 +57,7 @@ all tests passing as of r203
      
 CHORES
 
-make setup work with & w/out setuptools
+** make setup work with & w/out setuptools
 
 
 TESTS NEEDED
@@ -66,9 +67,6 @@ TESTS NEEDED
  plugin api -- comprehensive integration test that runs a suite with a plugin 
    that tracks calls and ensures that all calls are called with proper 
    arguments
- testid
-  -- needs tests with doctests
- **    -- doctests from non module files
  
  coverage/doctest -- need tests for coverage/doctest interaction
 
