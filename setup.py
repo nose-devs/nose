@@ -18,7 +18,7 @@ try:
 except ImportError:
     addl_args = dict(
         packages = ['nose', 'nose.exc', 'nose.plugins'],
-        # FIXME -- nosetests script
+        scripts = ['bin/nosetests']
         )
     
 setup(
