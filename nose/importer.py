@@ -52,7 +52,7 @@ class Importer(object):
             return sys.modules[fqname]
         
         if self.config.addPaths:
-            add_path(dir)
+            add_path(dir, self.config)
             
         path = [dir]
         parts = fqname.split('.')
@@ -113,7 +113,7 @@ class Importer(object):
         return mod_path == new_path
 
 
-def add_path(path):
+def add_path(path, config=None):
     """Ensure that the path, or the root of the current package (if
     path is in a package) is in sys.path.
     """
@@ -127,11 +127,17 @@ def add_path(path):
     parent = os.path.dirname(path)
     if (parent
         and os.path.exists(os.path.join(path, '__init__.py'))):
-        added.extend(add_path(parent))
+        added.extend(add_path(parent, config))
     elif not path in sys.path:
         log.debug("insert %s into sys.path", path)
         sys.path.insert(0, path)
         added.append(path)
+    if config and config.srcDirs:
+        for dirname in config.srcDirs:
+            dirpath = os.path.join(path, dirname)
+            if os.path.isdir(dirpath):
+                sys.path.insert(0, dirpath)
+                added.append(dirpath)
     return added
 
 

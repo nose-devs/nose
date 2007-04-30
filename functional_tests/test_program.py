@@ -55,7 +55,33 @@ class TestTestProgram(unittest.TestCase):
         assert not res.errors
         assert not res.failures
         
-        
+    def test_run_support_package3(self):
+        """Collect and run tests in functional_tests/support/package3
+
+        This should collect and run 2 test. The package layout is:
+
+        lib/
+          a.py
+        src/
+          b.py
+        tests/
+          test_a.py
+          test_b.py
+        """
+        stream = StringIO()
+        runner = TestRunner(stream=stream)
+
+        prog = TestProgram(defaultTest=os.path.join(support, 'package3'),
+                           argv=['test_run_support_package3', '-v'],
+                           testRunner=runner,
+                           config=Config(exit=False))
+        res = runner.result
+        print stream.getvalue()
+        self.assertEqual(res.testsRun, 2,
+                         "Expected to run 2 tests, ran %s" % res.testsRun)
+        assert res.wasSuccessful
+        assert not res.errors
+        assert not res.failures
 
 if __name__ == '__main__':
     #import logging

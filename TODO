@@ -7,7 +7,7 @@ DOCUMENTATION
  sep. upload of index for 0.10 -- link from 0.9 index
  
  sanity check all docstrings
-   --- all but plugins done
+ **   --- all but plugins done
 
  generate new plugin api docs, highlighting new and changed methods
  generate new docs for all wiki'd docs, flat html, interlinked, for 0.10 doc dir
@@ -18,9 +18,6 @@ FEATURES
 add --plugins option displays loadable plugins, with version (if
   applicable), score, description for each. options for each also if
   verbosity >= 2
-
-** make sure lib-first collection is still working (dir contents sorted test-last)-- needs a functional test, too difficult to introspect in unit test
-
 
 rename Failure and split into subclasses for Import and other, and make
 it optionally include the name of the file being considered so that

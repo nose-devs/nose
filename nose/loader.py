@@ -65,7 +65,7 @@ class TestLoader(unittest.TestLoader):
         self.workingDir = os.path.normpath(os.path.abspath(workingDir))
         self.selector = selector
         if config.addPaths:
-            add_path(workingDir)        
+            add_path(workingDir, config)        
         self.suiteClass = ContextSuiteFactory(config=config)
         unittest.TestLoader.__init__(self)        
 
@@ -103,7 +103,7 @@ class TestLoader(unittest.TestLoader):
         plugins = self.config.plugins
         plugins.beforeDirectory(path)
         if self.config.addPaths:
-            paths_added = add_path(path)
+            paths_added = add_path(path, self.config)
 
         entries = os.listdir(path)
         entries.sort(lambda a, b: match_last(a, b, self.config.testMatch))
