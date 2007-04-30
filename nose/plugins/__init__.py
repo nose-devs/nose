@@ -1,22 +1,27 @@
-"""Writing Plugins
+"""
+Writing Plugins
 ---------------
 
-nose supports setuptools_ entry point plugins for test collection,
-selection, observation and reporting. There are two basic rules for plugins:
+nose supports plugins for test collection, selection, observation and
+reporting. There are two basic rules for plugins:
 
  * Plugin classes should subclass `nose.plugins.Plugin`_.
  * Plugins may implement any of the methods described in the class
    PluginInterface in nose.plugins.base. Please note that this class is for
    documentary purposes only; plugins may not subclass PluginInterface.
 
-.. _setuptools: http://peak.telecommunity.com/DevCenter/setuptools
+
 .. _nose.plugins.Plugin: http://python-nose.googlecode.com/svn/trunk/nose/plugins/base.py
    
 Registering
 ===========
 
+.. Note:: Important note: the following applies only to the default
+plugin manager. Other plugin managers may use different means to
+locate and load plugins.
+
 For nose to find a plugin, it must be part of a package that uses
-setuptools, and the plugin must be included in the entry points defined
+setuptools_, and the plugin must be included in the entry points defined
 in the setup.py for the package::
 
   setup(name='Some plugin',
@@ -32,15 +37,17 @@ in the setup.py for the package::
 Once the package is installed with install or develop, nose will be able
 to load the plugin.
 
+.. _setuptools: http://peak.telecommunity.com/DevCenter/setuptools
+
 Defining options
 ================
 
-All plugins must implement the methods ``add_options(self, parser, env)``
+All plugins must implement the methods ``options(self, parser, env)``
 and ``configure(self, options, conf)``. Subclasses of nose.plugins.Plugin
 that want the standard options should call the superclass methods.
 
 nose uses optparse.OptionParser from the standard library to parse
-arguments. A plugin's ``add_options()`` method receives a parser
+arguments. A plugin's ``options()`` method receives a parser
 instance. It's good form for a plugin to use that instance only to add
 additional arguments that take only long arguments (--like-this). Most
 of nose's built-in arguments get their default value from an environment
@@ -75,10 +82,11 @@ Recipes
 
  * Writing a plugin that loads tests from files other than python modules
 
-   Implement ``wantFile`` and ``loadTestsFromFile``. In ``wantFile``, return
-   True for files that you want to examine for tests. In ``loadTestsFromFile``,
-   for those files, return a TestSuite or other iterable containing
-   TestCases. ``loadTestsFromFile`` may also be a generator.
+   Implement ``wantFile`` and ``loadTestsFromFile``. In ``wantFile``,
+   return True for files that you want to examine for tests. In
+   ``loadTestsFromFile``, for those files, return an iterable
+   containing TestCases (or yield them as you find them;
+   ``loadTestsFromFile`` may also be a generator).
  
    Example: `nose.plugins.doctests`_
 
@@ -118,7 +126,7 @@ Testing Plugins
 ===============
 
 The plugin interface is well-tested enough so that you can safely unit
-test your use of its hooks with some level of confidence.  However,
+test your use of its hooks with some level of confidence. However,
 there is a mixin for unittest.TestCase called PluginTester that's
 designed to test plugins in their native runtime environment.
 
