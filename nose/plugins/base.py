@@ -7,8 +7,8 @@ from nose.util import tolist
 class Plugin(object):
     """Base class for nose plugins. It's not *necessary* to subclass this
     class to create a plugin; however, all plugins must implement
-    `add_options(self, parser, env)` and `configure(self, options,
-    conf)`, and must have the attributes `enabled` and `name`.
+    `options(self, parser, env)` and `configure(self, options,
+    conf)`, and must have the attributes `enabled`, `name` and `score`.
 
     Plugins should not be enabled by default.
 
@@ -19,7 +19,7 @@ class Plugin(object):
         interface to enable the plugin. The plugin class's docstring
         will be used as the help for this option.
       * The plugin will not be enabled unless this option is selected by
-        the user.    
+        the user.
     """
     can_configure = False
     enabled = False
@@ -37,7 +37,7 @@ class Plugin(object):
         """Add command-line options for this plugin.
 
         The base plugin class adds --with-$name by default, used to enable the
-        plugin. 
+        plugin.
         """
         self.add_options(parser, env)
         
@@ -103,19 +103,23 @@ class IPluginInterface(object):
 
     While it is recommended that plugins subclass
     nose.plugins.Plugin, the only requirements for a plugin are
-    that it implement the methods `add_options(self, parser, env)` and
+    that it implement the methods `options(self, parser, env)` and
     `configure(self, options, conf)`, and have the attributes
-    `enabled` and `name`. 
+    `enabled`, `name` and `score`.
     
     Plugins may implement any or all of the methods documented
-    below. Please note that they *must not* subclass PluginInterface;
-    PluginInterface is a only description of the plugin API.
+    below. Please note that they *must not* subclass `IPluginInterface`;
+    `IPluginInterface` is a only description of the plugin API.
 
     When plugins are called, the first plugin that implements a method
     and returns a non-None value wins, and plugin processing ends. The
-    exceptions to this are `loadTestsFromModule`, `loadTestsFromName`,
-    and `loadTestsFromPath`, which allow multiple plugins to load and
-    return tests.
+    exceptions to this are methods marked as `generative` or
+    `chainable`.  `generative` methods combine the output of all
+    plugins that respond with an iterable into a single flattened
+    iterable response (a generator, reall). `chainable` methods pass
+    the results of calling plugin A as the input to plugin B, where
+    the positions in the chain are determined by the plugin sort
+    order, which is in order by `score` descending.
 
     In general, plugin methods correspond directly to methods of
     nose.selector.Selector, nose.loader.TestLoader and
@@ -124,8 +128,9 @@ class IPluginInterface(object):
     method in which it is called; for those, the documentation for the
     hook will tell you where in the test process it is called.
 
-    Plugin hooks fall into two broad categories: selecting and loading
-    tests, and watching and reporting on test results.
+    Plugin hooks fall into three broad categories: selecting and
+    loading tests, preparing objects used in the testing process, and
+    watching and reporting on test results.
     
     Selecting and loading tests
     ===========================
@@ -148,6 +153,31 @@ class IPluginInterface(object):
      * The builtin attrib plugin implements `wantFunction` and
        `wantMethod` so that it can reject tests that don't match the
        specified attributes.
+
+    Preparing test objects
+    ======================
+
+    To alter, get a handle on, or replace test framework objects such
+    as the loader, result, runner, and test cases, use the appropriate
+    prepare methods. The simplest reason to use prepare is if you need
+    to use an object yourself. For example, the isolate plugin
+    implements `prepareTestLoader` so that it can use the test loader
+    later on to load tests. If you return a value from a prepare
+    method, that value will be used in place of the loader, result,
+    runner or test case, respectively. When replacing test cases, be
+    aware that you are replacing the entire test case -- including the
+    whole `run(result)` method of the `unittest.TestCase` -- so if you
+    want normal unittest test result reporting, you must implement the
+    same calls to result as `unittest.TestCase.run`.
+
+    Examples:
+
+    * The builtin isolate plugin implements `prepareTestLoader` but
+      does not replace the test loader.
+
+    * The builtin profile plugin implements `prepareTest` and does
+      replace the top-level test case by returning the case wrapped in
+      the profiler function.
     
     Watching or reporting on tests
     ==============================
@@ -178,17 +208,18 @@ class IPluginInterface(object):
         Do *not* return a value from this method unless you want to stop
         all other plugins from setting their options.
 
-        DEPRECATED
+        DEPRECATED -- implement `options` instead.
         """
         pass
     add_options = addOptions
+    add_options.deprecated = True
 
     def addDeprecated(self, test):
         """Called when a deprecated test is seen. DO NOT return a value
         unless you want to stop other plugins from seeing the deprecated
         test.
 
-        DEPRECATED
+        DEPRECATED -- check error class in addError instead
 
         Parameters:
          * test:
@@ -237,7 +268,7 @@ class IPluginInterface(object):
         """Called when a test is skipped. DO NOT return a value unless
         you want to stop other plugins from seeing the skipped test.
 
-        DEPRECATED
+        DEPRECATED -- check error class in addError instead
 
         Parameters:
          * test:
@@ -305,8 +336,8 @@ class IPluginInterface(object):
         """Called before a context (generally a module) is
         examined. Since the context is not yet loaded, plugins don't
         get to know what the context is; so any context operations
-        should use a stack that is pushed in beforeContext and popped
-        in `afterContext`.
+        should use a stack that is pushed in `beforeContext` and popped
+        in `afterContext` to ensure they operate symmetrically.
 
         `beforeContext` and `afterContext` are mainly
         useful for tracking and restoring global state around possible
@@ -368,15 +399,17 @@ class IPluginInterface(object):
         pass
 
     def finalize(self, result):
-        """Called after all report output, including output from all plugins,
-        has been sent to the stream. Use this to print final test
-        results. Return None to allow other plugins to continue
-        printing, any other value to stop them.
+        """Called after all report output, including output from all
+        plugins, has been sent to the stream. Use this to print final
+        test results or perform final cleanup. Return None to allow
+        other plugins to continue printing, any other value to stop
+        them.
         """
         pass
 
     def describeTest(self, test):
-        """Return a test description. Called by test.shortDescription.
+        """Return a test description. Called by
+        `nose.case.Test.shortDescription`.
 
         Parameters:
          * test:
@@ -441,13 +474,12 @@ class IPluginInterface(object):
         pass
     handleFailure._new = True
 
-    # FIXME loadTestsFromClass, loadTestsFromDir
     def loadTestsFromDir(self, path):
         """Return iterable of tests from a directory. May be a
         generator.  Each item returned must be a runnable
         unittest.TestCase (or subclass) instance or suite instance.
         Return None if your plugin cannot collect any tests from
-        module.
+        directory.
 
         Parameters:
          * path:
@@ -479,7 +511,9 @@ class IPluginInterface(object):
         Parameters:
          * name:
            The test name. May be a file or module name plus a test
-           callable. Use split_test_name to split into parts.
+           callable. Use split_test_name to split into parts. Or it might
+           be some crazy name of your own devising, in which case, do
+           whatever you want.
          * module:
            Module from which the name is to be loaded
          * importPath:
@@ -506,11 +540,11 @@ class IPluginInterface(object):
     loadTestsFromNames.chainable = True
 
     def loadTestsFromFile(self, filename):
-        """Return tests in this file. Return None if you are not able
-        to load any tests, or an iterable if you are. May be a
-        generator. If you are interested in loading tests from the
-        file and encounter no errors, but find no tests, yield False
-        or return [False].
+        """Return tests in this file. Return None if you are not
+        interested in loading any tests, or an iterable if you are and
+        can load some. May be a generator. *If you are interested in
+        loading tests from the file and encounter no errors, but find
+        no tests, yield False or return [False].*
 
         NOTE that this method replaces loadTestsFromPath from the 0.9
         API.
@@ -522,14 +556,19 @@ class IPluginInterface(object):
         pass
     loadTestsFromFile.generative = True
     loadTestsFromFile._new = True
-    loadTestsFromPath = loadTestsFromFile
+
+    def loadTestsFromPath(self, path):
+        """DEPRECATED
+
+        use loadTestsFromFile instead
+        """
+        pass
+    loadTestsFromPath.deprecated = True
     
     def loadTestsFromTestCase(self, cls):
         """Return tests in this test case class. Return None if you are
         not able to load any tests, or an iterable if you are. May be a
         generator.
-
-        DEPRECATE?
 
         Parameters:
          * cls:
@@ -537,6 +576,7 @@ class IPluginInterface(object):
         """
         pass
     loadTestsFromTestCase.generative = True
+    loadTestsFromTestCase.pending = True
 
     def loadTestsFromTestClass(self, cls):
         """Return tests in this test class. Class will *not* be a
@@ -716,7 +756,7 @@ class IPluginInterface(object):
         pass
 
     def testName(self, test):
-        """Return a short test name. Called by test.__str__.
+        """Return a short test name. Called by `nose.case.Test.__str__`.
 
         Parameters:
          * test:
