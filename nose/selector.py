@@ -8,12 +8,9 @@ thinks may be a test.
 """
 import logging
 import os
-import re
-import sys
 import unittest
 from nose.config import Config
-from nose.util import absfile, file_like, split_test_name, src, test_address, \
-     getfilename, getpackage
+from nose.util import split_test_name, src, getfilename, getpackage
 
 log = logging.getLogger(__name__)
 
@@ -22,22 +19,24 @@ class Selector(object):
     given the specified configuration, the test candidate should be selected
     as a test.
     """
-    def __init__(self, conf):
-        self.conf = conf
-        self.configure(conf)
+    def __init__(self, config):
+        if config is None:
+            config = Config()
+        self.configure(config)
 
-    def configure(self, conf):
-        self.exclude = conf.exclude
-        self.ignoreFiles = conf.ignoreFiles
-        self.include = conf.include
-        self.plugins = conf.plugins
-        self.match = conf.testMatch
+    def configure(self, config):
+        self.config = config
+        self.exclude = config.exclude
+        self.ignoreFiles = config.ignoreFiles
+        self.include = config.include
+        self.plugins = config.plugins
+        self.match = config.testMatch
         
     def matches(self, name):
         """Does the name match my requirements?
 
-        To match, a name must match conf.testMatch OR conf.include
-        and it must not match conf.exclude
+        To match, a name must match config.testMatch OR config.include
+        and it must not match config.exclude
         """
         return ((self.match.search(name)
                  or (self.include and
@@ -84,8 +83,8 @@ class Selector(object):
                                     ))
         else:
             wanted = (self.matches(tail)
-                      or (self.conf.srcDirs
-                          and tail in self.conf.srcDirs))
+                      or (self.config.srcDirs
+                          and tail in self.config.srcDirs))
         plug_wants = self.plugins.wantDirectory(dirname)
         if plug_wants is not None:
             log.debug("Plugin setting selection of %s to %s",
@@ -110,7 +109,7 @@ class Selector(object):
             log.debug('%s matches ignoreFiles pattern; skipped',
                       base) 
             return False
-        if not self.conf.includeExe and os.access(file, os.X_OK):
+        if not self.config.includeExe and os.access(file, os.X_OK):
             log.info('%s is executable; skipped', file)
             return False
         dummy, ext = os.path.splitext(base)

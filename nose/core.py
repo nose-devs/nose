@@ -6,18 +6,14 @@ import logging
 import os
 import re
 import sys
-import types
 import unittest
 from warnings import warn
-from warnings import warn
-import ConfigParser
 
 from nose.config import Config, all_config_files
-from nose.importer import add_path
 from nose.loader import defaultTestLoader
 from nose.plugins.manager import DefaultPluginManager, RestrictedPluginManager
 from nose.result import TextTestResult
-from nose.util import absdir, isclass, tolist
+from nose.util import isclass, tolist
 
 
 log = logging.getLogger('nose.core')

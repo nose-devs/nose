@@ -1,9 +1,7 @@
 
 """utilities for testing plugins"""
 
-import copy
 import os
-import sys
 try:
     from cStringIO import StringIO
 except ImportError:

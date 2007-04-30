@@ -96,7 +96,7 @@ class TextTestResult(_TextTestResult):
         if self.showAll:
             self.stream.write('ERROR')
         elif self.dots:
-            stream.write('E')
+            self.stream.write('E')
 
     def _exc_info_to_string(self, err, test=None):
         # 2.3/2.4 -- 2.4 passes test, 2.3 does not

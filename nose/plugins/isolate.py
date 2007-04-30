@@ -36,7 +36,7 @@ import logging
 import sys
 
 from nose.plugins import Plugin
-from nose.suite import TestModule
+
 
 log = logging.getLogger('nose.plugins.isolation')
 

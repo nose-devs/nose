@@ -43,7 +43,6 @@ dependencies or that build C extensions, using the setuptools command
 can be more convenient than building by hand and running the nosetests
 script.
 """
-import os
 from setuptools import Command
 from nose.config import Config, option_blacklist, user_config_files
 from nose.core import TestProgram

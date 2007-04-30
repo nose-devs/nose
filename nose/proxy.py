@@ -17,17 +17,7 @@ manipulate the test object itself by setting the `test` attribute of
 the nose.case.Test that they receive.
 """
 import logging
-import sys
-import unittest
-from nose.exc import SkipTest, DeprecatedTest
 from nose.config import Config
-from nose.inspector import inspect_traceback
-from nose.util import ln
-
-try:
-    from cStringIO import StringIO
-except ImportError:
-    from StringIO import StringIO
 
 
 log = logging.getLogger(__name__)

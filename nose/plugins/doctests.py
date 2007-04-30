@@ -18,7 +18,6 @@ from __future__ import generators
 
 import logging
 import os
-import sys
 from inspect import getmodule
 from nose.plugins.base import Plugin
 from nose.util import anyp, getpackage, test_address, resolve_name, tolist

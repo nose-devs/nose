@@ -30,7 +30,6 @@ import logging
 import os
 import re
 import sys
-import textwrap
 from inspect import isfunction
 from nose.plugins.base import Plugin
 from nose.util import tolist

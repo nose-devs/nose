@@ -9,11 +9,6 @@ import types
 import unittest
 from compiler.consts import CO_GENERATOR
 
-try:
-    from cStringIO import StringIO
-except ImportError:
-    from StringIO import StringIO
-
 log = logging.getLogger('nose')
 
 ident_re = re.compile(r'^[A-Za-z_][A-Za-z0-9_.]*$')

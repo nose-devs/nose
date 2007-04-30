@@ -86,8 +86,6 @@ Since we defined a Todo as a failure, the run was not successful.
 from new import instancemethod
 from nose.plugins.base import Plugin
 from nose.result import TextTestResult
-from nose.util import odict
-
 
 
 class MetaErrorClass(type):

@@ -1,4 +1,3 @@
-import sys
 from nose import __version__ as VERSION
 
 try:
@@ -16,6 +15,7 @@ try:
         test_suite = 'nose.collector',
         )
 except ImportError:
+    from distutils import setup
     addl_args = dict(
         packages = ['nose', 'nose.exc', 'nose.plugins'],
         scripts = ['bin/nosetests']

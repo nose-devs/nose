@@ -1,14 +1,12 @@
 """Simple traceback introspection. Used to add additional information to
 AssertionErrors in tests, so that failure messages may be more informative.
 """
-import exceptions
 import inspect
 import logging
 import re
 import sys
 import textwrap
 import tokenize
-import traceback
 
 try:
     from cStringIO import StringIO
