@@ -15,9 +15,9 @@ try:
         test_suite = 'nose.collector',
         )
 except ImportError:
-    from distutils import setup
+    from distutils.core import setup
     addl_args = dict(
-        packages = ['nose', 'nose.exc', 'nose.plugins'],
+        packages = ['nose', 'nose.ext', 'nose.plugins'],
         scripts = ['bin/nosetests']
         )
     
