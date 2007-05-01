@@ -3,6 +3,10 @@ import pdb
 from nose.plugins.base import Plugin
 
 class Pdb(Plugin):
+    """
+    Provides --pdb and --pdb-failures options that cause the test runner to
+    drop into pdb if it encounters an error or failure, respectively.
+    """
     enabled_for_errors = False
     enabled_for_failures = False
     score = 10 # run last, among builtins

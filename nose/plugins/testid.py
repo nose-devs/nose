@@ -1,5 +1,5 @@
 """
-DOCME
+FIXME docs
 """
 import logging
 import os
@@ -14,7 +14,7 @@ log = logging.getLogger(__name__)
 
 class TestId(Plugin):
     """
-    Activate to add a test id (like #1) to each test name output. Once
+    Activate to add a test id (like #1) to each test name output. After
     you've run once to generate test ids, you can re-run individual
     tests by activating the plugin and passing the ids (with or
     without the # prefix) instead of test names.

@@ -59,8 +59,8 @@ def collector():
     # plugins that implement any of these methods are disabled, since
     # we don't control the test runner and won't be able to run them
     setuptools_incompat = ('report', 'finalize', 'prepareTest',
-                           'prepareTestLoader', 'prepareTestResult',
-                           'prepareTestRunner', 'setOutputStream')
+                           'prepareTestLoader', 'prepareTestRunner',
+                           'setOutputStream')
     
     conf = Config(files=all_config_files(),
                   plugins=RestrictedPluginManager(exclude=setuptools_incompat))

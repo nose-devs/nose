@@ -1,16 +1,1 @@
-New in version 0.9.3
---------------------
-
-nose 0.9.3 is mainly a bugfix release. The one new feature is support for user
-configuration files: now you can put your frequently used configuration
-options in .noserc or nose.cfg files, rather than typing them over and over
-and over again. Many thanks to Antoine Pitrou for that patch, and thanks to
-all of the other users who reported bugs and submitted patches and
-suggestions.
-
-Barring catastrophic bugs, this will be the last release of nose in the 0.9
-series. An alpha release of nose 0.10 should be forthcoming within a few
-weeks. Details about the new features and architecture changes in nose 0.10
-may be found here_.
-
-.. _here: http://code.google.com/p/python-nose/wiki/VersionZeroTen
+See http://code.google.com/p/python-nose/wiki/VersionZeroTen

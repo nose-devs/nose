@@ -1,5 +1,11 @@
+"""
+Plugin tester
+-------------
 
-"""utilities for testing plugins"""
+FIXME docs
+
+utilities for testing plugins
+"""
 
 import os
 try:
@@ -54,10 +60,9 @@ class PluginTester(object):
     
     def makeSuite(self):
         """Must override to return a suite of tests to run if you
-        don't supply a suitepath.
+        don't supply a suitepath. May return None.
         """
         raise NotImplementedError
-
     
     def _execPlugin(self):
         """Create a TestProgram run with the given plugins, for

@@ -5,9 +5,10 @@ Plugin Manager
 A plugin manager class is used to load plugins and proxy calls
 to plugins.
 
+FIXME docs
+
 * Built in
 * Entry point
-
 """
 import logging
 import os
@@ -35,6 +36,9 @@ class PluginProxy(object):
         return self.call(*arg, **kw)
     
     def addPlugin(self, plugin, call):
+        """Add plugin to my list of plugins to call, if it has the attribute
+        I'm bound to.
+        """
         meth = getattr(plugin, call, None)
         if meth is not None:
             self.plugins.append((plugin, meth))
@@ -103,6 +107,15 @@ class PluginProxy(object):
 
 
 class PluginManager(object):
+    """Base class for plugin managers. Does not implement loadPlugins, so it
+    may only be used with a static list of plugins.
+
+    The basic functionality of a plugin manager is to proxy all unknown
+    attributes through `PluginProxy`s to a list of plugins.
+
+    Note that the list of plugins *may not* be changed after the first plugin
+    call.
+    """
     proxyClass = PluginProxy
     
     def __init__(self, plugins=(), proxyClass=None):
@@ -159,7 +172,6 @@ class PluginManager(object):
     plugins = property(_get_plugins, _set_plugins, None,
                        """Access the list of plugins managed by
                        this plugin manager""")
-
 
 
 class ZeroNinePlugin:
@@ -221,6 +233,9 @@ class ZeroNinePlugin:
 
             
 class EntryPointPluginManager(PluginManager):
+    """Plugin manager that loads plugins from the `nose.plugins` and
+    `nose.plugins.0-10` entry points.
+    """
     entry_points = (('nose.plugins.0-10', None),
                     ('nose.plugins', ZeroNinePlugin))
     
@@ -256,6 +271,9 @@ class EntryPointPluginManager(PluginManager):
 
 
 class BuiltinPluginManager(PluginManager):
+    """Plugin manager that loads plugins from the list in
+    `nose.plugins.builtin`.
+    """
     def loadPlugins(self):
         """Load plugins in nose.plugins.builtin
         """

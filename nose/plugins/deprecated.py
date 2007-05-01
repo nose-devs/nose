@@ -9,11 +9,12 @@ class DeprecatedTest(Exception):
 
 
 class Deprecated(ErrorClassPlugin):
-    """Plugin that installs a DEPRECATED error class for the DeprecatedTest
-    exception.  When DeprecatedTest is raised, the exception will be logged
-    in the deprecated attribute of the result, 'S' or 'DEPRECATED' (verbose)
-    will be output, and the exception will not be counted as an error
-    or failure.
+    """
+    Plugin that installs a DEPRECATED error class for the DeprecatedTest
+    exception. Enabled by default. When DeprecatedTest is raised, the
+    exception will be logged in the deprecated attribute of the result, 'D' or
+    'DEPRECATED' (verbose) will be output, and the exception will not be
+    counted as an error or failure.
     """
     enabled = True
     deprecated = ErrorClass(DeprecatedTest,

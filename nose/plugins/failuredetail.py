@@ -3,6 +3,11 @@ from nose.plugins import Plugin
 from nose.inspector import inspect_traceback
 
 class FailureDetail(Plugin):
+    """
+    Plugin that provides assert introspection. When a test failure occurs, the
+    traceback of the failure exception is examined and displayed with extra
+    context around the line where the exception was raised.
+    """
     score = 600 # before capture
     
     def options(self, parser, env=os.environ):

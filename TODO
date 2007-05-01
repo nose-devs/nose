@@ -6,9 +6,6 @@ DOCUMENTATION
 
  sep. upload of index for 0.10 -- link from 0.9 index
  
- sanity check all docstrings
- **   --- all but plugins done
-
  generate new plugin api docs, highlighting new and changed methods
  generate new docs for all wiki'd docs, flat html, interlinked, for 0.10 doc dir
  generate pydoctor(?) or pudge(?) api docs for 0.10 doc dir

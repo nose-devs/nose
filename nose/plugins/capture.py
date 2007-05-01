@@ -12,7 +12,8 @@ except ImportError:
 log = logging.getLogger(__name__)
 
 class Capture(Plugin):
-    """Output capture plugin. Enabled by default. Disable with -s or
+    """
+    Output capture plugin. Enabled by default. Disable with -s or
     --nocapture. This plugin captures stdout during test execution,
     appending any output capture to the error or failure output,
     should the test fail or raise an error.

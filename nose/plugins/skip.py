@@ -9,7 +9,8 @@ class SkipTest(Exception):
 
 
 class Skip(ErrorClassPlugin):
-    """Plugin that installs a SKIP error class for the SkipTest
+    """
+    Plugin that installs a SKIP error class for the SkipTest
     exception.  When SkipTest is raised, the exception will be logged
     in the skipped attribute of the result, 'S' or 'SKIP' (verbose)
     will be output, and the exception will not be counted as an error

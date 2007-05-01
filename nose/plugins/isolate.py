@@ -46,7 +46,8 @@ class IsolationPlugin(Plugin):
     modules to a single test module or package. The isolation plugin
     resets the contents of sys.modules after each test module or
     package runs to its state before the test. PLEASE NOTE that this
-    plugin may not be used with the coverage plugin.
+    plugin should not be used with the coverage plugin in any other case
+    where module reloading may produce undesirable side-effects.
     """
     score = 10 # I want to be last
     name = 'isolation'

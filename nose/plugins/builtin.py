@@ -1,5 +1,5 @@
 """
-Lists builtin plugins
+Lists builtin plugins.
 """
 plugins = []
 builtins = (
@@ -9,7 +9,7 @@ builtins = (
     ('nose.plugins.debug', 'Pdb'),
     ('nose.plugins.deprecated', 'Deprecated'),
     ('nose.plugins.doctests', 'Doctest'),
-    ## ('nose.plugins.isolation', 'Isolation'),
+    ('nose.plugins.isolate', 'IsolationPlugin'),
     ('nose.plugins.failuredetail', 'FailureDetail'),
     ('nose.plugins.prof', 'Profile'),
     ('nose.plugins.skip', 'Skip'),

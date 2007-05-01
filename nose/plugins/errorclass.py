@@ -7,7 +7,7 @@ handling of particular classes of exceptions.
 
 An ErrorClass plugin defines one or more ErrorClasses and how each is
 handled and reported on. Each error class is stored in a different
-attribute on the result, and reported separated. Each error class must
+attribute on the result, and reported separately. Each error class must
 indicate the exceptions that fall under that class, the label to use
 for reporting, and whether exceptions of the class should be
 considered as failures for the whole test run.
@@ -59,7 +59,7 @@ Now run the test. TODO is printed.
     >>> case(result) # doctest: +ELLIPSIS
     runTest (....TestTodo) ... TODO
 
-Errors and failures are empty, but todo has our test
+Errors and failures are empty, but todo has our test:
 
     >>> result.errors
     []
