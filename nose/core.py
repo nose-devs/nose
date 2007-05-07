@@ -188,13 +188,14 @@ class TestProgram(unittest.TestProgram):
 
     def __init__(self, module=None, defaultTest='.', argv=None,
                  testRunner=None, testLoader=None, env=None, config=None,
-                 suite=None):
+                 suite=None, exit_=True):
         if env is None:
             env = os.environ
         if config is None:
             config = self.makeConfig(env)
         self.config = config
         self.suite = suite
+        self.exit = exit_
         unittest.TestProgram.__init__(
             self, module=module, defaultTest=defaultTest,
             argv=argv, testRunner=testRunner, testLoader=testLoader)
@@ -213,14 +214,16 @@ class TestProgram(unittest.TestProgram):
         log.debug("parseArgs is called %s", argv)
 
         self.config.configure(argv, doc=TestProgram.__doc__)
+        log.debug("configured %s", self.config)
+
+        # quick outs: version, plugins (optparse would have already
+        # caught and exited on help)
         if self.config.options.version:
             import sys
             from nose import __version__
             sys.stdout = sys.__stdout__
             print "%s version %s" % (os.path.basename(sys.argv[0]), __version__)
             sys.exit(0)
-
-        log.debug("configured %s", self.config)
         
         # instantiate the test loader
         if self.testLoader is None:
@@ -270,32 +273,28 @@ class TestProgram(unittest.TestProgram):
             self.testRunner = plug_runner
         result = self.testRunner.run(self.test)
         self.success = result.wasSuccessful()
-        if self.config.exit:
+        if self.exit:
             sys.exit(not self.success)
         return self.success
                 
             
-def main(*arg, **kw):
-    """Run and exit with 0 on success or 1 on failure.
-    """
-    return sys.exit(not run(*arg, **kw))
-
 # backwards compatibility
-run_exit = main
+run_exit = main = TestProgram
+
 
 def run(*arg, **kw):
-    """Collect and run test, returning success or failure
-
-    FIXME logic has flipped -- exit is default -- need
-    to turn exit off here
+    """Collect and run test, returning success or failure.
     """
+    kw['exit_'] = False
     return TestProgram(*arg, **kw).success
+
 
 def runmodule(name='__main__'):
     """Collect and run tests in a single module only. Defaults to running
     tests in __main__.
     """
     main(defaultTest=name)    
+
 
 if __name__ == '__main__':
     main()

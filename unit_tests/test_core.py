@@ -19,7 +19,7 @@ class TestAPI_run(unittest.TestCase):
         s = StringIO()
         print s
         stdout = sys.stdout
-        conf = Config(stream=s, exit=False)
+        conf = Config(stream=s)
         # set_trace()
         print "About to run"
         res = nose.core.run(

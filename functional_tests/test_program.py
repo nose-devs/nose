@@ -13,6 +13,9 @@ class TestRunner(unittest.TextTestRunner):
             self.stream, self.descriptions, self.verbosity)
         return self.result 
 
+# Note that all of these tests use a set config to avoid the loading
+# of plugins or settings from .noserc.
+
 class TestTestProgram(unittest.TestCase):
 
     def test_run_support_ctx(self):
@@ -26,7 +29,8 @@ class TestTestProgram(unittest.TestCase):
         prog = TestProgram(defaultTest=os.path.join(support, 'ctx'),
                            argv=['test_run_support_ctx'],
                            testRunner=runner,
-                           config=Config(exit=False))
+                           config=Config(),
+                           exit_=False)
         res = runner.result
         print stream.getvalue()
         self.assertEqual(res.testsRun, 0,
@@ -42,11 +46,11 @@ class TestTestProgram(unittest.TestCase):
         """
         stream = StringIO()
         runner = TestRunner(stream=stream)
-
         prog = TestProgram(defaultTest=os.path.join(support, 'package2'),
                            argv=['test_run_support_package2', '-v'],
                            testRunner=runner,
-                           config=Config(exit=False))
+                           config=Config(),
+                           exit_=False)
         res = runner.result
         print stream.getvalue()
         self.assertEqual(res.testsRun, 5,
@@ -74,7 +78,8 @@ class TestTestProgram(unittest.TestCase):
         prog = TestProgram(defaultTest=os.path.join(support, 'package3'),
                            argv=['test_run_support_package3', '-v'],
                            testRunner=runner,
-                           config=Config(exit=False))
+                           config=Config(),
+                           exit_=False)
         res = runner.result
         print stream.getvalue()
         self.assertEqual(res.testsRun, 2,

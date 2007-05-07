@@ -35,7 +35,6 @@ class Config(object):
       self.debug = env.get('NOSE_DEBUG')
       self.debugLog = env.get('NOSE_DEBUG_LOG')
       self.exclude = None
-      self.exit = True
       self.getTestCaseNamesCompat = False
       self.includeExe = env.get('NOSE_INCLUDE_EXE',
                                 sys.platform == 'win32')
@@ -68,7 +67,6 @@ class Config(object):
         self.debug = env.get('NOSE_DEBUG')
         self.debugLog = env.get('NOSE_DEBUG_LOG')
         self.exclude = None
-        self.exit = True
         self.getTestCaseNamesCompat = False
         self.includeExe = env.get('NOSE_INCLUDE_EXE',
                                   sys.platform == 'win32')

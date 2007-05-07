@@ -74,14 +74,13 @@ class PluginTester(object):
         
         suite = None
         stream = StringIO()
-        conf = Config(exit=False,
-                      stream=stream,
+        conf = Config(stream=stream,
                       plugins=PluginManager(plugins=self.plugins))
         if not self.suitepath:
             suite = self.makeSuite()
             
         self.nose = TestProgram(argv=self.argv, env=self.env,
-                                config=conf, suite=suite)
+                                config=conf, suite=suite, exit_=False)
         self.output = AccessDecorator(stream)
                                 
     def setUp(self):
