@@ -219,10 +219,13 @@ class TestProgram(unittest.TestProgram):
         # quick outs: version, plugins (optparse would have already
         # caught and exited on help)
         if self.config.options.version:
-            import sys
             from nose import __version__
             sys.stdout = sys.__stdout__
             print "%s version %s" % (os.path.basename(sys.argv[0]), __version__)
+            sys.exit(0)
+
+        if self.config.options.showPlugins:
+            self.showPlugins()
             sys.exit(0)
         
         # instantiate the test loader
@@ -276,8 +279,40 @@ class TestProgram(unittest.TestProgram):
         if self.exit:
             sys.exit(not self.success)
         return self.success
-                
-            
+
+    def showPlugins(self):
+        """Print list of available plugins.
+        """
+        import textwrap
+
+        class DummyParser:
+            def __init__(self):
+                self.options = []
+            def add_option(self, *arg, **kw):
+                self.options.append((arg, kw.pop('help', '')))
+        
+        v = self.config.verbosity
+        self.config.plugins.sort()
+        for p in self.config.plugins:            
+            print "Plugin %s" % p.name
+            if v >= 2:
+                print "  score: %s" % p.score
+                print '\n'.join(textwrap.wrap(p.help().strip(),
+                                              initial_indent='  ',
+                                              subsequent_indent='  '))
+                if v >= 3:
+                    print
+                    print "  Options:"
+                    parser = DummyParser()
+                    p.addOptions(parser)
+                    for opts, help in parser.options:
+                        print '  %s' % (', '.join(opts))
+                        if help:
+                            print '\n'.join(
+                                textwrap.wrap(help.strip(),
+                                              initial_indent='    ',
+                                              subsequent_indent='    '))
+                print
 # backwards compatibility
 run_exit = main = TestProgram
 

@@ -154,13 +154,18 @@ class PluginManager(object):
         cfg = PluginProxy('configure', self._plugins)
         cfg(options, config)
         enabled = [plug for plug in self._plugins if plug.enabled]
-        enabled.sort(
-            lambda a, b: cmp(getattr(a, 'score', 1), getattr(b, 'score', 1)))
         self.plugins = enabled
+        self.sort()
         log.debug("Plugins enabled: %s", enabled)
 
     def loadPlugins(self):
         pass
+
+    def sort(self, cmpf=None):
+        if cmpf is None:
+            cmpf = lambda a, b: cmp(getattr(b, 'score', 1),
+                                    getattr(a, 'score', 1))
+        self._plugins.sort(cmpf)
 
     def _get_plugins(self):
         return self._plugins

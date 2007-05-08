@@ -9,7 +9,7 @@ class Pdb(Plugin):
     """
     enabled_for_errors = False
     enabled_for_failures = False
-    score = 10 # run last, among builtins
+    score = 5 # run last, among builtins
     
     def options(self, parser, env=os.environ):
         parser.add_option(

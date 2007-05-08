@@ -61,7 +61,9 @@ class Config(object):
     def __init__(self, **kw):
         self.env = env = kw.pop('env', os.environ)
         self.args = ()
-        self.testMatch = re.compile(r'(?:^|[\b_\.%s-])[Tt]est' % os.sep)
+        self.testMatchPat = env.get('NOSE_TESTMATCH',
+                                    r'(?:^|[\b_\.%s-])[Tt]est' % os.sep)
+        self.testMatch = re.compile(self.testMatchPat)
         self.addPaths = not env.get('NOSE_NOPATH', False)
         self.configSection = 'nosetests'
         self.debug = env.get('NOSE_DEBUG')
@@ -148,6 +150,9 @@ class Config(object):
         self.debugLog = options.debugLog
         self.loggingConfig = options.loggingConfig
         self.configureLogging()
+
+        if options.testMatch:
+            self.testMatch = re.compile(options.testMatch)
         
         if options.where is not None:
             self.configureWhere(options.where)
@@ -160,8 +165,10 @@ class Config(object):
             self.exclude = map(re.compile, tolist(options.exclude))
             log.info("Excluding tests matching %s", options.exclude)
 
-        self.plugins.configure(options, self)
-        self.plugins.begin()
+        # When listing plugins we don't want to run them
+        if not options.showPlugins:
+            self.plugins.configure(options, self)
+            self.plugins.begin()
 
     def configureLogging(self):
         """Configure logging for nose, or optionally other packages. Any logger
@@ -251,9 +258,14 @@ class Config(object):
         env = self.env
         parser = OptionParser(doc)
         parser.add_option(
-            "-V","--version",action="store_true",
-            dest="version",default=False,
+            "-V","--version", action="store_true",
+            dest="version", default=False,
             help="Output nose version and exit")
+        parser.add_option(
+            "-p", "--plugins", action="store_true",
+            dest="showPlugins", default=False,
+            help="Output list of available plugins and exit. Combine with "
+            "higher verbosity for greater detail")
         parser.add_option(
             "-v", "--verbose",
             action="count", dest="verbosity",
@@ -278,6 +290,11 @@ class Config(object):
             "working directory, which is the default. Others will be added "
             "to the list of tests to execute. [NOSE_WHERE]"
             )
+        parser.add_option("-m", "--match", "--testmatch", action="store",
+                          dest="testMatch",
+                          help="Use this regular expression to "
+                          "find tests [NOSE_TESTMATCH]",
+                          default=self.testMatchPat)
         parser.add_option(
             "--tests", action="store", dest="testNames", default=None,
             help="Run these tests (comma-separated list). This argument is "
