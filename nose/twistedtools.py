@@ -33,6 +33,7 @@ from nose.tools import make_decorator, TimeExpired
 
 __all__ = [
     'threaded_reactor', 'reactor', 'deferred', 'TimeExpired',
+    'stop_reactor'
 ]
 
 _twisted_thread = None
@@ -52,10 +53,22 @@ def threaded_reactor():
                 installSignalHandlers=False))
         _twisted_thread.setDaemon(True)
         _twisted_thread.start()
-    return reactor
+    return reactor, _twisted_thread
 
 # Export global reactor variable, as Twisted does
-reactor = threaded_reactor()
+reactor, reactor_thread = threaded_reactor()
+
+
+def stop_reactor():
+    """Stop the reactor and join the reactor thread until it stops.
+    Call this function in teardown at the module or package level to
+    reset the twisted system after your tests. You *must* do this if
+    you mix tests using these tools and tests using twisted.trial.
+    """
+    global _twisted_thread
+    reactor.stop()
+    reactor_thread.join()
+    _twisted_thread = None
 
 
 def deferred(timeout=None):
@@ -93,7 +106,7 @@ def deferred(timeout=None):
         def test_error():
             return reactor.resolve("xxxjhjhj.biz")
     """
-    reactor = threaded_reactor()
+    reactor, reactor_thread = threaded_reactor()
 
     # Check for common syntax mistake
     # (otherwise, tests can be silently ignored

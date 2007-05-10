@@ -27,6 +27,8 @@ Failure test logs can be more informative
 
 BUGS
 
+-- testid plugin should store ids in .noseids in cwd, not in user home
+
 -- when run vs spine suite, makeTest seemingly was called on an object
    that should not have passed the selector --
    sqlalchemy.sql._FunctionGateway, which doesn't match testmatch and

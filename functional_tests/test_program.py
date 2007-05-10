@@ -35,7 +35,7 @@ class TestTestProgram(unittest.TestCase):
         print stream.getvalue()
         self.assertEqual(res.testsRun, 0,
                          "Expected to run 0 tests, ran %s" % res.testsRun)
-        assert res.wasSuccessful
+        assert res.wasSuccessful()
         assert not res.errors
         assert not res.failures
 
@@ -55,7 +55,7 @@ class TestTestProgram(unittest.TestCase):
         print stream.getvalue()
         self.assertEqual(res.testsRun, 5,
                          "Expected to run 5 tests, ran %s" % res.testsRun)
-        assert res.wasSuccessful
+        assert res.wasSuccessful()
         assert not res.errors
         assert not res.failures
         
@@ -84,9 +84,41 @@ class TestTestProgram(unittest.TestCase):
         print stream.getvalue()
         self.assertEqual(res.testsRun, 2,
                          "Expected to run 2 tests, ran %s" % res.testsRun)
-        assert res.wasSuccessful
+        assert res.wasSuccessful()
         assert not res.errors
         assert not res.failures
+
+    def test_run_support_twist(self):
+        """Collect and run tests in functional/support/twist
+
+        This should collect and run 4 tests with 2 fails and an error.
+        """
+        stream = StringIO()
+        runner = TestRunner(stream=stream, verbosity=2)
+
+        prog = TestProgram(defaultTest=os.path.join(support, 'twist'),
+                           argv=['test_run_support_twist'],
+                           testRunner=runner,
+                           config=Config(stream=stream),
+                           exit=False)
+        res = runner.result
+        print stream.getvalue()
+
+        # some versions of twisted.trial.unittest.TestCase have
+        # runTest in the base class -- this is wrong! But we have
+        # to deal with it
+        from twisted.trial.unittest import TestCase
+        if hasattr(TestCase, 'runTest'):
+            expect = 5
+        else:
+            expect = 4
+        self.assertEqual(res.testsRun, expect,
+                         "Expected to run %s tests, ran %s" %
+                         (expect, res.testsRun))
+        assert not res.wasSuccessful()
+        assert len(res.errors) == 1
+        assert len(res.failures) == 2
+        
 
 if __name__ == '__main__':
     #import logging

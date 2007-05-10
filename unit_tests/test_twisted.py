@@ -1,22 +1,31 @@
+from nose.exc import SkipTest
 from nose.tools import *
 from nose.twistedtools import *
 
 from twisted.internet.defer import Deferred
 from twisted.internet.error import DNSLookupError
 
+
+def teardown():
+    # print "stopping reactor"
+    stop_reactor()
+
 class CustomError(Exception):
     pass
 
-# Should succeed unless python-hosting is down
+# FIXME move all dns-using tests to functional
+
+# Should succeed unless google is down
 #@deferred
 def test_resolve():
-    return reactor.resolve("nose.python-hosting.com")
+    return reactor.resolve("www.google.com")
 test_resolve = deferred()(test_resolve)
 
 # Raises TypeError because the function does not return a Deferred
 #@raises(TypeError)
 #@deferred()
 def test_raises_bad_return():
+    print reactor
     reactor.resolve("nose.python-hosting.com")
 test_raises_bad_return = raises(TypeError)(deferred()(test_raises_bad_return))
 
