@@ -80,7 +80,7 @@ class PluginTester(object):
             suite = self.makeSuite()
             
         self.nose = TestProgram(argv=self.argv, env=self.env,
-                                config=conf, suite=suite, exit_=False)
+                                config=conf, suite=suite, exit=False)
         self.output = AccessDecorator(stream)
                                 
     def setUp(self):

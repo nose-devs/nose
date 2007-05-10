@@ -11,7 +11,7 @@ reporting.
 import logging
 from unittest import _TextTestResult
 from nose.config import Config
-from nose.util import ln as _ln # backwards compat
+from nose.util import odict, ln as _ln # backwards compat
 
 log = logging.getLogger('nose.result')
 
@@ -70,6 +70,41 @@ class TextTestResult(_TextTestResult):
         # Might get patched into a result with no config
         if hasattr(self, 'config'):
             self.config.plugins.report(self.stream)
+
+    def printSummary(self, start, stop):
+        """Called by the test runner to print the final summary of test
+        run results.
+        """
+        write = self.stream.write
+        writeln = self.stream.writeln
+        taken = float(stop - start)
+        run = self.testsRun
+        plural = run != 1 and "s" or ""
+        
+        writeln(self.separator2)
+        writeln("Ran %s test%s in %.3fs" % (run, plural, taken))
+        writeln()
+        if not self.wasSuccessful():
+            write("FAILED (")
+            summary = odict()
+            summary['failures'], summary['errors'] = \
+                               map(len, [self.failures, self.errors])
+            for cls in self.errorClasses.keys():
+                storage, label, isfail = self.errorClasses[cls]
+                if not isfail:
+                    continue
+                summary[label] = len(storage)
+            any = False
+            for label, count in summary.items():
+                if not count:
+                    continue
+                if any:
+                    write(", ")
+                write("%s=%s" % (label, count))
+                any = True
+            writeln(")")
+        else:
+            writeln("OK")
 
     def wasSuccessful(self):
         """Overrides to check that there are no errors in errorClasses

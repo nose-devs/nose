@@ -22,7 +22,7 @@ class TestPluginCalls(unittest.TestCase):
         man = RecordingPluginManager()
         conf = Config(plugins=man, stream=sys.stdout)
         t = TestProgram(defaultTest=wdir, config=conf,
-                        argv=['test_plugin_calls_package1'], exit_=False)
+                        argv=['test_plugin_calls_package1'], exit=False)
         print man.calls()
         assert man.called
 

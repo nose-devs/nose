@@ -6,6 +6,7 @@ import logging
 import os
 import re
 import sys
+import time
 import unittest
 from warnings import warn
 
@@ -93,6 +94,9 @@ class TextTestRunner(unittest.TextTestRunner):
                               self.config)
 
     def run(self, test):
+        """Overrides to provide plugin hooks and defer all output to
+        the test result class.
+        """
         wrapper = self.config.plugins.prepareTest(test)
         if wrapper is not None:
             test = wrapper
@@ -102,7 +106,12 @@ class TextTestRunner(unittest.TextTestRunner):
         if wrapped is not None:
             self.stream = wrapped
             
-        result = unittest.TextTestRunner.run(self, test)
+        result = self._makeResult()
+        start = time.time()
+        test(result)
+        stop = time.time()
+        result.printErrors()
+        result.printSummary(start, stop)
         self.config.plugins.finalize(result)
         return result
 
@@ -159,7 +168,7 @@ class TestProgram(unittest.TestProgram):
     of nose 0.10 you can get the same behavior by specifying the
     target directories *without* the -w switch:
 
-     %prog /path/to/tests /another/path/to/tests
+      %prog /path/to/tests /another/path/to/tests
 
     Further customization of test selection and loading is possible
     through the use of plugins.
@@ -188,14 +197,14 @@ class TestProgram(unittest.TestProgram):
 
     def __init__(self, module=None, defaultTest='.', argv=None,
                  testRunner=None, testLoader=None, env=None, config=None,
-                 suite=None, exit_=True):
+                 suite=None, exit=True):
         if env is None:
             env = os.environ
         if config is None:
             config = self.makeConfig(env)
         self.config = config
         self.suite = suite
-        self.exit = exit_
+        self.exit = exit
         unittest.TestProgram.__init__(
             self, module=module, defaultTest=defaultTest,
             argv=argv, testRunner=testRunner, testLoader=testLoader)
@@ -228,7 +237,6 @@ class TestProgram(unittest.TestProgram):
             self.showPlugins()
             sys.exit(0)
         
-        # instantiate the test loader
         if self.testLoader is None:
             self.testLoader = defaultTestLoader(config=self.config)
         elif isclass(self.testLoader):
@@ -320,7 +328,7 @@ run_exit = main = TestProgram
 def run(*arg, **kw):
     """Collect and run test, returning success or failure.
     """
-    kw['exit_'] = False
+    kw['exit'] = False
     return TestProgram(*arg, **kw).success
 
 

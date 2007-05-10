@@ -30,7 +30,7 @@ class TestTestProgram(unittest.TestCase):
                            argv=['test_run_support_ctx'],
                            testRunner=runner,
                            config=Config(),
-                           exit_=False)
+                           exit=False)
         res = runner.result
         print stream.getvalue()
         self.assertEqual(res.testsRun, 0,
@@ -50,7 +50,7 @@ class TestTestProgram(unittest.TestCase):
                            argv=['test_run_support_package2', '-v'],
                            testRunner=runner,
                            config=Config(),
-                           exit_=False)
+                           exit=False)
         res = runner.result
         print stream.getvalue()
         self.assertEqual(res.testsRun, 5,
@@ -79,7 +79,7 @@ class TestTestProgram(unittest.TestCase):
                            argv=['test_run_support_package3', '-v'],
                            testRunner=runner,
                            config=Config(),
-                           exit_=False)
+                           exit=False)
         res = runner.result
         print stream.getvalue()
         self.assertEqual(res.testsRun, 2,
