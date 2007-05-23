@@ -23,7 +23,7 @@ Here's an example [nosetests] setup.cfg section::
 
   [nosetests]
   verbosity=1
-  detailed-errors
+  detailed-errors=1
   with-coverage=1
   cover-package=nose
   debug=nose.loader

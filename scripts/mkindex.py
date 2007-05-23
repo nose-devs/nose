@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 
 from docutils.core import publish_string, publish_parts
+from nose.config import Config
+from nose.plugins.manager import BuiltinPluginManager
 import nose
 import nose.commands
 import nose.tools
@@ -39,8 +41,9 @@ news_html = publish_parts(news, writer_name='html')
 docs['news'] = news_html['body']
 
 print "Usage..."
-usage_txt = nose.configure(help=True).replace('mkindex.py', 'nosetests')
-# FIXME remove example plugin & html output parts
+conf = Config(plugins=BuiltinPluginManager())
+usage_txt = conf.help(nose.main.__doc__).replace(
+    'mkindex.py', 'nosetests')
 docs['usage'] = '<pre>%s</pre>' % usage_txt
 
 out = tpl % docs

@@ -356,6 +356,11 @@ class Config(object):
         self.parser = parser
         return parser
 
+    def help(self, doc=None):
+        """Return the generated help message
+        """
+        return self.getParser(doc).format_help()
+
     def loadConfig(self, file, argv):
         """Load config from file (may be filename or file-like object) and
         push the config into argv.

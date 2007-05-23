@@ -168,3 +168,6 @@ for at in [ at for at in dir(_t)
     pepd = pep8(at)
     vars()[pepd] = getattr(_t, at)
     __all__.append(pepd)
+
+del Dummy
+del _t
