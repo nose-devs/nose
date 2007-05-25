@@ -15,9 +15,9 @@ options in a .noserc or nose.cfg file in your home directory. These are
 standard .ini-style config files. Put your nosetests configuration in a
 [nosetests] section, with the -- prefix removed::
 
- [nosetests]
- verbosity=3
- with-doctest=1
+  [nosetests]
+  verbosity=3
+  with-doctest=1
   
 There are several other ways to use the nose test runner besides the
 `nosetests` script. You may use nose in a test script::
@@ -77,8 +77,8 @@ tests and test runs. If you don't like the default collection scheme,
 or it doesn't suit the layout of your project, or you need reports in
 a format different from the unittest standard, or you need to collect
 some additional information about tests (like code coverage or
-profiling data), you can write a plugin to do so. See `Writing
-plugins`_ for more. nose comes with a number of builtin plugins, for
+profiling data), you can write a plugin to do so. See `Writing plugins`_
+for more. nose comes with a number of builtin plugins, for
 instance:
 
 * Output capture
@@ -142,7 +142,6 @@ nose.commands_ for more information about the `nosetests` command.
 
 .. _setuptools: http://peak.telecommunity.com/DevCenter/setuptools
 .. _nose.commands: #commands
-.. _Writing plugins: http://code.google.com/p/python-nose/wiki/WritingPlugins
 
 Writing tests
 -------------
@@ -157,6 +156,8 @@ nose will also load tests from `unittest.TestCase` subclasses just
 like unittest does. Like py.test, functional tests will be run in the
 order in which they appear in the module file. TestCase derived tests
 and other test classes are run in alphabetical order.
+
+.. _py.test: http://codespeak.net/py/current/doc/test.html
 
 Fixtures
 ========
@@ -196,18 +197,18 @@ of tests in a test module begins after all tests are collected.
 Test classes
 ============
 
-A test class is a class defined in a test module that is either a subclass
-of `unittest.TestCase`, or matches testMatch. Test classes that don't descend from `unittest.TestCase` are run in the same way as those
-that do: methods in the class that match testMatch are discovered, and
-a test case constructed to run each with a fresh instance of the test
-class. Like `unittest.TestCase` subclasses, other test classes may
-define setUp and tearDown methods that will be run before and after
-each test method. Test classes that do not descend from
-`unittest.TestCase` may also include generator methods, and
-class-level fixtures. Class level fixtures may be named `setup_class`,
-`setupClass`, `setUpClass`, `setupAll` or `setUpAll` for set up and
-`teardown_class`, `teardownClass`, `tearDownClass`, `teardownAll` or
-`tearDownAll` for teardown and must be class methods.
+A test class is a class defined in a test module that is either a subclass of
+`unittest.TestCase`, or matches testMatch. Test classes that don't descend
+from `unittest.TestCase` are run in the same way as those that do: methods in
+the class that match testMatch are discovered, and a test case constructed to
+run each with a fresh instance of the test class. Like `unittest.TestCase`
+subclasses, other test classes may define setUp and tearDown methods that will
+be run before and after each test method. Test classes that do not descend
+from `unittest.TestCase` may also include generator methods, and class-level
+fixtures. Class level fixtures may be named `setup_class`, `setupClass`,
+`setUpClass`, `setupAll` or `setUpAll` for set up and `teardown_class`,
+`teardownClass`, `tearDownClass`, `teardownAll` or `tearDownAll` for teardown
+and must be class methods.
 
 Test functions
 ==============

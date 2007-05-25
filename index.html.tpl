@@ -146,6 +146,14 @@
       <h2>Read</h2>
       <ul>
         <li>
+          <a href="http://code.google.com/p/python-nose/w/list">
+            Wiki
+          </a>
+        </li>
+        <li>
+          <a href="doc/">API docs</a>
+        </li>
+        <li>
           <a href="http://ivory.idyll.org/articles/nose-intro.html">
             An Extended Introduction to the nose Unit Testing Framework
           </a>
@@ -166,7 +174,7 @@
       <p>Report bugs, request features, wik the wiki, browse source.</p>
 
       <h2>Get the code</h2>
-      <p><tt>svn co http://python-nose.googlecode.com/svn/trunk/ nose</tt></p>      
+      <p><tt>svn co http://python-nose.googlecode.com/svn/trunk/ nose</tt></p>
       
       <h2>Other links</h2>
       <ul>
@@ -176,7 +184,8 @@
         </li>
         <li><a href="http://www.turbogears.com/testgears/">testgears</a></li>
         <li>
-          <a href="http://peak.telecommunity.com/DevCenter/setuptools">setuptools</a>
+          <a href="http://peak.telecommunity.com/DevCenter/setuptools">
+            setuptools</a>
         </li>
       </ul>
     </div>
@@ -266,6 +275,8 @@
       
       <h2><a name="changelog"></a>Changelog</h2>
       %(changelog)s
+
+      %(coda)s
       
     </div>
     
