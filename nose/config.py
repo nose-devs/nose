@@ -53,7 +53,7 @@ class Config(object):
       self.stopOnError = env.get('NOSE_STOP', False)
       self.stream = sys.stderr
       self.testNames = ()
-      self.verbosity = int(env.get('NOSE_VERBOSE', 1))
+      self.verbosity = int(env.get('NOSE_VERBOSE', 0))
       self.where = ()
       self.workingDir = None   
     """
@@ -274,7 +274,7 @@ class Config(object):
         parser.add_option(
             "--verbosity", action="store", dest="verbosity",
             type="int", help="Set verbosity; --verbosity=2 is "
-            "the same as -vv")
+            "the same as -v")
         parser.add_option(
             "-q", "--quiet", action="store_const", const=0, dest="verbosity")
         parser.add_option(
