@@ -5,19 +5,18 @@ Writing Plugins
 nose supports plugins for test collection, selection, observation and
 reporting. There are two basic rules for plugins:
 
- * Plugin classes should subclass `nose.plugins.Plugin`_.
- * Plugins may implement any of the methods described in the class
-   PluginInterface in nose.plugins.base. Please note that this class is for
-   documentary purposes only; plugins may not subclass PluginInterface.
-
+* Plugin classes should subclass `nose.plugins.Plugin`_.
+* Plugins may implement any of the methods described in the class
+  PluginInterface in nose.plugins.base. Please note that this class is for
+  documentary purposes only; plugins may not subclass PluginInterface.
 
 .. _nose.plugins.Plugin: http://python-nose.googlecode.com/svn/trunk/nose/plugins/base.py
    
 Registering
 ===========
 
-.. Note:: Important note: the following applies only to the default
-plugin manager. Other plugin managers may use different means to
+.. Note:: Important note: the following applies only to the default \
+plugin manager. Other plugin managers may use different means to \
 locate and load plugins.
 
 For nose to find a plugin, it must be part of a package that uses
@@ -51,8 +50,7 @@ arguments. A plugin's ``options()`` method receives a parser
 instance. It's good form for a plugin to use that instance only to add
 additional arguments that take only long arguments (--like-this). Most
 of nose's built-in arguments get their default value from an environment
-variable. This is a good practice because it allows options to be
-utilized when run through some other means than the nosetests script.
+variable.
 
 A plugin's ``configure()`` method receives the parsed ``OptionParser`` options 
 object, as well as the current config object. Plugins should configure their
@@ -69,43 +67,43 @@ acquire a logger in the ``nose.plugins`` namespace.
 Recipes
 =======
 
- * Writing a plugin that monitors or controls test result output
+* Writing a plugin that monitors or controls test result output
 
-   Implement any or all of ``addError``, ``addFailure``, etc., to monitor test
-   results. If you also want to monitor output, implement
-   ``setOutputStream`` and keep a reference to the output stream. If you
-   want to prevent the builtin ``TextTestResult`` output, implement
-   ``setOutputSteam`` and *return a dummy stream*. The default output will go
-   to the dummy stream, while you send your desired output to the real stream.
+  Implement any or all of ``addError``, ``addFailure``, etc., to monitor test
+  results. If you also want to monitor output, implement
+  ``setOutputStream`` and keep a reference to the output stream. If you
+  want to prevent the builtin ``TextTestResult`` output, implement
+  ``setOutputSteam`` and *return a dummy stream*. The default output will go
+  to the dummy stream, while you send your desired output to the real stream.
+
+  Example: `examples/html_plugin/htmlplug.py`_
+
+* Writing a plugin that loads tests from files other than python modules
+
+  Implement ``wantFile`` and ``loadTestsFromFile``. In ``wantFile``,
+  return True for files that you want to examine for tests. In
+  ``loadTestsFromFile``, for those files, return an iterable
+  containing TestCases (or yield them as you find them;
+  ``loadTestsFromFile`` may also be a generator).
  
-   Example: `examples/html_plugin/htmlplug.py`_
+  Example: `nose.plugins.doctests`_
 
- * Writing a plugin that loads tests from files other than python modules
+* Writing a plugin that prints a report
 
-   Implement ``wantFile`` and ``loadTestsFromFile``. In ``wantFile``,
-   return True for files that you want to examine for tests. In
-   ``loadTestsFromFile``, for those files, return an iterable
-   containing TestCases (or yield them as you find them;
-   ``loadTestsFromFile`` may also be a generator).
+  Implement begin if you need to perform setup before testing
+  begins. Implement ``report`` and output your report to the provided stream.
  
-   Example: `nose.plugins.doctests`_
+  Examples: `nose.plugins.cover`_, `nose.plugins.profile`_
 
- * Writing a plugin that prints a report
+* Writing a plugin that selects or rejects tests
 
-   Implement begin if you need to perform setup before testing
-   begins. Implement ``report`` and output your report to the provided stream.
+  Implement any or all ``want*``  methods. Return False to reject the test
+  candidate, True to accept it -- which  means that the test candidate
+  will pass through the rest of the system, so you must be prepared to
+  load tests from it if tests can't be loaded by the core loader or
+  another plugin -- and None if you don't care.
  
-   Examples: `nose.plugins.cover`_, `nose.plugins.profile`_
-
- * Writing a plugin that selects or rejects tests
-
-   Implement any or all ``want*``  methods. Return False to reject the test
-   candidate, True to accept it -- which  means that the test candidate
-   will pass through the rest of the system, so you must be prepared to
-   load tests from it if tests can't be loaded by the core loader or
-   another plugin -- and None if you don't care.
-
-   Examples: `nose.plugins.attrib`_, `nose.plugins.doctests`_
+  Examples: `nose.plugins.attrib`_, `nose.plugins.doctests`_
 
 Examples
 ========

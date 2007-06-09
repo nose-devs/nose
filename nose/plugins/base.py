@@ -144,15 +144,15 @@ class IPluginInterface(object):
 
     Examples:
     
-     * The builtin doctests plugin, for python 2.4 only, implements
-       `wantFile` to enable loading of doctests from files that are not
-       python modules. It also implements `loadTestsFromModule` to load
-       doctests from python modules, and `loadTestsFromPath` to load tests
-       from the non-module files selected by `wantFile`.
+    * The builtin doctests plugin, for python 2.4 only, implements
+      `wantFile` to enable loading of doctests from files that are not
+      python modules. It also implements `loadTestsFromModule` to load
+      doctests from python modules, and `loadTestsFromPath` to load tests
+      from the non-module files selected by `wantFile`.
        
-     * The builtin attrib plugin implements `wantFunction` and
-       `wantMethod` so that it can reject tests that don't match the
-       specified attributes.
+    * The builtin attrib plugin implements `wantFunction` and
+      `wantMethod` so that it can reject tests that don't match the
+      specified attributes.
 
     Preparing test objects
     ======================
@@ -189,14 +189,14 @@ class IPluginInterface(object):
 
     Examples:
     
-     * The builtin cover plugin implements `begin` and `report` to
-       capture and report code coverage metrics for all or selected modules
-       loaded during testing.
+    * The builtin cover plugin implements `begin` and `report` to
+      capture and report code coverage metrics for all or selected modules
+      loaded during testing.
        
-     * The builtin profile plugin implements `begin`, `prepareTest` and
-       `report` to record and output profiling information. In this
-       case, the plugin's `prepareTest` method constructs a function that
-       runs the test through the hotshot profiler's runcall() method.     
+    * The builtin profile plugin implements `begin`, `prepareTest` and
+      `report` to record and output profiling information. In this
+      case, the plugin's `prepareTest` method constructs a function that
+      runs the test through the hotshot profiler's runcall() method.     
     """
     def __new__(cls, *arg, **kw):
         raise TypeError("IPluginInterface class is for documentation only")

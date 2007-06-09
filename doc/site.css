@@ -1,0 +1,134 @@
+
+body {
+       margin 0px;
+       padding: 10px 40px;
+       font: x-small Georgia,Serif;
+       font-size/* */:/**/small;
+       font-size: /**/small;
+       }
+
+a:link {
+         color:#58a;
+         text-decoration:none;
+         }
+a:visited {
+            color:#969;
+            text-decoration:none;
+            }
+a:hover {
+          color:#c60;
+          text-decoration:underline;
+          }
+
+#menu {
+        padding-left 1em;
+        padding-right: 1em;
+        padding-bottom: 10px;
+        margin-left: 20px;
+        min-width: 200px;
+        width: 20%;
+        border-left: 1px solid #ddd;
+        border-bottom: 1px solid #ddd;
+        background-color: #fff;
+        float: right;
+        }
+
+#main {
+        margin: 0px;
+        padding: 0px;
+        padding-right: 20px;
+        width: 70%;
+        float: left;
+        }      
+
+h1 {
+     font-size: 140%;
+     margin-top: 0;
+     }
+
+.section h1 {
+              font-size: 120%;
+              }
+
+.section h2 {
+              font-size: 105%;
+              }
+
+pre.literal-block {
+                    font: small;
+                    background: #ddd;
+                    }
+
+#menu ul {
+           margin: 0 1em .25em;
+           padding: 0;
+           list-style:none;
+           }
+
+#menu h2 {
+           font-size: 100%;
+           color: #999;
+           margin: 0 .5em;
+           padding: 0;
+           }
+
+#menu ul li {
+              margin: 0px;
+              padding: 0px 0px 0px 15px;
+              text-indent:-15px;
+              /* line-height:1.5em; */
+              }
+
+#menu p, #menu ol li {
+                       font-size: 90%;
+                       color:#666;
+                       /* line-height:1.5em; */
+                       margin: 0 1em .5em;
+                       }
+
+#menu ul li {
+              font-size: 90%;
+              color:#666;
+              }
+
+#menu dd {
+           margin: 0;
+           padding:0 0 .25em 15px;
+           }
+
+#news {
+        border: 1px solid #999;
+        background-color: #eef;
+        /* wouldn't it be nice if this worked */
+        background-image: url(flake.svg);
+        padding: 4px;
+        padding-right: 8px;
+        }
+
+#news h2 {
+           margin-top: 0px;
+           font-size: 105%;
+           }
+
+#news li p {
+             margin-left: 1.5em;
+             }
+
+#news li p.first {
+                   margin-left: 0;
+                   font-weight: bold;
+                   }
+
+#news p {
+          margin-bottom: 0px;
+          }
+
+.note {
+        background: #fed;
+        border: 1px solid black;
+        padding: 6px;
+        }
+
+.admonition-title { 
+                   display: none;
+ }

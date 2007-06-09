@@ -1,0 +1,160 @@
+<html>
+  <head>
+    <title>nose: Writing Plugins</title>
+    <link rel="stylesheet" href="site.css" type="text/css"></link>
+  </head>
+  <body>
+    
+    <div id="menu">
+      <p>This document covers nose version <b>0.10.0a1</b></p>
+      FIXME -- menu
+      <p>Last update: <b>Sat Jun  9 15:06:16 2007</b></p>
+    </div>
+    
+    <div id="main">
+      <h1>nose: Writing Plugins</h1>
+      
+      <p>nose supports plugins for test collection, selection, observation and
+reporting. There are two basic rules for plugins:</p>
+<ul class="simple">
+<li>Plugin classes should subclass <a class="reference" href="http://python-nose.googlecode.com/svn/trunk/nose/plugins/base.py">nose.plugins.Plugin</a>.</li>
+<li>Plugins may implement any of the methods described in the class
+PluginInterface in nose.plugins.base. Please note that this class is for
+documentary purposes only; plugins may not subclass PluginInterface.</li>
+</ul>
+<div class="section">
+<h1><a id="registering" name="registering">Registering</a></h1>
+<div class="note">
+<p class="first admonition-title">Note</p>
+<p class="last">Important note: the following applies only to the default plugin manager. Other plugin managers may use different means to locate and load plugins.</p>
+</div>
+<p>For nose to find a plugin, it must be part of a package that uses
+<a class="reference" href="http://peak.telecommunity.com/DevCenter/setuptools">setuptools</a>, and the plugin must be included in the entry points defined
+in the setup.py for the package:</p>
+<pre class="literal-block">
+setup(name='Some plugin',
+      ...
+      entry_points = {
+          'nose.plugins': [
+              'someplugin = someplugin:SomePlugin'
+              ]
+          },
+      ...
+      )
+</pre>
+<p>Once the package is installed with install or develop, nose will be able
+to load the plugin.</p>
+</div>
+<div class="section">
+<h1><a id="defining-options" name="defining-options">Defining options</a></h1>
+<p>All plugins must implement the methods <tt class="docutils literal"><span class="pre">options(self,</span> <span class="pre">parser,</span> <span class="pre">env)</span></tt>
+and <tt class="docutils literal"><span class="pre">configure(self,</span> <span class="pre">options,</span> <span class="pre">conf)</span></tt>. Subclasses of nose.plugins.Plugin
+that want the standard options should call the superclass methods.</p>
+<p>nose uses optparse.OptionParser from the standard library to parse
+arguments. A plugin's <tt class="docutils literal"><span class="pre">options()</span></tt> method receives a parser
+instance. It's good form for a plugin to use that instance only to add
+additional arguments that take only long arguments (--like-this). Most
+of nose's built-in arguments get their default value from an environment
+variable.</p>
+<p>A plugin's <tt class="docutils literal"><span class="pre">configure()</span></tt> method receives the parsed <tt class="docutils literal"><span class="pre">OptionParser</span></tt> options
+object, as well as the current config object. Plugins should configure their
+behavior based on the user-selected settings, and may raise exceptions
+if the configured behavior is nonsensical.</p>
+</div>
+<div class="section">
+<h1><a id="logging" name="logging">Logging</a></h1>
+<p>nose uses the logging classes from the standard library. To enable users
+to view debug messages easily, plugins should use <tt class="docutils literal"><span class="pre">logging.getLogger()</span></tt> to
+acquire a logger in the <tt class="docutils literal"><span class="pre">nose.plugins</span></tt> namespace.</p>
+</div>
+<div class="section">
+<h1><a id="recipes" name="recipes">Recipes</a></h1>
+<ul>
+<li><p class="first">Writing a plugin that monitors or controls test result output</p>
+<p>Implement any or all of <tt class="docutils literal"><span class="pre">addError</span></tt>, <tt class="docutils literal"><span class="pre">addFailure</span></tt>, etc., to monitor test
+results. If you also want to monitor output, implement
+<tt class="docutils literal"><span class="pre">setOutputStream</span></tt> and keep a reference to the output stream. If you
+want to prevent the builtin <tt class="docutils literal"><span class="pre">TextTestResult</span></tt> output, implement
+<tt class="docutils literal"><span class="pre">setOutputSteam</span></tt> and <em>return a dummy stream</em>. The default output will go
+to the dummy stream, while you send your desired output to the real stream.</p>
+<p>Example: <a class="reference" href="http://python-nose.googlecode.com/svn/trunk/examples/html_plugin/htmlplug.py">examples/html_plugin/htmlplug.py</a></p>
+</li>
+<li><p class="first">Writing a plugin that loads tests from files other than python modules</p>
+<p>Implement <tt class="docutils literal"><span class="pre">wantFile</span></tt> and <tt class="docutils literal"><span class="pre">loadTestsFromFile</span></tt>. In <tt class="docutils literal"><span class="pre">wantFile</span></tt>,
+return True for files that you want to examine for tests. In
+<tt class="docutils literal"><span class="pre">loadTestsFromFile</span></tt>, for those files, return an iterable
+containing TestCases (or yield them as you find them;
+<tt class="docutils literal"><span class="pre">loadTestsFromFile</span></tt> may also be a generator).</p>
+<p>Example: <a class="reference" href="http://python-nose.googlecode.com/svn/trunk/nose/plugins/doctests.py">nose.plugins.doctests</a></p>
+</li>
+<li><p class="first">Writing a plugin that prints a report</p>
+<p>Implement begin if you need to perform setup before testing
+begins. Implement <tt class="docutils literal"><span class="pre">report</span></tt> and output your report to the provided stream.</p>
+<p>Examples: <a class="reference" href="http://python-nose.googlecode.com/svn/trunk/nose/plugins/cover.py">nose.plugins.cover</a>, <a class="reference" href="http://python-nose.googlecode.com/svn/trunk/nose/plugins/profile.py">nose.plugins.profile</a></p>
+</li>
+<li><p class="first">Writing a plugin that selects or rejects tests</p>
+<p>Implement any or all <tt class="docutils literal"><span class="pre">want*</span></tt>  methods. Return False to reject the test
+candidate, True to accept it -- which  means that the test candidate
+will pass through the rest of the system, so you must be prepared to
+load tests from it if tests can't be loaded by the core loader or
+another plugin -- and None if you don't care.</p>
+<p>Examples: <a class="reference" href="http://python-nose.googlecode.com/svn/trunk/nose/plugins/attrib.py">nose.plugins.attrib</a>, <a class="reference" href="http://python-nose.googlecode.com/svn/trunk/nose/plugins/doctests.py">nose.plugins.doctests</a></p>
+</li>
+</ul>
+</div>
+<div class="section">
+<h1><a id="examples" name="examples">Examples</a></h1>
+<p>See <a class="reference" href="http://python-nose.googlecode.com/svn/trunk/nose/plugins/attrib.py">nose.plugins.attrib</a>, <a class="reference" href="http://python-nose.googlecode.com/svn/trunk/nose/plugins/cover.py">nose.plugins.cover</a>, <a class="reference" href="http://python-nose.googlecode.com/svn/trunk/nose/plugins/doctests.py">nose.plugins.doctests</a>
+and <a class="reference" href="http://python-nose.googlecode.com/svn/trunk/nose/plugins/profile.py">nose.plugins.profile</a> for examples. Further examples may be found the
+<a class="reference" href="http://python-nose.googlecode.com/svn/trunk/examples">examples</a> directory in the nose source distribution.</p>
+</div>
+<div class="section">
+<h1><a id="testing-plugins" name="testing-plugins">Testing Plugins</a></h1>
+<p>The plugin interface is well-tested enough so that you can safely unit
+test your use of its hooks with some level of confidence. However,
+there is a mixin for unittest.TestCase called PluginTester that's
+designed to test plugins in their native runtime environment.</p>
+<p>Here's a simple example with a do-nothing plugin and a composed suite.</p>
+<blockquote>
+<pre class="doctest-block">
+&gt;&gt;&gt; import unittest
+&gt;&gt;&gt; from nose.plugins import Plugin, PluginTester
+&gt;&gt;&gt; class FooPlugin(Plugin):
+...     pass
+&gt;&gt;&gt; class TestPluginFoo(PluginTester, unittest.TestCase):
+...     activate = '--with-foo'
+...     debuglog = 'nose.plugins.foo'
+...     plugins = [FooPlugin()]
+...     def test_foo(self):
+...         for line in self.output:
+...             # i.e. check for patterns
+...             pass
+...
+...         # or check for a line containing ...
+...         assert &quot;ValueError&quot; in self.output
+...     def makeSuite(self):
+...         class TC(unittest.TestCase):
+...             def runTest(self):
+...                 raise ValueError(&quot;I hate foo&quot;)
+...         return unittest.TestSuite([TC()])
+...
+&gt;&gt;&gt; res = unittest.TestResult()
+&gt;&gt;&gt; case = TestPluginFoo('test_foo')
+&gt;&gt;&gt; case(res)
+&gt;&gt;&gt; res.errors
+[]
+&gt;&gt;&gt; res.failures
+[]
+&gt;&gt;&gt; res.wasSuccessful()
+True
+&gt;&gt;&gt; res.testsRun
+1
+</pre>
+</blockquote>
+</div>
+
+
+    </div>
+  </body>
+</html>
+  
