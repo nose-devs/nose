@@ -99,8 +99,6 @@ pre.literal-block {
 #news {
         border: 1px solid #999;
         background-color: #eef;
-        /* wouldn't it be nice if this worked */
-        background-image: url(flake.svg);
         padding: 4px;
         padding-right: 8px;
         }
@@ -131,4 +129,44 @@ pre.literal-block {
 
 .admonition-title { 
                    display: none;
+ }
+
+.method { 
+          padding-top: 2px;
+          padding-left: 1em;
+          padding-right: 1em;
+          }
+
+.method.new { 
+              background-color: #ffe;
+}
+
+.method .doc { 
+                margin-left: 2em;
+                margin-top: 0px;
+}
+
+.method .name { 
+                font-weight: bold;
+ }
+
+.method.deprecated .name { 
+                           text-decoration: line-through;
+
+}
+
+.method .field-list { 
+                      font-size/* */:/**/small;
+                      font-size: /**/small;
+
+}
+
+.field-list dd, .field-list dd p { 
+                 padding: 0 0 0 0;
+                 margin: 0 0 0 0;
+                 margin-left: 1em;
+ }
+
+.field-list td { 
+                 padding-left: 20px;
  }

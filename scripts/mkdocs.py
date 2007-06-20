@@ -31,14 +31,14 @@ class DocReader(Reader):
 
 
 def clean_default(val):
-    print "clean default %s (%s) %s" % (val, type(val), val.__class__)
     if isinstance(val, os._Environ):
-        return '{...}'
+        return 'os.environ'
     return val
 
 root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 doc = os.path.join(root, 'doc')
 tpl = open(os.path.join(doc, 'doc.html.tpl'), 'r').read()
+api_tpl = open(os.path.join(doc, 'plugin_api.html.tpl'), 'r').read()
 
 std_info = {
     'version': nose.__version__,
@@ -71,8 +71,8 @@ print "Documenting methods", [a[0] for a in methods]
 method_html = []
 method_tpl = """
 <div class="method %(extra_class)s">
-<span class="name">%(name)s</span><span class="arg">%(arg)s</span><br />
-%(body)s
+<span class="name">%(name)s</span><span class="arg">%(arg)s</span>
+<div class="doc">%(body)s</div>
 </div>
 """
 
@@ -82,24 +82,27 @@ for m in methods:
     name, meth = m
     ec = []
     for att in m_attrs:
-        if hasattr(m, att):
-            ec.append(att)
+        if hasattr(meth, att):
+            ec.append(att.replace('_', ''))
     # padding evens the lines
     mdoc = publish_parts(textwrap.dedent('        ' + meth.__doc__),
                          writer_name='html')
     args, varargs, varkw, defaults = inspect.getargspec(meth)
     if defaults:
         defaults = map(clean_default, defaults)
+    argspec = inspect.formatargspec(
+        args, varargs, varkw, defaults).replace("'os.environ'", 'os.environ')
     mdoc.update({'name': name,
                  'extra_class': ' '.join(ec),
-                 'arg': inspect.formatargspec(args, varargs, varkw, defaults)})
+                 'arg': argspec})
     method_html.append(method_tpl % mdoc)
 
+itf['methods'] = ''.join(method_html)
 itf.update(std_info)
 itf.update({'title': 'Plugin Interface',
             'menu': 'FIXME -- menu'})
-itf['body'] += '\n'.join(method_html)
-write(os.path.join(doc, 'plugin_interface.html'), tpl % itf)
+
+write(os.path.join(doc, 'plugin_interface.html'), api_tpl % itf)
 
 
 #write(doc, tpl, 'writing_plugins.html', plugins.__doc__)

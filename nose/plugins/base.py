@@ -116,21 +116,22 @@ class IPluginInterface(object):
     exceptions to this are methods marked as `generative` or
     `chainable`.  `generative` methods combine the output of all
     plugins that respond with an iterable into a single flattened
-    iterable response (a generator, reall). `chainable` methods pass
+    iterable response (a generator, really). `chainable` methods pass
     the results of calling plugin A as the input to plugin B, where
     the positions in the chain are determined by the plugin sort
     order, which is in order by `score` descending.
 
     In general, plugin methods correspond directly to methods of
-    nose.selector.Selector, nose.loader.TestLoader and
-    nose.result.TextTestResult are called by those methods when they are
+    `nose.selector.Selector`, `nose.loader.TestLoader` and
+    `nose.result.TextTestResult` are called by those methods when they are
     called. In some cases, the plugin hook doesn't neatly match the
     method in which it is called; for those, the documentation for the
     hook will tell you where in the test process it is called.
 
-    Plugin hooks fall into three broad categories: selecting and
-    loading tests, preparing objects used in the testing process, and
-    watching and reporting on test results.
+    Plugin hooks fall into four broad categories: selecting and
+    loading tests, handling errors raised by tests, preparing objects
+    used in the testing process, and watching and reporting on test
+    results.
     
     Selecting and loading tests
     ===========================
@@ -144,15 +145,24 @@ class IPluginInterface(object):
 
     Examples:
     
-    * The builtin doctests plugin, for python 2.4 only, implements
-      `wantFile` to enable loading of doctests from files that are not
-      python modules. It also implements `loadTestsFromModule` to load
-      doctests from python modules, and `loadTestsFromPath` to load tests
-      from the non-module files selected by `wantFile`.
+    * The builtin doctests plugin implements `wantFile` to enable
+      loading of doctests from files that are not python modules. It
+      also implements `loadTestsFromModule` to load doctests from
+      python modules, and `loadTestsFromFile` to load tests from the
+      non-module files selected by `wantFile`.
        
     * The builtin attrib plugin implements `wantFunction` and
       `wantMethod` so that it can reject tests that don't match the
       specified attributes.
+
+    Handling errors
+    ===============
+
+    FIXME describe ErrorClass plugins
+
+    Examples:
+
+    * The builtin skip and deprecated plugins are ErrorClass plugins.
 
     Preparing test objects
     ======================
@@ -219,11 +229,11 @@ class IPluginInterface(object):
         unless you want to stop other plugins from seeing the deprecated
         test.
 
-        DEPRECATED -- check error class in addError instead
+        .. Note:: DEPRECATED -- check error class in addError instead
 
-        Parameters:
-         * test:
-           the test case 
+        :Parameters:
+          test : `nose.case.Test`
+            the test case 
         """
         pass
     addDeprecated.deprecated = True
@@ -233,14 +243,15 @@ class IPluginInterface(object):
         value unless you want to stop other plugins from seeing that the
         test has raised an error.
 
-        Parameters:
-         * test:
-           the test case
-         * err:
-           sys.exc_info() tuple
-         * capt:
-           Captured output, if any
-           DEPRECATED: this parameter will not be passed
+        :Parameters:
+          test : `nose.case.Test`
+            the test case
+          err : 3-tuple
+            sys.exc_info() tuple
+          capt : string
+            Captured output, if any
+            
+            .. Note:: DEPRECATED: this parameter will not be passed
         """
         pass
     addError.changed = True
@@ -268,7 +279,7 @@ class IPluginInterface(object):
         """Called when a test is skipped. DO NOT return a value unless
         you want to stop other plugins from seeing the skipped test.
 
-        DEPRECATED -- check error class in addError instead
+        .. Note:: DEPRECATED -- check error class in addError instead
 
         Parameters:
          * test:
@@ -327,7 +338,7 @@ class IPluginInterface(object):
 
         Parameters:
          * test:
-           test test case
+           the test case
         """
         pass
     afterTest._new = True
@@ -576,7 +587,6 @@ class IPluginInterface(object):
         """
         pass
     loadTestsFromTestCase.generative = True
-    loadTestsFromTestCase.pending = True
 
     def loadTestsFromTestClass(self, cls):
         """Return tests in this test class. Class will *not* be a
@@ -606,6 +616,8 @@ class IPluginInterface(object):
         pass
     makeTest._new = True
     makeTest.generative = True
+
+    # FIXME def options(...)
 
     def prepareTest(self, test):
         """Called before the test is run by the test runner. Please

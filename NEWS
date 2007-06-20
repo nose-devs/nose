@@ -1,1 +1,29 @@
-See http://code.google.com/p/python-nose/wiki/VersionZeroTen
+What's New In 0.10a
+-------------------
+
+The development release of nose, 0.10a, marks a major change from the
+0.9 series in philosophy and implementation.
+
+Prior to this release, nose was entirely discovery-centric: it would
+never run anything that it didn't discover as a test. The test loader
+in 0.10 has been completely rewritten so that it still supports
+discovery, but also allows directed test loading. In other words,
+starting with 0.10, if you tell nose that something is a test, nose
+will believe you.
+
+0.10 also includes major changes to the plugin API introduced in
+0.9. For the most part these are additive and
+backwards-compatible. Plugins now have many new hooks available at all
+phases of test loading, running and description. Many features of nose
+0.9 that could only be implemented in the core of nose are now
+plugins: output capture, assert introspection, support for skipped and
+deprecated tests and for dropping into pdb on error or failures. All
+of the hooks those plugins use are available for your plugins too, of
+course. See the `plugin interface reference`_ or `guide to writing
+plugins`_ for more.
+
+There are many other, less user-visible changes under the hood. See 
+http://code.google.com/p/python-nose/wiki/VersionZeroTen for an outline.
+
+.. _`plugin interface reference`: doc/plugin_interface.html
+.. _`guide to writing plugins`: doc/writing_plugins.html
