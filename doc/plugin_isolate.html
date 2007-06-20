@@ -1,0 +1,62 @@
+<html>
+  <head>
+    <title>nose: builtin plugin: isolate</title>
+    <link rel="stylesheet" href="site.css" type="text/css"></link>
+  </head>
+  <body>
+    
+    <div id="menu">
+      <p>This document covers nose version <b>0.10.0a1</b></p>
+      FIXME -- menu
+      <p>Last update: <b>Wed Jun 20 18:19:04 2007</b></p>
+    </div>
+    
+    <div id="main">
+      <h1>nose: builtin plugin: isolate</h1>
+      
+      <p>Use the isolation plugin with --with-isolation or the
+NOSE_WITH_ISOLATION environment variable to clean sys.modules after
+each test module is loaded and executed.</p>
+<p>The isolation module is in effect similar to wrapping the following
+functions around the import and execution of each test module:</p>
+<pre class="literal-block">
+def setup(module):
+    module._mods = sys.modules.copy()
+
+def teardown(module):
+    to_del = [ m for m in sys.modules.keys() if m not in
+               module._mods ]
+    for mod in to_del:
+        del sys.modules[mod]
+    sys.modules.update(module._mods)
+</pre>
+<p>Isolation works only during lazy loading. In normal use, this is only
+during discovery of modules within a directory, where the process of
+importing, loading tests and running tests from each module is
+encapsulated in a single loadTestsFromName call. This plugin
+implements loadTestsFromNames to force the same lazy-loading there,
+which allows isolation to work in directed mode as well as discovery,
+at the cost of some efficiency: lazy-loading names forces full context
+setup and teardown to run for each name, defeating the grouping that
+is normally used to ensure that context setup and teardown are run the
+fewest possible times for a given set of names.</p>
+<p>PLEASE NOTE that this plugin should not be used in conjunction with
+other plugins that assume that modules once imported will stay
+imported; for instance, it may cause very odd results when used with
+the coverage plugin.</p>
+<pre>options:
+  -h, --help        show this help message and exit
+  --with-isolation  Enable plugin IsolationPlugin:  Activate the isolation
+                    plugin to isolate changes to external modules to a single
+                    test module or package. The isolation plugin resets the
+                    contents of sys.modules after each test module or package
+                    runs to its state before the test. PLEASE NOTE that this
+                    plugin should not be used with the coverage plugin in any
+                    other case where module reloading may produce undesirable
+                    side-effects.  [NOSE_WITH_ISOLATION]
+</pre>
+
+    </div>
+  </body>
+</html>
+  

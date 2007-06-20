@@ -1,0 +1,74 @@
+<html>
+  <head>
+    <title>nose: builtin plugin: attrib</title>
+    <link rel="stylesheet" href="site.css" type="text/css"></link>
+  </head>
+  <body>
+    
+    <div id="menu">
+      <p>This document covers nose version <b>0.10.0a1</b></p>
+      FIXME -- menu
+      <p>Last update: <b>Wed Jun 20 18:19:04 2007</b></p>
+    </div>
+    
+    <div id="main">
+      <h1>nose: builtin plugin: attrib</h1>
+      
+      <p>Attribute selector plugin.</p>
+<dl class="docutils">
+<dt>Simple syntax (-a, --attr) examples:</dt>
+<dd><ul class="first last">
+<li><p class="first">nosetests -a status=stable
+=&gt; only test cases with attribute &quot;status&quot; having value &quot;stable&quot;</p>
+</li>
+<li><p class="first">nosetests -a priority=2,status=stable
+=&gt; both attributes must match</p>
+</li>
+<li><p class="first">nosetests -a priority=2 -a slow
+=&gt; either attribute must match</p>
+</li>
+<li><p class="first">nosetests -a tags=http
+=&gt; attribute list &quot;tags&quot; must contain value &quot;http&quot; (see test_foobar()</p>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">&lt;string&gt;</tt>, line 15)</p>
+<p>Unexpected indentation.</p>
+</div>
+<blockquote>
+<p>below for definition)</p>
+</blockquote>
+</li>
+<li><p class="first">nosetests -a slow
+=&gt; attribute &quot;slow&quot; must be defined and its value cannot equal to False</p>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">&lt;string&gt;</tt>, line 19)</p>
+<p>Unexpected indentation.</p>
+</div>
+<blockquote>
+<p>(False, [], &quot;&quot;, etc...)</p>
+</blockquote>
+</li>
+<li><p class="first">nosetests -a !slow
+=&gt; attribute &quot;slow&quot; must NOT be defined or its value must be equal to False</p>
+</li>
+</ul>
+</dd>
+<dt>Eval expression syntax (-A, --eval-attr) examples:</dt>
+<dd><ul class="first last simple">
+<li>nosetests -A &quot;not slow&quot;</li>
+<li>nosetests -A &quot;(priority &gt; 5) and not slow&quot;</li>
+</ul>
+</dd>
+</dl>
+<pre>options:
+  -h, --help            show this help message and exit
+  -a ATTR, --attr=ATTR  Run only tests that have attributes specified by ATTR
+                        [NOSE_ATTR]
+  -A EXPR, --eval-attr=EXPR
+                        Run only tests for whose attributes the Python
+                        expression EXPR evaluates to True [NOSE_EVAL_ATTR]
+</pre>
+
+    </div>
+  </body>
+</html>
+  

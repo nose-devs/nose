@@ -1,0 +1,40 @@
+<html>
+  <head>
+    <title>nose: builtin plugin: prof</title>
+    <link rel="stylesheet" href="site.css" type="text/css"></link>
+  </head>
+  <body>
+    
+    <div id="menu">
+      <p>This document covers nose version <b>0.10.0a1</b></p>
+      FIXME -- menu
+      <p>Last update: <b>Wed Jun 20 18:19:04 2007</b></p>
+    </div>
+    
+    <div id="main">
+      <h1>nose: builtin plugin: prof</h1>
+      
+      <p>Use the profile plugin with --with-profile or NOSE_WITH_PROFILE to
+enable profiling using the hotshot profiler. Profiler output can be
+controlled with the --profile-sort and --profile-restrict, and the
+profiler output file may be changed with --profile-stats-file.</p>
+<p>See the hotshot documentation in the standard library documentation for
+more details on the various output options.</p>
+<pre>options:
+  -h, --help            show this help message and exit
+  --with-profile        Enable plugin Profile:  Use this plugin to run tests
+                        using the hotshot profiler.   [NOSE_WITH_PROFILE]
+  --profile-sort=PROFILE_SORT
+                        Set sort order for profiler output
+  --profile-stats-file=PROFILE_STATS_FILE
+                        Profiler stats file; default is a new temp file on
+                        each run
+  --profile-restrict=PROFILE_RESTRICT
+                        Restrict profiler output. See help for pstats.Stats
+                        for details
+</pre>
+
+    </div>
+  </body>
+</html>
+  

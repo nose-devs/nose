@@ -1,0 +1,44 @@
+<html>
+  <head>
+    <title>nose: builtin plugin: doctests</title>
+    <link rel="stylesheet" href="site.css" type="text/css"></link>
+  </head>
+  <body>
+    
+    <div id="menu">
+      <p>This document covers nose version <b>0.10.0a1</b></p>
+      FIXME -- menu
+      <p>Last update: <b>Wed Jun 20 18:19:04 2007</b></p>
+    </div>
+    
+    <div id="main">
+      <h1>nose: builtin plugin: doctests</h1>
+      
+      <p>Use the Doctest plugin with --with-doctest or the NOSE_WITH_DOCTEST
+environment variable to enable collection and execution of doctests. <a class="reference" href="http://docs.python.org/lib/module-doctest.html">doctest</a>
+tests are usually included in the tested package, not grouped into packages or
+modules of their own. For this reason, nose will try to detect and run doctest
+tests only in the non-test packages it discovers in the working
+directory. Doctests may also be placed into files other than python modules,
+in which case they can be collected and executed by using the
+--doctest-extension switch or NOSE_DOCTEST_EXTENSION environment variable to
+indicate which file extension(s) to load.</p>
+<p>doctest tests are run like any other test, with the exception that output
+capture does not work, because doctest does its own output capture in the
+course of running a test.</p>
+<pre>options:
+  -h, --help            show this help message and exit
+  --with-doctest        Enable plugin Doctest:  Activate doctest plugin to
+                        find and run doctests in non-test modules.
+                        [NOSE_WITH_DOCTEST]
+  --doctest-tests       Also look for doctests in test modules
+                        [NOSE_DOCTEST_TESTS]
+  --doctest-extension=DOCTESTEXTENSION
+                        Also look for doctests in files with this extension
+                        [NOSE_DOCTEST_EXTENSION]
+</pre>
+
+    </div>
+  </body>
+</html>
+  

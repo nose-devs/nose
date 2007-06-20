@@ -7,6 +7,9 @@ from docutils.readers.standalone import Reader
 import inspect
 import nose
 import textwrap
+from optparse import OptionParser
+from nose.util import resolve_name
+
 
 def write(filename, content):
     print filename
@@ -103,6 +106,33 @@ itf.update({'title': 'Plugin Interface',
             'menu': 'FIXME -- menu'})
 
 write(os.path.join(doc, 'plugin_interface.html'), api_tpl % itf)
+
+
+# individual plugin usage docs
+from nose.plugins.builtin import builtins
+
+for modulename, clsname in builtins:
+    _, _, modname = modulename.split('.')
+    mod = resolve_name(modulename)
+    cls = getattr(mod, clsname)
+    filename = os.path.join(doc, 'plugin_%s.html' % modname)
+    print modname, filename
+    if not mod.__doc__:
+        print "No docs"
+        continue
+    pdoc = publish_parts(mod.__doc__, reader=DocReader(), writer_name='html')
+    pdoc.update(std_info)
+    pdoc.update({'title': 'builtin plugin: %s' % modname,
+                 'menu': 'FIXME -- menu'})
+
+    parser = OptionParser()
+    plug = cls()
+    plug.addOptions(parser)
+    options = parser.format_option_help()
+
+    pdoc['body'] = pdoc['body'] + '<pre>' + options + '</pre>'
+    write(os.path.join(doc, filename), tpl % pdoc)
+
 
 
 #write(doc, tpl, 'writing_plugins.html', plugins.__doc__)

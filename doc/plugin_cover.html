@@ -1,0 +1,56 @@
+<html>
+  <head>
+    <title>nose: builtin plugin: cover</title>
+    <link rel="stylesheet" href="site.css" type="text/css"></link>
+  </head>
+  <body>
+    
+    <div id="menu">
+      <p>This document covers nose version <b>0.10.0a1</b></p>
+      FIXME -- menu
+      <p>Last update: <b>Wed Jun 20 18:19:04 2007</b></p>
+    </div>
+    
+    <div id="main">
+      <h1>nose: builtin plugin: cover</h1>
+      
+      <p>If you have Ned Batchelder's <a class="reference" href="http://www.nedbatchelder.com/code/modules/coverage.html">coverage</a> module installed, you may activate a
+coverage report with the --with-coverage switch or NOSE_WITH_COVERAGE
+environment variable. The coverage report will cover any python source module
+imported after the start of the test run, excluding modules that match
+testMatch. If you want to include those modules too, use the --cover-tests
+switch, or set the NOSE_COVER_TESTS environment variable to a true value. To
+restrict the coverage report to modules from a particular package or packages,
+use the --cover-packages switch or the NOSE_COVER_PACKAGES environment
+variable.</p>
+<pre>options:
+  -h, --help            show this help message and exit
+  --with-coverage       Enable plugin Coverage:  If you have Ned Batchelder's
+                        coverage module installed, you may activate a coverage
+                        report. The coverage report will cover any python
+                        source module imported after the start of the test
+                        run, excluding modules that match testMatch. If you
+                        want to include those modules too, use the --cover-
+                        tests switch, or set the NOSE_COVER_TESTS environment
+                        variable to a true value. To restrict the coverage
+                        report to modules from a particular package or
+                        packages, use the --cover-packages switch or the
+                        NOSE_COVER_PACKAGES environment variable.
+                        [NOSE_WITH_COVERAGE]
+  --cover-package=COVER_PACKAGES
+                        Restrict coverage output to selected packages
+                        [NOSE_COVER_PACKAGE]
+  --cover-erase         Erase previously collected coverage statistics before
+                        run
+  --cover-tests         Include test modules in coverage report
+                        [NOSE_COVER_TESTS]
+  --cover-inclusive     Include all python files under working directory in
+                        coverage report.  Useful for discovering holes in test
+                        coverage if not all files are imported by the test
+                        suite. [NOSE_COVER_INCLUSIVE]
+</pre>
+
+    </div>
+  </body>
+</html>
+  

@@ -8,7 +8,7 @@
     <div id="menu">
       <p>This document covers nose version <b>0.10.0a1</b></p>
       FIXME -- menu
-      <p>Last update: <b>Tue Jun 12 23:51:50 2007</b></p>
+      <p>Last update: <b>Wed Jun 20 18:19:04 2007</b></p>
     </div>
     
     <div id="main">
@@ -128,7 +128,10 @@ runs the test through the hotshot profiler's runcall() method.</li>
 <div class="doc"><p>Called when a deprecated test is seen. DO NOT return a value
 unless you want to stop other plugins from seeing the deprecated
 test.</p>
-<p>DEPRECATED -- check error class in addError instead</p>
+<div class="note">
+<p class="first admonition-title">Note</p>
+<p class="last">DEPRECATED -- check error class in addError instead</p>
+</div>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -213,7 +216,10 @@ all other plugins from setting their options.</p>
 <span class="name">addSkip</span><span class="arg">(self, test)</span>
 <div class="doc"><p>Called when a test is skipped. DO NOT return a value unless
 you want to stop other plugins from seeing the skipped test.</p>
-<p>DEPRECATED -- check error class in addError instead</p>
+<div class="note">
+<p class="first admonition-title">Note</p>
+<p class="last">DEPRECATED -- check error class in addError instead</p>
+</div>
 <dl class="docutils">
 <dt>Parameters:</dt>
 <dd><ul class="first last simple">
