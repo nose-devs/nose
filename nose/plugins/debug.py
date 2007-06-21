@@ -1,3 +1,9 @@
+"""
+This plugin provides --pdb and --pdb-failures options that cause the
+test runner to drop into pdb if it encounters an error or failure,
+respectively.
+"""
+
 import os
 import pdb
 from nose.plugins.base import Plugin

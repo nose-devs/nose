@@ -1,0 +1,42 @@
+<html>
+  <head>
+    <title>nose: builtin plugin: capture</title>
+    <link rel="stylesheet" href="site.css" type="text/css"></link>
+  </head>
+  <body>
+    
+    <div id="menu">
+      <p>This document covers nose version <b>0.10.0a1</b></p>
+      FIXME -- menu
+      <p>Last update: <b>Thu Jun 21 13:14:42 2007</b></p>
+    </div>
+    
+    <div id="main">
+      <h1>nose: builtin plugin: capture</h1>
+      
+      <p>This plugin captures stdout during test execution, appending any
+output captured to the error or failure output, should the test fail
+or raise an error. It is enabled by default but may be disable with
+the options -s or --nocapture.</p>
+
+
+      <h2>Plugin Methods Implemented</h2>
+
+      <p>This plugin implements the following plugin interface methods:</p>
+      
+      <ul><li><a href="plugin_interface.html#afterTest">afterTest</a></li><li><a href="plugin_interface.html#beforeTest">beforeTest</a></li><li><a href="plugin_interface.html#begin">begin</a></li><li><a href="plugin_interface.html#configure">configure</a></li><li><a href="plugin_interface.html#formatError">formatError</a></li><li><a href="plugin_interface.html#formatFailure">formatFailure</a></li><li><a href="plugin_interface.html#options">options</a></li></ul>
+
+
+      <h2>Commandline Options</h2>
+
+      <p>This plugin adds the following commandline options:</p>
+
+      <pre>options:
+  -s, --nocapture  Don't capture stdout (any stdout output will be printed
+                   immediately) [NOSE_NOCAPTURE]
+</pre>
+
+    </div>
+  </body>
+</html>
+  

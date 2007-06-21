@@ -1,3 +1,11 @@
+"""
+This plugin installs a SKIP error class for the SkipTest exception.
+When SkipTest is raised, the exception will be logged in the skipped
+attribute of the result, 'S' or 'SKIP' (verbose) will be output, and
+the exception will not be counted as an error or failure. This plugin
+is enabled by default but may be disabled with the --no-skip option.
+"""
+    
 import os
 from nose.plugins.errorclass import ErrorClass, ErrorClassPlugin
 

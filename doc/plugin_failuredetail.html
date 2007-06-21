@@ -1,0 +1,44 @@
+<html>
+  <head>
+    <title>nose: builtin plugin: failuredetail</title>
+    <link rel="stylesheet" href="site.css" type="text/css"></link>
+  </head>
+  <body>
+    
+    <div id="menu">
+      <p>This document covers nose version <b>0.10.0a1</b></p>
+      FIXME -- menu
+      <p>Last update: <b>Thu Jun 21 13:14:42 2007</b></p>
+    </div>
+    
+    <div id="main">
+      <h1>nose: builtin plugin: failuredetail</h1>
+      
+      <p>This plugin provides assert introspection. When the plugin is enabled
+and a test failure occurs, the traceback of the failure exception is
+examined and displayed with extra context around the line where the
+exception was raised. Simple variable substitution is also performed
+in the context output to provide more debugging information.</p>
+
+
+      <h2>Plugin Methods Implemented</h2>
+
+      <p>This plugin implements the following plugin interface methods:</p>
+      
+      <ul><li><a href="plugin_interface.html#configure">configure</a></li><li><a href="plugin_interface.html#formatFailure">formatFailure</a></li><li><a href="plugin_interface.html#options">options</a></li></ul>
+
+
+      <h2>Commandline Options</h2>
+
+      <p>This plugin adds the following commandline options:</p>
+
+      <pre>options:
+  -d, --detailed-errors, --failure-detail
+                        Add detail to error output by attempting to evaluate
+                        failed asserts [NOSE_DETAILED_ERRORS]
+</pre>
+
+    </div>
+  </body>
+</html>
+  

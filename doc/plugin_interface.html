@@ -8,7 +8,7 @@
     <div id="menu">
       <p>This document covers nose version <b>0.10.0a1</b></p>
       <h2>New methods</h2><ul><li><a href="afterContext">afterContext</a></li><li><a href="afterDirectory">afterDirectory</a></li><li><a href="afterImport">afterImport</a></li><li><a href="afterTest">afterTest</a></li><li><a href="beforeContext">beforeContext</a></li><li><a href="beforeDirectory">beforeDirectory</a></li><li><a href="beforeImport">beforeImport</a></li><li><a href="beforeTest">beforeTest</a></li><li><a href="describeTest">describeTest</a></li><li><a href="formatError">formatError</a></li><li><a href="formatFailure">formatFailure</a></li><li><a href="handleError">handleError</a></li><li><a href="handleFailure">handleFailure</a></li><li><a href="loadTestsFromDir">loadTestsFromDir</a></li><li><a href="loadTestsFromFile">loadTestsFromFile</a></li><li><a href="loadTestsFromNames">loadTestsFromNames</a></li><li><a href="loadTestsFromTestClass">loadTestsFromTestClass</a></li><li><a href="makeTest">makeTest</a></li><li><a href="options">options</a></li><li><a href="prepareTestCase">prepareTestCase</a></li><li><a href="prepareTestLoader">prepareTestLoader</a></li><li><a href="prepareTestResult">prepareTestResult</a></li><li><a href="prepareTestRunner">prepareTestRunner</a></li><li><a href="startContext">startContext</a></li><li><a href="stopContext">stopContext</a></li><li><a href="testName">testName</a></li></ul><h2>Changed methods</h2><ul><li><a href="addError">addError</a></li><li><a href="addFailure">addFailure</a></li><li><a href="addSuccess">addSuccess</a></li></ul><h2>Deprecated methods</h2><ul><li><a href="addDeprecated">addDeprecated</a></li><li><a href="addOptions">addOptions</a></li><li><a href="addSkip">addSkip</a></li><li><a href="add_options">add_options</a></li><li><a href="loadTestsFromPath">loadTestsFromPath</a></li><li><a href="wantModuleTests">wantModuleTests</a></li></ul>
-      <p>Last update: <b>Thu Jun 21 11:46:57 2007</b></p>
+      <p>Last update: <b>Thu Jun 21 13:14:42 2007</b></p>
     </div>
     
     <div id="main">
@@ -63,7 +63,11 @@ specified attributes.</li>
 </div>
 <div class="section">
 <h1><a id="handling-errors" name="handling-errors">Handling errors</a></h1>
-<p>FIXME describe ErrorClass plugins</p>
+<p>To alter error handling behavior -- for instance to catch a
+certain class of exception and handle it differently from the
+normal error or failure handling -- you should subclass
+<cite>ErrorClassPlugin</cite>. See the documentation for <a class="reference" href="errorclassplugin.html">ErrorClassPlugin</a> for
+more details.</p>
 <p>Examples:</p>
 <ul class="simple">
 <li>The builtin skip and deprecated plugins are ErrorClass plugins.</li>

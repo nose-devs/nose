@@ -159,7 +159,11 @@ class IPluginInterface(object):
     Handling errors
     ===============
 
-    FIXME describe ErrorClass plugins
+    To alter error handling behavior -- for instance to catch a
+    certain class of exception and handle it differently from the
+    normal error or failure handling -- you should subclass
+    `ErrorClassPlugin`. See the documentation for `ErrorClassPlugin`_ for
+    more details.
 
     Examples:
 

@@ -1,0 +1,116 @@
+<html>
+  <head>
+    <title>nose: ErrorClass Plugins</title>
+    <link rel="stylesheet" href="site.css" type="text/css"></link>
+  </head>
+  <body>
+    
+    <div id="menu">
+      <p>This document covers nose version <b>0.10.0a1</b></p>
+      FIXME -- menu
+      <p>Last update: <b>Thu Jun 21 13:14:42 2007</b></p>
+    </div>
+    
+    <div id="main">
+      <h1>nose: ErrorClass Plugins</h1>
+      
+      <p>ErrorClass plugins provide an easy way to add support for custom
+handling of particular classes of exceptions.</p>
+<p>An ErrorClass plugin defines one or more ErrorClasses and how each is
+handled and reported on. Each error class is stored in a different
+attribute on the result, and reported separately. Each error class must
+indicate the exceptions that fall under that class, the label to use
+for reporting, and whether exceptions of the class should be
+considered as failures for the whole test run.</p>
+<p>ErrorClasses use a declarative syntax. Assign an ErrorClass to the
+attribute you wish to add to the result object, defining the
+exceptions, label and isfailure attributes. For example, to declare an
+ErrorClassPlugin that defines TodoErrors (and subclasses of TodoError)
+as an error class with the label 'TODO' that is considered a failure,
+do this:</p>
+<blockquote>
+<pre class="doctest-block">
+&gt;&gt;&gt; class Todo(Exception):
+...     pass
+&gt;&gt;&gt; class TodoError(ErrorClassPlugin):
+...     todo = ErrorClass(Todo, label='TODO', isfailure=True)
+</pre>
+</blockquote>
+<p>The MetaErrorClass metaclass translates the ErrorClass declarations
+into the tuples used by the error handling and reporting functions in
+the result. This is an internal format and subject to change; you
+should always use the declarative syntax for attaching ErrorClasses to
+an ErrorClass plugin.</p>
+<blockquote>
+<pre class="doctest-block">
+&gt;&gt;&gt; TodoError.errorClasses # doctest: +ELLIPSIS
+((&lt;class ...Todo...&gt;, ('todo', 'TODO', True)),)
+</pre>
+</blockquote>
+<p>Let's see the plugin in action. First some boilerplate.</p>
+<blockquote>
+<pre class="doctest-block">
+&gt;&gt;&gt; import sys
+&gt;&gt;&gt; import unittest
+&gt;&gt;&gt; buf = unittest._WritelnDecorator(sys.stdout)
+</pre>
+</blockquote>
+<p>Now define a test case that raises a Todo.</p>
+<blockquote>
+<pre class="doctest-block">
+&gt;&gt;&gt; class TestTodo(unittest.TestCase):
+...     def runTest(self):
+...         raise Todo(&quot;I need to test something&quot;)
+&gt;&gt;&gt; case = TestTodo()
+</pre>
+</blockquote>
+<p>Prepare the result using our plugin. Normally this happens during the
+course of test execution within nose.</p>
+<blockquote>
+<pre class="doctest-block">
+&gt;&gt;&gt; plugin = TodoError()
+&gt;&gt;&gt; result = unittest._TextTestResult(stream=buf,
+...                                   descriptions=0, verbosity=2)
+&gt;&gt;&gt; plugin.prepareTestResult(result)
+</pre>
+</blockquote>
+<p>Now run the test. TODO is printed.</p>
+<blockquote>
+<pre class="doctest-block">
+&gt;&gt;&gt; case(result) # doctest: +ELLIPSIS
+runTest (....TestTodo) ... TODO
+</pre>
+</blockquote>
+<p>Errors and failures are empty, but todo has our test:</p>
+<blockquote>
+<pre class="doctest-block">
+&gt;&gt;&gt; result.errors
+[]
+&gt;&gt;&gt; result.failures
+[]
+&gt;&gt;&gt; result.todo # doctest: +ELLIPSIS
+[(&lt;....TestTodo testMethod=runTest&gt;, '...Todo: I need to test something\n')]
+&gt;&gt;&gt; result.printErrors() # doctest: +ELLIPSIS
+&lt;BLANKLINE&gt;
+======================================================================
+TODO: runTest (....TestTodo)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+...
+Todo: I need to test something
+&lt;BLANKLINE&gt;
+</pre>
+</blockquote>
+<p>Since we defined a Todo as a failure, the run was not successful.</p>
+<blockquote>
+<pre class="doctest-block">
+&gt;&gt;&gt; result.wasSuccessful()
+False
+</pre>
+</blockquote>
+
+
+    </div>
+  </body>
+</html>
+  

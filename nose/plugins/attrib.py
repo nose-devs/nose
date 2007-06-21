@@ -1,29 +1,32 @@
 """Attribute selector plugin.
 
 Simple syntax (-a, --attr) examples:
-  * nosetests -a status=stable
-    => only test cases with attribute "status" having value "stable"
 
-  * nosetests -a priority=2,status=stable
-    => both attributes must match
+* `nosetests -a status=stable`:
+   Only test cases with attribute "status" having value "stable"
 
-  * nosetests -a priority=2 -a slow
-    => either attribute must match
+* `nosetests -a priority=2,status=stable`:
+   Both attributes must match
+
+* `nosetests -a priority=2 -a slow`:
+   Either attribute must match
     
-  * nosetests -a tags=http
-    => attribute list "tags" must contain value "http" (see test_foobar()
-       below for definition)
+* `nosetests -a tags=http`:
+   Attribute list "tags" must contain value "http" (see test_foobar()
+   below for definition)
 
-  * nosetests -a slow
-    => attribute "slow" must be defined and its value cannot equal to False
-       (False, [], "", etc...)
+* `nosetests -a slow`:
+   Attribute "slow" must be defined and its value cannot equal to False
+   (False, [], "", etc...)
 
-  * nosetests -a !slow
-    => attribute "slow" must NOT be defined or its value must be equal to False
+* `nosetests -a !slow`:
+   Attribute "slow" must NOT be defined or its value must be equal to False
 
 Eval expression syntax (-A, --eval-attr) examples:
-  * nosetests -A "not slow"
-  * nosetests -A "(priority > 5) and not slow"
+
+* `nosetests -A "not slow"`
+
+* `nosetests -A "(priority > 5) and not slow"`
 
 """
 import logging

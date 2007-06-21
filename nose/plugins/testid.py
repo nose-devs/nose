@@ -1,5 +1,36 @@
 """
-FIXME docs
+This plugin adds a test id (like #1) to each test name output. After
+you've run once to generate test ids, you can re-run individual
+tests by activating the plugin and passing the ids (with or
+without the # prefix) instead of test names.
+
+For example, if your normal test run looks like::
+
+  % nosetests -v
+  tests.test_a ... ok
+  tests.test_b ... ok
+  tests.test_c ... ok
+
+When adding --with-id you'll see::
+
+  % nosetests -v --with-id
+  #1 tests.test_a ... ok
+  #2 tests.test_b ... ok
+  #2 tests.test_c ... ok
+
+Then you can rerun individual tests by supplying just the id numbers::
+
+  % nosetests -v --with-id 2
+  #2 tests.test_b ... ok
+
+Then you can rerun individual tests by supplying just the id numbers::
+
+  % nosetests -v --with-id 2 3
+  #2 tests.test_b ... ok
+  #3 tests.test_c ... ok
+  
+Since most shells consider '#' a special character, you can leave it out when
+specifying a test id.
 """
 import logging
 import os

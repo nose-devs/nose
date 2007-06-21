@@ -52,6 +52,7 @@ std_info = {
 # plugins
 from nose import plugins
 from nose.plugins.base import IPluginInterface
+from nose.plugins import errorclass
 
 # writing plugins guide
 writing_plugins = publish_parts(plugins.__doc__, reader=DocReader(),
@@ -60,6 +61,13 @@ writing_plugins.update(std_info)
 writing_plugins.update({'title': 'Writing Plugins',
                         'menu': 'FIXME -- menu'})
 write(os.path.join(doc, 'writing_plugins.html'), tpl % writing_plugins)
+
+# error class plugins
+ecp = publish_parts(errorclass.__doc__, reader=DocReader(), writer_name='html')
+ecp.update(std_info)
+ecp.update({'title': 'ErrorClass Plugins',
+                        'menu': 'FIXME -- menu'})
+write(os.path.join(doc, 'errorclassplugin.html'), tpl % ecp)
 
 # interface
 itf = publish_parts(textwrap.dedent(IPluginInterface.__doc__),
@@ -145,7 +153,7 @@ for modulename, clsname in builtins:
                  'menu': 'FIXME -- menu'})
 
     # options
-    parser = OptionParser()
+    parser = OptionParser(add_help_option=False)
     plug = cls()
     plug.addOptions(parser)
     options = parser.format_option_help()

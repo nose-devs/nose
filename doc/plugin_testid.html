@@ -8,13 +8,43 @@
     <div id="menu">
       <p>This document covers nose version <b>0.10.0a1</b></p>
       FIXME -- menu
-      <p>Last update: <b>Thu Jun 21 11:46:57 2007</b></p>
+      <p>Last update: <b>Thu Jun 21 13:14:42 2007</b></p>
     </div>
     
     <div id="main">
       <h1>nose: builtin plugin: testid</h1>
       
-      <p>FIXME docs</p>
+      <p>This plugin adds a test id (like #1) to each test name output. After
+you've run once to generate test ids, you can re-run individual
+tests by activating the plugin and passing the ids (with or
+without the # prefix) instead of test names.</p>
+<p>For example, if your normal test run looks like:</p>
+<pre class="literal-block">
+% nosetests -v
+tests.test_a ... ok
+tests.test_b ... ok
+tests.test_c ... ok
+</pre>
+<p>When adding --with-id you'll see:</p>
+<pre class="literal-block">
+% nosetests -v --with-id
+#1 tests.test_a ... ok
+#2 tests.test_b ... ok
+#2 tests.test_c ... ok
+</pre>
+<p>Then you can rerun individual tests by supplying just the id numbers:</p>
+<pre class="literal-block">
+% nosetests -v --with-id 2
+#2 tests.test_b ... ok
+</pre>
+<p>Then you can rerun individual tests by supplying just the id numbers:</p>
+<pre class="literal-block">
+% nosetests -v --with-id 2 3
+#2 tests.test_b ... ok
+#3 tests.test_c ... ok
+</pre>
+<p>Since most shells consider '#' a special character, you can leave it out when
+specifying a test id.</p>
 
 
       <h2>Plugin Methods Implemented</h2>
@@ -29,7 +59,6 @@
       <p>This plugin adds the following commandline options:</p>
 
       <pre>options:
-  -h, --help            show this help message and exit
   --with-id             Enable plugin TestId:  Activate to add a test id (like
                         #1) to each test name output. After you've run once to
                         generate test ids, you can re-run individual tests by

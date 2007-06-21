@@ -1,3 +1,9 @@
+"""
+This plugin captures stdout during test execution, appending any
+output captured to the error or failure output, should the test fail
+or raise an error. It is enabled by default but may be disable with
+the options -s or --nocapture.
+"""
 import logging
 import os
 import sys
@@ -15,7 +21,7 @@ class Capture(Plugin):
     """
     Output capture plugin. Enabled by default. Disable with -s or
     --nocapture. This plugin captures stdout during test execution,
-    appending any output capture to the error or failure output,
+    appending any output captured to the error or failure output,
     should the test fail or raise an error.
     """
     enabled = True
