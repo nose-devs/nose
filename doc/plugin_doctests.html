@@ -8,7 +8,7 @@
     <div id="menu">
       <p>This document covers nose version <b>0.10.0a1</b></p>
       FIXME -- menu
-      <p>Last update: <b>Wed Jun 20 18:19:04 2007</b></p>
+      <p>Last update: <b>Thu Jun 21 11:46:57 2007</b></p>
     </div>
     
     <div id="main">
@@ -26,7 +26,20 @@ indicate which file extension(s) to load.</p>
 <p>doctest tests are run like any other test, with the exception that output
 capture does not work, because doctest does its own output capture in the
 course of running a test.</p>
-<pre>options:
+
+
+      <h2>Plugin Methods Implemented</h2>
+
+      <p>This plugin implements the following plugin interface methods:</p>
+      
+      <ul><li><a href="plugin_interface.html#configure">configure</a></li><li><a href="plugin_interface.html#loadTestsFromFile">loadTestsFromFile</a></li><li><a href="plugin_interface.html#loadTestsFromModule">loadTestsFromModule</a></li><li><a href="plugin_interface.html#makeTest">makeTest</a></li><li><a href="plugin_interface.html#options">options</a></li><li><a href="plugin_interface.html#wantFile">wantFile</a></li></ul>
+
+
+      <h2>Commandline Options</h2>
+
+      <p>This plugin adds the following commandline options:</p>
+
+      <pre>options:
   -h, --help            show this help message and exit
   --with-doctest        Enable plugin Doctest:  Activate doctest plugin to
                         find and run doctests in non-test modules.

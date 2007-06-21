@@ -135,6 +135,7 @@ pre.literal-block {
           padding-top: 2px;
           padding-left: 1em;
           padding-right: 1em;
+          margin-bottom: 2ex;
           }
 
 .method.new { 
@@ -144,6 +145,7 @@ pre.literal-block {
 .method .doc { 
                 margin-left: 2em;
                 margin-top: 0px;
+                padding-bottom: 1px;
 }
 
 .method .name { 
@@ -169,4 +171,23 @@ pre.literal-block {
 
 .field-list td { 
                  padding-left: 20px;
+ }
+
+.field-list dt { 
+                 font-weight: bold;
+ }
+
+.field-list dt .classifier-delimier { 
+                                      font-weight: normal;
+                                      font-size: 80%;
+ }
+
+.field-list dt .classifier { 
+                             font-weight: normal;
+                             color: #666;
+                             
+}
+
+.doc .note p { 
+             margin: 0px;
  }

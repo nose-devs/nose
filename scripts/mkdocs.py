@@ -42,6 +42,7 @@ root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 doc = os.path.join(root, 'doc')
 tpl = open(os.path.join(doc, 'doc.html.tpl'), 'r').read()
 api_tpl = open(os.path.join(doc, 'plugin_api.html.tpl'), 'r').read()
+plug_tpl = open(os.path.join(doc, 'plugin.html.tpl'), 'r').read()
 
 std_info = {
     'version': nose.__version__,
@@ -69,16 +70,18 @@ itf = publish_parts(textwrap.dedent(IPluginInterface.__doc__),
 attr = [(a, getattr(IPluginInterface, a)) for a in dir(IPluginInterface)]
 methods = [m for m in attr if inspect.ismethod(m[1])]
 methods.sort()
-print "Documenting methods", [a[0] for a in methods]
+# print "Documenting methods", [a[0] for a in methods]
 
 method_html = []
 method_tpl = """
 <div class="method %(extra_class)s">
-<span class="name">%(name)s</span><span class="arg">%(arg)s</span>
+<a name="%(name)s">
+<span class="name">%(name)s</span><span class="arg">%(arg)s</span></a>
 <div class="doc">%(body)s</div>
 </div>
 """
 
+menu_links = {}
 
 m_attrs = ('_new', 'changed', 'deprecated', 'generative', 'chainable')
 for m in methods:
@@ -87,7 +90,9 @@ for m in methods:
     for att in m_attrs:
         if hasattr(meth, att):
             ec.append(att.replace('_', ''))
+            menu_links.setdefault(att.replace('_', ''), []).append(name)
     # padding evens the lines
+    print name
     mdoc = publish_parts(textwrap.dedent('        ' + meth.__doc__),
                          writer_name='html')
     args, varargs, varkw, defaults = inspect.getargspec(meth)
@@ -102,14 +107,28 @@ for m in methods:
 
 itf['methods'] = ''.join(method_html)
 itf.update(std_info)
-itf.update({'title': 'Plugin Interface',
-            'menu': 'FIXME -- menu'})
+itf['title'] = 'Plugin Interface'
+
+menu = []
+for section in ('new', 'changed', 'deprecated'):
+    menu.append('<h2>%s methods</h2>' % section.title())
+    menu.append('<ul><li>')
+    menu.append('</li><li>'.join([
+        '<a href="%(name)s">%(name)s</a>' % {'name': n}
+        for n in menu_links[section]]))
+    menu.append('</li></ul>')
+itf['menu'] = ''.join(menu)
 
 write(os.path.join(doc, 'plugin_interface.html'), api_tpl % itf)
 
 
 # individual plugin usage docs
 from nose.plugins.builtin import builtins
+
+pmeths = [m[0] for m in methods[:]
+          if not 'options' in m[0].lower()]
+pmeths.append('options')
+pmeths.sort()
 
 for modulename, clsname in builtins:
     _, _, modname = modulename.split('.')
@@ -125,13 +144,22 @@ for modulename, clsname in builtins:
     pdoc.update({'title': 'builtin plugin: %s' % modname,
                  'menu': 'FIXME -- menu'})
 
+    # options
     parser = OptionParser()
     plug = cls()
     plug.addOptions(parser)
     options = parser.format_option_help()
+    pdoc['options'] = options
 
-    pdoc['body'] = pdoc['body'] + '<pre>' + options + '</pre>'
-    write(os.path.join(doc, filename), tpl % pdoc)
+    # hooks used
+    hooks = []
+    for m in pmeths:
+        if getattr(cls, m, None):
+            hooks.append('<li><a href="plugin_interface.html#%(name)s">'
+                         '%(name)s</a></li>' % {'name': m})
+    pdoc['hooks'] = ''.join(hooks)
+            
+    write(os.path.join(doc, filename), plug_tpl % pdoc)
 
 
 
