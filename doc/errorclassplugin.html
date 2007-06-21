@@ -7,8 +7,8 @@
     
     <div id="menu">
       <p>This document covers nose version <b>0.10.0a1</b></p>
-      FIXME -- menu
-      <p>Last update: <b>Thu Jun 21 13:14:42 2007</b></p>
+      <h2>Documentation</h2><ul><li><a href="writing_plugins.html">Writing Plugins</a></li><li><a href="errorclassplugin.html">ErrorClass Plugins</a></li><li><a href="plugin_interface.html">Plugin Interface</a></li><li><a href="plugin_attrib.html">Builtin Plugin: attrib</a></li><li><a href="plugin_capture.html">Builtin Plugin: capture</a></li><li><a href="plugin_cover.html">Builtin Plugin: cover</a></li><li><a href="plugin_debug.html">Builtin Plugin: debug</a></li><li><a href="plugin_deprecated.html">Builtin Plugin: deprecated</a></li><li><a href="plugin_doctests.html">Builtin Plugin: doctests</a></li><li><a href="plugin_isolate.html">Builtin Plugin: isolate</a></li><li><a href="plugin_failuredetail.html">Builtin Plugin: failuredetail</a></li><li><a href="plugin_prof.html">Builtin Plugin: prof</a></li><li><a href="plugin_skip.html">Builtin Plugin: skip</a></li><li><a href="plugin_testid.html">Builtin Plugin: testid</a></li></ul>
+      <p>Last update: <b>Thu Jun 21 14:47:30 2007</b></p>
     </div>
     
     <div id="main">
@@ -65,7 +65,10 @@ an ErrorClass plugin.</p>
 </pre>
 </blockquote>
 <p>Prepare the result using our plugin. Normally this happens during the
-course of test execution within nose.</p>
+course of test execution within nose -- you won't be doing this
+yourself. For the purposes of this testing document, I'm stepping
+through the internal process of nose so you can see what happens at
+each step.</p>
 <blockquote>
 <pre class="doctest-block">
 &gt;&gt;&gt; plugin = TodoError()

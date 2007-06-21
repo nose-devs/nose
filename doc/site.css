@@ -54,7 +54,7 @@ h1 {
               font-size: 105%;
               }
 
-pre.literal-block {
+pre.literal-block, pre.doctest-block {
                     font: small;
                     background: #ddd;
                     }

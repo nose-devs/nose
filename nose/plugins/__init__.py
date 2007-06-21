@@ -26,7 +26,7 @@ in the setup.py for the package::
   setup(name='Some plugin',
         ...
         entry_points = {
-            'nose.plugins': [
+            'nose.plugins.0-10': [
                 'someplugin = someplugin:SomePlugin'
                 ]
             },

@@ -11,10 +11,10 @@ from optparse import OptionParser
 from nose.util import resolve_name
 
 
-def write(filename, content):
+def write(filename, tpl, ctx):
     print filename
     fp = open(filename, 'w')
-    fp.write(content)
+    fp.write(tpl % ctx)
     fp.close()
 
 
@@ -43,11 +43,14 @@ doc = os.path.join(root, 'doc')
 tpl = open(os.path.join(doc, 'doc.html.tpl'), 'r').read()
 api_tpl = open(os.path.join(doc, 'plugin_api.html.tpl'), 'r').read()
 plug_tpl = open(os.path.join(doc, 'plugin.html.tpl'), 'r').read()
-
 std_info = {
     'version': nose.__version__,
     'date': time.ctime()
     }
+to_write = []
+
+# FIXME the main menu contents aren't known until all plugins have been
+# doc'd so delay page output for all pages until the end.
 
 # plugins
 from nose import plugins
@@ -60,14 +63,19 @@ writing_plugins = publish_parts(plugins.__doc__, reader=DocReader(),
 writing_plugins.update(std_info)
 writing_plugins.update({'title': 'Writing Plugins',
                         'menu': 'FIXME -- menu'})
-write(os.path.join(doc, 'writing_plugins.html'), tpl % writing_plugins)
+to_write.append(
+    ('Writing Plugins',
+     os.path.join(doc, 'writing_plugins.html'), tpl, writing_plugins))
+
 
 # error class plugins
 ecp = publish_parts(errorclass.__doc__, reader=DocReader(), writer_name='html')
 ecp.update(std_info)
 ecp.update({'title': 'ErrorClass Plugins',
                         'menu': 'FIXME -- menu'})
-write(os.path.join(doc, 'errorclassplugin.html'), tpl % ecp)
+to_write.append(
+    ('ErrorClass Plugins',
+     os.path.join(doc, 'errorclassplugin.html'), tpl, ecp))
 
 # interface
 itf = publish_parts(textwrap.dedent(IPluginInterface.__doc__),
@@ -125,9 +133,11 @@ for section in ('new', 'changed', 'deprecated'):
         '<a href="%(name)s">%(name)s</a>' % {'name': n}
         for n in menu_links[section]]))
     menu.append('</li></ul>')
-itf['menu'] = ''.join(menu)
+itf['sub_menu'] = ''.join(menu)
 
-write(os.path.join(doc, 'plugin_interface.html'), api_tpl % itf)
+to_write.append(
+    ('Plugin Interface',
+     os.path.join(doc, 'plugin_interface.html'), api_tpl, itf))
 
 
 # individual plugin usage docs
@@ -149,8 +159,7 @@ for modulename, clsname in builtins:
         continue
     pdoc = publish_parts(mod.__doc__, reader=DocReader(), writer_name='html')
     pdoc.update(std_info)
-    pdoc.update({'title': 'builtin plugin: %s' % modname,
-                 'menu': 'FIXME -- menu'})
+    pdoc['title'] = 'builtin plugin: %s' % modname
 
     # options
     parser = OptionParser(add_help_option=False)
@@ -167,7 +176,21 @@ for modulename, clsname in builtins:
                          '%(name)s</a></li>' % {'name': m})
     pdoc['hooks'] = ''.join(hooks)
             
-    write(os.path.join(doc, filename), plug_tpl % pdoc)
+    to_write.append(
+        ('Builtin Plugin: %s' % modname,
+         os.path.join(doc, filename), plug_tpl, pdoc))
+
+    
+menu = [ '<li><a href="%s">%s</a></li>' % (os.path.basename(filename), title)
+         for title, filename, _, _ in to_write ]
+menu.insert(0, '<ul>')
+menu.insert(0, '<h2>Documentation</h2>')
+menu.append('</ul>')
+
+menu = ''.join(menu)
+for title, filename, template, ctx in to_write:
+    ctx['menu'] = menu
+    write(filename, template, ctx)
 
 
 

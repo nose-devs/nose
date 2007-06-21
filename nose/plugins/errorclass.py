@@ -47,7 +47,10 @@ Now define a test case that raises a Todo.
     >>> case = TestTodo()
 
 Prepare the result using our plugin. Normally this happens during the
-course of test execution within nose.
+course of test execution within nose -- you won't be doing this
+yourself. For the purposes of this testing document, I'm stepping
+through the internal process of nose so you can see what happens at
+each step.
 
     >>> plugin = TodoError()
     >>> result = unittest._TextTestResult(stream=buf,
