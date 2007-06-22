@@ -51,7 +51,6 @@ class TestLoader(unittest.TestLoader):
         * selector: a selector class. If not provided, a
           `nose.selector.Selector1 is used.
         """
-        # FIXME would get selector too
         if config is None:
             config = Config()
         if importer is None:
@@ -147,6 +146,11 @@ class TestLoader(unittest.TestLoader):
             yield self.suiteClass(tests)
         except (TypeError, AttributeError):
             pass
+        except (KeyboardInterrupt, SystemExit):
+            raise
+        except:
+            yield self.suiteClass([Failure(*sys.exc_info())])
+        
         # pop paths
         if self.config.addPaths:
             map(remove_path, paths_added)
@@ -172,7 +176,7 @@ class TestLoader(unittest.TestLoader):
                 open(filename, 'r').close() # trigger os error
                 raise ValueError("Unable to load tests from file %s"
                                  % filename)
-        except KeyboardInterrupt:
+        except (KeyboardInterrupt, SystemExit):
             raise
         except:
             exc = sys.exc_info()
@@ -274,6 +278,10 @@ class TestLoader(unittest.TestLoader):
                 tests.append(test)
         except (TypeError, AttributeError):
             pass
+        except (KeyboardInterrupt, SystemExit):
+            raise
+        except:
+            tests.append(Failure(*sys.exc_info()))
 
         return self.suiteClass(ContextList(tests, context=module))
     
@@ -410,6 +418,10 @@ class TestLoader(unittest.TestLoader):
                 cases.append(test)
         except (TypeError, AttributeError):
             pass
+        except (KeyboardInterrupt, SystemExit):
+            raise
+        except:
+            cases.append(Failure(*sys.exc_info()))
         return self.suiteClass(ContextList(cases, context=cls))
 
     def makeTest(self, obj, parent=None):
@@ -425,6 +437,10 @@ class TestLoader(unittest.TestLoader):
                 return self.suiteClass(plug_tests)
         except (TypeError, AttributeError):
             pass
+        except (KeyboardInterrupt, SystemExit):
+            raise
+        except:
+            return Failure(*sys.exc_info())
         if isinstance(obj, unittest.TestCase):
             return obj
         elif isclass(obj):            
