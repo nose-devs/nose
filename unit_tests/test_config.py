@@ -3,6 +3,8 @@ import os
 import tempfile
 import unittest
 import nose.config
+import warnings
+
 
 
 class TestNoseConfig(unittest.TestCase):
@@ -45,6 +47,11 @@ class TestNoseConfig(unittest.TestCase):
         self.assertEqual(c.testNames, ['foo', 'bar', 'baz.buz.biz'])
 
     def test_where(self):
+        # we don't need to see our own warnings
+        warnings.filterwarnings(action='ignore',
+                                category=DeprecationWarning,
+                                module='nose.config')
+
         here = os.path.dirname(__file__)
         support = os.path.join(here, 'support')
         foo = os.path.abspath(os.path.join(support, 'foo'))
