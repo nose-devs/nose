@@ -1,6 +1,6 @@
 <html>
   <head>
-    <title>nose: builtin plugin: skip</title>
+    <title>nose: nose.commands</title>
     <link rel="stylesheet" href="site.css" type="text/css"></link>
   </head>
   <body>
@@ -12,29 +12,49 @@
     </div>
     
     <div id="main">
-      <h1>nose: builtin plugin: skip</h1>
+      <h1>nose: nose.commands</h1>
       
-      <p>This plugin installs a SKIP error class for the SkipTest exception.
-When SkipTest is raised, the exception will be logged in the skipped
-attribute of the result, 'S' or 'SKIP' (verbose) will be output, and
-the exception will not be counted as an error or failure. This plugin
-is enabled by default but may be disabled with the --no-skip option.</p>
-
-
-      <h2>Plugin Methods Implemented</h2>
-
-      <p>This plugin implements the following plugin interface methods:</p>
-      
-      <ul><li><a href="plugin_interface.html#addError">addError</a></li><li><a href="plugin_interface.html#configure">configure</a></li><li><a href="plugin_interface.html#options">options</a></li><li><a href="plugin_interface.html#prepareTestResult">prepareTestResult</a></li></ul>
-
-
-      <h2>Commandline Options</h2>
-
-      <p>This plugin adds the following commandline options:</p>
-
-      <pre>options:
-  --no-skip  Disable special handling of SkipTest exceptions.
+      <p>You can run tests using the <cite>nosetests</cite> setuptools command:</p>
+<pre class="literal-block">
+python setup.py nosetests
 </pre>
+<p>This command has a few benefits over the standard <cite>test</cite> command: all nose
+plugins are supported, and you can configure the test run with both command
+line arguments and settings in your setup.cfg file.</p>
+<p>To configure the <cite>nosetests</cite> command, add a [nosetests] section to your
+setup.cfg. The [nosetests] section can contain any command line arguments that
+nosetests supports. The differences between issuing an option on the command
+line and adding it to setup.cfg are:</p>
+<blockquote>
+<ul class="simple">
+<li>In setup.cfg, the -- prefix must be excluded</li>
+<li>In setup.cfg, command line flags that take no arguments must be given an
+argument flag (1, T or TRUE for active, 0, F or FALSE for inactive)</li>
+</ul>
+</blockquote>
+<p>Here's an example [nosetests] setup.cfg section:</p>
+<pre class="literal-block">
+[nosetests]
+verbosity=1
+detailed-errors=1
+with-coverage=1
+cover-package=nose
+debug=nose.loader
+pdb=1
+pdb-failures=1
+</pre>
+<p>If you commonly run nosetests with a large number of options, using
+the nosetests setuptools command and configuring with setup.cfg can
+make running your tests much less tedious. (Note that the same options
+and format supported in setup.cfg are supported in all other config
+files, and the nosetests script will also load config files.)</p>
+<p>Another reason to run tests with the command is that the command will
+install packages listed in your <cite>tests_require</cite>, as well as doing a
+complete build of your package before running tests. For packages with
+dependencies or that build C extensions, using the setuptools command
+can be more convenient than building by hand and running the nosetests
+script.</p>
+
 
     </div>
   </body>

@@ -23,10 +23,12 @@ compat_24 = sys.version_info >= (2, 4)
 class TestCollector:
     """Main nose test collector.
 
+    .. Note:: This class is deprecated and will be removed in a future release.
+
     Uses a test loader to load tests from the directory given in conf
     (conf.path). Uses the default test loader from nose.loader by
     default. Any other loader may be used so long as it implements
-    loadTestsFromDir().    
+    loadTestsFromDir().
     """
     def __init__(self, conf, loader=None):
         warn("TestCollector is deprecated and will be removed in the"

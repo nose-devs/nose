@@ -136,9 +136,9 @@ or the setup.cfg or ~/.noserc or ~/.nose.cfg config files.
 Please note that when run under the setuptools test command, some plugins will
 not be available, including the builtin coverage, and profiler plugins.
  
-nose also includes its own setuptools command, `nosetests`, that
+nose also includes its own setuptools command, ``nosetests``, that
 provides support for all plugins and command line options. See
-nose.commands_ for more information about the `nosetests` command.
+nose.commands_ for more information about the ``nosetests`` command.
 
 .. _setuptools: http://peak.telecommunity.com/DevCenter/setuptools
 .. _nose.commands: #commands

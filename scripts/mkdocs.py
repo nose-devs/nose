@@ -4,11 +4,14 @@ import os
 import time
 from docutils.core import publish_string, publish_parts
 from docutils.readers.standalone import Reader
+from pudge.browser import Browser
 import inspect
 import nose
 import textwrap
 from optparse import OptionParser
 from nose.util import resolve_name
+
+## FIXME: menu needs sections
 
 
 def write(filename, tpl, ctx):
@@ -38,6 +41,11 @@ def clean_default(val):
         return 'os.environ'
     return val
 
+
+def to_html(rst):
+    parts = publish_parts(rst, reader=DocReader(), writer_name='html')
+    return parts['body']
+
 root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 doc = os.path.join(root, 'doc')
 tpl = open(os.path.join(doc, 'doc.html.tpl'), 'r').read()
@@ -58,8 +66,7 @@ from nose.plugins.base import IPluginInterface
 from nose.plugins import errorclass
 
 # writing plugins guide
-writing_plugins = publish_parts(plugins.__doc__, reader=DocReader(),
-                                writer_name='html')
+writing_plugins = {'body': to_html(plugins.__doc__)}
 writing_plugins.update(std_info)
 writing_plugins.update({'title': 'Writing Plugins',
                         'menu': 'FIXME -- menu'})
@@ -69,7 +76,7 @@ to_write.append(
 
 
 # error class plugins
-ecp = publish_parts(errorclass.__doc__, reader=DocReader(), writer_name='html')
+ecp = {'body': to_html(errorclass.__doc__)}
 ecp.update(std_info)
 ecp.update({'title': 'ErrorClass Plugins',
                         'menu': 'FIXME -- menu'})
@@ -78,9 +85,7 @@ to_write.append(
      os.path.join(doc, 'errorclassplugin.html'), tpl, ecp))
 
 # interface
-itf = publish_parts(textwrap.dedent(IPluginInterface.__doc__),
-                    reader=DocReader(),
-                    writer_name='html')
+itf = {'body': to_html(textwrap.dedent(IPluginInterface.__doc__))}
 
 # methods
 attr = [(a, getattr(IPluginInterface, a)) for a in dir(IPluginInterface)]
@@ -109,8 +114,7 @@ for m in methods:
             menu_links.setdefault(att.replace('_', ''), []).append(name)
     # padding evens the lines
     print name
-    mdoc = publish_parts(textwrap.dedent('        ' + meth.__doc__),
-                         writer_name='html')
+    mdoc = {'body': to_html(textwrap.dedent('        ' + meth.__doc__))}
     args, varargs, varkw, defaults = inspect.getargspec(meth)
     if defaults:
         defaults = map(clean_default, defaults)
@@ -157,7 +161,7 @@ for modulename, clsname in builtins:
     if not mod.__doc__:
         print "No docs"
         continue
-    pdoc = publish_parts(mod.__doc__, reader=DocReader(), writer_name='html')
+    pdoc = {'body': to_html(mod.__doc__)}
     pdoc.update(std_info)
     pdoc['title'] = 'builtin plugin: %s' % modname
 
@@ -179,6 +183,20 @@ for modulename, clsname in builtins:
     to_write.append(
         ('Builtin Plugin: %s' % modname,
          os.path.join(doc, filename), plug_tpl, pdoc))
+
+
+# individual module docs
+b = Browser(['nose'], exclude_modules=['nose.plugins', 'nose.ext'])
+for mod in b.modules(recursive=1):
+    if mod.name == 'nose':
+        # no need to regenerate, this is the source of the doc index page
+        continue
+    pg = {'body': to_html(mod.doc()),
+          'title': mod.qualified_name()}
+    pg.update(std_info)
+    to_write.append(('Module: %s' % mod.qualified_name(),
+                     os.path.join(doc, 'module_%s.html' % mod.qualified_name()),
+                     tpl, pg))    
 
     
 menu = [ '<li><a href="%s">%s</a></li>' % (os.path.basename(filename), title)

@@ -7,23 +7,23 @@ Twisted event loop.
 
 You must import this module *before* importing anything from Twisted itself!
 
-Example:
-    from nose.twistedtools import reactor, deferred
+Example::
 
-    @deferred()
-    def test_resolve():
-        return reactor.resolve("nose.python-hosting.com")
+  from nose.twistedtools import reactor, deferred
+  
+  @deferred()
+  def test_resolve():
+      return reactor.resolve("www.python.org")
 
-Or, more realistically:
+Or, more realistically::
 
-    @deferred(timeout=5.0)
-    def test_resolve():
-        d = reactor.resolve("nose.python-hosting.com")
-        def check_ip(ip):
-            assert ip == "67.15.36.43"
-        d.addCallback(check_ip)
-        return d
-
+  @deferred(timeout=5.0)
+  def test_resolve():
+      d = reactor.resolve("www.python.org")
+      def check_ip(ip):
+          assert ip == "67.15.36.43"
+      d.addCallback(check_ip)
+      return d
 """
 
 import sys

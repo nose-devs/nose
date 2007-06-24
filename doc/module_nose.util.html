@@ -1,6 +1,6 @@
 <html>
   <head>
-    <title>nose: builtin plugin: skip</title>
+    <title>nose: nose.util</title>
     <link rel="stylesheet" href="site.css" type="text/css"></link>
   </head>
   <body>
@@ -12,29 +12,10 @@
     </div>
     
     <div id="main">
-      <h1>nose: builtin plugin: skip</h1>
+      <h1>nose: nose.util</h1>
       
-      <p>This plugin installs a SKIP error class for the SkipTest exception.
-When SkipTest is raised, the exception will be logged in the skipped
-attribute of the result, 'S' or 'SKIP' (verbose) will be output, and
-the exception will not be counted as an error or failure. This plugin
-is enabled by default but may be disabled with the --no-skip option.</p>
+      <p>Utility functions and classes used by nose internally.</p>
 
-
-      <h2>Plugin Methods Implemented</h2>
-
-      <p>This plugin implements the following plugin interface methods:</p>
-      
-      <ul><li><a href="plugin_interface.html#addError">addError</a></li><li><a href="plugin_interface.html#configure">configure</a></li><li><a href="plugin_interface.html#options">options</a></li><li><a href="plugin_interface.html#prepareTestResult">prepareTestResult</a></li></ul>
-
-
-      <h2>Commandline Options</h2>
-
-      <p>This plugin adds the following commandline options:</p>
-
-      <pre>options:
-  --no-skip  Disable special handling of SkipTest exceptions.
-</pre>
 
     </div>
   </body>
