@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import os
+import re
 import time
 from docutils.core import publish_string, publish_parts
 from docutils.readers.standalone import Reader
@@ -13,6 +14,8 @@ from optparse import OptionParser
 from nose.util import resolve_name, odict
 
 ## FIXME: menu needs sections
+remove_at = re.compile(r' at 0x[0-9a-f]+')
+
 
 def defining_class(cls, attr):
     val, container = _lookup_class_field(cls, attr)
@@ -28,11 +31,31 @@ def write(filename, tpl, ctx):
 
 def doc_word(node):
 
-    # FIXME handle links like package.module and module.Class
+    # handle links like package.module and module.Class
+    # as wellas 'foo bar'
     
-    print "Unknown ref %s" % node.astext()    
-    node['refuri'] = '_'.join(
-        map(lambda s: s.lower(), node.astext().split(' '))) + '.html'
+    name = node.astext()
+    print "Unknown ref %s" % name
+    if '.' in name:
+
+        parts = name.split('.')
+        # if the first letter of a part is capitalized, assume it's
+        # a class name, and put all parts from that part on into
+        # the anchor part of the link
+        link, anchor = [], []
+        addto = link
+        while parts:
+            part = parts.pop(0)
+            if addto == link and part[0].upper() == part[0]:
+                addto = anchor
+            addto.append(part)
+        node['refuri'] = 'module_' + '.'.join(link) + '.html'
+        if anchor:
+            node['refuri'] += '#' + '.'.join(anchor)
+    else:
+        node['refuri'] = '_'.join(
+            map(lambda s: s.lower(), name.split(' '))) + '.html'
+                
     del node['refname']
     node.resolved = True
     return True
@@ -81,10 +104,6 @@ def document_module(mod):
 
     # FIXME prepend with note on what highlighted means
 
-    # FIXME need to have some notion of aliased classes
-    # eg defaultSelector = Selector, and modules
-    # should be able to set order of classes in docs
-
     # classes
     classes = [document_class(cls) for cls in get_classes(mod)]
     if classes:
@@ -95,7 +114,10 @@ def document_module(mod):
     if funcs:
         body += '<h2>Functions</h2>\n' + '\n'.join(funcs)
 
-    # FIXME attributes
+    # attributes
+    attrs = [document_attribute(attr) for attr in mod.attributes()]
+    if attrs:
+        body += '<h2>Attributes</h2>\n' + '\n'.join(attrs)
 
     # FIXME add classes, funcs and attributes to submenu
 
@@ -160,7 +182,7 @@ def document_class(cls):
         methods = list(cls.routines(visible_only=False))
         if methods:
             methods.sort(lambda a, b: cmp(a.name, b.name))
-            html.append('<h4>Methods</h4>')
+            html.append('<h3>Methods</h3>')
             for method in methods:
                 print "    %s" % method.qualified_name()
                 defined_in = defining_class(real_class, method.name)
@@ -174,8 +196,8 @@ def document_class(cls):
                     inh_cls = ' inherited'
                 html.extend([
                     '<div class="method section%s">' % inh_cls, 
-                    '<span class="method name">%s</span>' % method.name,
-                    '<span class="method args">%s</span>'
+                    '<span class="method name">%s' % method.name,
+                    '<span class="args">%s</span></span>'
                     % formatargspec(method.obj),
                     inherited,
                     '<div class="method doc">%s</div>' % to_html(method.doc()),
@@ -184,8 +206,10 @@ def document_class(cls):
         attrs = list(cls.attributes(visible_only=False))
         if attrs:
             attrs.sort(lambda a, b: cmp(a.name, b.name))
-            html.append('<h4>Attributes</h4>')
+            html.append('<h3>Attributes</h3>')
             for attr in attrs:
+                print "    a %s" % attr.qualified_name()
+                defined_in = defining_class(real_class, attr.name)
                 if defined_in == real_class:
                     inherited = ''
                     inh_cls = ''
@@ -194,10 +218,12 @@ def document_class(cls):
                                 '(FIXME: inherited from %s)</span>' \
                                 % defined_in.__name__
                     inh_cls = ' inherited'
+                # FIXME value needs to be escaped
+                # value makes no sense when it's a property
                 html.extend([
                     '<div class="attr section%s">' % inh_cls,
                     '<span class="attr name">%s</span>' % attr.name,
-                    '<span class="attr value">%(a)s</span>' %
+                    '<span class="attr value">Default value: %(a)s</span>' %
                     {'a': getattr(attr.parent.obj, attr.name)},
                     '<div class="attr doc">%s</div>' % to_html(attr.doc()),
                     '</div>'])
@@ -211,10 +237,26 @@ def document_function(func):
     print "  %s" % func.name
     html = [
         '<a name="%s"></a><div class="func section">' % func.name,
-        '<span class="func name">%s</span>' % func.name,
-        '<span class="func args">%s</span>'
+        '<span class="func name">%s' % func.name,
+        '<span class="args">%s</span></span>'
         % formatargspec(func.obj, exclude=['self']),
         '<div class="func doc">%s</div>' % to_html(func.doc()),
+        '</div>']
+    return ''.join(html)
+
+
+def document_attribute(attr):
+    print "  %s" % attr.name
+    value = str(getattr(attr.parent.obj, attr.name)).replace(
+        '&', '&amp;').replace('<', '&lt;').replace('>', '&gt;').replace(
+        '"', '&quot;').replace("'", '&#39;')
+    value = remove_at.sub('', value)
+    html = [
+        '<a name="%s"></a><div class="attr section">' % attr.name,
+        '<span class="attr name">%s</span>' % attr.name,
+        '<pre class="attr value">Default value: %(a)s</pre>' %
+        {'a': value},
+        '<div class="attr doc">%s</div>' % to_html(attr.doc()),
         '</div>']
     return ''.join(html)
 
@@ -242,8 +284,6 @@ std_info = {
     }
 to_write = []
 
-# FIXME the main menu contents aren't known until all plugins have been
-# doc'd so delay page output for all pages until the end.
 
 # plugins
 from nose import plugins
@@ -376,7 +416,8 @@ for mod in b.modules(recursive=1):
     print mod.qualified_name()
     document_module(mod)
 
-    
+
+# finally build the menu and write all pages
 menu = [ '<li><a href="%s">%s</a></li>' % (os.path.basename(filename), title)
          for title, filename, _, _ in to_write ]
 menu.insert(0, '<ul>')
@@ -387,10 +428,5 @@ menu = ''.join(menu)
 for title, filename, template, ctx in to_write:
     ctx['menu'] = menu
     write(filename, template, ctx)
-
-
-
-#write(doc, tpl, 'writing_plugins.html', plugins.__doc__)
-#write(doc, tpl, 'plugin_interface.html', IPluginInterface
 
 

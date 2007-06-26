@@ -1,6 +1,6 @@
 
 body {
-       margin 0px;
+       margin: 0px;
        padding: 10px 40px;
        font: x-small Georgia,Serif;
        font-size/* */:/**/small;
@@ -21,7 +21,7 @@ a:hover {
           }
 
 #menu {
-        padding-left 1em;
+        padding-left: 1em;
         padding-right: 1em;
         padding-bottom: 10px;
         margin-left: 20px;
@@ -54,10 +54,11 @@ h1 {
               font-size: 105%;
               }
 
-pre.literal-block, pre.doctest-block {
-                    font: small;
-                    background: #ddd;
-                    }
+pre.literal-block, pre.doctest-block 
+{
+  font-size: small;
+  background: #ddd;
+}
 
 #menu ul {
            margin: 0 1em .25em;
@@ -131,7 +132,7 @@ pre.literal-block, pre.doctest-block {
                    display: none;
  }
 
-.method { 
+.method, .attr, .func { 
           padding-top: 2px;
           padding-left: 1em;
           padding-right: 1em;
@@ -157,7 +158,7 @@ pre.literal-block, pre.doctest-block {
 
 }
 
-.method .field-list { 
+.method .field-list, .attr { 
                       font-size/* */:/**/small;
                       font-size: /**/small;
 
@@ -196,22 +197,38 @@ pre.literal-block, pre.doctest-block {
                margin-bottom: 2ex;
  }
 
-.cls.name, .func.name { 
-            font-size: 110%;
+.cls.name, .func.name, .attr.name { 
+            font-size: 105%;
             font-weight: bold;
  }
 
+.cls.section .attr.name 
+{ 
+  font-size: small;
+}
+
 .cls.doc, .func.doc { 
-           padding-left: 4em;
+           padding-left: 2em;
            padding-right: 2em;
  }
 
-.method.section 
+.args 
+{ 
+  font-weight: normal;
+}
+
+.method.section, .attr.section 
 { 
   background: #ffe
 }
 
-.method.section.inherited
+.method.section.inherited, .attr.section
 { 
   background: none;
+}
+
+.attr.value 
+{ 
+  display: block;
+  color: #666;
 }

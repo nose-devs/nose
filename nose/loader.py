@@ -35,6 +35,12 @@ class TestLoader(unittest.TestLoader):
     * Support tests that are generators
     * Support easy extensions of or changes to that behavior through plugins
     """
+    config = None
+    importer = None
+    workingDir = None
+    selector = None
+    suiteClass = None
+    
     def __init__(self, config=None, importer=None, workingDir=None,
                  selector=None):
         """Initialize a test loader.
@@ -44,14 +50,14 @@ class TestLoader(unittest.TestLoader):
         * config: provide a `nose.config.Config`_ or other config class
           instance; if not provided a `nose.config.Config` with
           default values is used.          
-        * importer: provide an importer instance that implenents
+        * importer: provide an importer instance that implements
           `importFromPath`. If not provided, a
-          `nose.importer.Importer` is used.
+          `nose.importer.Importer`_ is used.
         * workingDir: the directory to which file and module names are
           relative. If not provided, assumed to be the current working
           directory.
         * selector: a selector class. If not provided, a
-          `nose.selector.Selector` is used.
+          `nose.selector.Selector`_ is used.
         """
         if config is None:
             config = Config()
