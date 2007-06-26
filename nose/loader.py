@@ -24,6 +24,8 @@ from suite import ContextSuiteFactory, ContextList, LazySuite
 log = logging.getLogger(__name__)
 #log.setLevel(logging.DEBUG)
 
+__all__ = ['TestLoader', 'defaultTestLoader']
+
 class TestLoader(unittest.TestLoader):
     """Test loader that extends unittest.TestLoader to:
 
@@ -39,7 +41,7 @@ class TestLoader(unittest.TestLoader):
 
         Parameters (all optional):
 
-        * config: provide a `nose.config.Config` or other config class
+        * config: provide a `nose.config.Config`_ or other config class
           instance; if not provided a `nose.config.Config` with
           default values is used.          
         * importer: provide an importer instance that implenents
@@ -49,7 +51,7 @@ class TestLoader(unittest.TestLoader):
           relative. If not provided, assumed to be the current working
           directory.
         * selector: a selector class. If not provided, a
-          `nose.selector.Selector1 is used.
+          `nose.selector.Selector` is used.
         """
         if config is None:
             config = Config()
@@ -70,7 +72,7 @@ class TestLoader(unittest.TestLoader):
 
     def getTestCaseNames(self, testCaseClass):
         """Override to select with selector, unless
-        config.getTestCaseNames.Compat is True
+        config.getTestCaseNamesCompat is True
         """
         if self.config.getTestCaseNamesCompat:
             return unittest.TestLoader.getTestCaseNames(self, testCaseClass)

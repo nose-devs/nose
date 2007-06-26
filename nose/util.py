@@ -79,6 +79,7 @@ def file_like(name):
 
 def cmp_lineno(a, b):
     """Compare functions by their line numbers.
+    
     >>> cmp_lineno(isgenerator, ispackage)
     -1
     >>> cmp_lineno(ispackage, isgenerator)

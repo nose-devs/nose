@@ -8,7 +8,7 @@
     <div id="menu">
       <p>This document covers nose version <b>0.10.0a1</b></p>
       <h2>Documentation</h2><ul><li><a href="writing_plugins.html">Writing Plugins</a></li><li><a href="errorclassplugin.html">ErrorClass Plugins</a></li><li><a href="plugin_interface.html">Plugin Interface</a></li><li><a href="plugin_attrib.html">Builtin Plugin: attrib</a></li><li><a href="plugin_capture.html">Builtin Plugin: capture</a></li><li><a href="plugin_cover.html">Builtin Plugin: cover</a></li><li><a href="plugin_debug.html">Builtin Plugin: debug</a></li><li><a href="plugin_deprecated.html">Builtin Plugin: deprecated</a></li><li><a href="plugin_doctests.html">Builtin Plugin: doctests</a></li><li><a href="plugin_isolate.html">Builtin Plugin: isolate</a></li><li><a href="plugin_failuredetail.html">Builtin Plugin: failuredetail</a></li><li><a href="plugin_prof.html">Builtin Plugin: prof</a></li><li><a href="plugin_skip.html">Builtin Plugin: skip</a></li><li><a href="plugin_testid.html">Builtin Plugin: testid</a></li><li><a href="module_nose.loader.html">Module: nose.loader</a></li><li><a href="module_nose.result.html">Module: nose.result</a></li><li><a href="module_nose.inspector.html">Module: nose.inspector</a></li><li><a href="module_nose.tools.html">Module: nose.tools</a></li><li><a href="module_nose.importer.html">Module: nose.importer</a></li><li><a href="module_nose.suite.html">Module: nose.suite</a></li><li><a href="module_nose.config.html">Module: nose.config</a></li><li><a href="module_nose.core.html">Module: nose.core</a></li><li><a href="module_nose.twistedtools.html">Module: nose.twistedtools</a></li><li><a href="module_nose.util.html">Module: nose.util</a></li><li><a href="module_nose.proxy.html">Module: nose.proxy</a></li><li><a href="module_nose.selector.html">Module: nose.selector</a></li><li><a href="module_nose.case.html">Module: nose.case</a></li><li><a href="module_nose.commands.html">Module: nose.commands</a></li><li><a href="module_nose.exc.html">Module: nose.exc</a></li><li><a href="module_nose.plugins.manager.html">Module: nose.plugins.manager</a></li></ul>
-      <p>Last update: <b>Mon Jun 25 23:50:58 2007</b></p>
+      <p>Last update: <b>Tue Jun 26 15:41:38 2007</b></p>
     </div>
     
     <div id="main">
@@ -16,17 +16,7 @@
       
       <p>Implements nose test program and collector.</p>
 <h2>Classes</h2>
-<div class="cls section"><span class="cls name">TestCollector</span><div class="cls doc"><p>Main nose test collector.</p>
-<div class="note">
-<p class="first admonition-title">Note</p>
-<p class="last">This class is deprecated and will be removed in a future release.</p>
-</div>
-<p>Uses a test loader to load tests from the directory given in conf
-(conf.path). Uses the default test loader from nose.loader by
-default. Any other loader may be used so long as it implements
-loadTestsFromDir().</p>
-<h4>Methods</h4><div class="method section"><span class="method name">__init__</span><span class="method args">(self, conf, loader=None)</span><div class="method doc"></div></div><div class="method section"><span class="method name">loadtests</span><span class="method args">(self)</span><div class="method doc"></div></div></div></div>
-<div class="cls section"><span class="cls name">main</span><div class="cls doc"><p>usage: %prog [options] [names]</p>
+<a name="TestProgram"></a><div class="cls section"><span class="cls name">TestProgram</span> (unittest.TestProgram)<div class="cls doc"><p>usage: %prog [options] [names]</p>
 <p>nose provides extended test discovery and running features for
 unittest.</p>
 <p>nose collects tests automatically from python source files,
@@ -99,7 +89,7 @@ found.</p>
 </div></div><div class="method section"><span class="method name">runTests</span><span class="method args">(self)</span><div class="method doc"><p>Run Tests. Returns true on success, false on failure, and sets
 self.success to the same value.</p>
 </div></div><div class="method section"><span class="method name">showPlugins</span><span class="method args">(self)</span><div class="method doc"><p>Print list of available plugins.</p>
-</div></div><div class="method section"><span class="method name">usageExit</span><span class="method args">(self, msg=None)</span><span class="method inherited">(FIXME: inherited)</span><div class="method doc"></div></div><h4>Attributes</h4><div class="attr section"><span class="attr name">USAGE</span><span class="attr value">Usage: %(progName)s [options] [test] [...]
+</div></div><div class="method section inherited"><span class="method name">usageExit</span><span class="method args">(self, msg=None)</span><span class="method inherited">(FIXME: inherited from TestProgram)</span><div class="method doc"></div></div><h4>Attributes</h4><div class="attr section inherited"><span class="attr name">USAGE</span><span class="attr value">Usage: %(progName)s [options] [test] [...]
 
 Options:
   -h, --help       Show this message
@@ -112,101 +102,16 @@ Examples:
   %(progName)s MyTestCase.testSomething      - run MyTestCase.testSomething
   %(progName)s MyTestCase                    - run all 'test*' test methods
                                                in MyTestCase
-</span><div class="attr doc"></div></div><div class="attr section"><span class="attr name">verbosity</span><span class="attr value">1</span><div class="attr doc"></div></div></div></div>
-<div class="cls section"><span class="cls name">TextTestRunner</span><div class="cls doc"><p>Test runner that uses nose's TextTestResult to enable errorClasses,
+</span><div class="attr doc"></div></div><div class="attr section inherited"><span class="attr name">verbosity</span><span class="attr value">1</span><div class="attr doc"></div></div></div></div>
+<a name="main"></a><div class="cls section"><span class="cls name">main</span> (unittest.TestProgram)<div class="cls doc">(Alias for <a href="module_nose.core.html#TestProgram">TestProgram</a>)</div></div>
+<a name="run_exit"></a><div class="cls section"><span class="cls name">run_exit</span> (unittest.TestProgram)<div class="cls doc">(Alias for <a href="module_nose.core.html#TestProgram">TestProgram</a>)</div></div>
+<a name="TextTestRunner"></a><div class="cls section"><span class="cls name">TextTestRunner</span> (unittest.TextTestRunner)<div class="cls doc"><p>Test runner that uses nose's TextTestResult to enable errorClasses,
 as well as providing hooks for plugins to override or replace the test
 output stream, results, and the test case itself.</p>
-<h4>Methods</h4><div class="method section"><span class="method name">__init__</span><span class="method args">(self, stream=<open file '<stderr>', mode 'w' at 0x2b16c65af210>, descriptions=1, verbosity=1, config=None)</span><div class="method doc"></div></div><div class="method section"><span class="method name">_makeResult</span><span class="method args">(self)</span><span class="method inherited">(FIXME: inherited)</span><div class="method doc"></div></div><div class="method section"><span class="method name">run</span><span class="method args">(self, test)</span><div class="method doc"><p>Overrides to provide plugin hooks and defer all output to
+<h4>Methods</h4><div class="method section"><span class="method name">__init__</span><span class="method args">(self, stream=<open file '<stderr>', mode 'w' at 0x2b5fac2b9210>, descriptions=1, verbosity=1, config=None)</span><div class="method doc"></div></div><div class="method section"><span class="method name">_makeResult</span><span class="method args">(self)</span><div class="method doc"></div></div><div class="method section"><span class="method name">run</span><span class="method args">(self, test)</span><div class="method doc"><p>Overrides to provide plugin hooks and defer all output to
 the test result class.</p>
 </div></div></div></div>
-<div class="cls section"><span class="cls name">TestProgram</span><div class="cls doc"><p>usage: %prog [options] [names]</p>
-<p>nose provides extended test discovery and running features for
-unittest.</p>
-<p>nose collects tests automatically from python source files,
-directories and packages found in its working directory (which
-defaults to the current working directory). Any python source file,
-directory or package that matches the testMatch regular expression
-(by default: (?:^|[b_.-])[Tt]est) will be collected as a test (or
-source for collection of tests). In addition, all other packages
-found in the working directory will be examined for python source files
-or directories that match testMatch. Package discovery descends all
-the way down the tree, so package.tests and package.sub.tests and
-package.sub.sub2.tests will all be collected.</p>
-<p>Within a test directory or package, any python source file matching
-testMatch will be examined for test cases. Within a test module,
-functions and classes whose names match testMatch and TestCase
-subclasses with any name will be loaded and executed as tests. Tests
-may use the assert keyword or raise AssertionErrors to indicate test
-failure. TestCase subclasses may do the same or use the various
-TestCase methods available.</p>
-<div class="section">
-<h1><a id="selecting-tests" name="selecting-tests">Selecting Tests</a></h1>
-<p>To specify which tests to run, pass test names on the command line:</p>
-<blockquote>
-%prog only_test_this.py</blockquote>
-<p>Test names specified may be file or module names, and may optionally
-indicate the test case to run by separating the module or file name
-from the test case name with a colon. Filenames may be relative or
-absolute. Examples:</p>
-<blockquote>
-%prog test.module
-%prog another.test:TestCase.test_method
-%prog a.test:TestCase
-%prog /path/to/test/file.py:test_function</blockquote>
-<p>You may also change the working directory where nose looks for tests,
-use the -w switch:</p>
-<blockquote>
-%prog -w /path/to/tests</blockquote>
-<p>Note however that support for multiple -w arguments is deprecated
-in this version and will be removed in a future release, since as
-of nose 0.10 you can get the same behavior by specifying the
-target directories <em>without</em> the -w switch:</p>
-<blockquote>
-%prog /path/to/tests /another/path/to/tests</blockquote>
-<p>Further customization of test selection and loading is possible
-through the use of plugins.</p>
-<p>Test result output is identical to that of unittest, except for
-the additional features (error classes, and plugin-supplied
-features such as output capture and assert introspection) detailed
-in the options below.</p>
-</div>
-<div class="section">
-<h1><a id="configuration" name="configuration">Configuration</a></h1>
-<p>In addition to passing command-line options, you may also put configuration
-options in a .noserc or nose.cfg file in your home directory. These are
-standard .ini-style config files. Put your nosetests configuration in a
-[nosetests] section, with the -- prefix removed:</p>
-<blockquote>
-[nosetests]
-verbosity=3
-with-doctest=1</blockquote>
-<p>All configuration files that are found will be loaded and their options
-combined.</p>
-</div>
-<h4>Methods</h4><div class="method section"><span class="method name">__init__</span><span class="method args">(self, module=None, defaultTest='.', argv=None, testRunner=None, testLoader=None, env=None, config=None, suite=None, exit=True)</span><div class="method doc"></div></div><div class="method section"><span class="method name">createTests</span><span class="method args">(self)</span><div class="method doc"><p>Create the tests to run. Default behavior is to discover
-tests using TestCollector using nose.loader.TestLoader as the
-test loader.</p>
-</div></div><div class="method section"><span class="method name">makeConfig</span><span class="method args">(self, env)</span><div class="method doc"><p>Load a Config, pre-filled with user config files if any are
-found.</p>
-</div></div><div class="method section"><span class="method name">parseArgs</span><span class="method args">(self, argv)</span><div class="method doc"><p>Parse argv and env and configure running environment.</p>
-</div></div><div class="method section"><span class="method name">runTests</span><span class="method args">(self)</span><div class="method doc"><p>Run Tests. Returns true on success, false on failure, and sets
-self.success to the same value.</p>
-</div></div><div class="method section"><span class="method name">showPlugins</span><span class="method args">(self)</span><div class="method doc"><p>Print list of available plugins.</p>
-</div></div><div class="method section"><span class="method name">usageExit</span><span class="method args">(self, msg=None)</span><span class="method inherited">(FIXME: inherited)</span><div class="method doc"></div></div><h4>Attributes</h4><div class="attr section"><span class="attr name">USAGE</span><span class="attr value">Usage: %(progName)s [options] [test] [...]
-
-Options:
-  -h, --help       Show this message
-  -v, --verbose    Verbose output
-  -q, --quiet      Minimal output
-
-Examples:
-  %(progName)s                               - run default set of tests
-  %(progName)s MyTestSuite                   - run suite 'MyTestSuite'
-  %(progName)s MyTestCase.testSomething      - run MyTestCase.testSomething
-  %(progName)s MyTestCase                    - run all 'test*' test methods
-                                               in MyTestCase
-</span><div class="attr doc"></div></div><div class="attr section"><span class="attr name">verbosity</span><span class="attr value">1</span><div class="attr doc"></div></div></div></div>
-<div class="cls section"><span class="cls name">defaultTestCollector</span><div class="cls doc"><p>Main nose test collector.</p>
+<a name="TestCollector"></a><div class="cls section"><span class="cls name">TestCollector</span> ()<div class="cls doc"><p>Main nose test collector.</p>
 <div class="note">
 <p class="first admonition-title">Note</p>
 <p class="last">This class is deprecated and will be removed in a future release.</p>
@@ -216,93 +121,17 @@ Examples:
 default. Any other loader may be used so long as it implements
 loadTestsFromDir().</p>
 <h4>Methods</h4><div class="method section"><span class="method name">__init__</span><span class="method args">(self, conf, loader=None)</span><div class="method doc"></div></div><div class="method section"><span class="method name">loadtests</span><span class="method args">(self)</span><div class="method doc"></div></div></div></div>
-<div class="cls section"><span class="cls name">run_exit</span><div class="cls doc"><p>usage: %prog [options] [names]</p>
-<p>nose provides extended test discovery and running features for
-unittest.</p>
-<p>nose collects tests automatically from python source files,
-directories and packages found in its working directory (which
-defaults to the current working directory). Any python source file,
-directory or package that matches the testMatch regular expression
-(by default: (?:^|[b_.-])[Tt]est) will be collected as a test (or
-source for collection of tests). In addition, all other packages
-found in the working directory will be examined for python source files
-or directories that match testMatch. Package discovery descends all
-the way down the tree, so package.tests and package.sub.tests and
-package.sub.sub2.tests will all be collected.</p>
-<p>Within a test directory or package, any python source file matching
-testMatch will be examined for test cases. Within a test module,
-functions and classes whose names match testMatch and TestCase
-subclasses with any name will be loaded and executed as tests. Tests
-may use the assert keyword or raise AssertionErrors to indicate test
-failure. TestCase subclasses may do the same or use the various
-TestCase methods available.</p>
-<div class="section">
-<h1><a id="selecting-tests" name="selecting-tests">Selecting Tests</a></h1>
-<p>To specify which tests to run, pass test names on the command line:</p>
-<blockquote>
-%prog only_test_this.py</blockquote>
-<p>Test names specified may be file or module names, and may optionally
-indicate the test case to run by separating the module or file name
-from the test case name with a colon. Filenames may be relative or
-absolute. Examples:</p>
-<blockquote>
-%prog test.module
-%prog another.test:TestCase.test_method
-%prog a.test:TestCase
-%prog /path/to/test/file.py:test_function</blockquote>
-<p>You may also change the working directory where nose looks for tests,
-use the -w switch:</p>
-<blockquote>
-%prog -w /path/to/tests</blockquote>
-<p>Note however that support for multiple -w arguments is deprecated
-in this version and will be removed in a future release, since as
-of nose 0.10 you can get the same behavior by specifying the
-target directories <em>without</em> the -w switch:</p>
-<blockquote>
-%prog /path/to/tests /another/path/to/tests</blockquote>
-<p>Further customization of test selection and loading is possible
-through the use of plugins.</p>
-<p>Test result output is identical to that of unittest, except for
-the additional features (error classes, and plugin-supplied
-features such as output capture and assert introspection) detailed
-in the options below.</p>
-</div>
-<div class="section">
-<h1><a id="configuration" name="configuration">Configuration</a></h1>
-<p>In addition to passing command-line options, you may also put configuration
-options in a .noserc or nose.cfg file in your home directory. These are
-standard .ini-style config files. Put your nosetests configuration in a
-[nosetests] section, with the -- prefix removed:</p>
-<blockquote>
-[nosetests]
-verbosity=3
-with-doctest=1</blockquote>
-<p>All configuration files that are found will be loaded and their options
-combined.</p>
-</div>
-<h4>Methods</h4><div class="method section"><span class="method name">__init__</span><span class="method args">(self, module=None, defaultTest='.', argv=None, testRunner=None, testLoader=None, env=None, config=None, suite=None, exit=True)</span><div class="method doc"></div></div><div class="method section"><span class="method name">createTests</span><span class="method args">(self)</span><div class="method doc"><p>Create the tests to run. Default behavior is to discover
-tests using TestCollector using nose.loader.TestLoader as the
-test loader.</p>
-</div></div><div class="method section"><span class="method name">makeConfig</span><span class="method args">(self, env)</span><div class="method doc"><p>Load a Config, pre-filled with user config files if any are
-found.</p>
-</div></div><div class="method section"><span class="method name">parseArgs</span><span class="method args">(self, argv)</span><div class="method doc"><p>Parse argv and env and configure running environment.</p>
-</div></div><div class="method section"><span class="method name">runTests</span><span class="method args">(self)</span><div class="method doc"><p>Run Tests. Returns true on success, false on failure, and sets
-self.success to the same value.</p>
-</div></div><div class="method section"><span class="method name">showPlugins</span><span class="method args">(self)</span><div class="method doc"><p>Print list of available plugins.</p>
-</div></div><div class="method section"><span class="method name">usageExit</span><span class="method args">(self, msg=None)</span><span class="method inherited">(FIXME: inherited)</span><div class="method doc"></div></div><h4>Attributes</h4><div class="attr section"><span class="attr name">USAGE</span><span class="attr value">Usage: %(progName)s [options] [test] [...]
-
-Options:
-  -h, --help       Show this message
-  -v, --verbose    Verbose output
-  -q, --quiet      Minimal output
-
-Examples:
-  %(progName)s                               - run default set of tests
-  %(progName)s MyTestSuite                   - run suite 'MyTestSuite'
-  %(progName)s MyTestCase.testSomething      - run MyTestCase.testSomething
-  %(progName)s MyTestCase                    - run all 'test*' test methods
-                                               in MyTestCase
-</span><div class="attr doc"></div></div><div class="attr section"><span class="attr name">verbosity</span><span class="attr value">1</span><div class="attr doc"></div></div></div></div>
+<a name="defaultTestCollector"></a><div class="cls section"><span class="cls name">defaultTestCollector</span> ()<div class="cls doc">(Alias for <a href="module_nose.core.html#TestCollector">TestCollector</a>)</div></div><h2>Functions</h2>
+<a name="collector"></a><div class="func section"><span class="func name">collector</span><span class="func args">()</span><div class="func doc"><p>TestSuite replacement entry point. Use anywhere you might use a
+unittest.TestSuite. The collector will, by default, load options from
+all config files and execute loader.loadTestsFromNames() on the
+configured testNames, or '.' if no testNames are configured.</p>
+</div></div>
+<a name="runmodule"></a><div class="func section"><span class="func name">runmodule</span><span class="func args">(name='__main__')</span><div class="func doc"><p>Collect and run tests in a single module only. Defaults to running
+tests in __main__.</p>
+</div></div>
+<a name="run"></a><div class="func section"><span class="func name">run</span><span class="func args">(*arg, **kw)</span><div class="func doc"><p>Collect and run test, returning success or failure.</p>
+</div></div>
 
     </div>
   </body>

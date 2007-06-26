@@ -3,8 +3,7 @@ Result Proxy
 ------------
 
 The result proxy wraps the result instance given to each test. It
-performs two functions: enabling extended error/failure reporting,
-including output capture, assert introspection, and varied error classes,
+performs two functions: enabling extended error/failure reporting
 and calling plugins.
 
 As each result event is fired, plugins are called with the same event;
@@ -55,8 +54,7 @@ class ResultProxy(object):
     """Proxy to TestResults (or other results handler).
 
     One ResultProxy is created for each nose.case.Test. The result proxy
-    handles processing the output capture and assert introspection duties,
-    as well as calling plugins with the nose.case.Test instance (instead of the
+    calls plugins with the nose.case.Test instance (instead of the
     wrapped test case) as each result call is made. Finally, the real result
     method is called with the wrapped test.
     """    

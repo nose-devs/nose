@@ -57,7 +57,9 @@ def make_decorator(func):
 
 
 def raises(*exceptions):
-    """Test must raise one of expected exceptions to pass. Example use::
+    """Test must raise one of expected exceptions to pass.
+
+    Example use::
 
       @raises(TypeError, ValueError)
       def test_raises_type_error():
@@ -66,6 +68,9 @@ def raises(*exceptions):
       @raises(Exception):
       def test_that_fails_by_passing():
           pass
+
+    If you want to test many assertions about exceptions in a single test,
+    you may want to use `assert_raises` instead.
     """
     valid = ' or '.join([e.__name__ for e in exceptions])
     def decorate(func):
@@ -98,7 +103,9 @@ def set_trace():
     
 
 def timed(limit):
-    """Test must finish within specified time limit to pass. Example use::
+    """Test must finish within specified time limit to pass.
+
+    Example use::
 
       @timed(.1)
       def test_that_fails():

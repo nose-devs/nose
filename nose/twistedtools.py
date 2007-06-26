@@ -86,7 +86,8 @@ def deferred(timeout=None):
     If the callback is triggered, the test has passed.
     If the errback is triggered or the timeout expires, the test has failed.
 
-    Example:
+    Example::
+    
         @deferred(timeout=5.0)
         def test_resolve():
             return reactor.resolve("nose.python-hosting.com")
@@ -94,13 +95,15 @@ def deferred(timeout=None):
     Attention! If you combine this decorator with other decorators (like
     "raises"), deferred() must be called *first*!
 
-    In other words, this is good:
+    In other words, this is good::
+        
         @raises(DNSLookupError)
         @deferred()
         def test_error():
             return reactor.resolve("xxxjhjhj.biz")
 
-    and this is bad:
+    and this is bad::
+        
         @deferred()
         @raises(DNSLookupError)
         def test_error():

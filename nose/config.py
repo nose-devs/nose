@@ -98,7 +98,9 @@ class Config(object):
         #        self._working_dir = None
 
     def __repr__(self):
-        d = self.__dict__
+        d = self.__dict__.copy()
+        # don't expose env, could include sensitive info
+        d['env'] = {} 
         keys = [ k for k in d.keys()
                  if not k.startswith('_') ]
         keys.sort()

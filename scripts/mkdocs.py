@@ -5,13 +5,18 @@ import time
 from docutils.core import publish_string, publish_parts
 from docutils.readers.standalone import Reader
 from pudge.browser import Browser
+from epydoc.objdoc import _lookup_class_field
 import inspect
 import nose
 import textwrap
 from optparse import OptionParser
-from nose.util import resolve_name
+from nose.util import resolve_name, odict
 
 ## FIXME: menu needs sections
+
+def defining_class(cls, attr):
+    val, container = _lookup_class_field(cls, attr)
+    return container.value()
 
 
 def write(filename, tpl, ctx):
@@ -22,6 +27,9 @@ def write(filename, tpl, ctx):
 
 
 def doc_word(node):
+
+    # FIXME handle links like package.module and module.Class
+    
     print "Unknown ref %s" % node.astext()    
     node['refuri'] = '_'.join(
         map(lambda s: s.lower(), node.astext().split(' '))) + '.html'
@@ -36,6 +44,25 @@ class DocReader(Reader):
     unknown_reference_resolvers = (doc_word,)
 
 
+def formatargspec(func, exclude=()):
+    try:
+        args, varargs, varkw, defaults = inspect.getargspec(func)
+    except TypeError:
+        return "(...)"
+    if defaults:
+        defaults = map(clean_default, defaults)
+    for a in exclude:
+        if a in args:
+            ix = args.index(a)
+            args.remove(a)
+            try:
+                defaults.pop(ix)
+            except AttributeError:
+                pass
+    return inspect.formatargspec(
+        args, varargs, varkw, defaults).replace("'os.environ'", 'os.environ')
+
+
 def clean_default(val):
     if isinstance(val, os._Environ):
         return 'os.environ'
@@ -47,53 +74,162 @@ def to_html(rst):
     return parts['body']
 
 
-def format_class(cls):
-    print "  %s" % cls.name
-    doc = to_html(cls.doc())
-    html = ['<div class="cls section">',
-            '<span class="cls name">%s</span>' % cls.name,
+def document_module(mod):
+    name = mod.qualified_name()
+    print name
+    body =  to_html(mod.doc())
+
+    # FIXME prepend with note on what highlighted means
+
+    # FIXME need to have some notion of aliased classes
+    # eg defaultSelector = Selector, and modules
+    # should be able to set order of classes in docs
+
+    # classes
+    classes = [document_class(cls) for cls in get_classes(mod)]
+    if classes:
+        body += '<h2>Classes</h2>\n' + '\n'.join(classes)
+
+    # functions
+    funcs = [document_function(func) for func in mod.routines()]
+    if funcs:
+        body += '<h2>Functions</h2>\n' + '\n'.join(funcs)
+
+    # FIXME attributes
+
+    # FIXME add classes, funcs and attributes to submenu
+
+    pg = {'body': body,
+          'title': name}
+    pg.update(std_info)
+    to_write.append(('Module: %s' % name,
+                     os.path.join(doc, 'module_%s.html' % name),
+                     tpl, pg))    
+
+
+def get_classes(mod):
+    # some "invisible" items I do want, but not others
+    # really only those classes defined in the module itself
+    # with some per-module alias list handling (eg,
+    # TestLoader and defaultTestLoader shouldn't both be fully doc'd)
+    all = list(mod.classes(visible_only=0))
+
+    # sort by place in __all__
+    names = odict() # list comprehension didn't work? possible bug in odict
+    for c in all:
+        if c is not None and not c.isalias():
+            names[c.name] = c
+    ordered = []
+    try:
+        for name in mod.obj.__all__:
+            if name in names:
+                cls = names[name]
+                del names[name]
+                if cls is not None:
+                    ordered.append(cls)
+    except AttributeError:
+        pass    
+    for name, cls in names.items():
+        ordered.append(cls)
+    wanted = []
+    classes = set([])
+    for cls in ordered:
+        if cls.obj in classes:
+            cls.alias_for = cls.obj
+        else:
+            classes.add(cls.obj)
+        wanted.append(cls)    
+    return wanted
+
+
+def document_class(cls):
+    print "  %s" % cls.qualified_name()
+    alias = False
+    if hasattr(cls, 'alias_for'):
+        alias = True
+        doc = '(Alias for %s)' % link_to_class(cls.alias_for)
+    else:
+        doc = to_html(cls.doc())
+    bases = ', '.join(link_to_class(c) for c in cls.obj.__bases__)
+    html = ['<a name="%s"></a><div class="cls section">' % cls.name,
+            '<span class="cls name">%s</span> (%s)' % (cls.name, bases),
             '<div class="cls doc">%s' % doc]
 
-    methods = list(cls.routines(visible_only=False))
-    if methods:
-        methods.sort(lambda a, b: cmp(a.name, b.name))
-        html.append('<h4>Methods</h4>')
-        for method in methods:
-            if method.isvisible():
-                inherited = ''
-            else:
-                inherited = '<span class="method inherited">' \
-                            '(FIXME: inherited)</span>'                
-            html.extend([
-                '<div class="method section">',
-                '<span class="method name">%s</span>' % method.name,
-                '<span class="method args">%s</span>' % method.formatargs(),
-                inherited,
-                '<div class="method doc">%s</div>' % to_html(method.doc()),
-                '</div>'])
+    if not alias:
+        real_class = cls.obj
+        methods = list(cls.routines(visible_only=False))
+        if methods:
+            methods.sort(lambda a, b: cmp(a.name, b.name))
+            html.append('<h4>Methods</h4>')
+            for method in methods:
+                print "    %s" % method.qualified_name()
+                defined_in = defining_class(real_class, method.name)
+                if defined_in == real_class:
+                    inherited = ''
+                    inh_cls = ''
+                else:
+                    inherited = '<span class="method inherited">' \
+                                '(FIXME: inherited from %s)</span>' \
+                                % defined_in.__name__
+                    inh_cls = ' inherited'
+                html.extend([
+                    '<div class="method section%s">' % inh_cls, 
+                    '<span class="method name">%s</span>' % method.name,
+                    '<span class="method args">%s</span>'
+                    % formatargspec(method.obj),
+                    inherited,
+                    '<div class="method doc">%s</div>' % to_html(method.doc()),
+                    '</div>'])
 
-    attrs = list(cls.attributes(visible_only=False))
-    if attrs:
-        attrs.sort(lambda a, b: cmp(a.name, b.name))
-        html.append('<h4>Attributes</h4>')
-        for attr in attrs:
-            if attr.isvisible():
-                inherited = ''
-            else:
-                inherited = '<span class="attr inherited">' \
-                            '(FIXME: inherited)</span>'
-            html.extend([
-                '<div class="attr section">',
-                '<span class="attr name">%s</span>' % attr.name,
-                '<span class="attr value">%(a)s</span>' % {'a': getattr(attr.parent.obj, attr.name)},
-                '<div class="attr doc">%s</div>' % attr.doc(),
-                '</div>'])
+        attrs = list(cls.attributes(visible_only=False))
+        if attrs:
+            attrs.sort(lambda a, b: cmp(a.name, b.name))
+            html.append('<h4>Attributes</h4>')
+            for attr in attrs:
+                if defined_in == real_class:
+                    inherited = ''
+                    inh_cls = ''
+                else:
+                    inherited = '<span class="attr inherited">' \
+                                '(FIXME: inherited from %s)</span>' \
+                                % defined_in.__name__
+                    inh_cls = ' inherited'
+                html.extend([
+                    '<div class="attr section%s">' % inh_cls,
+                    '<span class="attr name">%s</span>' % attr.name,
+                    '<span class="attr value">%(a)s</span>' %
+                    {'a': getattr(attr.parent.obj, attr.name)},
+                    '<div class="attr doc">%s</div>' % to_html(attr.doc()),
+                    '</div>'])
 
     html.append('</div></div>')
 
     return ''.join(html)
 
-    
+
+def document_function(func):
+    print "  %s" % func.name
+    html = [
+        '<a name="%s"></a><div class="func section">' % func.name,
+        '<span class="func name">%s</span>' % func.name,
+        '<span class="func args">%s</span>'
+        % formatargspec(func.obj, exclude=['self']),
+        '<div class="func doc">%s</div>' % to_html(func.doc()),
+        '</div>']
+    return ''.join(html)
+
+
+def link_to_class(cls):
+    mod = cls.__module__
+    name = cls.__name__
+    if mod.startswith('_'):
+        qname = name
+    else:
+        qname = "%s.%s" % (mod, name)
+    if not mod.startswith('nose'):
+        return qname
+    return '<a href="module_%s.html#%s">%s</a>' % (mod, name, name)
+
 
 root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 doc = os.path.join(root, 'doc')
@@ -164,11 +300,7 @@ for m in methods:
     # padding evens the lines
     print name
     mdoc = {'body': to_html(textwrap.dedent('        ' + meth.__doc__))}
-    args, varargs, varkw, defaults = inspect.getargspec(meth)
-    if defaults:
-        defaults = map(clean_default, defaults)
-    argspec = inspect.formatargspec(
-        args, varargs, varkw, defaults).replace("'os.environ'", 'os.environ')
+    argspec = formatargspec(meth)
     mdoc.update({'name': name,
                  'extra_class': ' '.join(ec),
                  'arg': argspec})
@@ -242,21 +374,7 @@ for mod in b.modules(recursive=1):
         # no need to regenerate, this is the source of the doc index page
         continue
     print mod.qualified_name()
-    body = to_html(mod.doc())
-    # FIXME
-    # some "invisible" items I do want, but not others
-    # really only those classes defined in the module itself
-    # with some per-module alias list handling (eg,
-    # TestLoader and defaultTestLoader shouldn't both be fully doc'd)
-    classes = [format_class(cls) for cls in mod.classes()]
-    if classes:
-        body += '<h2>Classes</h2>\n' + '\n'.join(classes)
-    pg = {'body': body,
-          'title': mod.qualified_name()}
-    pg.update(std_info)
-    to_write.append(('Module: %s' % mod.qualified_name(),
-                     os.path.join(doc, 'module_%s.html' % mod.qualified_name()),
-                     tpl, pg))    
+    document_module(mod)
 
     
 menu = [ '<li><a href="%s">%s</a></li>' % (os.path.basename(filename), title)

@@ -192,16 +192,26 @@ pre.literal-block, pre.doctest-block {
              margin: 0px;
  }
 
-.cls.section { 
+.cls.section, .func.section { 
                margin-bottom: 2ex;
  }
 
-.cls.name { 
+.cls.name, .func.name { 
             font-size: 110%;
             font-weight: bold;
  }
 
-.cls.doc { 
+.cls.doc, .func.doc { 
            padding-left: 4em;
            padding-right: 2em;
  }
+
+.method.section 
+{ 
+  background: #ffe
+}
+
+.method.section.inherited
+{ 
+  background: none;
+}

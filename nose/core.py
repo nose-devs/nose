@@ -20,60 +20,8 @@ from nose.util import isclass, tolist
 log = logging.getLogger('nose.core')
 compat_24 = sys.version_info >= (2, 4)
 
-class TestCollector:
-    """Main nose test collector.
-
-    .. Note:: This class is deprecated and will be removed in a future release.
-
-    Uses a test loader to load tests from the directory given in conf
-    (conf.path). Uses the default test loader from nose.loader by
-    default. Any other loader may be used so long as it implements
-    loadTestsFromDir().
-    """
-    def __init__(self, conf, loader=None):
-        warn("TestCollector is deprecated and will be removed in the"
-             "next release of nose. "
-             "Use `nose.loader.TestLoader.loadTestsFromNames` instead",
-             DeprecationWarning)
-    
-        if loader is None:
-            loader = defaultTestLoader(conf)
-        self.conf = conf
-        self.loader = loader
-        self.path = conf.where
-        
-    def loadtests(self):
-        path = tolist(self.path)
-        return self.loader.loadTestsFromNames(path)
-            
-    def __repr__(self):
-        return "collector in %s" % self.path
-    __str__ = __repr__
-    
-defaultTestCollector = TestCollector
-
-
-def collector():
-    """TestSuite replacement entry point. Use anywhere you might use a
-    unittest.TestSuite. The collector will, by default, load options from
-    all config files and execute loader.loadTestsFromNames() on the
-    configured testNames, or '.' if no testNames are configured.
-    """
-    # plugins that implement any of these methods are disabled, since
-    # we don't control the test runner and won't be able to run them
-    setuptools_incompat = ('report', 'finalize', 'prepareTest',
-                           'prepareTestLoader', 'prepareTestRunner',
-                           'setOutputStream')
-    
-    conf = Config(files=all_config_files(),
-                  plugins=RestrictedPluginManager(exclude=setuptools_incompat))
-    conf.configure(argv=['collector'])
-    loader = defaultTestLoader(conf)
-
-    if conf.testNames:
-        return loader.loadTestsFromNames(conf.testNames)
-    else:
-        return loader.loadTestsFromNames(('.',))
+__all__ = ['TestProgram', 'main', 'run', 'run_exit', 'runmodule', 'collector',
+           'TextTestRunner']
 
             
 class TextTestRunner(unittest.TextTestRunner):
@@ -339,6 +287,62 @@ def runmodule(name='__main__'):
     tests in __main__.
     """
     main(defaultTest=name)    
+
+
+def collector():
+    """TestSuite replacement entry point. Use anywhere you might use a
+    unittest.TestSuite. The collector will, by default, load options from
+    all config files and execute loader.loadTestsFromNames() on the
+    configured testNames, or '.' if no testNames are configured.
+    """
+    # plugins that implement any of these methods are disabled, since
+    # we don't control the test runner and won't be able to run them
+    setuptools_incompat = ('report', 'finalize', 'prepareTest',
+                           'prepareTestLoader', 'prepareTestRunner',
+                           'setOutputStream')
+    
+    conf = Config(files=all_config_files(),
+                  plugins=RestrictedPluginManager(exclude=setuptools_incompat))
+    conf.configure(argv=['collector'])
+    loader = defaultTestLoader(conf)
+
+    if conf.testNames:
+        return loader.loadTestsFromNames(conf.testNames)
+    else:
+        return loader.loadTestsFromNames(('.',))
+
+
+class TestCollector:
+    """Main nose test collector.
+
+    .. Note:: This class is deprecated and will be removed in a future release.
+
+    Uses a test loader to load tests from the directory given in conf
+    (conf.path). Uses the default test loader from nose.loader by
+    default. Any other loader may be used so long as it implements
+    loadTestsFromDir().
+    """
+    def __init__(self, conf, loader=None):
+        warn("TestCollector is deprecated and will be removed in the"
+             "next release of nose. "
+             "Use `nose.loader.TestLoader.loadTestsFromNames` instead",
+             DeprecationWarning)
+    
+        if loader is None:
+            loader = defaultTestLoader(conf)
+        self.conf = conf
+        self.loader = loader
+        self.path = conf.where
+        
+    def loadtests(self):
+        path = tolist(self.path)
+        return self.loader.loadTestsFromNames(path)
+            
+    def __repr__(self):
+        return "collector in %s" % self.path
+    __str__ = __repr__
+    
+defaultTestCollector = TestCollector
 
 
 if __name__ == '__main__':

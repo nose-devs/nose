@@ -8,7 +8,7 @@
     <div id="menu">
       <p>This document covers nose version <b>0.10.0a1</b></p>
       <h2>Documentation</h2><ul><li><a href="writing_plugins.html">Writing Plugins</a></li><li><a href="errorclassplugin.html">ErrorClass Plugins</a></li><li><a href="plugin_interface.html">Plugin Interface</a></li><li><a href="plugin_attrib.html">Builtin Plugin: attrib</a></li><li><a href="plugin_capture.html">Builtin Plugin: capture</a></li><li><a href="plugin_cover.html">Builtin Plugin: cover</a></li><li><a href="plugin_debug.html">Builtin Plugin: debug</a></li><li><a href="plugin_deprecated.html">Builtin Plugin: deprecated</a></li><li><a href="plugin_doctests.html">Builtin Plugin: doctests</a></li><li><a href="plugin_isolate.html">Builtin Plugin: isolate</a></li><li><a href="plugin_failuredetail.html">Builtin Plugin: failuredetail</a></li><li><a href="plugin_prof.html">Builtin Plugin: prof</a></li><li><a href="plugin_skip.html">Builtin Plugin: skip</a></li><li><a href="plugin_testid.html">Builtin Plugin: testid</a></li><li><a href="module_nose.loader.html">Module: nose.loader</a></li><li><a href="module_nose.result.html">Module: nose.result</a></li><li><a href="module_nose.inspector.html">Module: nose.inspector</a></li><li><a href="module_nose.tools.html">Module: nose.tools</a></li><li><a href="module_nose.importer.html">Module: nose.importer</a></li><li><a href="module_nose.suite.html">Module: nose.suite</a></li><li><a href="module_nose.config.html">Module: nose.config</a></li><li><a href="module_nose.core.html">Module: nose.core</a></li><li><a href="module_nose.twistedtools.html">Module: nose.twistedtools</a></li><li><a href="module_nose.util.html">Module: nose.util</a></li><li><a href="module_nose.proxy.html">Module: nose.proxy</a></li><li><a href="module_nose.selector.html">Module: nose.selector</a></li><li><a href="module_nose.case.html">Module: nose.case</a></li><li><a href="module_nose.commands.html">Module: nose.commands</a></li><li><a href="module_nose.exc.html">Module: nose.exc</a></li><li><a href="module_nose.plugins.manager.html">Module: nose.plugins.manager</a></li></ul>
-      <p>Last update: <b>Mon Jun 25 23:50:58 2007</b></p>
+      <p>Last update: <b>Tue Jun 26 15:41:38 2007</b></p>
     </div>
     
     <div id="main">
@@ -16,31 +16,152 @@
       
       <p>Utility functions and classes used by nose internally.</p>
 <h2>Classes</h2>
-<div class="cls section"><span class="cls name">odict</span><div class="cls doc"><p>Simple ordered dict implementation, based on:</p>
+<a name="odict"></a><div class="cls section"><span class="cls name">odict</span> (dict)<div class="cls doc"><p>Simple ordered dict implementation, based on:</p>
 <p><a class="reference" href="http://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/107747">http://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/107747</a></p>
-<h4>Methods</h4><div class="method section"><span class="method name">__cmp__</span><span class="method args">(...)</span><div class="method doc"><p>x.__cmp__(y) &lt;==&gt; cmp(x,y)</p>
-</div></div><div class="method section"><span class="method name">__contains__</span><span class="method args">(...)</span><div class="method doc"><p>D.__contains__(k) -&gt; True if D has a key k, else False</p>
-</div></div><div class="method section"><span class="method name">__delitem__</span><span class="method args">(self, key)</span><div class="method doc"></div></div><div class="method section"><span class="method name">__eq__</span><span class="method args">(...)</span><div class="method doc"><p>x.__eq__(y) &lt;==&gt; x==y</p>
-</div></div><div class="method section"><span class="method name">__ge__</span><span class="method args">(...)</span><div class="method doc"><p>x.__ge__(y) &lt;==&gt; x&gt;=y</p>
-</div></div><div class="method section"><span class="method name">__getitem__</span><span class="method args">(...)</span><div class="method doc"><p>x.__getitem__(y) &lt;==&gt; x[y]</p>
-</div></div><div class="method section"><span class="method name">__gt__</span><span class="method args">(...)</span><div class="method doc"><p>x.__gt__(y) &lt;==&gt; x&gt;y</p>
-</div></div><div class="method section"><span class="method name">__init__</span><span class="method args">(self, *arg, **kw)</span><div class="method doc"></div></div><div class="method section"><span class="method name">__iter__</span><span class="method args">(...)</span><div class="method doc"><p>x.__iter__() &lt;==&gt; iter(x)</p>
-</div></div><div class="method section"><span class="method name">__le__</span><span class="method args">(...)</span><div class="method doc"><p>x.__le__(y) &lt;==&gt; x&lt;=y</p>
-</div></div><div class="method section"><span class="method name">__len__</span><span class="method args">(...)</span><div class="method doc"><p>x.__len__() &lt;==&gt; len(x)</p>
-</div></div><div class="method section"><span class="method name">__lt__</span><span class="method args">(...)</span><div class="method doc"><p>x.__lt__(y) &lt;==&gt; x&lt;y</p>
-</div></div><div class="method section"><span class="method name">__ne__</span><span class="method args">(...)</span><div class="method doc"><p>x.__ne__(y) &lt;==&gt; x!=y</p>
-</div></div><div class="method section"><span class="method name">__setitem__</span><span class="method args">(self, key, item)</span><div class="method doc"></div></div><div class="method section"><span class="method name">clear</span><span class="method args">(self)</span><div class="method doc"></div></div><div class="method section"><span class="method name">copy</span><span class="method args">(self)</span><div class="method doc"></div></div><div class="method section"><span class="method name">fromkeys</span><span class="method args">(...)</span><span class="method inherited">(FIXME: inherited)</span><div class="method doc"><p>dict.fromkeys(S[,v]) -&gt; New dict with keys from S and values equal to v.
+<h4>Methods</h4><div class="method section inherited"><span class="method name">__cmp__</span><span class="method args">(...)</span><span class="method inherited">(FIXME: inherited from dict)</span><div class="method doc"><p>x.__cmp__(y) &lt;==&gt; cmp(x,y)</p>
+</div></div><div class="method section inherited"><span class="method name">__contains__</span><span class="method args">(...)</span><span class="method inherited">(FIXME: inherited from dict)</span><div class="method doc"><p>D.__contains__(k) -&gt; True if D has a key k, else False</p>
+</div></div><div class="method section"><span class="method name">__delitem__</span><span class="method args">(self, key)</span><div class="method doc"></div></div><div class="method section inherited"><span class="method name">__eq__</span><span class="method args">(...)</span><span class="method inherited">(FIXME: inherited from dict)</span><div class="method doc"><p>x.__eq__(y) &lt;==&gt; x==y</p>
+</div></div><div class="method section inherited"><span class="method name">__ge__</span><span class="method args">(...)</span><span class="method inherited">(FIXME: inherited from dict)</span><div class="method doc"><p>x.__ge__(y) &lt;==&gt; x&gt;=y</p>
+</div></div><div class="method section inherited"><span class="method name">__getitem__</span><span class="method args">(...)</span><span class="method inherited">(FIXME: inherited from dict)</span><div class="method doc"><p>x.__getitem__(y) &lt;==&gt; x[y]</p>
+</div></div><div class="method section inherited"><span class="method name">__gt__</span><span class="method args">(...)</span><span class="method inherited">(FIXME: inherited from dict)</span><div class="method doc"><p>x.__gt__(y) &lt;==&gt; x&gt;y</p>
+</div></div><div class="method section"><span class="method name">__init__</span><span class="method args">(self, *arg, **kw)</span><div class="method doc"></div></div><div class="method section inherited"><span class="method name">__iter__</span><span class="method args">(...)</span><span class="method inherited">(FIXME: inherited from dict)</span><div class="method doc"><p>x.__iter__() &lt;==&gt; iter(x)</p>
+</div></div><div class="method section inherited"><span class="method name">__le__</span><span class="method args">(...)</span><span class="method inherited">(FIXME: inherited from dict)</span><div class="method doc"><p>x.__le__(y) &lt;==&gt; x&lt;=y</p>
+</div></div><div class="method section inherited"><span class="method name">__len__</span><span class="method args">(...)</span><span class="method inherited">(FIXME: inherited from dict)</span><div class="method doc"><p>x.__len__() &lt;==&gt; len(x)</p>
+</div></div><div class="method section inherited"><span class="method name">__lt__</span><span class="method args">(...)</span><span class="method inherited">(FIXME: inherited from dict)</span><div class="method doc"><p>x.__lt__(y) &lt;==&gt; x&lt;y</p>
+</div></div><div class="method section inherited"><span class="method name">__ne__</span><span class="method args">(...)</span><span class="method inherited">(FIXME: inherited from dict)</span><div class="method doc"><p>x.__ne__(y) &lt;==&gt; x!=y</p>
+</div></div><div class="method section"><span class="method name">__setitem__</span><span class="method args">(self, key, item)</span><div class="method doc"></div></div><div class="method section"><span class="method name">clear</span><span class="method args">(self)</span><div class="method doc"></div></div><div class="method section"><span class="method name">copy</span><span class="method args">(self)</span><div class="method doc"></div></div><div class="method section inherited"><span class="method name">fromkeys</span><span class="method args">(...)</span><span class="method inherited">(FIXME: inherited from dict)</span><div class="method doc"><p>dict.fromkeys(S[,v]) -&gt; New dict with keys from S and values equal to v.
 v defaults to None.</p>
-</div></div><div class="method section"><span class="method name">get</span><span class="method args">(...)</span><span class="method inherited">(FIXME: inherited)</span><div class="method doc"><p>D.get(k[,d]) -&gt; D[k] if k in D, else d.  d defaults to None.</p>
-</div></div><div class="method section"><span class="method name">has_key</span><span class="method args">(...)</span><span class="method inherited">(FIXME: inherited)</span><div class="method doc"><p>D.has_key(k) -&gt; True if D has a key k, else False</p>
-</div></div><div class="method section"><span class="method name">items</span><span class="method args">(self)</span><div class="method doc"></div></div><div class="method section"><span class="method name">iteritems</span><span class="method args">(...)</span><span class="method inherited">(FIXME: inherited)</span><div class="method doc"><p>D.iteritems() -&gt; an iterator over the (key, value) items of D</p>
-</div></div><div class="method section"><span class="method name">iterkeys</span><span class="method args">(...)</span><span class="method inherited">(FIXME: inherited)</span><div class="method doc"><p>D.iterkeys() -&gt; an iterator over the keys of D</p>
-</div></div><div class="method section"><span class="method name">itervalues</span><span class="method args">(...)</span><span class="method inherited">(FIXME: inherited)</span><div class="method doc"><p>D.itervalues() -&gt; an iterator over the values of D</p>
-</div></div><div class="method section"><span class="method name">keys</span><span class="method args">(self)</span><div class="method doc"></div></div><div class="method section"><span class="method name">pop</span><span class="method args">(...)</span><span class="method inherited">(FIXME: inherited)</span><div class="method doc"><p>D.pop(k[,d]) -&gt; v, remove specified key and return the corresponding value
+</div></div><div class="method section inherited"><span class="method name">get</span><span class="method args">(...)</span><span class="method inherited">(FIXME: inherited from dict)</span><div class="method doc"><p>D.get(k[,d]) -&gt; D[k] if k in D, else d.  d defaults to None.</p>
+</div></div><div class="method section inherited"><span class="method name">has_key</span><span class="method args">(...)</span><span class="method inherited">(FIXME: inherited from dict)</span><div class="method doc"><p>D.has_key(k) -&gt; True if D has a key k, else False</p>
+</div></div><div class="method section"><span class="method name">items</span><span class="method args">(self)</span><div class="method doc"></div></div><div class="method section inherited"><span class="method name">iteritems</span><span class="method args">(...)</span><span class="method inherited">(FIXME: inherited from dict)</span><div class="method doc"><p>D.iteritems() -&gt; an iterator over the (key, value) items of D</p>
+</div></div><div class="method section inherited"><span class="method name">iterkeys</span><span class="method args">(...)</span><span class="method inherited">(FIXME: inherited from dict)</span><div class="method doc"><p>D.iterkeys() -&gt; an iterator over the keys of D</p>
+</div></div><div class="method section inherited"><span class="method name">itervalues</span><span class="method args">(...)</span><span class="method inherited">(FIXME: inherited from dict)</span><div class="method doc"><p>D.itervalues() -&gt; an iterator over the values of D</p>
+</div></div><div class="method section"><span class="method name">keys</span><span class="method args">(self)</span><div class="method doc"></div></div><div class="method section inherited"><span class="method name">pop</span><span class="method args">(...)</span><span class="method inherited">(FIXME: inherited from dict)</span><div class="method doc"><p>D.pop(k[,d]) -&gt; v, remove specified key and return the corresponding value
 If key is not found, d is returned if given, otherwise KeyError is raised</p>
-</div></div><div class="method section"><span class="method name">popitem</span><span class="method args">(...)</span><span class="method inherited">(FIXME: inherited)</span><div class="method doc"><p>D.popitem() -&gt; (k, v), remove and return some (key, value) pair as a
+</div></div><div class="method section inherited"><span class="method name">popitem</span><span class="method args">(...)</span><span class="method inherited">(FIXME: inherited from dict)</span><div class="method doc"><p>D.popitem() -&gt; (k, v), remove and return some (key, value) pair as a
 2-tuple; but raise KeyError if D is empty</p>
-</div></div><div class="method section"><span class="method name">setdefault</span><span class="method args">(self, key, failobj=None)</span><div class="method doc"></div></div><div class="method section"><span class="method name">update</span><span class="method args">(self, dict)</span><div class="method doc"></div></div><div class="method section"><span class="method name">values</span><span class="method args">(self)</span><div class="method doc"></div></div></div></div>
+</div></div><div class="method section"><span class="method name">setdefault</span><span class="method args">(self, key, failobj=None)</span><div class="method doc"></div></div><div class="method section"><span class="method name">update</span><span class="method args">(self, dict)</span><div class="method doc"></div></div><div class="method section"><span class="method name">values</span><span class="method args">(self)</span><div class="method doc"></div></div></div></div><h2>Functions</h2>
+<a name="absfile"></a><div class="func section"><span class="func name">absfile</span><span class="func args">(path, where=None)</span><div class="func doc"><p>Return absolute, normalized path to file (optionally in directory
+where), or None if the file can't be found either in where or the current
+working directory.</p>
+</div></div>
+<a name="tolist"></a><div class="func section"><span class="func name">tolist</span><span class="func args">(val)</span><div class="func doc"><p>Convert a value that may be a list or a (possibly comma-separated)
+string into a list. The exception: None is returned as None, not [None].</p>
+</div></div>
+<a name="try_run"></a><div class="func section"><span class="func name">try_run</span><span class="func args">(obj, names)</span><div class="func doc"><p>Given a list of possible method names, try to run them with the
+provided object. Keep going until something works. Used to run
+setup/teardown methods for module, package, and function tests.</p>
+</div></div>
+<a name="split_test_name"></a><div class="func section"><span class="func name">split_test_name</span><span class="func args">(test)</span><div class="func doc"><p>Split a test name into a 3-tuple containing file, module, and callable
+names, any of which (but not all) may be blank.</p>
+<p>Test names are in the form:</p>
+<p>file_or_module:callable</p>
+<p>Either side of the : may be dotted. To change the splitting behavior, you
+can alter nose.util.split_test_re.</p>
+</div></div>
+<a name="func_lineno"></a><div class="func section"><span class="func name">func_lineno</span><span class="func args">(func)</span><div class="func doc"><p>Get the line number of a function. First looks for
+compat_co_firstlineno, then func_code.co_first_lineno.</p>
+</div></div>
+<a name="match_last"></a><div class="func section"><span class="func name">match_last</span><span class="func args">(a, b, regex)</span><div class="func doc"><p>Sort compare function that puts items that match a
+regular expression last.</p>
+<pre class="doctest-block">
+&gt;&gt;&gt; from nose.config import Config
+&gt;&gt;&gt; c = Config()
+&gt;&gt;&gt; regex = c.testMatch
+&gt;&gt;&gt; entries = ['.', '..', 'a_test', 'src', 'lib', 'test', 'foo.py']
+&gt;&gt;&gt; entries.sort(lambda a, b: match_last(a, b, regex))
+&gt;&gt;&gt; entries
+['.', '..', 'foo.py', 'lib', 'src', 'a_test', 'test']
+</pre>
+</div></div>
+<a name="file_like"></a><div class="func section"><span class="func name">file_like</span><span class="func args">(name)</span><div class="func doc"><p>A name is file-like if it is a path that exists, or it has a
+directory part, or it ends in .py, or it isn't a legal python
+identifier.</p>
+</div></div>
+<a name="ln"></a><div class="func section"><span class="func name">ln</span><span class="func args">(label)</span><div class="func doc"><p>Draw a 70-char-wide divider, with label in the middle.</p>
+<pre class="doctest-block">
+&gt;&gt;&gt; ln('hello there')
+'---------------------------- hello there -----------------------------'
+</pre>
+</div></div>
+<a name="absdir"></a><div class="func section"><span class="func name">absdir</span><span class="func args">(path)</span><div class="func doc"><p>Return absolute, normalized path to directory, if it exists; None
+otherwise.</p>
+</div></div>
+<a name="isgenerator"></a><div class="func section"><span class="func name">isgenerator</span><span class="func args">(func)</span><div class="func doc"></div></div>
+<a name="anyp"></a><div class="func section"><span class="func name">anyp</span><span class="func args">(predicate, iterable)</span><div class="func doc"></div></div>
+<a name="test_address"></a><div class="func section"><span class="func name">test_address</span><span class="func args">(test)</span><div class="func doc"><p>Find the test address for a test, which may be a module, filename,
+class, method or function.</p>
+</div></div>
+<a name="getfilename"></a><div class="func section"><span class="func name">getfilename</span><span class="func args">(package, relativeTo=None)</span><div class="func doc"><p>Find the python source file for a package, relative to a
+particular directory (defaults to current working directory if not
+given).</p>
+</div></div>
+<a name="isclass"></a><div class="func section"><span class="func name">isclass</span><span class="func args">(obj)</span><div class="func doc"><p>Is obj a class? inspect's isclass is too liberal and returns True
+for objects that can't be subclasses of anything.</p>
+</div></div>
+<a name="resolve_name"></a><div class="func section"><span class="func name">resolve_name</span><span class="func args">(name, module=None)</span><div class="func doc"><p>Resolve a dotted name to a module and its parts. This is stolen
+wholesale from unittest.TestLoader.loadTestByName.</p>
+<pre class="doctest-block">
+&gt;&gt;&gt; resolve_name('nose.util') #doctest: +ELLIPSIS
+&lt;module 'nose.util' from...&gt;
+&gt;&gt;&gt; resolve_name('nose.util.resolve_name') #doctest: +ELLIPSIS
+&lt;function resolve_name at...&gt;
+</pre>
+</div></div>
+<a name="src"></a><div class="func section"><span class="func name">src</span><span class="func args">(filename)</span><div class="func doc"><p>Find the python source file for a .pyc or .pyo file. Returns the
+filename provided if it is not a python source file.</p>
+</div></div>
+<a name="ispackage"></a><div class="func section"><span class="func name">ispackage</span><span class="func args">(path)</span><div class="func doc"><p>Is this path a package directory?</p>
+<pre class="doctest-block">
+&gt;&gt;&gt; ispackage('nose')
+True
+&gt;&gt;&gt; ispackage('unit_tests')
+False
+&gt;&gt;&gt; ispackage('nose/plugins')
+True
+&gt;&gt;&gt; ispackage('nose/loader.py')
+False
+</pre>
+</div></div>
+<a name="getpackage"></a><div class="func section"><span class="func name">getpackage</span><span class="func args">(filename)</span><div class="func doc"><p>Find the full dotted package name for a given python source file
+name. Returns None if the file is not a python source file.</p>
+<pre class="doctest-block">
+&gt;&gt;&gt; getpackage('foo.py')
+'foo'
+&gt;&gt;&gt; getpackage('biff/baf.py')
+'baf'
+&gt;&gt;&gt; getpackage('nose/util.py')
+'nose.util'
+</pre>
+<p>Works for directories too.</p>
+<pre class="doctest-block">
+&gt;&gt;&gt; getpackage('nose')
+'nose'
+&gt;&gt;&gt; getpackage('nose/plugins')
+'nose.plugins'
+</pre>
+<p>And __init__ files stuck onto directories</p>
+<pre class="doctest-block">
+&gt;&gt;&gt; getpackage('nose/plugins/__init__.py')
+'nose.plugins'
+</pre>
+<p>Absolute paths also work.</p>
+<pre class="doctest-block">
+&gt;&gt;&gt; path = os.path.abspath(os.path.join('nose', 'plugins'))
+&gt;&gt;&gt; getpackage(path)
+'nose.plugins'
+</pre>
+</div></div>
+<a name="cmp_lineno"></a><div class="func section"><span class="func name">cmp_lineno</span><span class="func args">(a, b)</span><div class="func doc"><p>Compare functions by their line numbers.</p>
+<pre class="doctest-block">
+&gt;&gt;&gt; cmp_lineno(isgenerator, ispackage)
+-1
+&gt;&gt;&gt; cmp_lineno(ispackage, isgenerator)
+1
+&gt;&gt;&gt; cmp_lineno(isgenerator, isgenerator)
+0
+</pre>
+</div></div>
 
     </div>
   </body>

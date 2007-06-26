@@ -12,6 +12,9 @@ from nose.util import resolve_name, test_address, try_run
 log = logging.getLogger(__name__)
 
 
+__all__ = ['Test', 'Failure']
+
+
 # FIXME probably not the best name, since it is mainly used for errors
 class Failure(unittest.TestCase):
     __test__ = False # do not collect

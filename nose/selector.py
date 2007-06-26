@@ -14,6 +14,9 @@ from nose.util import split_test_name, src, getfilename, getpackage
 
 log = logging.getLogger(__name__)
 
+__all__ = ['Selector', 'defaultSelector', 'TestAddress']
+
+
 class Selector(object):
     """Core test selector. Examines test candidates and determines whether,
     given the specified configuration, the test candidate should be selected
