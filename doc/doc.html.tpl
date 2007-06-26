@@ -7,8 +7,9 @@
     
     <div id="menu">
       <p>This document covers nose version <b>%(version)s</b></p>
-      %(menu)s
       <p>Last update: <b>%(date)s</b></p>
+      %(menu)s
+      %(submenu)s
     </div>
     
     <div id="main">

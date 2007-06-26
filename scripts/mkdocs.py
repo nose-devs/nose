@@ -13,7 +13,7 @@ import textwrap
 from optparse import OptionParser
 from nose.util import resolve_name, odict
 
-## FIXME: menu needs sections
+
 remove_at = re.compile(r' at 0x[0-9a-f]+')
 
 
@@ -24,6 +24,7 @@ def defining_class(cls, attr):
 
 def write(filename, tpl, ctx):
     print filename
+    ctx.setdefault('submenu', '')
     fp = open(filename, 'w')
     fp.write(tpl % ctx)
     fp.close()
@@ -104,30 +105,45 @@ def document_module(mod):
 
     # FIXME prepend with note on what highlighted means
 
+    submenu = []
+
     # classes
-    classes = [document_class(cls) for cls in get_classes(mod)]
+    mod_classes = get_classes(mod)
+    classes = [document_class(cls) for cls in mod_classes]
     if classes:
         body += '<h2>Classes</h2>\n' + '\n'.join(classes)
-
+        submenu.extend(make_submenu('Classes', mod_classes))
+        
     # functions
-    funcs = [document_function(func) for func in mod.routines()]
+    mod_funcs = list(mod.routines())
+    funcs = [document_function(func) for func in mod_funcs]
     if funcs:
         body += '<h2>Functions</h2>\n' + '\n'.join(funcs)
-
+        submenu.extend(make_submenu('Functions', mod_funcs))
+            
     # attributes
-    attrs = [document_attribute(attr) for attr in mod.attributes()]
+    mod_attrs = list(mod.attributes())
+    attrs = [document_attribute(attr) for attr in mod_attrs]
     if attrs:
         body += '<h2>Attributes</h2>\n' + '\n'.join(attrs)
-
-    # FIXME add classes, funcs and attributes to submenu
-
+        submenu.extend(make_submenu('Attributes', mod_attrs))
+        
     pg = {'body': body,
-          'title': name}
+          'title': name,
+          'submenu': ''.join(submenu)}
     pg.update(std_info)
-    to_write.append(('Module: %s' % name,
-                     os.path.join(doc, 'module_%s.html' % name),
-                     tpl, pg))    
+    to_write.append((
+        'Modules',
+        'Module: %s' % name,
+        os.path.join(doc, 'module_%s.html' % name),
+        tpl, pg))    
 
+
+def make_submenu(name, objs):
+    sm = ['<h2>%s</h2>' % name, '<ul>']
+    sm.extend(['<li><a href="#%s">%s</a></li>' % (o.name, o.name)
+               for o in objs] + ['</ul>'])
+    return sm
 
 def get_classes(mod):
     # some "invisible" items I do want, but not others
@@ -191,7 +207,7 @@ def document_class(cls):
                     inh_cls = ''
                 else:
                     inherited = '<span class="method inherited">' \
-                                '(FIXME: inherited from %s)</span>' \
+                                '(inherited from %s)</span>' \
                                 % defined_in.__name__
                     inh_cls = ' inherited'
                 html.extend([
@@ -215,7 +231,7 @@ def document_class(cls):
                     inh_cls = ''
                 else:
                     inherited = '<span class="attr inherited">' \
-                                '(FIXME: inherited from %s)</span>' \
+                                '(inherited from %s)</span>' \
                                 % defined_in.__name__
                     inh_cls = ' inherited'
                 # FIXME value needs to be escaped
@@ -293,20 +309,20 @@ from nose.plugins import errorclass
 # writing plugins guide
 writing_plugins = {'body': to_html(plugins.__doc__)}
 writing_plugins.update(std_info)
-writing_plugins.update({'title': 'Writing Plugins',
-                        'menu': 'FIXME -- menu'})
+writing_plugins['title'] = 'Writing Plugins'
 to_write.append(
-    ('Writing Plugins',
+    ('Plugins',
+     'Writing Plugins',
      os.path.join(doc, 'writing_plugins.html'), tpl, writing_plugins))
 
 
 # error class plugins
 ecp = {'body': to_html(errorclass.__doc__)}
 ecp.update(std_info)
-ecp.update({'title': 'ErrorClass Plugins',
-                        'menu': 'FIXME -- menu'})
+ecp['title'] = 'ErrorClass Plugins'
 to_write.append(
-    ('ErrorClass Plugins',
+    ('Plugins',
+     'ErrorClass Plugins',
      os.path.join(doc, 'errorclassplugin.html'), tpl, ecp))
 
 # interface
@@ -361,7 +377,8 @@ for section in ('new', 'changed', 'deprecated'):
 itf['sub_menu'] = ''.join(menu)
 
 to_write.append(
-    ('Plugin Interface',
+    ('Plugins',
+     'Plugin Interface',
      os.path.join(doc, 'plugin_interface.html'), api_tpl, itf))
 
 
@@ -402,7 +419,8 @@ for modulename, clsname in builtins:
     pdoc['hooks'] = ''.join(hooks)
             
     to_write.append(
-        ('Builtin Plugin: %s' % modname,
+        ('Plugins',
+         'Builtin Plugin: %s' % modname,
          os.path.join(doc, filename), plug_tpl, pdoc))
 
 
@@ -418,14 +436,22 @@ for mod in b.modules(recursive=1):
 
 
 # finally build the menu and write all pages
-menu = [ '<li><a href="%s">%s</a></li>' % (os.path.basename(filename), title)
-         for title, filename, _, _ in to_write ]
-menu.insert(0, '<ul>')
-menu.insert(0, '<h2>Documentation</h2>')
-menu.append('</ul>')
+menu = []
+sections = odict()
+for page in to_write:
+    section, _, _, _, _ = page
+    sections.setdefault(section, []).append(page)
+
+for section, pages in sections.items():
+    menu.append('<h2>%s</h2>' % section)
+    menu.append('<ul>')
+    menu.extend([
+        '<li><a href="%s">%s</a></li>' % (os.path.basename(filename), title)
+        for _, title, filename, _, _ in pages ])
+    menu.append('</ul>')
 
 menu = ''.join(menu)
-for title, filename, template, ctx in to_write:
+for section, title, filename, template, ctx in to_write:
     ctx['menu'] = menu
     write(filename, template, ctx)
 
