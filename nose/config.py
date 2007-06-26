@@ -29,7 +29,7 @@ class Config(object):
 
       self.env = env = kw.pop('env', os.environ)
       self.args = ()
-      self.testMatch = re.compile(r'(?:^|[\b_\.%s-])[Tt]est' % os.sep)
+      self.testMatch = re.compile(r'(?:^|[\\b_\\.%s-])[Tt]est' % os.sep)
       self.addPaths = not env.get('NOSE_NOPATH', False)
       self.configSection = 'nosetests'
       self.debug = env.get('NOSE_DEBUG')

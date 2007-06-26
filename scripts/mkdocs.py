@@ -46,6 +46,55 @@ def to_html(rst):
     parts = publish_parts(rst, reader=DocReader(), writer_name='html')
     return parts['body']
 
+
+def format_class(cls):
+    print "  %s" % cls.name
+    doc = to_html(cls.doc())
+    html = ['<div class="cls section">',
+            '<span class="cls name">%s</span>' % cls.name,
+            '<div class="cls doc">%s' % doc]
+
+    methods = list(cls.routines(visible_only=False))
+    if methods:
+        methods.sort(lambda a, b: cmp(a.name, b.name))
+        html.append('<h4>Methods</h4>')
+        for method in methods:
+            if method.isvisible():
+                inherited = ''
+            else:
+                inherited = '<span class="method inherited">' \
+                            '(FIXME: inherited)</span>'                
+            html.extend([
+                '<div class="method section">',
+                '<span class="method name">%s</span>' % method.name,
+                '<span class="method args">%s</span>' % method.formatargs(),
+                inherited,
+                '<div class="method doc">%s</div>' % to_html(method.doc()),
+                '</div>'])
+
+    attrs = list(cls.attributes(visible_only=False))
+    if attrs:
+        attrs.sort(lambda a, b: cmp(a.name, b.name))
+        html.append('<h4>Attributes</h4>')
+        for attr in attrs:
+            if attr.isvisible():
+                inherited = ''
+            else:
+                inherited = '<span class="attr inherited">' \
+                            '(FIXME: inherited)</span>'
+            html.extend([
+                '<div class="attr section">',
+                '<span class="attr name">%s</span>' % attr.name,
+                '<span class="attr value">%(a)s</span>' % {'a': getattr(attr.parent.obj, attr.name)},
+                '<div class="attr doc">%s</div>' % attr.doc(),
+                '</div>'])
+
+    html.append('</div></div>')
+
+    return ''.join(html)
+
+    
+
 root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 doc = os.path.join(root, 'doc')
 tpl = open(os.path.join(doc, 'doc.html.tpl'), 'r').read()
@@ -186,12 +235,23 @@ for modulename, clsname in builtins:
 
 
 # individual module docs
-b = Browser(['nose'], exclude_modules=['nose.plugins', 'nose.ext'])
+b = Browser(['nose','nose.plugins.manager'],
+            exclude_modules=['nose.plugins', 'nose.ext'])
 for mod in b.modules(recursive=1):
     if mod.name == 'nose':
         # no need to regenerate, this is the source of the doc index page
         continue
-    pg = {'body': to_html(mod.doc()),
+    print mod.qualified_name()
+    body = to_html(mod.doc())
+    # FIXME
+    # some "invisible" items I do want, but not others
+    # really only those classes defined in the module itself
+    # with some per-module alias list handling (eg,
+    # TestLoader and defaultTestLoader shouldn't both be fully doc'd)
+    classes = [format_class(cls) for cls in mod.classes()]
+    if classes:
+        body += '<h2>Classes</h2>\n' + '\n'.join(classes)
+    pg = {'body': body,
           'title': mod.qualified_name()}
     pg.update(std_info)
     to_write.append(('Module: %s' % mod.qualified_name(),

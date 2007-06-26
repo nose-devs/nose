@@ -7,8 +7,8 @@
     
     <div id="menu">
       <p>This document covers nose version <b>0.10.0a1</b></p>
-      <h2>Documentation</h2><ul><li><a href="writing_plugins.html">Writing Plugins</a></li><li><a href="errorclassplugin.html">ErrorClass Plugins</a></li><li><a href="plugin_interface.html">Plugin Interface</a></li><li><a href="plugin_attrib.html">Builtin Plugin: attrib</a></li><li><a href="plugin_capture.html">Builtin Plugin: capture</a></li><li><a href="plugin_cover.html">Builtin Plugin: cover</a></li><li><a href="plugin_debug.html">Builtin Plugin: debug</a></li><li><a href="plugin_deprecated.html">Builtin Plugin: deprecated</a></li><li><a href="plugin_doctests.html">Builtin Plugin: doctests</a></li><li><a href="plugin_isolate.html">Builtin Plugin: isolate</a></li><li><a href="plugin_failuredetail.html">Builtin Plugin: failuredetail</a></li><li><a href="plugin_prof.html">Builtin Plugin: prof</a></li><li><a href="plugin_skip.html">Builtin Plugin: skip</a></li><li><a href="plugin_testid.html">Builtin Plugin: testid</a></li><li><a href="module_nose.loader.html">Module: nose.loader</a></li><li><a href="module_nose.result.html">Module: nose.result</a></li><li><a href="module_nose.inspector.html">Module: nose.inspector</a></li><li><a href="module_nose.tools.html">Module: nose.tools</a></li><li><a href="module_nose.importer.html">Module: nose.importer</a></li><li><a href="module_nose.suite.html">Module: nose.suite</a></li><li><a href="module_nose.config.html">Module: nose.config</a></li><li><a href="module_nose.core.html">Module: nose.core</a></li><li><a href="module_nose.twistedtools.html">Module: nose.twistedtools</a></li><li><a href="module_nose.util.html">Module: nose.util</a></li><li><a href="module_nose.proxy.html">Module: nose.proxy</a></li><li><a href="module_nose.selector.html">Module: nose.selector</a></li><li><a href="module_nose.case.html">Module: nose.case</a></li><li><a href="module_nose.commands.html">Module: nose.commands</a></li><li><a href="module_nose.exc.html">Module: nose.exc</a></li></ul>
-      <p>Last update: <b>Sun Jun 24 19:23:19 2007</b></p>
+      <h2>Documentation</h2><ul><li><a href="writing_plugins.html">Writing Plugins</a></li><li><a href="errorclassplugin.html">ErrorClass Plugins</a></li><li><a href="plugin_interface.html">Plugin Interface</a></li><li><a href="plugin_attrib.html">Builtin Plugin: attrib</a></li><li><a href="plugin_capture.html">Builtin Plugin: capture</a></li><li><a href="plugin_cover.html">Builtin Plugin: cover</a></li><li><a href="plugin_debug.html">Builtin Plugin: debug</a></li><li><a href="plugin_deprecated.html">Builtin Plugin: deprecated</a></li><li><a href="plugin_doctests.html">Builtin Plugin: doctests</a></li><li><a href="plugin_isolate.html">Builtin Plugin: isolate</a></li><li><a href="plugin_failuredetail.html">Builtin Plugin: failuredetail</a></li><li><a href="plugin_prof.html">Builtin Plugin: prof</a></li><li><a href="plugin_skip.html">Builtin Plugin: skip</a></li><li><a href="plugin_testid.html">Builtin Plugin: testid</a></li><li><a href="module_nose.loader.html">Module: nose.loader</a></li><li><a href="module_nose.result.html">Module: nose.result</a></li><li><a href="module_nose.inspector.html">Module: nose.inspector</a></li><li><a href="module_nose.tools.html">Module: nose.tools</a></li><li><a href="module_nose.importer.html">Module: nose.importer</a></li><li><a href="module_nose.suite.html">Module: nose.suite</a></li><li><a href="module_nose.config.html">Module: nose.config</a></li><li><a href="module_nose.core.html">Module: nose.core</a></li><li><a href="module_nose.twistedtools.html">Module: nose.twistedtools</a></li><li><a href="module_nose.util.html">Module: nose.util</a></li><li><a href="module_nose.proxy.html">Module: nose.proxy</a></li><li><a href="module_nose.selector.html">Module: nose.selector</a></li><li><a href="module_nose.case.html">Module: nose.case</a></li><li><a href="module_nose.commands.html">Module: nose.commands</a></li><li><a href="module_nose.exc.html">Module: nose.exc</a></li><li><a href="module_nose.plugins.manager.html">Module: nose.plugins.manager</a></li></ul>
+      <p>Last update: <b>Mon Jun 25 23:50:58 2007</b></p>
     </div>
     
     <div id="main">
@@ -17,7 +17,65 @@
       <p>Test selection is handled by a Selector. The test loader calls the
 appropriate selector method for each object it encounters that it
 thinks may be a test.</p>
-
+<h2>Classes</h2>
+<div class="cls section"><span class="cls name">defaultSelector</span><div class="cls doc"><p>Core test selector. Examines test candidates and determines whether,
+given the specified configuration, the test candidate should be selected
+as a test.</p>
+<h4>Methods</h4><div class="method section"><span class="method name">__init__</span><span class="method args">(self, config)</span><div class="method doc"></div></div><div class="method section"><span class="method name">configure</span><span class="method args">(self, config)</span><div class="method doc"></div></div><div class="method section"><span class="method name">matches</span><span class="method args">(self, name)</span><div class="method doc"><p>Does the name match my requirements?</p>
+<p>To match, a name must match config.testMatch OR config.include
+and it must not match config.exclude</p>
+</div></div><div class="method section"><span class="method name">wantClass</span><span class="method args">(self, cls)</span><div class="method doc"><p>Is the class a wanted test class?</p>
+<p>A class must be a unittest.TestCase subclass, or match test name
+requirements. Classes that start with _ are always excluded.</p>
+</div></div><div class="method section"><span class="method name">wantDirectory</span><span class="method args">(self, dirname)</span><div class="method doc"><p>Is the directory a wanted test directory?</p>
+<p>All package directories match, so long as they do not match exclude.
+All other directories must match test requirements.</p>
+</div></div><div class="method section"><span class="method name">wantFile</span><span class="method args">(self, file)</span><div class="method doc"><p>Is the file a wanted test file?</p>
+<p>The file must be a python source file and match testMatch or
+include, and not match exclude. Files that match ignore are <em>never</em>
+wanted, regardless of plugin, testMatch, include or exclude settings.</p>
+</div></div><div class="method section"><span class="method name">wantFunction</span><span class="method args">(self, function)</span><div class="method doc"><p>Is the function a test function?</p>
+</div></div><div class="method section"><span class="method name">wantMethod</span><span class="method args">(self, method)</span><div class="method doc"><p>Is the method a test method?</p>
+</div></div><div class="method section"><span class="method name">wantModule</span><span class="method args">(self, module)</span><div class="method doc"><p>Is the module a test module?</p>
+<p>The tail of the module name must match test requirements. One exception:
+we always want __main__.</p>
+</div></div></div></div>
+<div class="cls section"><span class="cls name">TestAddress</span><div class="cls doc"><p>A test address represents a user's request to run a particular
+test. The user may specify a filename or module (or neither),
+and/or a callable (a class, function, or method). The naming
+format for test addresses is:</p>
+<p>filename_or_module:callable</p>
+<p>Filenames that are not absolute will be made absolute relative to
+the working dir.</p>
+<p>The filename or module part will be considered a module name if it
+doesn't look like a file, that is, if it doesn't exist on the file
+system and it doesn't contain any directory separators and it
+doesn't end in .py.</p>
+<p>Callables may be a class name, function name, method name, or
+class.method specification.</p>
+<h4>Methods</h4><div class="method section"><span class="method name">__init__</span><span class="method args">(self, name, workingDir=None)</span><div class="method doc"></div></div></div></div>
+<div class="cls section"><span class="cls name">Selector</span><div class="cls doc"><p>Core test selector. Examines test candidates and determines whether,
+given the specified configuration, the test candidate should be selected
+as a test.</p>
+<h4>Methods</h4><div class="method section"><span class="method name">__init__</span><span class="method args">(self, config)</span><div class="method doc"></div></div><div class="method section"><span class="method name">configure</span><span class="method args">(self, config)</span><div class="method doc"></div></div><div class="method section"><span class="method name">matches</span><span class="method args">(self, name)</span><div class="method doc"><p>Does the name match my requirements?</p>
+<p>To match, a name must match config.testMatch OR config.include
+and it must not match config.exclude</p>
+</div></div><div class="method section"><span class="method name">wantClass</span><span class="method args">(self, cls)</span><div class="method doc"><p>Is the class a wanted test class?</p>
+<p>A class must be a unittest.TestCase subclass, or match test name
+requirements. Classes that start with _ are always excluded.</p>
+</div></div><div class="method section"><span class="method name">wantDirectory</span><span class="method args">(self, dirname)</span><div class="method doc"><p>Is the directory a wanted test directory?</p>
+<p>All package directories match, so long as they do not match exclude.
+All other directories must match test requirements.</p>
+</div></div><div class="method section"><span class="method name">wantFile</span><span class="method args">(self, file)</span><div class="method doc"><p>Is the file a wanted test file?</p>
+<p>The file must be a python source file and match testMatch or
+include, and not match exclude. Files that match ignore are <em>never</em>
+wanted, regardless of plugin, testMatch, include or exclude settings.</p>
+</div></div><div class="method section"><span class="method name">wantFunction</span><span class="method args">(self, function)</span><div class="method doc"><p>Is the function a test function?</p>
+</div></div><div class="method section"><span class="method name">wantMethod</span><span class="method args">(self, method)</span><div class="method doc"><p>Is the method a test method?</p>
+</div></div><div class="method section"><span class="method name">wantModule</span><span class="method args">(self, module)</span><div class="method doc"><p>Is the module a test module?</p>
+<p>The tail of the module name must match test requirements. One exception:
+we always want __main__.</p>
+</div></div></div></div>
 
     </div>
   </body>

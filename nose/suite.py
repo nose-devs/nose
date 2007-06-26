@@ -99,8 +99,12 @@ class LazySuite(unittest.TestSuite):
 class ContextSuite(LazySuite):
     """A suite with context.
 
-    `ContextSuite`s execute fixtures (setup and teardown functions or
-    methods) for the context containing their tests.
+    A ContextSuite executes fixtures (setup and teardown functions or
+    methods) for the context containing its tests.
+
+    The context may be explicitly passed. If it is not, a context (or
+    nested set of contexts) will be constructed by examining the tests
+    in the suite.
     """    
     failureException = unittest.TestCase.failureException
     was_setup = False
@@ -286,7 +290,7 @@ class ContextSuite(LazySuite):
 
 
 class ContextSuiteFactory(object):
-    """Factory for `ContextSuite`s. Called with a collection of tests,
+    """Factory for ContextSuites. Called with a collection of tests,
     the factory decides on a hierarchy of contexts by introspecting
     the collection or the tests them selves to find the objects
     containing the test objects. It always returns one suite, but that
@@ -310,7 +314,7 @@ class ContextSuiteFactory(object):
         self.was_torndown = {}
 
     def __call__(self, tests):
-        """Return ContextSuite for tests. `tests` may either
+        """Return ``ContextSuite`` for tests. ``tests`` may either
         be a callable (in which case the resulting ContextSuite will
         have no parent context and be evaluated lazily) or an
         iterable. In that case the tests will wrapped in

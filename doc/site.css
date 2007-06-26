@@ -191,3 +191,17 @@ pre.literal-block, pre.doctest-block {
 .doc .note p { 
              margin: 0px;
  }
+
+.cls.section { 
+               margin-bottom: 2ex;
+ }
+
+.cls.name { 
+            font-size: 110%;
+            font-weight: bold;
+ }
+
+.cls.doc { 
+           padding-left: 4em;
+           padding-right: 2em;
+ }
