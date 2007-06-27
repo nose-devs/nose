@@ -103,7 +103,8 @@ def document_module(mod):
     print name
     body =  to_html(mod.doc())
 
-    # FIXME prepend with note on what highlighted means
+    # for classes: prepend with note on what highlighted means
+    cls_note = "<p>Highlighted methods are defined in this class.</p>"
 
     submenu = []
 
@@ -111,7 +112,7 @@ def document_module(mod):
     mod_classes = get_classes(mod)
     classes = [document_class(cls) for cls in mod_classes]
     if classes:
-        body += '<h2>Classes</h2>\n' + '\n'.join(classes)
+        body += '<h2>Classes</h2>\n' + cls_note + '\n'.join(classes)
         submenu.extend(make_submenu('Classes', mod_classes))
         
     # functions
@@ -234,13 +235,12 @@ def document_class(cls):
                                 '(inherited from %s)</span>' \
                                 % defined_in.__name__
                     inh_cls = ' inherited'
-                # FIXME value needs to be escaped
-                # value makes no sense when it's a property
+                val = format_attr(attr.parent.obj, attr.name)
                 html.extend([
                     '<div class="attr section%s">' % inh_cls,
                     '<span class="attr name">%s</span>' % attr.name,
-                    '<span class="attr value">Default value: %(a)s</span>' %
-                    {'a': getattr(attr.parent.obj, attr.name)},
+                    '<pre class="attr value">Default value: %(a)s</pre>' %
+                    {'a': val},
                     '<div class="attr doc">%s</div>' % to_html(attr.doc()),
                     '</div>'])
 
@@ -263,10 +263,7 @@ def document_function(func):
 
 def document_attribute(attr):
     print "  %s" % attr.name
-    value = str(getattr(attr.parent.obj, attr.name)).replace(
-        '&', '&amp;').replace('<', '&lt;').replace('>', '&gt;').replace(
-        '"', '&quot;').replace("'", '&#39;')
-    value = remove_at.sub('', value)
+    value = format_attr(attr.parent.obj, attr.name)
     html = [
         '<a name="%s"></a><div class="attr section">' % attr.name,
         '<span class="attr name">%s</span>' % attr.name,
@@ -276,6 +273,17 @@ def document_attribute(attr):
         '</div>']
     return ''.join(html)
 
+
+def format_attr(obj, attr):
+    val = getattr(obj, attr)
+    if isinstance(val, property):
+        # value makes no sense when it's a property
+        return '(property)'
+    val = str(val).replace(
+        '&', '&amp;').replace('<', '&lt;').replace('>', '&gt;').replace(
+        '"', '&quot;').replace("'", '&#39;')
+    val = remove_at.sub('', val)
+    return val
 
 def link_to_class(cls):
     mod = cls.__module__

@@ -237,7 +237,7 @@ class IPluginInterface(object):
         .. Note:: DEPRECATED -- check error class in addError instead
 
         :Parameters:
-          test : `nose.case.Test`
+          test : `nose.case.Test`_
             the test case 
         """
         pass
@@ -249,7 +249,7 @@ class IPluginInterface(object):
         test has raised an error.
 
         :Parameters:
-          test : `nose.case.Test`
+          test : `nose.case.Test`_
             the test case
           err : 3-tuple
             sys.exc_info() tuple
@@ -266,7 +266,7 @@ class IPluginInterface(object):
         want to stop other plugins from seeing that the test has failed.
 
         :Parameters:
-          test : `nose.case.Test`
+          test : `nose.case.Test`_
             the test case
           err : 3-tuple
             sys.exc_info() tuple
@@ -289,7 +289,7 @@ class IPluginInterface(object):
         .. Note:: DEPRECATED -- check error class in addError instead
 
         :Parameters:
-          test : `nose.case.Test`
+          test : `nose.case.Test`_
             the test case
         """
         pass
@@ -300,7 +300,7 @@ class IPluginInterface(object):
         want to stop other plugins from seeing the passing test.
 
         :Parameters:
-          test : `nose.case.Test`
+          test : `nose.case.Test`_
             the test case
           capt : string
             Captured output, if any.
@@ -347,7 +347,7 @@ class IPluginInterface(object):
         (after stopTest).
 
         :Parameters:
-          test :  `nose.case.Test`
+          test :  `nose.case.Test`_
             the test case
         """
         pass
@@ -396,7 +396,7 @@ class IPluginInterface(object):
         """Called before the test is run (before startTest).
         
         :Parameters:
-          test : `nose.case.Test`
+          test : `nose.case.Test`_
             the test case
         """        
         pass
@@ -433,7 +433,7 @@ class IPluginInterface(object):
         `nose.case.Test.shortDescription`.
 
         :Parameters:
-          test : `nose.case.Test`
+          test : `nose.case.Test`_
             the test case
         """
         pass
@@ -445,7 +445,7 @@ class IPluginInterface(object):
         tuple.
 
         :Parameters:
-          test : `nose.case.Test`
+          test : `nose.case.Test`_
             the test case
           err : 3-tuple
             sys.exc_info() tuple
@@ -460,7 +460,7 @@ class IPluginInterface(object):
         tuple.
 
         :Parameters:
-          test : `nose.case.Test`
+          test : `nose.case.Test`_
             the test case
           err : 3-tuple
             sys.exc_info() tuple
@@ -474,7 +474,7 @@ class IPluginInterface(object):
         error processing, return a true value.
 
         :Parameters:
-          test : `nose.case.Test`
+          test : `nose.case.Test`_
             the test case
           err : 3-tuple
             sys.exc_info() tuple
@@ -487,7 +487,7 @@ class IPluginInterface(object):
         prevent normal failure processing, return a true value.
 
         :Parameters:
-          test : `nose.case.Test`
+          test : `nose.case.Test`_
             the test case
           err : 3-tuple
             sys.exc_info() tuple
@@ -612,10 +612,11 @@ class IPluginInterface(object):
     loadTestsFromTestClass.generative = True
 
     def makeTest(self, obj, parent):
-        """Given an object and its parent, return a test case. Must be
-        a unittest.TestCase or TestSuite (or subclass) instance. This
-        is called before default test loading to allow plugins to load
-        an alternate test case or cases for an object. May be a generator.
+        """Given an object and its parent, return or yield one or more
+        test cases. Each test must be a unittest.TestCase (or subclass)
+        instance. This is called before default test loading to allow
+        plugins to load an alternate test case or cases for an
+        object. May be a generator.
 
         :Parameters:
           obj : any object
@@ -649,7 +650,7 @@ class IPluginInterface(object):
         instead.
 
         :Parameters:
-          test : `nose.case.Test`
+          test : `nose.case.Test`_
             the test case
         """
         pass
@@ -668,7 +669,7 @@ class IPluginInterface(object):
         exception handling and result calls, etc.
 
         :Parameters:
-           test : `nose.case.Test`
+           test : `nose.case.Test`_
              the test case
         """
         pass
@@ -760,7 +761,7 @@ class IPluginInterface(object):
         you want to stop other plugins from seeing the test start.
 
         :Parameters:
-           test : `nose.case.Test`
+           test : `nose.case.Test`_
              the test case
         """
         pass
@@ -781,7 +782,7 @@ class IPluginInterface(object):
         you want to stop other plugins from seeing that the test has stopped.
 
         :Parameters:
-          test : `nose.case.Test`
+          test : `nose.case.Test`_
             the test case
         """
         pass
@@ -790,7 +791,7 @@ class IPluginInterface(object):
         """Return a short test name. Called by `nose.case.Test.__str__`.
 
         :Parameters:
-           test : `nose.case.Test`
+           test : `nose.case.Test`_
              the test case
         """
         pass

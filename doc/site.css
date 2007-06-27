@@ -134,28 +134,43 @@ pre.literal-block, pre.doctest-block
 
 .method, .attr, .func { 
           padding-top: 2px;
-          padding-left: 1em;
+          padding-left: 1.5em;
           padding-right: 1em;
           margin-bottom: 2ex;
           }
 
-.method.new { 
-              background-color: #ffe;
+.method.new 
+{ 
+  background-color: #ffe;
 }
 
-.method .doc { 
-                margin-left: 2em;
-                margin-top: 0px;
-                padding-bottom: 1px;
+.method .doc 
+{ 
+  margin-left: 2em;
+  margin-top: 0px;
+  padding-bottom: 1px;
 }
 
-.method .name { 
-                font-weight: bold;
- }
+.method .name 
+{ 
+  font-weight: bold;
+}
 
-.method.deprecated .name { 
-                           text-decoration: line-through;
+.method.generative
+{ 
+  background: url(gen.png) no-repeat;
+  background-position: 0 0;
+}
 
+.method.chainable
+{ 
+  background: url(chain.png) no-repeat;
+  background-position: 0 0;
+}
+
+.method.deprecated .name
+{ 
+   text-decoration: line-through;
 }
 
 .method .field-list, .attr { 
@@ -207,10 +222,16 @@ pre.literal-block, pre.doctest-block
   font-size: small;
 }
 
-.cls.doc, .func.doc { 
+.cls.doc, .func.doc, .attr.doc { 
            padding-left: 2em;
            padding-right: 2em;
  }
+
+.attr.doc, .attr.doc p
+{ 
+  padding-top: 0px;
+  margin-top: 0px;
+}
 
 .args 
 { 
@@ -231,4 +252,5 @@ pre.literal-block, pre.doctest-block
 { 
   display: block;
   color: #666;
+  margin-bottom: 0px;
 }
