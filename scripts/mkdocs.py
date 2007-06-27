@@ -463,4 +463,11 @@ for section, title, filename, template, ctx in to_write:
     ctx['menu'] = menu
     write(filename, template, ctx)
 
+# doc section index page
+idx_tpl = open(os.path.join(doc, 'index.html.tpl'), 'r').read()
+idx = {
+    'title': 'API documentation',
+    'menu': menu}
+idx.update(std_info)
+write(os.path.join(doc, 'index.html'), idx_tpl, idx)
 

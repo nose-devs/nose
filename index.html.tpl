@@ -53,7 +53,6 @@
         <li>
           <a href="http://codespeak.net/py/current/doc/test.html">py.test</a>
         </li>
-        <li><a href="http://www.turbogears.com/testgears/">testgears</a></li>
         <li>
           <a href="http://peak.telecommunity.com/DevCenter/setuptools">
             setuptools</a>
