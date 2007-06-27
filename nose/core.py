@@ -282,11 +282,12 @@ def run(*arg, **kw):
     return TestProgram(*arg, **kw).success
 
 
-def runmodule(name='__main__'):
+def runmodule(name='__main__', **kw):
     """Collect and run tests in a single module only. Defaults to running
-    tests in __main__.
+    tests in __main__. Additional arguments to TestProgram may be passed
+    as keyword arguments.
     """
-    main(defaultTest=name)    
+    main(defaultTest=name, **kw)
 
 
 def collector():
