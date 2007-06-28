@@ -377,7 +377,24 @@ class TestNoseTestLoader(unittest.TestCase):
         print res.errors
         assert res.errors, "Expected errors but got none"
         assert not res.failures, res.failures
-        
+
+    def test_generator_with_closure(self):
+        """Test that a generator test can employ a closure
+
+        Issue #3. If the generator binds early, the last value
+        of the closure will be seen for each generated test and
+        the tests will fail.
+        """
+        gen = os.path.join(support, 'gen')
+        l = loader.TestLoader(workingDir=gen)
+        suite = l.loadTestsFromName('test')
+        res = unittest._TextTestResult(
+            stream=unittest._WritelnDecorator(sys.stdout),
+            descriptions=0, verbosity=1)
+        suite(res)
+        assert not res.errors
+        self.assertEqual(res.testsRun, 5)
+
         
 # used for comparing lists
 def diff(a, b):
