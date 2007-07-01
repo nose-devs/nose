@@ -401,9 +401,29 @@ class TestLoader(unittest.TestLoader):
                     ])
         return unittest.TestLoader.loadTestsFromNames(self, names, module)
 
-#    def loadTestsFromTestCase(self, testCaseClass):
-#        names = self.getTestCaseNames(testCaseClass)
-        
+    def loadTestsFromTestCase(self, testCaseClass):
+        """Load tests from a unittest.TestCase subclass.
+        """
+        cases = []
+        plugins = self.config.plugins
+        try:
+            for case in plugins.loadTestsFromTestCase(testCaseClass):
+                cases.append(case)
+        except (TypeError, AttributeError):
+            pass
+        except (KeyboardInterrupt, SystemExit):
+            raise
+        except:
+            cases.append(Failure(*sys.exc_info()))
+        # For efficiency in the most common case, just call and return from
+        # super. This avoids having to extract cases and rebuild a context
+        # suite when there are no plugin-contributed cases.
+        if not cases:
+            return super(TestLoader, self).loadTestsFromTestCase(testCaseClass)
+        cases.extend(
+            [case for case in
+             super(TestLoader, self).loadTestsFromTestCase(testCaseClass)])
+        return self.suiteClass(cases)
     
     def loadTestsFromTestClass(self, cls):
         """Load tests from a test class that is *not* a unittest.TestCase

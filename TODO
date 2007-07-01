@@ -1,24 +1,11 @@
 DOCUMENTATION
 
-  in index, move about the name, etc, to very bottom of page
-
-  in index/docs: remove direct to wiki links for wiki items;
-  when generating index these should link to generated api doc page
-  but when generating wiki they should link to wiki page -- need to
-  use a custom unknown ref lookup in index generation too, and extend
-  the one in wiki generation so these links can be done correctly
-  in both environments.
-
  CHANGELOG
 
  NEWS
 
  sep. upload of index for 0.10 -- link from 0.9 index
  
- generate new plugin api docs, highlighting new and changed methods
- generate new docs for all wiki'd docs, flat html, interlinked, for 0.10 doc dir
- generate pydoctor(?) or pudge(?) api docs for 0.10 doc dir
-
 FEATURES
 
 rename Failure and split into subclasses for Import and other, and make

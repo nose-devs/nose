@@ -35,7 +35,7 @@ class TestPluginCalls(unittest.TestCase):
              'wantDirectory', 'beforeContext', 'beforeImport',
              'afterImport', 'wantModule', 'wantClass', 'wantFunction',
              'makeTest', 'wantMethod', 'loadTestsFromTestClass',
-             'loadTestsFromModule', 'startContext',
+             'loadTestsFromTestCase', 'loadTestsFromModule', 'startContext',
              'beforeTest', 'prepareTestCase', 'startTest', 'addSuccess',
              'stopTest', 'afterTest', 'stopContext', 'afterContext',
              'loadTestsFromDir', 'afterDirectory',

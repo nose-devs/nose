@@ -29,7 +29,7 @@ class Failure(unittest.TestCase):
         return "Failure: %s(%s)" % (self.exc_class, self.exc_val)
 
     def runTest(self):
-        if self.tb is not None:
+        if self.tb is not None:            
             raise self.exc_class, self.exc_val, self.tb
         else:
             raise self.exc_class(self.exc_val)
@@ -295,8 +295,8 @@ class MethodTestCase(TestBase):
         Required argument:
 
         * method -- the method to call, may be bound or unbound. In either
-        case, a new instance of the method's class will be instantiated to
-        make the call.
+          case, a new instance of the method's class will be instantiated to
+          make the call.
 
         Optional arguments:
 
