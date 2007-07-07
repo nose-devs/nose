@@ -40,14 +40,17 @@ setup(
                         
     These features, and many more, are customizable through the use of
     plugins. Plugins included with nose provide support for doctest, code
-    coverage and profiling, and flexible attribute-based test
-    selection. More information about writing plugins may be found on the
-    wiki, here: http://code.google.com/p/python-nose/wiki/WritingPlugins.
+    coverage and profiling, flexible attribute-based test selection,
+    output capture and more. More information about writing plugins may be 
+    found on the wiki, here:
+    http://code.google.com/p/python-nose/wiki/WritingPlugins, and in the nose
+    API documentation, here:
+    http://somethingaboutorange.com/mrl/projects/nose/%s/doc/
     
     If you have recently reported a bug marked as fixed, or have a craving for
     the very latest, you may want the development version instead:
     http://python-nose.googlecode.com/svn/trunk#egg=nose-dev
-    """,
+    """ % VERSION,
     license = 'GNU LGPL',
     keywords = 'test unittest doctest automatic discovery',
     url = 'http://somethingaboutorange.com/mrl/projects/nose/',

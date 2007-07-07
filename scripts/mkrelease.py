@@ -26,7 +26,6 @@ def runcmd(cmd):
 version = nose.__version__
 versioninfo = nose.__versioninfo__
 
-# old: runcmd('bzr branch . ../nose_dev-%s' % version)
 
 os.chdir(svnroot)
 print "cd %s" % svnroot
@@ -64,13 +63,13 @@ runcmd('svn copy %s %s' % (base, tag))
 if os.path.exists(os.path.join(branch, 'setup.cfg')):
     os.chdir(branch)
     print "cd %s" % branch
-    runcmd('svn rm setup.cfg --force') # remove dev tag from setup
+    runcmd('svn cp setup.cfg.release setup.cfg') # remove dev tag from setup
     print "cd %s" % svnroot
     os.chdir(svnroot)
     
 os.chdir(tag)
 print "cd %s" % tag
-runcmd('svn rm setup.cfg --force') # remove dev tag from setup
+runcmd('svn cp setup.cfg.release setup.cfg') # remove dev tag from setup
 
 # check in
 os.chdir(branchroot)
@@ -87,6 +86,7 @@ os.chdir(tag)
 print "cd %s" % tag
 
 runcmd('scripts/mkindex.py')
+runcmd('scripts/mkdocs.py')
 runcmd('scripts/mkwiki.py')
 
 # setup sdist
@@ -94,10 +94,14 @@ runcmd('python setup.py sdist')
 
 # upload index.html, new dist version, new branch
 # link current to dist version
-if os.environ.has_key('NOSE_UPLOAD'):
-    cmd = ('scp -C dist/nose-%(version)s.tar.gz '
-           'index.html %(upload)s') % {'version':version,
-                                       'upload': os.environ['NOSE_UPLOAD'] }
+if 'NOSE_UPLOAD' in os.environ:
+    cv = {'version':version,
+          'uoload': os.environ['NOSE_UPLOAD'],
+          'upload_docs': "%s/%s" % (os.environ['NOSE_UPLOAD'], version) }
+    cmd = 'scp -C dist/nose-%(version)s.tar.gz %(upload)s' % cv
     runcmd(cmd)
-           
+
+    cmd = 'scp -Cr index.html doc %(upload_docs)s') % cv
+    runcmd(cmd)
+    
 os.chdir(current)

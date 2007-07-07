@@ -5,6 +5,8 @@ from docutils.core import publish_string, publish_parts
 from docutils.nodes import SparseNodeVisitor
 from docutils.readers.standalone import Reader
 from docutils.writers import Writer
+from nose.config import Config
+from nose.plugins.manager import BuiltinPluginManager
 import nose
 import os
 import pudge.browser
@@ -12,6 +14,7 @@ import re
 import sys
 import textwrap
 import time
+
 
 # constants
 success = 0
@@ -220,11 +223,9 @@ def tools():
 
 
 def usage():
-    doc = nose.core.TestProgram.__doc__.replace("\\", "\\\\")
-    parser = nose.core.get_parser(env={}, builtin_only=True, doc=doc)
-    out = '{{{\n' + \
-          parser.format_help().replace('mkwiki.py', 'nosetests') + \
-          '\n}}}\n'
+    conf = Config(plugins=BuiltinPluginManager())
+    usage_text = conf.help(nose.main.__doc__).replace('mkwiki.py', 'nosetests')
+    out = '{{{\n%s\n}}}\n' % usage_text
     return out
 
 
