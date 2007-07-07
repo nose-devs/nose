@@ -30,8 +30,8 @@ versioninfo = nose.__versioninfo__
 os.chdir(svnroot)
 print "cd %s" % svnroot
 
-branch = 'branches/%s.%s.%s-stable' % (versioninfo[0],
-                                       versioninfo[1], versioninfo[2])
+# FIXME tail of version is hardcoded
+branch = 'branches/%s.%s.0-stable' % (versioninfo[0], versioninfo[1])
 tag =  'tags/%s-release' % version
 
 if os.path.isdir(tag):
@@ -47,6 +47,16 @@ if not os.path.isdir(branch):
     os.chdir(svnroot)
     print "cd %s" % svnroot    
     runcmd('svn copy %s %s' % (svn_trunk_url, branch))
+
+    # clean up setup.cfg and check in branch
+    os.chdir(branch)
+    print "cd %s" % branch
+    runcmd('svn rm setup.cfg --force')
+    runcmd('svn cp setup.cfg.release setup.cfg') # remove dev tag from setup
+    os.chdir(branchroot)
+    print "cd %s" % branchroot
+    runcmd("svn ci -m 'Release branch for %s'" % version)
+
 else:
     # re-releasing branch
     os.chdir(branch)
@@ -54,28 +64,13 @@ else:
     runcmd('svn up')
     os.chdir(svnroot)
     print "cd %s"% svnroot
-    
-# make tag from branch
-runcmd('svn copy %s %s' % (branch, tag))
 
-# clean up setup.cfg in both branch and tag
-os.chdir(branch)
-print "cd %s" % branch
-runcmd('svn rm setup.cfg --force')
-runcmd('svn cp setup.cfg.release setup.cfg') # remove dev tag from setup
+# make tag from branch
 print "cd %s" % svnroot
 os.chdir(svnroot)
-    
-os.chdir(tag)
-print "cd %s" % tag
-runcmd('svn rm setup.cfg --force')
-runcmd('svn cp setup.cfg.release setup.cfg') # remove dev tag from setup
+runcmd('svn copy %s %s' % (branch, tag))
 
-# check in
-os.chdir(branchroot)
-print "cd %s" % branchroot
-runcmd("svn ci -m 'Release branch for %s'" % version)
-
+# check in tag
 os.chdir(tagroot)
 print "cd %s" % tagroot
 runcmd("svn ci -m 'Release tag for %s'" % version)
@@ -92,8 +87,7 @@ runcmd('scripts/mkwiki.py')
 # setup sdist
 runcmd('python setup.py sdist')
 
-# upload index.html, new dist version, new branch
-# link current to dist version
+# upload docs and distribution
 if 'NOSE_UPLOAD' in os.environ and False:
     cv = {'version':version,
           'uoload': os.environ['NOSE_UPLOAD'],
