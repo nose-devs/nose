@@ -453,6 +453,7 @@ for page in to_write:
 for section, pages in sections.items():
     menu.append('<h2>%s</h2>' % section)
     menu.append('<ul>')
+    pages.sort()
     menu.extend([
         '<li><a href="%s">%s</a></li>' % (os.path.basename(filename), title)
         for _, title, filename, _, _ in pages ])

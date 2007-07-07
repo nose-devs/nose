@@ -62,6 +62,12 @@
     <div id="main">
       <h1>nose: a discovery-based unittest extension.</h1>
 
+      <p class="note">
+	This document refers to nose version %(version)s.
+	<a href="/mrl/project/nose/0.9.3/">Documention for version
+	0.9.3</a> is available <a href="/mrl/project/nose/0.9.3/">here</a>.
+      </p>	
+
       <p>nose provides an alternate test discovery and running process for
         unittest, one that is intended to mimic the behavior of py.test as much
         as is reasonably possible without resorting to too much magic.
