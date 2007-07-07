@@ -16,6 +16,7 @@ svnroot = os.path.abspath(os.path.dirname(here))
 branchroot = os.path.join(svnroot, 'branches')
 tagroot = os.path.join(svnroot, 'tags')
 svntrunk = os.path.join(svnroot, 'trunk')
+svn_trunk_url = 'https://python-nose.googlecode.com/svn/trunk'
 
 def runcmd(cmd):
     print cmd
@@ -25,7 +26,6 @@ def runcmd(cmd):
 
 version = nose.__version__
 versioninfo = nose.__versioninfo__
-
 
 os.chdir(svnroot)
 print "cd %s" % svnroot
@@ -46,29 +46,29 @@ if not os.path.isdir(branch):
     runcmd('svn up')
     os.chdir(svnroot)
     print "cd %s" % svnroot    
-    runcmd('svn copy trunk %s' % branch)
-    base = 'trunk'
+    runcmd('svn copy %s %s' % (svn_trunk_url, branch))
 else:
     # re-releasing branch
-    base = branch
     os.chdir(branch)
     print "cd %s" % branch
     runcmd('svn up')
     os.chdir(svnroot)
     print "cd %s"% svnroot
     
-# make tag
-runcmd('svn copy %s %s' % (base, tag))
+# make tag from branch
+runcmd('svn copy %s %s' % (branch, tag))
 
-if os.path.exists(os.path.join(branch, 'setup.cfg')):
-    os.chdir(branch)
-    print "cd %s" % branch
-    runcmd('svn cp setup.cfg.release setup.cfg') # remove dev tag from setup
-    print "cd %s" % svnroot
-    os.chdir(svnroot)
+# clean up setup.cfg in both branch and tag
+os.chdir(branch)
+print "cd %s" % branch
+runcmd('svn rm setup.cfg --force')
+runcmd('svn cp setup.cfg.release setup.cfg') # remove dev tag from setup
+print "cd %s" % svnroot
+os.chdir(svnroot)
     
 os.chdir(tag)
 print "cd %s" % tag
+runcmd('svn rm setup.cfg --force')
 runcmd('svn cp setup.cfg.release setup.cfg') # remove dev tag from setup
 
 # check in
