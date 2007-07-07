@@ -94,14 +94,14 @@ runcmd('python setup.py sdist')
 
 # upload index.html, new dist version, new branch
 # link current to dist version
-if 'NOSE_UPLOAD' in os.environ:
+if 'NOSE_UPLOAD' in os.environ and False:
     cv = {'version':version,
           'uoload': os.environ['NOSE_UPLOAD'],
           'upload_docs': "%s/%s" % (os.environ['NOSE_UPLOAD'], version) }
     cmd = 'scp -C dist/nose-%(version)s.tar.gz %(upload)s' % cv
     runcmd(cmd)
 
-    cmd = 'scp -Cr index.html doc %(upload_docs)s') % cv
+    cmd = 'scp -Cr index.html doc %(upload_docs)s' % cv
     runcmd(cmd)
     
 os.chdir(current)
