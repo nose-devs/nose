@@ -51,8 +51,11 @@ if not os.path.isdir(branch):
     # clean up setup.cfg and check in branch
     os.chdir(branch)
     print "cd %s" % branch
-    runcmd('svn rm setup.cfg --force')
-    runcmd('svn cp setup.cfg.release setup.cfg') # remove dev tag from setup
+
+    # remove dev tag from setup
+    runcmd('cp setup.cfg.release setup.cfg')
+    runcmd('svn rm setup.cfg.release --force')
+
     os.chdir(branchroot)
     print "cd %s" % branchroot
     runcmd("svn ci -m 'Release branch for %s'" % version)
