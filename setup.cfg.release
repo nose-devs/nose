@@ -1,5 +1,0 @@
-[nosetests]
-with-doctest=1
-
-[bdist_rpm]
-doc_files = man/man1/nosetests.1
