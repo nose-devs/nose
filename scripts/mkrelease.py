@@ -85,7 +85,7 @@ print "cd %s" % tag
 
 runcmd('scripts/mkindex.py')
 runcmd('scripts/mkdocs.py')
-runcmd('scripts/mkwiki.py')
+# runcmd('scripts/mkwiki.py')
 
 # setup sdist
 runcmd('python setup.py sdist')

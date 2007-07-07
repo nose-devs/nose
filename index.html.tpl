@@ -7,7 +7,7 @@
 
     
     <div id="menu">
-      <h2><a href="nose-%(version)s.tar.gz">Download</a></h2>
+      <h2><a href="/mrl/projects/nose/nose-%(version)s.tar.gz">Download</a></h2>
       <p>Current version: %(version)s <br />(%(date)s)</p>
             
       <h2>Install</h2>
