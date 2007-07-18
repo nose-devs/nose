@@ -1,42 +1,39 @@
+0.10.0a2
+
+- Changed entry point name to nose.plugins.0.10 -- dashes and other
+  non-word characters besides . are not allowed in entry point names.
+  (Issue #67)
+- Fixed loading of plugins from that entry point.
+- Fixed backwards-compatibility issue in nose.util (is_generator was
+  renamed isgenerator). (Issue #64)
+
 0.10.0a1
 
 - Rewrote test loader to be more drop-in compatible with
   unittest.TestLoader and to support a more user-friendly command
   line.
-
 - Rewrote test runner and result classes to reduce duplication of effort.
-
 - Revised configuration system to be less convoluted.
-
 - Added nose.case.TestCase as universal wrapper for all
   testcases. Plugins always see instances of this class.
-
 - Added a management layer to the plugin system, allowing for easy use
   of different plugin loading schemes. The default manager loads
   builtin plugins, 0.10 plugins under the setuptools entrypoint
   nose.plugins.0-10 and provides limited support for legacy plugins
   loaded under the entrypoint nose.plugins.
-
 - Added plugin hooks in all phases of discovery, running and description.
-
 - Converted several formely core features to plugins: output capture,
   assert introspection, pdb, and skipped and deprecated test support.
-
 - Added id plugin that allows for easier specification of tests on the
   command line.
-
 - Added ErrorClassPlugin base class to allow for easier authoring of
   plugins that handle errors, like the builtin skipped and deprecated
   test plugins.
-
 - Added support for loading doctests from non-module files for all
   supported python versions.
-
 - Added score property to plugins to allow plugins to execute in a
   defined order (higher score execute first).
-
 - Expanded nose's own test suite to include a variety of functional tests.
-
 - Fixed many bugs.
 
 0.9.3
