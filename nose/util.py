@@ -108,6 +108,8 @@ def isclass(obj):
     for objects that can't be subclasses of anything.
     """
     try:
+        # This is a little tricky -- anything that's not a class will
+        # raise a TypeError when passed to issubclass.
         issubclass(obj, type)
     except TypeError:
         return False
@@ -119,6 +121,8 @@ def isgenerator(func):
         return func.func_code.co_flags & CO_GENERATOR != 0
     except AttributeError:
         return False
+# backwards compat (issue #64)
+is_generator = isgenerator
 
 
 def ispackage(path):

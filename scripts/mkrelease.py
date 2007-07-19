@@ -12,7 +12,9 @@ success = 0
 current = os.getcwd()
 
 here = os.path.abspath(os.path.dirname(os.path.dirname(__file__)))
-svnroot = os.path.abspath(os.path.dirname(here))
+parts = here.split('/')
+svn = parts.index('svn')
+svnroot = os.path.join('/', *parts[:svn+1])
 branchroot = os.path.join(svnroot, 'branches')
 tagroot = os.path.join(svnroot, 'tags')
 svntrunk = os.path.join(svnroot, 'trunk')
@@ -93,7 +95,7 @@ runcmd('python setup.py sdist')
 # upload docs and distribution
 if 'NOSE_UPLOAD' in os.environ and False:
     cv = {'version':version,
-          'uoload': os.environ['NOSE_UPLOAD'],
+          'upload': os.environ['NOSE_UPLOAD'],
           'upload_docs': "%s/%s" % (os.environ['NOSE_UPLOAD'], version) }
     cmd = 'scp -C dist/nose-%(version)s.tar.gz %(upload)s' % cv
     runcmd(cmd)

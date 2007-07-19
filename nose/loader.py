@@ -64,7 +64,7 @@ class TestLoader(unittest.TestLoader):
         if importer is None:
             importer = Importer(config=config)
         if workingDir is None:
-            workingDir = os.getcwd()
+            workingDir = config.workingDir            
         if selector is None:
             selector = defaultSelector(config)
         self.config = config

@@ -239,9 +239,9 @@ class ZeroNinePlugin:
             
 class EntryPointPluginManager(PluginManager):
     """Plugin manager that loads plugins from the `nose.plugins` and
-    `nose.plugins.0-10` entry points.
+    `nose.plugins.0.10` entry points.
     """
-    entry_points = (('nose.plugins.0-10', None),
+    entry_points = (('nose.plugins.0.10', None),
                     ('nose.plugins', ZeroNinePlugin))
     
     def loadPlugins(self):
@@ -271,7 +271,7 @@ class EntryPointPluginManager(PluginManager):
                 if adapt:
                     plug = adapt(plugcls())
                 else:
-                    plug = plugcls
+                    plug = plugcls()
                 self.addPlugin(plug)
 
 
