@@ -89,13 +89,11 @@ class Config(object):
         self.testNames = ()
         self.verbosity = int(env.get('NOSE_VERBOSE', 1))
         self.where = ()
-        self.workingDir = None
+        self.workingDir = os.getcwd()
         
         self._default = self.__dict__.copy()
         self.update(kw)
         self._orig = self.__dict__.copy()
-        #        self._where = None
-        #        self._working_dir = None
 
     def __repr__(self):
         d = self.__dict__.copy()
@@ -153,12 +151,12 @@ class Config(object):
         self.loggingConfig = options.loggingConfig
         self.configureLogging()
 
-        if options.testMatch:
-            self.testMatch = re.compile(options.testMatch)
-        
         if options.where is not None:
             self.configureWhere(options.where)
-
+        
+        if options.testMatch:
+            self.testMatch = re.compile(options.testMatch)
+                
         if options.include:
             self.include = map(re.compile, tolist(options.include))
             log.info("Including tests matching %s", options.include)
@@ -179,7 +177,8 @@ class Config(object):
         it already has a handler.
         """
         if self.loggingConfig:
-            logging.fileConfig(self.loggingConfig)
+            from logging.config import fileConfig
+            fileConfig(self.loggingConfig)
             return
         
         format = logging.Formatter('%(name)s: %(levelname)s: %(message)s')
@@ -219,9 +218,10 @@ class Config(object):
                     l.addHandler(handler)
 
     def configureWhere(self, where):
-        """Configure the working director for the test run.
+        """Configure the working directory or directories for the test run.
         """
         from nose.importer import add_path
+        self.workingDir = None
         where = tolist(where)
         warned = False
         for path in where:

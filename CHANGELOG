@@ -6,6 +6,11 @@
 - Fixed loading of plugins from that entry point.
 - Fixed backwards-compatibility issue in nose.util (is_generator was
   renamed isgenerator). (Issue #64)
+- Fixed bug in --logging-config option. Thanks to anton_kr... at yahoo
+  com for the bug report. (Issue #62)
+- Fixed bug in handling of --where argument: first --where was not
+  passed to loader as workingDir. Thanks to nosexunit for the bug
+  report. (Issue #63).
 
 0.10.0a1
 
