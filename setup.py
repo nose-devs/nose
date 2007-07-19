@@ -45,12 +45,12 @@ setup(
     found on the wiki, here:
     http://code.google.com/p/python-nose/wiki/WritingPlugins, and in the nose
     API documentation, here:
-    http://somethingaboutorange.com/mrl/projects/nose/%s/doc/
+    http://somethingaboutorange.com/mrl/projects/nose/doc/
     
     If you have recently reported a bug marked as fixed, or have a craving for
     the very latest, you may want the development version instead:
     http://python-nose.googlecode.com/svn/trunk#egg=nose-dev
-    """ % VERSION,
+    """,
     license = 'GNU LGPL',
     keywords = 'test unittest doctest automatic discovery',
     url = 'http://somethingaboutorange.com/mrl/projects/nose/',
@@ -60,7 +60,7 @@ setup(
     data_files = [('man/man1', ['nosetests.1'])],
     package_data = {'': ['*.txt']},
     classifiers = [
-        'Development Status :: 4 - Beta',
+        'Development Status :: 3 - Alpha',
         'Intended Audience :: Developers',
         'License :: OSI Approved :: GNU Library or Lesser General Public License (LGPL)',
         'Natural Language :: English',

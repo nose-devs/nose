@@ -325,7 +325,7 @@ class Wiki(object):
         
 def main():
     path = os.path.abspath(
-        os.path.join(os.path.dirname(__file__), '..', '..', 'wiki'))
+        os.path.join(os.path.dirname(__file__), '..', '..', '..', 'wiki'))
     mkwiki(path)
 
     
