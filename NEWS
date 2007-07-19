@@ -1,7 +1,16 @@
-What's New In 0.10a
--------------------
+What's New In 0.10a2
+--------------------
 
-The development release of nose, 0.10a, marks a major change from the
+.. note:: The entry point for 0.10-series plugins is now
+   **nose.plugins.0.10**.
+
+Release 0.10a2 is a bugfix release. Among other bugs, it fixes major
+bugs in plugin loading and working-directory handling. The most
+important change in this release is a change to the name of the entry
+point used for 0.10-series plugins. The previous entry point,
+nose.plugins.0-10, contained an illegal character.
+
+The development release of nose, 0.10, marks a major change from the
 0.9 series in philosophy and implementation.
 
 Prior to this release, nose was entirely discovery-centric: it would
