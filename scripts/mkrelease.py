@@ -12,7 +12,9 @@ success = 0
 current = os.getcwd()
 
 here = os.path.abspath(os.path.dirname(os.path.dirname(__file__)))
-svnroot = os.path.abspath(os.path.dirname(here))
+parts = here.split('/')
+svn = parts.index('svn')
+svnroot = os.path.join('/', *parts[:svn+1])
 branchroot = os.path.join(svnroot, 'branches')
 tagroot = os.path.join(svnroot, 'tags')
 svntrunk = os.path.join(svnroot, 'trunk')
