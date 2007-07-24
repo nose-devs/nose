@@ -64,8 +64,8 @@
 
       <p class="note">
 	This document refers to nose version %(version)s.
-	<a href="/mrl/project/nose/0.9.3/">Documention for version
-	0.9.3</a> is available <a href="/mrl/project/nose/0.9.3/">here</a>.
+	<a href="/mrl/projects/nose/0.9.3/">Documention for version
+	0.9.3</a> is available <a href="/mrl/projects/nose/0.9.3/">here</a>.
       </p>	
 
       <p>nose provides an alternate test discovery and running process for
