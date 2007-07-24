@@ -178,6 +178,8 @@ class TestBase(unittest.TestCase):
         self.test(*self.arg)
     
     def shortDescription(self):
+        if hasattr(self.test, 'description'):
+            return self.test.description
         func, arg = self._descriptors()
         doc = getattr(func, '__doc__', None)
         if not doc:
