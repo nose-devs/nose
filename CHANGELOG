@@ -1,3 +1,9 @@
+0.10.0b1
+
+- Added support for a description attribute on tests in function and
+  method test cases.  Most useful for generators: set the description
+  attribute on the yielded function.
+
 0.10.0a2
 
 - Changed entry point name to nose.plugins.0.10 -- dashes and other
