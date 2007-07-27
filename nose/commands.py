@@ -90,7 +90,6 @@ class nosetests(Command):
     def run(self):
         """ensure tests are capable of being run, then
         run nose.main with a reconstructed argument list"""
-        print dir(self)
         self.run_command('egg_info')
         
         # Build extensions in-place
