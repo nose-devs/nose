@@ -361,7 +361,7 @@ class TestNoseTestLoader(unittest.TestCase):
         res.printErrors()
         assert res.errors, "Expected errors but got none"
         assert not res.failures, res.failures
-        err = res.errors[0][0].exc_class
+        err = res.errors[0][0].test.exc_class
         assert err is ImportError, \
             "Expected import error, got %s" % err
 

@@ -3,6 +3,15 @@
 - Added support for a description attribute on tests in function and
   method test cases.  Most useful for generators: set the description
   attribute on the yielded function.
+- Fixed incorrect signature of addSuccess() method in
+  IPluginInterface. Thanks to nosexunit for the bug report. (Issue
+  #68).
+- Fixed isclass() function in nose.util so that it will not raise an
+  exception when examining instances that have no accessible __bases__
+  attribute. (Issue #65).
+- Fixed passing of tests to result; the test itself and not the
+  wrapper was being passed, resulting in test description plugin hooks
+  not being called. (Issue #71).
 
 0.10.0a2
 

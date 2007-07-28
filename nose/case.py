@@ -84,10 +84,9 @@ class Test(unittest.TestCase):
             pass
 
     def exc_info(self):
-        """Extract exception info into a useable form, including
-        appending captured output and assert introspection information, if
-        so configured.
+        """Extract exception info.
         """
+        
         exc, exv, tb = sys.exc_info()
         return (exc, exv, tb)
         
