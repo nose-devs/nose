@@ -295,7 +295,7 @@ class IPluginInterface(object):
         pass
     addSkip.deprecated = True
 
-    def addSuccess(self, test, capt):
+    def addSuccess(self, test):
         """Called when a test passes. DO NOT return a value unless you
         want to stop other plugins from seeing the passing test.
 
