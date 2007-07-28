@@ -8,10 +8,12 @@ import sys
 import types
 import unittest
 from compiler.consts import CO_GENERATOR
+from types import ClassType, TypeType
 
 log = logging.getLogger('nose')
 
 ident_re = re.compile(r'^[A-Za-z_][A-Za-z0-9_.]*$')
+class_types = (ClassType, TypeType)
 
 
 def absdir(path):
@@ -107,13 +109,7 @@ def isclass(obj):
     """Is obj a class? inspect's isclass is too liberal and returns True
     for objects that can't be subclasses of anything.
     """
-    try:
-        # This is a little tricky -- anything that's not a class will
-        # raise a TypeError when passed to issubclass.
-        issubclass(obj, type)
-    except TypeError:
-        return False
-    return True
+    return type(obj) in class_types
 
 
 def isgenerator(func):
