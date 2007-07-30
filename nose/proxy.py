@@ -102,9 +102,12 @@ class ResultProxy(object):
         plugin_handled = plugins.handleError(self.test, err)
         if plugin_handled:
             return
-        formatted = plugins.formatError(self.test, err)
-        if formatted is not None:
-            err = formatted
+        try:
+            self.test, formatted = plugins.formatError(self.test, err)
+            if formatted is not None:
+                err = formatted
+        except (ValueError, TypeError):
+            pass
         plugins.addError(self.test, err)
         self.result.addError(self.test, err)
         if self.config.stopOnError:
@@ -116,9 +119,12 @@ class ResultProxy(object):
         plugin_handled = plugins.handleFailure(self.test, err)
         if plugin_handled:
             return
-        formatted = plugins.formatFailure(self.test, err)
-        if formatted is not None:
-            err = formatted
+        try:
+            self.test, formatted = plugins.formatFailure(self.test, err)
+            if formatted is not None:
+                err = formatted
+        except (ValueError, TypeError):
+            pass
         plugins.addFailure(self.test, err)
         self.result.addFailure(self.test, err)
         if self.config.stopOnError:

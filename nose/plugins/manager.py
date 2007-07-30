@@ -70,7 +70,8 @@ class PluginProxy(object):
         result = None
         for p, meth in self.plugins:
             result = meth(*arg, **kw)
-            arg = (result,)
+            # print p, arg, result
+            arg = result
         return result
 
     def generate(self, *arg, **kw):

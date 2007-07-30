@@ -12,6 +12,11 @@
 - Fixed passing of tests to result; the test itself and not the
   wrapper was being passed, resulting in test description plugin hooks
   not being called. (Issue #71).
+- Fixed bugs in FailureDetail and Capture plugins, and plugin manager
+  and proxy uses of chainable plugin calls. This change requires that
+  plugins implementing formatFailure or formatError be updated: they
+  must now return (test, err) not just err. Thanks to Ian Bicking for
+  the bug report (Issue #72).
 
 0.10.0a2
 

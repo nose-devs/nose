@@ -61,7 +61,7 @@ class Capture(Plugin):
         if not output:
             return
         ec, ev, tb = err
-        return (ec, self.addCaptureToErr(ev, output), tb)        
+        return (test, (ec, self.addCaptureToErr(ev, output), tb))
 
     def formatFailure(self, test, err):
         return self.formatError(test, err)
