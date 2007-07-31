@@ -442,10 +442,7 @@ class IPluginInterface(object):
     def formatError(self, test, err):
         """Called in result.addError, before plugin.addError. If you
         want to replace or modify the error tuple, return a new error
-        tuple. Since this method is chainable, you must return the
-        test as well, so you you'll return something like::
-
-          return (test, err)
+        tuple. 
 
         :Parameters:
           test : `nose.case.Test`_
@@ -456,6 +453,8 @@ class IPluginInterface(object):
         pass
     formatError._new = True
     formatError.chainable = True
+    # test arg is not chainable
+    formatError.static_args = (True, False)
 
     def formatFailure(self, test, err):
         """Called in result.addFailure, before plugin.addFailure. If you
@@ -474,6 +473,8 @@ class IPluginInterface(object):
         pass
     formatFailure._new = True
     formatFailure.chainable = True
+    # test arg is not chainable
+    formatFailure.static_args = (True, False)
 
     def handleError(self, test, err):
         """Called on addError. To handle the error yourself and prevent normal

@@ -27,6 +27,11 @@ class PluginProxy(object):
     """
     interface = IPluginInterface
     def __init__(self, call, plugins):
+        try:
+            self.method = getattr(self.interface, call)
+        except AttributeError:
+            raise AttributeError("%s is not a valid %s method"
+                                 % (call, self.interface.__name__))
         self.call = self.makeCall(call)
         self.plugins = []
         for p in plugins:
@@ -49,11 +54,8 @@ class PluginProxy(object):
             # from other chainable calls, because plugins return a tuple, only
             # part of which can be chained to the next plugin.
             return self._loadTestsFromNames
-        try:
-            meth = getattr(self.interface, call)
-        except AttributeError:
-            raise AttributeError("%s is not a valid %s method"
-                                 % (call, self.interface.__name__))
+
+        meth = self.method
         if getattr(meth, 'generative', False):
             # call all plugins and yield a flattened iterator of their results
             return lambda *arg, **kw: list(self.generate(*arg, **kw))
@@ -68,10 +70,15 @@ class PluginProxy(object):
         sent to the next plugin as input. The final output result is returned.
         """
         result = None
+        # extract the static arguments (if any) from arg so they can
+        # be passed to each plugin call in the chain
+        static = [a for (static, a)
+                  in zip(getattr(self.method, 'static_args', []), arg)
+                  if static]
         for p, meth in self.plugins:
             result = meth(*arg, **kw)
-            # print p, arg, result
-            arg = result
+            arg = static[:]
+            arg.append(result)
         return result
 
     def generate(self, *arg, **kw):

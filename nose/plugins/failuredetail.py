@@ -39,4 +39,4 @@ class FailureDetail(Plugin):
         ec, ev, tb = err
         tbinfo = inspect_traceback(tb)
         test.tbinfo = tbinfo
-        return (test, (ec, '\n'.join([str(ev), tbinfo]), tb))
+        return (ec, '\n'.join([str(ev), tbinfo]), tb)

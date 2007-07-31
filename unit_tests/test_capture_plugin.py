@@ -67,7 +67,7 @@ class TestCapturePlugin(unittest.TestCase):
             err = sys.exc_info()
         formatted = c.formatError(d, err)
         ec, ev, tb = err
-        (test, (fec, fev, ftb)) = formatted
+        (fec, fev, ftb) = formatted
         # print fec, fev, ftb
         
         self.assertEqual(ec, fec)
