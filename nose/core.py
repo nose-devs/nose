@@ -142,6 +142,33 @@ class TestProgram(unittest.TestProgram):
 
     All configuration files that are found will be loaded and their options
     combined.
+
+    Using Plugins
+    -------------
+
+    There are numerous nose plugins available via easy_install and
+    elsewhere. To use a plugin, just install it. The plugin will add
+    command line options to nosetests. To verify that the plugin is installed,
+    run:
+ 
+      nosetests --plugins
+
+    You can add -v or -vv to that command to show more information
+    about each plugin.
+
+    0.9 plugins
+    -----------
+
+    nose 0.10 can use SOME plugins that were written for nose 0.9. The
+    default plugin manager inserts a compatibility wrapper around 0.9
+    plugins that adapts the changed plugin api calls. However, plugins
+    that access nose internals are likely to fail, especially if they
+    attempt to access test case or test suite classes. For example,
+    plugins that try to determine if a test passed to startTest is an
+    individual test or a suite will fail, partly because suites are no
+    longer passed to startTest and partly because it's likely that the
+    plugin is trying to find out if the test is an instance of a class
+    that no longer exists.
     """
     verbosity = 1
 
