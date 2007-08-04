@@ -46,6 +46,7 @@ def doc_word(node):
     if '.' in name:
 
         parts = name.split('.')
+            
         # if the first letter of a part is capitalized, assume it's
         # a class name, and put all parts from that part on into
         # the anchor part of the link
@@ -56,13 +57,18 @@ def doc_word(node):
             if addto == link and part[0].upper() == part[0]:
                 addto = anchor
             addto.append(part)
-        node['refuri'] = 'module_' + '.'.join(link) + '.html'
+        if name.startswith('nose.plugins'):
+            base = 'plugin_'
+            link = link[-1:]
+        else:
+            base = 'module_'
+        node['refuri'] = base + '.'.join(link) + '.html'
         if anchor:
             node['refuri'] += '#' + '.'.join(anchor)
     else:
         node['refuri'] = '_'.join(
             map(lambda s: s.lower(), name.split(' '))) + '.html'
-                
+
     del node['refname']
     node.resolved = True
     return True
@@ -434,9 +440,6 @@ for modulename, clsname in builtins:
 
     source = inspect.getsource(mod)
     pdoc['source'] = highlight(source, PythonLexer(), HtmlFormatter())
-    if modname == 'attrib':
-        print source    
-        print pdoc['source']
     to_write.append(
         ('Plugins',
          'Builtin Plugin: %s' % modname,

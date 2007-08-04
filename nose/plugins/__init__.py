@@ -78,6 +78,20 @@ Recipes
 
   Example: `examples/html_plugin/htmlplug.py`_
 
+* Writing a plugin that handles exceptions
+
+  Subclass `ErrorClassPlugin`_.
+
+  Examples: `nose.plugins.deprecated`_, `nose.plugins.skip`_
+
+* Writing a plugin that adds detail to error reports
+
+  Implement ``formatError`` and/or ``formatFailture``. The error tuple
+  you return (error class, error message, traceback) will replace the
+  original error tuple.
+
+  Examples: `nose.plugins.capture`_, `nose.plugins.failuredetail`_
+
 * Writing a plugin that loads tests from files other than python modules
 
   Implement ``wantFile`` and ``loadTestsFromFile``. In ``wantFile``,
@@ -93,7 +107,7 @@ Recipes
   Implement begin if you need to perform setup before testing
   begins. Implement ``report`` and output your report to the provided stream.
  
-  Examples: `nose.plugins.cover`_, `nose.plugins.profile`_
+  Examples: `nose.plugins.cover`_, `nose.plugins.prof`_
 
 * Writing a plugin that selects or rejects tests
 
@@ -103,21 +117,17 @@ Recipes
   load tests from it if tests can't be loaded by the core loader or
   another plugin -- and None if you don't care.
  
-  Examples: `nose.plugins.attrib`_, `nose.plugins.doctests`_
+  Examples: `nose.plugins.attrib`_, `nose.plugins.doctests`_,
+  `nose.plugins.testid`_
 
-Examples
-========
+More Examples
+=============
 
-See `nose.plugins.attrib`_, `nose.plugins.cover`_, `nose.plugins.doctests`_
-and `nose.plugins.profile`_ for examples. Further examples may be found the
-examples_ directory in the nose source distribution.
+See any builtin plugin or example plugin in the examples_ directory in
+the nose source distribution.
 
 .. _examples/html_plugin/htmlplug.py: http://python-nose.googlecode.com/svn/trunk/examples/html_plugin/htmlplug.py
 .. _examples: http://python-nose.googlecode.com/svn/trunk/examples
-.. _nose.plugins.attrib: http://python-nose.googlecode.com/svn/trunk/nose/plugins/attrib.py
-.. _nose.plugins.cover: http://python-nose.googlecode.com/svn/trunk/nose/plugins/cover.py
-.. _nose.plugins.doctests: http://python-nose.googlecode.com/svn/trunk/nose/plugins/doctests.py
-.. _nose.plugins.profile: http://python-nose.googlecode.com/svn/trunk/nose/plugins/profile.py
 
 
 Testing Plugins
@@ -136,7 +146,6 @@ Here's a simple example with a do-nothing plugin and a composed suite.
     ...     pass
     >>> class TestPluginFoo(PluginTester, unittest.TestCase):
     ...     activate = '--with-foo'
-    ...     debuglog = 'nose.plugins.foo'
     ...     plugins = [FooPlugin()]
     ...     def test_foo(self):
     ...         for line in self.output:

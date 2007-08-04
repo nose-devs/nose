@@ -9,6 +9,8 @@ FIXME docs
 
 * Built in
 * Entry point
+
+more docs
 """
 import logging
 import os
@@ -119,7 +121,7 @@ class PluginManager(object):
     may only be used with a static list of plugins.
 
     The basic functionality of a plugin manager is to proxy all unknown
-    attributes through `PluginProxy`s to a list of plugins.
+    attributes through a ``PluginProxy`` to a list of plugins.
 
     Note that the list of plugins *may not* be changed after the first plugin
     call.
