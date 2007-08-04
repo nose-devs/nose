@@ -65,6 +65,8 @@ class TestId(Plugin):
         Plugin.configure(self, options, conf)
         self.idfile = os.path.expanduser(options.testIdFile)
         self.id = 1
+        # Ids and tests are mirror images: ids are {id: test address} and
+        # tests are {test address: id}
         self.ids = {}
         self.tests = {}
         # used to track ids seen when tests is filled from
@@ -74,6 +76,7 @@ class TestId(Plugin):
     def finalize(self, result):
         if self.shouldSave:
             fh = open(self.idfile, 'w')
+            # save as {id: test address}
             ids = dict(zip(self.tests.values(), self.tests.keys()))            
             dump(ids, fh)
             fh.close()
