@@ -12,6 +12,9 @@ import nose
 import textwrap
 from optparse import OptionParser
 from nose.util import resolve_name, odict
+from pygments import highlight
+from pygments.lexers import PythonLexer
+from pygments.formatters import HtmlFormatter
 
 
 remove_at = re.compile(r' at 0x[0-9a-f]+')
@@ -26,7 +29,10 @@ def write(filename, tpl, ctx):
     print filename
     ctx.setdefault('submenu', '')
     fp = open(filename, 'w')
-    fp.write(tpl % ctx)
+    try:
+        fp.write(tpl % ctx)
+    except UnicodeEncodeError:
+        print ctx
     fp.close()
 
 
@@ -425,7 +431,12 @@ for modulename, clsname in builtins:
             hooks.append('<li><a href="plugin_interface.html#%(name)s">'
                          '%(name)s</a></li>' % {'name': m})
     pdoc['hooks'] = ''.join(hooks)
-            
+
+    source = inspect.getsource(mod)
+    pdoc['source'] = highlight(source, PythonLexer(), HtmlFormatter())
+    if modname == 'attrib':
+        print source    
+        print pdoc['source']
     to_write.append(
         ('Plugins',
          'Builtin Plugin: %s' % modname,

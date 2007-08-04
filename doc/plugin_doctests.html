@@ -6,8 +6,8 @@
   <body>
     
     <div id="menu">
-      <p>This document covers nose version <b>0.10.0a2</b></p>
-      <p>Last update: <b>Wed Jul 18 21:35:10 2007</b></p>
+      <p>This document covers nose version <b>0.10.0b1</b></p>
+      <p>Last update: <b>Sat Aug  4 14:13:32 2007</b></p>
       <h2>Plugins</h2><ul><li><a href="plugin_attrib.html">Builtin Plugin: attrib</a></li><li><a href="plugin_capture.html">Builtin Plugin: capture</a></li><li><a href="plugin_cover.html">Builtin Plugin: cover</a></li><li><a href="plugin_debug.html">Builtin Plugin: debug</a></li><li><a href="plugin_deprecated.html">Builtin Plugin: deprecated</a></li><li><a href="plugin_doctests.html">Builtin Plugin: doctests</a></li><li><a href="plugin_failuredetail.html">Builtin Plugin: failuredetail</a></li><li><a href="plugin_isolate.html">Builtin Plugin: isolate</a></li><li><a href="plugin_prof.html">Builtin Plugin: prof</a></li><li><a href="plugin_skip.html">Builtin Plugin: skip</a></li><li><a href="plugin_testid.html">Builtin Plugin: testid</a></li><li><a href="errorclassplugin.html">ErrorClass Plugins</a></li><li><a href="plugin_interface.html">Plugin Interface</a></li><li><a href="writing_plugins.html">Writing Plugins</a></li></ul><h2>Modules</h2><ul><li><a href="module_nose.case.html">Module: nose.case</a></li><li><a href="module_nose.commands.html">Module: nose.commands</a></li><li><a href="module_nose.config.html">Module: nose.config</a></li><li><a href="module_nose.core.html">Module: nose.core</a></li><li><a href="module_nose.exc.html">Module: nose.exc</a></li><li><a href="module_nose.importer.html">Module: nose.importer</a></li><li><a href="module_nose.inspector.html">Module: nose.inspector</a></li><li><a href="module_nose.loader.html">Module: nose.loader</a></li><li><a href="module_nose.plugins.manager.html">Module: nose.plugins.manager</a></li><li><a href="module_nose.proxy.html">Module: nose.proxy</a></li><li><a href="module_nose.result.html">Module: nose.result</a></li><li><a href="module_nose.selector.html">Module: nose.selector</a></li><li><a href="module_nose.suite.html">Module: nose.suite</a></li><li><a href="module_nose.tools.html">Module: nose.tools</a></li><li><a href="module_nose.twistedtools.html">Module: nose.twistedtools</a></li><li><a href="module_nose.util.html">Module: nose.util</a></li></ul>
     </div>
     
@@ -49,6 +49,230 @@ course of running a test.</p>
                         Also look for doctests in files with this extension
                         [NOSE_DOCTEST_EXTENSION]
 </pre>
+
+      <h2>Source</h2>
+
+      <div class="highlight"><pre><span class="sd">&quot;&quot;&quot;Use the Doctest plugin with --with-doctest or the NOSE_WITH_DOCTEST</span>
+<span class="sd">environment variable to enable collection and execution of doctests. doctest_</span>
+<span class="sd">tests are usually included in the tested package, not grouped into packages or</span>
+<span class="sd">modules of their own. For this reason, nose will try to detect and run doctest</span>
+<span class="sd">tests only in the non-test packages it discovers in the working</span>
+<span class="sd">directory. Doctests may also be placed into files other than python modules,</span>
+<span class="sd">in which case they can be collected and executed by using the</span>
+<span class="sd">--doctest-extension switch or NOSE_DOCTEST_EXTENSION environment variable to</span>
+<span class="sd">indicate which file extension(s) to load.</span>
+
+<span class="sd">doctest tests are run like any other test, with the exception that output</span>
+<span class="sd">capture does not work, because doctest does its own output capture in the</span>
+<span class="sd">course of running a test.</span>
+
+<span class="sd">.. _doctest: http://docs.python.org/lib/module-doctest.html</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="k">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">generators</span>
+
+<span class="k">import</span> <span class="nn">logging</span>
+<span class="k">import</span> <span class="nn">os</span>
+<span class="k">from</span> <span class="nn">inspect</span> <span class="k">import</span> <span class="n">getmodule</span>
+<span class="k">from</span> <span class="nn">nose.plugins.base</span> <span class="k">import</span> <span class="n">Plugin</span>
+<span class="k">from</span> <span class="nn">nose.util</span> <span class="k">import</span> <span class="n">anyp</span><span class="p">,</span> <span class="n">getpackage</span><span class="p">,</span> <span class="n">test_address</span><span class="p">,</span> <span class="n">resolve_name</span><span class="p">,</span> <span class="n">tolist</span>
+
+<span class="n">log</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="n">__name__</span><span class="p">)</span>
+
+<span class="k">try</span><span class="p">:</span>
+    <span class="k">import</span> <span class="nn">doctest</span>
+    <span class="n">doctest</span><span class="o">.</span><span class="n">DocTestCase</span>
+    <span class="c"># system version of doctest is acceptable, but needs a monkeypatch</span>
+<span class="k">except</span> <span class="p">(</span><span class="ne">ImportError</span><span class="p">,</span> <span class="ne">AttributeError</span><span class="p">):</span>
+    <span class="c"># system version is too old</span>
+    <span class="k">import</span> <span class="nn">nose.ext.dtcompat</span> <span class="k">as</span> <span class="nn">doctest</span>
+
+<span class="c">#</span>
+<span class="c"># Doctest and coverage don&#39;t get along, so we need to create</span>
+<span class="c"># a monkeypatch that will replace the part of doctest that</span>
+<span class="c"># interferes with coverage reports.</span>
+<span class="c">#</span>
+<span class="c"># The monkeypatch is based on this zope patch:</span>
+<span class="c"># http://svn.zope.org/Zope3/trunk/src/zope/testing/doctest.py?rev=28679&amp;r1=28703&amp;r2=28705</span>
+<span class="c">#</span>
+<span class="n">_orp</span> <span class="o">=</span> <span class="n">doctest</span><span class="o">.</span><span class="n">_OutputRedirectingPdb</span>
+
+<span class="k">class</span> <span class="nc">NoseOutputRedirectingPdb</span><span class="p">(</span><span class="n">_orp</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">out</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__debugger_used</span> <span class="o">=</span> <span class="bp">False</span>
+        <span class="n">_orp</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">out</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">set_trace</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__debugger_used</span> <span class="o">=</span> <span class="bp">True</span>
+        <span class="n">_orp</span><span class="o">.</span><span class="n">set_trace</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">set_continue</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c"># Calling set_continue unconditionally would break unit test </span>
+        <span class="c"># coverage reporting, as Bdb.set_continue calls sys.settrace(None).</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">__debugger_used</span><span class="p">:</span>
+            <span class="n">_orp</span><span class="o">.</span><span class="n">set_continue</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+<span class="n">doctest</span><span class="o">.</span><span class="n">_OutputRedirectingPdb</span> <span class="o">=</span> <span class="n">NoseOutputRedirectingPdb</span>    
+
+
+<span class="k">class</span> <span class="nc">Doctest</span><span class="p">(</span><span class="n">Plugin</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Activate doctest plugin to find and run doctests in non-test modules.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">extension</span> <span class="o">=</span> <span class="bp">None</span>
+    
+    <span class="k">def</span> <span class="nf">options</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parser</span><span class="p">,</span> <span class="n">env</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">):</span>
+        <span class="n">Plugin</span><span class="o">.</span><span class="n">options</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parser</span><span class="p">,</span> <span class="n">env</span><span class="p">)</span>
+        <span class="n">parser</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s">&#39;--doctest-tests&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&#39;store_true&#39;</span><span class="p">,</span>
+                          <span class="n">dest</span><span class="o">=</span><span class="s">&#39;doctest_tests&#39;</span><span class="p">,</span>
+                          <span class="n">default</span><span class="o">=</span><span class="n">env</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;NOSE_DOCTEST_TESTS&#39;</span><span class="p">),</span>
+                          <span class="n">help</span><span class="o">=</span><span class="s">&quot;Also look for doctests in test modules &quot;</span>
+                          <span class="s">&quot;[NOSE_DOCTEST_TESTS]&quot;</span><span class="p">)</span>
+        <span class="n">parser</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s">&#39;--doctest-extension&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&quot;append&quot;</span><span class="p">,</span>
+                          <span class="n">dest</span><span class="o">=</span><span class="s">&quot;doctestExtension&quot;</span><span class="p">,</span>
+                          <span class="n">help</span><span class="o">=</span><span class="s">&quot;Also look for doctests in files with &quot;</span>
+                          <span class="s">&quot;this extension [NOSE_DOCTEST_EXTENSION]&quot;</span><span class="p">)</span>
+        <span class="c"># Set the default as a list, if given in env; otherwise</span>
+        <span class="c"># an additional value set on the command line will cause</span>
+        <span class="c"># an error.</span>
+        <span class="n">env_setting</span> <span class="o">=</span> <span class="n">env</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;NOSE_DOCTEST_EXTENSION&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">env_setting</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">parser</span><span class="o">.</span><span class="n">set_defaults</span><span class="p">(</span><span class="n">doctestExtension</span><span class="o">=</span><span class="n">tolist</span><span class="p">(</span><span class="n">env_setting</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="nf">configure</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">options</span><span class="p">,</span> <span class="n">config</span><span class="p">):</span>
+        <span class="n">Plugin</span><span class="o">.</span><span class="n">configure</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">options</span><span class="p">,</span> <span class="n">config</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">doctest_tests</span> <span class="o">=</span> <span class="n">options</span><span class="o">.</span><span class="n">doctest_tests</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">extension</span> <span class="o">=</span> <span class="n">tolist</span><span class="p">(</span><span class="n">options</span><span class="o">.</span><span class="n">doctestExtension</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+            <span class="c"># 2.3, no other-file option</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">extension</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">finder</span> <span class="o">=</span> <span class="n">doctest</span><span class="o">.</span><span class="n">DocTestFinder</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">loadTestsFromModule</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">module</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">matches</span><span class="p">(</span><span class="n">module</span><span class="o">.</span><span class="n">__name__</span><span class="p">):</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&quot;Doctest doesn&#39;t want module </span><span class="si">%s</span><span class="s">&quot;</span><span class="p">,</span> <span class="n">module</span><span class="p">)</span>
+            <span class="k">return</span>
+        <span class="n">tests</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">finder</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">module</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">tests</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="n">tests</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span>
+        <span class="n">module_file</span> <span class="o">=</span> <span class="n">module</span><span class="o">.</span><span class="n">__file__</span>
+        <span class="k">if</span> <span class="n">module_file</span><span class="p">[</span><span class="o">-</span><span class="mi">4</span><span class="p">:]</span> <span class="ow">in</span> <span class="p">(</span><span class="s">&#39;.pyc&#39;</span><span class="p">,</span> <span class="s">&#39;.pyo&#39;</span><span class="p">):</span>
+            <span class="n">module_file</span> <span class="o">=</span> <span class="n">module_file</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">test</span> <span class="ow">in</span> <span class="n">tests</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">test</span><span class="o">.</span><span class="n">examples</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">test</span><span class="o">.</span><span class="n">filename</span><span class="p">:</span>
+                <span class="n">test</span><span class="o">.</span><span class="n">filename</span> <span class="o">=</span> <span class="n">module_file</span>
+            <span class="k">yield</span> <span class="n">DocTestCase</span><span class="p">(</span><span class="n">test</span><span class="p">)</span>
+            
+    <span class="k">def</span> <span class="nf">loadTestsFromFile</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">extension</span> <span class="ow">and</span> <span class="n">anyp</span><span class="p">(</span><span class="n">filename</span><span class="o">.</span><span class="n">endswith</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">extension</span><span class="p">):</span>
+            <span class="n">name</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+            <span class="n">dh</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">doc</span> <span class="o">=</span> <span class="n">dh</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+            <span class="k">finally</span><span class="p">:</span>
+                <span class="n">dh</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+            <span class="n">parser</span> <span class="o">=</span> <span class="n">doctest</span><span class="o">.</span><span class="n">DocTestParser</span><span class="p">()</span>
+            <span class="n">test</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">get_doctest</span><span class="p">(</span>
+                <span class="n">doc</span><span class="p">,</span> <span class="n">globs</span><span class="o">=</span><span class="p">{},</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="n">filename</span><span class="p">,</span> <span class="n">lineno</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">test</span><span class="o">.</span><span class="n">examples</span><span class="p">:</span>
+                <span class="k">yield</span> <span class="n">DocFileCase</span><span class="p">(</span><span class="n">test</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">yield</span> <span class="bp">False</span> <span class="c"># no tests to load</span>
+            
+    <span class="k">def</span> <span class="nf">makeTest</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">,</span> <span class="n">parent</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Look for doctests in the given object, which will be a</span>
+<span class="sd">        function, method or class.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">doctests</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">finder</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">module</span><span class="o">=</span><span class="n">getmodule</span><span class="p">(</span><span class="n">parent</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">doctests</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">test</span> <span class="ow">in</span> <span class="n">doctests</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">test</span><span class="o">.</span><span class="n">examples</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="k">continue</span>
+                <span class="k">yield</span> <span class="n">DocTestCase</span><span class="p">(</span><span class="n">test</span><span class="p">,</span> <span class="n">obj</span><span class="o">=</span><span class="n">obj</span><span class="p">)</span>            
+    
+    <span class="k">def</span> <span class="nf">matches</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Doctest wants only non-test modules in general.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c"># FIXME this seems wrong -- nothing is ever going to</span>
+        <span class="c"># fail this test, since we&#39;re given a module NAME not FILE</span>
+        <span class="k">if</span> <span class="n">name</span> <span class="o">==</span> <span class="s">&#39;__init__.py&#39;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">False</span>
+        <span class="c"># FIXME don&#39;t think we need include/exclude checks here?</span>
+        <span class="k">return</span> <span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">doctest_tests</span> <span class="ow">or</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">conf</span><span class="o">.</span><span class="n">testMatch</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+                 <span class="ow">or</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">conf</span><span class="o">.</span><span class="n">include</span> 
+                     <span class="ow">and</span> <span class="nb">filter</span><span class="p">(</span><span class="bp">None</span><span class="p">,</span>
+                                <span class="p">[</span><span class="n">inc</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+                                 <span class="k">for</span> <span class="n">inc</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">conf</span><span class="o">.</span><span class="n">include</span><span class="p">])))</span>
+                <span class="ow">and</span> <span class="p">(</span><span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">conf</span><span class="o">.</span><span class="n">exclude</span> 
+                     <span class="ow">or</span> <span class="ow">not</span> <span class="nb">filter</span><span class="p">(</span><span class="bp">None</span><span class="p">,</span>
+                                   <span class="p">[</span><span class="n">exc</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+                                    <span class="k">for</span> <span class="n">exc</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">conf</span><span class="o">.</span><span class="n">exclude</span><span class="p">])))</span>
+    
+    <span class="k">def</span> <span class="nf">wantFile</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">file</span><span class="p">):</span>
+        <span class="c"># always want .py files</span>
+        <span class="k">if</span> <span class="nb">file</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s">&#39;.py&#39;</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">True</span>
+        <span class="c"># also want files that match my extension</span>
+        <span class="k">if</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">extension</span>
+            <span class="ow">and</span> <span class="n">anyp</span><span class="p">(</span><span class="nb">file</span><span class="o">.</span><span class="n">endswith</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">extension</span><span class="p">)</span>
+            <span class="ow">and</span> <span class="p">(</span><span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">conf</span><span class="o">.</span><span class="n">exclude</span>
+                 <span class="ow">or</span> <span class="ow">not</span> <span class="nb">filter</span><span class="p">(</span><span class="bp">None</span><span class="p">,</span> 
+                               <span class="p">[</span><span class="n">exc</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="nb">file</span><span class="p">)</span>
+                                <span class="k">for</span> <span class="n">exc</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">conf</span><span class="o">.</span><span class="n">exclude</span><span class="p">]))):</span>
+            <span class="k">return</span> <span class="bp">True</span>
+        <span class="k">return</span> <span class="bp">None</span>
+        
+
+<span class="k">class</span> <span class="nc">DocTestCase</span><span class="p">(</span><span class="n">doctest</span><span class="o">.</span><span class="n">DocTestCase</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Proxy for DocTestCase: provides an address() method that</span>
+<span class="sd">    returns the correct address for the doctest case. Otherwise</span>
+<span class="sd">    acts as a proxy to the test case. To provide hints for address(),</span>
+<span class="sd">    an obj may also be passed -- this will be used as the test object</span>
+<span class="sd">    for purposes of determining the test address, if it is provided.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">test</span><span class="p">,</span> <span class="n">optionflags</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">setUp</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">tearDown</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+                 <span class="n">checker</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">obj</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_nose_obj</span> <span class="o">=</span> <span class="n">obj</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">DocTestCase</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span>
+            <span class="n">test</span><span class="p">,</span> <span class="n">optionflags</span><span class="o">=</span><span class="n">optionflags</span><span class="p">,</span> <span class="n">setUp</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">tearDown</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+            <span class="n">checker</span><span class="o">=</span><span class="bp">None</span><span class="p">)</span>
+    
+    <span class="k">def</span> <span class="nf">address</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_nose_obj</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">test_address</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_nose_obj</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">test_address</span><span class="p">(</span><span class="n">resolve_name</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_dt_test</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
+    
+    <span class="c"># doctests loaded via find(obj) omit the module name</span>
+    <span class="c"># so we need to override id, __repr__ and shortDescription</span>
+    <span class="c"># bonus: this will squash a 2.3 vs 2.4 incompatiblity</span>
+    <span class="k">def</span> <span class="nf">id</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dt_test</span><span class="o">.</span><span class="n">name</span>
+        <span class="n">filename</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dt_test</span><span class="o">.</span><span class="n">filename</span>
+        <span class="k">if</span> <span class="n">filename</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">pk</span> <span class="o">=</span> <span class="n">getpackage</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">name</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="n">pk</span><span class="p">):</span>
+                <span class="n">name</span> <span class="o">=</span> <span class="s">&quot;</span><span class="si">%s</span><span class="s">.</span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">pk</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">name</span>
+    
+    <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">()</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="n">name</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;.&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="s">&quot;</span><span class="si">%s</span><span class="s"> (</span><span class="si">%s</span><span class="s">)&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">name</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="s">&#39;.&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">name</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]))</span>
+    <span class="n">__str__</span> <span class="o">=</span> <span class="n">__repr__</span>
+                           
+    <span class="k">def</span> <span class="nf">shortDescription</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s">&#39;Doctest: </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">()</span>
+
+
+<span class="k">class</span> <span class="nc">DocFileCase</span><span class="p">(</span><span class="n">doctest</span><span class="o">.</span><span class="n">DocFileCase</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Overrides to provide filename</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">address</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_dt_test</span><span class="o">.</span><span class="n">filename</span><span class="p">,</span> <span class="bp">None</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
+</pre></div>
+
 
     </div>
     <script src="http://www.google-analytics.com/urchin.js" 

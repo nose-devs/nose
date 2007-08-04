@@ -6,8 +6,8 @@
   <body>
     
     <div id="menu">
-      <p>This document covers nose version <b>0.10.0a2</b></p>
-      <p>Last update: <b>Wed Jul 18 21:35:10 2007</b></p>
+      <p>This document covers nose version <b>0.10.0b1</b></p>
+      <p>Last update: <b>Sat Aug  4 14:13:32 2007</b></p>
       <h2>Plugins</h2><ul><li><a href="plugin_attrib.html">Builtin Plugin: attrib</a></li><li><a href="plugin_capture.html">Builtin Plugin: capture</a></li><li><a href="plugin_cover.html">Builtin Plugin: cover</a></li><li><a href="plugin_debug.html">Builtin Plugin: debug</a></li><li><a href="plugin_deprecated.html">Builtin Plugin: deprecated</a></li><li><a href="plugin_doctests.html">Builtin Plugin: doctests</a></li><li><a href="plugin_failuredetail.html">Builtin Plugin: failuredetail</a></li><li><a href="plugin_isolate.html">Builtin Plugin: isolate</a></li><li><a href="plugin_prof.html">Builtin Plugin: prof</a></li><li><a href="plugin_skip.html">Builtin Plugin: skip</a></li><li><a href="plugin_testid.html">Builtin Plugin: testid</a></li><li><a href="errorclassplugin.html">ErrorClass Plugins</a></li><li><a href="plugin_interface.html">Plugin Interface</a></li><li><a href="writing_plugins.html">Writing Plugins</a></li></ul><h2>Modules</h2><ul><li><a href="module_nose.case.html">Module: nose.case</a></li><li><a href="module_nose.commands.html">Module: nose.commands</a></li><li><a href="module_nose.config.html">Module: nose.config</a></li><li><a href="module_nose.core.html">Module: nose.core</a></li><li><a href="module_nose.exc.html">Module: nose.exc</a></li><li><a href="module_nose.importer.html">Module: nose.importer</a></li><li><a href="module_nose.inspector.html">Module: nose.inspector</a></li><li><a href="module_nose.loader.html">Module: nose.loader</a></li><li><a href="module_nose.plugins.manager.html">Module: nose.plugins.manager</a></li><li><a href="module_nose.proxy.html">Module: nose.proxy</a></li><li><a href="module_nose.result.html">Module: nose.result</a></li><li><a href="module_nose.selector.html">Module: nose.selector</a></li><li><a href="module_nose.suite.html">Module: nose.suite</a></li><li><a href="module_nose.tools.html">Module: nose.tools</a></li><li><a href="module_nose.twistedtools.html">Module: nose.twistedtools</a></li><li><a href="module_nose.util.html">Module: nose.util</a></li></ul>
     </div>
     
@@ -35,6 +35,56 @@ not be counted as an error or failure.</p>
       <pre>options:
   --no-deprecated  Disable special handling of DeprecatedTest exceptions.
 </pre>
+
+      <h2>Source</h2>
+
+      <div class="highlight"><pre><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">This plugin installs a DEPRECATED error class for the DeprecatedTest</span>
+<span class="sd">exception. It is enabled by default. When DeprecatedTest is raised, the</span>
+<span class="sd">exception will be logged in the deprecated attribute of the result,</span>
+<span class="sd">&#39;D&#39; or &#39;DEPRECATED&#39; (verbose) will be output, and the exception will</span>
+<span class="sd">not be counted as an error or failure.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="k">import</span> <span class="nn">os</span>
+<span class="k">from</span> <span class="nn">nose.plugins.errorclass</span> <span class="k">import</span> <span class="n">ErrorClass</span><span class="p">,</span> <span class="n">ErrorClassPlugin</span>
+
+
+<span class="k">class</span> <span class="nc">DeprecatedTest</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Raise this exception to mark a test as deprecated.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">pass</span>
+
+
+<span class="k">class</span> <span class="nc">Deprecated</span><span class="p">(</span><span class="n">ErrorClassPlugin</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Plugin that installs a DEPRECATED error class for the DeprecatedTest</span>
+<span class="sd">    exception. Enabled by default. When DeprecatedTest is raised, the</span>
+<span class="sd">    exception will be logged in the deprecated attribute of the result, &#39;D&#39; or</span>
+<span class="sd">    &#39;DEPRECATED&#39; (verbose) will be output, and the exception will not be</span>
+<span class="sd">    counted as an error or failure.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">enabled</span> <span class="o">=</span> <span class="bp">True</span>
+    <span class="n">deprecated</span> <span class="o">=</span> <span class="n">ErrorClass</span><span class="p">(</span><span class="n">DeprecatedTest</span><span class="p">,</span>
+                            <span class="n">label</span><span class="o">=</span><span class="s">&#39;DEPRECATED&#39;</span><span class="p">,</span>
+                            <span class="n">isfailure</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">options</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parser</span><span class="p">,</span> <span class="n">env</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">):</span>
+        <span class="n">env_opt</span> <span class="o">=</span> <span class="s">&#39;NOSE_WITHOUT_DEPRECATED&#39;</span>
+        <span class="n">parser</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s">&#39;--no-deprecated&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&#39;store_true&#39;</span><span class="p">,</span>
+                          <span class="n">dest</span><span class="o">=</span><span class="s">&#39;noDeprecated&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">env</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">env_opt</span><span class="p">,</span> <span class="bp">False</span><span class="p">),</span>
+                          <span class="n">help</span><span class="o">=</span><span class="s">&quot;Disable special handling of DeprecatedTest &quot;</span>
+                          <span class="s">&quot;exceptions.&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">configure</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">options</span><span class="p">,</span> <span class="n">conf</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">can_configure</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">conf</span> <span class="o">=</span> <span class="n">conf</span>
+        <span class="n">disable</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">options</span><span class="p">,</span> <span class="s">&#39;noDeprecated&#39;</span><span class="p">,</span> <span class="bp">False</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">disable</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">enabled</span> <span class="o">=</span> <span class="bp">False</span>
+</pre></div>
+
 
     </div>
     <script src="http://www.google-analytics.com/urchin.js" 
