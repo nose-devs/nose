@@ -14,6 +14,7 @@ from nose.config import Config, all_config_files
 from nose.loader import defaultTestLoader
 from nose.plugins.manager import DefaultPluginManager, RestrictedPluginManager
 from nose.result import TextTestResult
+from nose.suite import FinalizingSuiteWrapper
 from nose.util import isclass, tolist
 
 
@@ -325,20 +326,23 @@ def collector():
     """
     # plugins that implement any of these methods are disabled, since
     # we don't control the test runner and won't be able to run them
-    setuptools_incompat = ('report', 'finalize', 'prepareTest',
+    # finalize() is also not called, but plugins that use it aren't disabled,
+    # because capture needs it.
+    setuptools_incompat = ('report', 'prepareTest',
                            'prepareTestLoader', 'prepareTestRunner',
                            'setOutputStream')
-    
+
+    plugins = RestrictedPluginManager(exclude=setuptools_incompat)
     conf = Config(files=all_config_files(),
-                  plugins=RestrictedPluginManager(exclude=setuptools_incompat))
+                  plugins=plugins)
     conf.configure(argv=['collector'])
     loader = defaultTestLoader(conf)
 
     if conf.testNames:
-        return loader.loadTestsFromNames(conf.testNames)
+        suite = loader.loadTestsFromNames(conf.testNames)
     else:
-        return loader.loadTestsFromNames(('.',))
-
+        suite = loader.loadTestsFromNames(('.',))
+    return FinalizingSuiteWrapper(suite, plugins.finalize)
 
 class TestCollector:
     """Main nose test collector.

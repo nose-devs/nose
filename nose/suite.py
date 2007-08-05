@@ -463,6 +463,26 @@ class ContextList(object):
         return iter(self.tests)
 
 
+class FinalizingSuiteWrapper(unittest.TestSuite):
+    """Wraps suite and calls final function after suite has
+    executed. Used to call final functions in cases (like running in
+    the standard test runner) where test running is not under nose's
+    control.    
+    """
+    def __init__(self, suite, finalize):
+        self.suite = suite
+        self.finalize = finalize
+
+    def __call__(self, *arg, **kw):
+        return self.run(*arg, **kw)
+
+    def run(self, *arg, **kw):
+        try:
+            return self.suite(*arg, **kw)
+        finally:
+            self.finalize(*arg, **kw)
+
+
 # backwards compat -- sort of
 class TestDir:
     def __init__(*arg, **kw):

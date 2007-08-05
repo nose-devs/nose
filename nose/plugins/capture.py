@@ -77,7 +77,11 @@ class Capture(Plugin):
 
     def end(self):
         if self.stdout:
-            sys.stdout = self.stdout.pop(0)
+            sys.stdout = self.stdout.pop()
+
+    def finalize(self, result):
+        while self.stdout:
+            self.end()
 
     def _get_buffer(self):
         if self._buf is not None:
