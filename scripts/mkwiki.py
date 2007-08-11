@@ -207,7 +207,9 @@ def plugin_interface():
     methods.sort(lambda a, b: cmp(a.name, b.name))
     mdoc = []
     for m in methods:
+        # FIXME fix the arg list so literal os.environ is not in there
         mdoc.append('*%s%s*\n\n' %  (m.name, m.formatargs()))
+        # FIXME this is resulting in poorly formatted doc sections
         mdoc.append(' ' + m.doc().replace('\n', '\n '))
         mdoc.append('\n\n')
     doc = doc + ''.join(mdoc)

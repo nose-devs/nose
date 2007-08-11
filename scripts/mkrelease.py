@@ -100,6 +100,8 @@ if 'NOSE_UPLOAD' in os.environ:
     cmd = 'scp -C dist/nose-%(version)s.tar.gz %(upload)s' % cv
     runcmd(cmd)
 
+    cmd = 'mkdir -p %(upload_docs)s/doc' % cv
+
     cmd = 'scp -C index.html %(upload_docs)s' % cv
     runcmd(cmd)
 
