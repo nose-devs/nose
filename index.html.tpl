@@ -22,7 +22,7 @@
           </a>
         </li>
         <li>
-          <a href="doc/">API docs</a>
+          <a href="doc/">API docs</a> <span class="new">NEW</a>
         </li>
         <li>
           <a href="http://ivory.idyll.org/articles/nose-intro.html">

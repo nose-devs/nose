@@ -427,7 +427,10 @@ class IPluginInterface(object):
         other plugins to continue printing, any other value to stop
         them.
 
-        .. Note:: diff call order under python setup.py test
+        .. Note:: When tests are run under a test runner other than
+           `nose.core.TextTestRunner`_, for example when tests are run
+           via ``python setup.py test``, this method may be called
+           **before** the default report output is sent.
         """
         pass
 

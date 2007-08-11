@@ -15,6 +15,7 @@
 - Fixed bugs in FailureDetail and Capture plugins, and plugin manager
   and proxy uses of chainable plugin calls. Thanks to Ian Bicking for
   the bug report (Issue #72).
+- Improved documentation.
 
 0.10.0a2
 

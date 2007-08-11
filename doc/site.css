@@ -137,6 +137,13 @@ pre.literal-block, pre.doctest-block
               margin-top: 1.2ex;
  }
 
+.new { 
+       
+       background-color: #ffe;
+       color: #f00;
+       font-weight: bold;
+ }
+
 .admonition-title { 
                    display: none;
                    padding: 0;
@@ -153,6 +160,8 @@ pre.literal-block, pre.doctest-block
 .method.new 
 { 
   background-color: #ffe;
+  color: #000;
+  font-weight: normal;
 }
 
 .method .doc 

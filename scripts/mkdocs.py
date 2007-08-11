@@ -391,7 +391,7 @@ for section in ('new', 'changed', 'deprecated'):
     menu.append('<h2>%s methods</h2>' % section.title())
     menu.append('<ul><li>')
     menu.append('</li><li>'.join([
-        '<a href="%(name)s">%(name)s</a>' % {'name': n}
+        '<a href="#%(name)s">%(name)s</a>' % {'name': n}
         for n in menu_links[section]]))
     menu.append('</li></ul>')
 itf['sub_menu'] = ''.join(menu)
