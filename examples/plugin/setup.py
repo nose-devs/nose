@@ -19,7 +19,7 @@ setup(
     license = 'GNU LGPL',
     py_modules = ['plug'],
     entry_points = {
-        'nose.plugins': [
+        'nose.plugins.0.10': [
             'example = plug:ExamplePlugin'
             ]
         }
