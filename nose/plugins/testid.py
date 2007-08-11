@@ -32,6 +32,8 @@ Then you can rerun individual tests by supplying just the id numbers::
 Since most shells consider '#' a special character, you can leave it out when
 specifying a test id.
 """
+__test__ = False
+
 import logging
 import os
 from nose.plugins import Plugin

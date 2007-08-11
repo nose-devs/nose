@@ -12,8 +12,9 @@ class Plugin(object):
 
     Plugins should not be enabled by default.
 
-    Subclassing Plugin will give your plugin some friendly default
-    behavior:
+    Subclassing Plugin (and calling the superclass methods in
+    __init__, configure, and options, if you override them) will give
+    your plugin some friendly default behavior:
 
       * A --with-$name option will be added to the command line
         interface to enable the plugin. The plugin class's docstring
@@ -425,6 +426,8 @@ class IPluginInterface(object):
         test results or perform final cleanup. Return None to allow
         other plugins to continue printing, any other value to stop
         them.
+
+        .. Note:: diff call order under python setup.py test
         """
         pass
 

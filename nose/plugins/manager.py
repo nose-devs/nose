@@ -2,15 +2,47 @@
 Plugin Manager
 --------------
 
-A plugin manager class is used to load plugins and proxy calls
-to plugins.
+A plugin manager class is used to load plugins, manage the list of
+loaded plugins, and proxy calls to those plugins.
 
-FIXME docs
+The plugin managers provided with nose are:
 
-* Built in
-* Entry point
+``PluginManager``
+    This manager doesn't implement loadPlugins, so it can only work
+    with a static list of plugins.
 
-more docs
+``BuiltinPluginManager``
+    This manager loads plugins referenced in ``nose.plugins.builtin``.
+
+``EntryPointPluginManager``
+    This manager uses setuptools entrypoints to load plugins.
+
+``DefaultPluginMananger``
+    This is the manager class that will be used by default. If
+    setuptools is installed, it is a subclass of
+    ``EntryPointPluginManager`` and ``BuiltinPluginManager``; otherwise, an
+    alias to ``BuiltinPluginManager``.
+
+``RestrictedPluginManager``
+    This manager is for use in test runs where some plugin calls are
+    not available, such as runs started with `python setup.py test`,
+    where the test runner is the default unittest ``TextTestRunner``. It
+    is a subclass of ``DefaultPluginManager``.
+
+Writing a plugin manager
+========================
+
+If you want to load plugins via some other means, you can write a
+plugin manager and pass an instance of your plugin manager class when
+instantiating the `nose.config.Config`_ instance that you pass to
+``TestProgram`` (or ``main`` or ``run``).
+
+To implement your plugin loading scheme, implement ``loadPlugins()``,
+and in that method, call ``addPlugin()`` with an instance each plugin
+you wish to make available. Make sure to call
+``super(self).loadPlugins()`` as well if have subclassed a manager
+other than ``PluginManager``.
+
 """
 import logging
 import os
@@ -26,6 +58,10 @@ log = logging.getLogger(__name__)
 class PluginProxy(object):
     """Proxy for plugin calls. Essentially a closure bound to the
     given call and plugin list.
+
+    The plugin proxy also must be bound to a particular plugin
+    interface specification, so that it knows what calls are available
+    and any special handling that is required for each call.
     """
     interface = IPluginInterface
     def __init__(self, call, plugins):

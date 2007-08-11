@@ -304,7 +304,21 @@ run_exit = main = TestProgram
 
 
 def run(*arg, **kw):
-    """Collect and run test, returning success or failure.
+    """Collect and run tests, returning success or failure.
+
+    The arguments to `run()` are the same as to `main()`:
+
+    * module: All tests are in this module (default: None)
+    * defaultTest: Tests to load (default: '.')
+    * argv: Command line arguments (default: None; sys.argv is read)
+    * testRunner: Test runner instance (default: None)
+    * testLoader: Test loader instance (default: None)
+    * env: Environment (default: None; os.environ is read)
+    * config: nose.config.Config instance (default: None)
+    * suite: Suite of tests to run (default: None)
+
+    With the exception that the ``exit`` argument is always set
+    to False.    
     """
     kw['exit'] = False
     return TestProgram(*arg, **kw).success
