@@ -13,6 +13,7 @@ class HtmlOutput(Plugin):
     """
     
     name = 'html-output'
+    score = 2 # run late
     
     def __init__(self):
         super(HtmlOutput, self).__init__()
@@ -20,30 +21,18 @@ class HtmlOutput(Plugin):
                       '<title>Test output</title>',
                       '</head><body>' ]
     
-    def addSuccess(self, test, capt):
+    def addSuccess(self, test):
         self.html.append('<span>ok</span>')
         
-    def addSkip(self, test):
-        self.html.append('<span>SKIPPED</span>')
-        
-    def addDeprecated(self, test):
-        self.html.append('<span>DEPRECATED</span>')
-
-    def addError(self, test, err, capt):
+    def addError(self, test, err):
         err = self.formatErr(err)
         self.html.append('<span>ERROR</span>')
         self.html.append('<pre>%s</pre>' % err)
-        if capt:
-            self.html.append('<pre>%s</pre>' % capt)
             
-    def addFailure(self, test, err, capt, tb_info):
+    def addFailure(self, test, err):
         err = self.formatErr(err)
         self.html.append('<span>FAIL</span>')
         self.html.append('<pre>%s</pre>' % err)
-        if tb_info:
-            self.html.append('<pre>%s</pre>' % tb_info)
-        if capt:
-            self.html.append('<pre>%s</pre>' % capt)
 
     def finalize(self, result):
         self.html.append('<div>')
@@ -65,7 +54,7 @@ class HtmlOutput(Plugin):
 
     def formatErr(self, err):
         exctype, value, tb = err
-        return traceback.format_exception(exctype, value, tb)
+        return ''.join(traceback.format_exception(exctype, value, tb))
     
     def setOutputStream(self, stream):
         # grab for own use
@@ -78,6 +67,21 @@ class HtmlOutput(Plugin):
                 pass
         d = dummy()
         return d
+
+    def startContext(self, ctx):
+        try:
+            n = ctx.__name__
+        except AttributeError:
+            n = str(ctx).replace('<', '').replace('>', '')
+        self.html.extend(['<fieldset>', '<legend>', n, '</legend>'])
+        try:
+            path = ctx.__file__.replace('.pyc', '.py')
+            self.html.extend(['<div>', path, '</div>'])
+        except AttributeError:
+            pass
+
+    def stopContext(self, ctx):
+        self.html.append('</fieldset>')
     
     def startTest(self, test):
         self.html.extend([ '<div><span>',

@@ -29,12 +29,20 @@ class TestNoseConfig(unittest.TestCase):
     def test_multiple_include(self):
         c = nose.config.Config()
         c.configure(['--include=a', '--include=b'])
-        self.assertEqual(c.include, [re.compile('a'), re.compile('b')])
+        self.assertEqual(len(c.include), 2)
+        a, b = c.include
+        assert a.match('a')
+        assert not a.match('b')
+        assert b.match('b')
+        assert not b.match('a')
 
     def test_single_include(self):
         c = nose.config.Config()
         c.configure(['--include=b'])
-        self.assertEqual(c.include, [re.compile('b')])
+        self.assertEqual(len(c.include), 1)
+        b = c.include[0]
+        assert b.match('b')
+        assert not b.match('a')
 
     def test_plugins(self):
         c = nose.config.Config()

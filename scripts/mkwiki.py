@@ -33,8 +33,20 @@ def words(s):
     return s.split(' ')
         
 def wiki_word(node):
-    print "Unknown ref %s" % node.astext()    
-    node['refuri'] = ''.join(map(ucfirst, words(node.astext())))
+    text = node.astext()
+    print "Unknown ref %s" % text
+    # handle module/plugin links -- link to code
+    if '.' in text:
+        parts = text.split('.')
+        link = 'http://python-nose.googlecode.com/svn/trunk'
+        for p in parts:
+            # stop at class names
+            if p[0].upper() == p[0]:
+                break
+            link += '/' + p        
+        node['refuri'] = link
+        return True
+    node['refuri'] = ''.join(map(ucfirst, words(text)))
     del node['refname']
     node.resolved = True
     return True
@@ -96,6 +108,14 @@ class WikiVisitor(SparseNodeVisitor):
         self.preformat = True
 
     def depart_literal_block(self, node):
+        self.output.extend(['\n', '}}}', '\n\n'])
+        self.preformat = False
+
+    def visit_doctest_block(self, node):
+        self.output.extend(['{{{', '\n'])
+        self.preformat = True
+
+    def depart_doctest_block(self, node):
         self.output.extend(['\n', '}}}', '\n\n'])
         self.preformat = False
         
@@ -187,7 +207,9 @@ def plugin_interface():
     methods.sort(lambda a, b: cmp(a.name, b.name))
     mdoc = []
     for m in methods:
+        # FIXME fix the arg list so literal os.environ is not in there
         mdoc.append('*%s%s*\n\n' %  (m.name, m.formatargs()))
+        # FIXME this is resulting in poorly formatted doc sections
         mdoc.append(' ' + m.doc().replace('\n', '\n '))
         mdoc.append('\n\n')
     doc = doc + ''.join(mdoc)

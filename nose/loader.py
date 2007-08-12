@@ -275,7 +275,7 @@ class TestLoader(unittest.TestLoader):
 
         # Now, descend into packages
         # FIXME can or should this be lazy?
-        # is this syntax 2.3 (or 2.2) compatible?
+        # is this syntax 2.2 compatible?
         paths = getattr(module, '__path__', [])
         for path in paths:
             tests.extend(self.loadTestsFromDir(path))
@@ -345,7 +345,7 @@ class TestLoader(unittest.TestLoader):
                         finally:
                             self.config.plugins.afterImport(
                                 addr.filename, addr.module)
-                except KeyboardInterrupt, SystemExit:
+                except (KeyboardInterrupt, SystemExit):
                     raise
                 except:
                     exc = sys.exc_info()
@@ -469,6 +469,7 @@ class TestLoader(unittest.TestLoader):
             raise
         except:
             return Failure(*sys.exc_info())
+        
         if isinstance(obj, unittest.TestCase):
             return obj
         elif isclass(obj):            

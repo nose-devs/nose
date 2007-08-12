@@ -14,6 +14,7 @@ from nose.config import Config, all_config_files
 from nose.loader import defaultTestLoader
 from nose.plugins.manager import DefaultPluginManager, RestrictedPluginManager
 from nose.result import TextTestResult
+from nose.suite import FinalizingSuiteWrapper
 from nose.util import isclass, tolist
 
 
@@ -142,6 +143,33 @@ class TestProgram(unittest.TestProgram):
 
     All configuration files that are found will be loaded and their options
     combined.
+
+    Using Plugins
+    -------------
+
+    There are numerous nose plugins available via easy_install and
+    elsewhere. To use a plugin, just install it. The plugin will add
+    command line options to nosetests. To verify that the plugin is installed,
+    run:
+ 
+      nosetests --plugins
+
+    You can add -v or -vv to that command to show more information
+    about each plugin.
+
+    0.9 plugins
+    -----------
+
+    nose 0.10 can use SOME plugins that were written for nose 0.9. The
+    default plugin manager inserts a compatibility wrapper around 0.9
+    plugins that adapts the changed plugin api calls. However, plugins
+    that access nose internals are likely to fail, especially if they
+    attempt to access test case or test suite classes. For example,
+    plugins that try to determine if a test passed to startTest is an
+    individual test or a suite will fail, partly because suites are no
+    longer passed to startTest and partly because it's likely that the
+    plugin is trying to find out if the test is an instance of a class
+    that no longer exists.
     """
     verbosity = 1
 
@@ -276,7 +304,21 @@ run_exit = main = TestProgram
 
 
 def run(*arg, **kw):
-    """Collect and run test, returning success or failure.
+    """Collect and run tests, returning success or failure.
+
+    The arguments to `run()` are the same as to `main()`:
+
+    * module: All tests are in this module (default: None)
+    * defaultTest: Tests to load (default: '.')
+    * argv: Command line arguments (default: None; sys.argv is read)
+    * testRunner: Test runner instance (default: None)
+    * testLoader: Test loader instance (default: None)
+    * env: Environment (default: None; os.environ is read)
+    * config: nose.config.Config instance (default: None)
+    * suite: Suite of tests to run (default: None)
+
+    With the exception that the ``exit`` argument is always set
+    to False.    
     """
     kw['exit'] = False
     return TestProgram(*arg, **kw).success
@@ -298,20 +340,23 @@ def collector():
     """
     # plugins that implement any of these methods are disabled, since
     # we don't control the test runner and won't be able to run them
-    setuptools_incompat = ('report', 'finalize', 'prepareTest',
+    # finalize() is also not called, but plugins that use it aren't disabled,
+    # because capture needs it.
+    setuptools_incompat = ('report', 'prepareTest',
                            'prepareTestLoader', 'prepareTestRunner',
                            'setOutputStream')
-    
+
+    plugins = RestrictedPluginManager(exclude=setuptools_incompat)
     conf = Config(files=all_config_files(),
-                  plugins=RestrictedPluginManager(exclude=setuptools_incompat))
+                  plugins=plugins)
     conf.configure(argv=['collector'])
     loader = defaultTestLoader(conf)
 
     if conf.testNames:
-        return loader.loadTestsFromNames(conf.testNames)
+        suite = loader.loadTestsFromNames(conf.testNames)
     else:
-        return loader.loadTestsFromNames(('.',))
-
+        suite = loader.loadTestsFromNames(('.',))
+    return FinalizingSuiteWrapper(suite, plugins.finalize)
 
 class TestCollector:
     """Main nose test collector.

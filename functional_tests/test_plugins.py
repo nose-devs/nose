@@ -41,6 +41,30 @@ class TestPluginCalls(unittest.TestCase):
              'loadTestsFromDir', 'afterDirectory',
              'report', 'finalize'])
 
+    def test_plugin_calls_package1_versbose(self):
+        wdir = os.path.join(support, 'package1')
+        man = RecordingPluginManager()
+        conf = Config(plugins=man, stream=sys.stdout)
+        t = TestProgram(defaultTest=wdir, config=conf,
+                        argv=['test_plugin_calls_package1', '-v'], exit=False)
+        print man.calls()
+        assert man.called
+
+        self.assertEqual(
+            man.calls(),
+            ['loadPlugins', 'addOptions', 'configure', 'begin',
+             'prepareTestLoader', 'loadTestsFromNames', 'loadTestsFromName',
+             'prepareTestRunner', 'prepareTest', 'setOutputStream',
+             'prepareTestResult', 'beforeDirectory', 'wantFile',
+             'wantDirectory', 'beforeContext', 'beforeImport',
+             'afterImport', 'wantModule', 'wantClass', 'wantFunction',
+             'makeTest', 'wantMethod', 'loadTestsFromTestClass',
+             'loadTestsFromTestCase', 'loadTestsFromModule', 'startContext',
+             'beforeTest', 'prepareTestCase', 'startTest', 'describeTest',
+             'addSuccess', 'stopTest', 'afterTest', 'stopContext', 'testName',
+             'afterContext', 'loadTestsFromDir', 'afterDirectory',
+             'report', 'finalize'])        
+
 
 
 if __name__ == '__main__':

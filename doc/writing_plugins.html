@@ -6,8 +6,8 @@
   <body>
     
     <div id="menu">
-      <p>This document covers nose version <b>0.10.0a2</b></p>
-      <p>Last update: <b>Thu Jul 19 16:16:28 2007</b></p>
+      <p>This document covers nose version <b>0.10.0b1</b></p>
+      <p>Last update: <b>Sat Aug 11 21:09:27 2007</b></p>
       <h2>Plugins</h2><ul><li><a href="plugin_attrib.html">Builtin Plugin: attrib</a></li><li><a href="plugin_capture.html">Builtin Plugin: capture</a></li><li><a href="plugin_cover.html">Builtin Plugin: cover</a></li><li><a href="plugin_debug.html">Builtin Plugin: debug</a></li><li><a href="plugin_deprecated.html">Builtin Plugin: deprecated</a></li><li><a href="plugin_doctests.html">Builtin Plugin: doctests</a></li><li><a href="plugin_failuredetail.html">Builtin Plugin: failuredetail</a></li><li><a href="plugin_isolate.html">Builtin Plugin: isolate</a></li><li><a href="plugin_prof.html">Builtin Plugin: prof</a></li><li><a href="plugin_skip.html">Builtin Plugin: skip</a></li><li><a href="plugin_testid.html">Builtin Plugin: testid</a></li><li><a href="errorclassplugin.html">ErrorClass Plugins</a></li><li><a href="plugin_interface.html">Plugin Interface</a></li><li><a href="writing_plugins.html">Writing Plugins</a></li></ul><h2>Modules</h2><ul><li><a href="module_nose.case.html">Module: nose.case</a></li><li><a href="module_nose.commands.html">Module: nose.commands</a></li><li><a href="module_nose.config.html">Module: nose.config</a></li><li><a href="module_nose.core.html">Module: nose.core</a></li><li><a href="module_nose.exc.html">Module: nose.exc</a></li><li><a href="module_nose.importer.html">Module: nose.importer</a></li><li><a href="module_nose.inspector.html">Module: nose.inspector</a></li><li><a href="module_nose.loader.html">Module: nose.loader</a></li><li><a href="module_nose.plugins.manager.html">Module: nose.plugins.manager</a></li><li><a href="module_nose.proxy.html">Module: nose.proxy</a></li><li><a href="module_nose.result.html">Module: nose.result</a></li><li><a href="module_nose.selector.html">Module: nose.selector</a></li><li><a href="module_nose.suite.html">Module: nose.suite</a></li><li><a href="module_nose.tools.html">Module: nose.tools</a></li><li><a href="module_nose.twistedtools.html">Module: nose.twistedtools</a></li><li><a href="module_nose.util.html">Module: nose.util</a></li></ul>
       
     </div>
@@ -80,18 +80,28 @@ want to prevent the builtin <tt class="docutils literal"><span class="pre">TextT
 to the dummy stream, while you send your desired output to the real stream.</p>
 <p>Example: <a class="reference" href="http://python-nose.googlecode.com/svn/trunk/examples/html_plugin/htmlplug.py">examples/html_plugin/htmlplug.py</a></p>
 </li>
+<li><p class="first">Writing a plugin that handles exceptions</p>
+<p>Subclass <a class="reference" href="errorclassplugin.html">ErrorClassPlugin</a>.</p>
+<p>Examples: <a class="reference" href="plugin_deprecated.html">nose.plugins.deprecated</a>, <a class="reference" href="plugin_skip.html">nose.plugins.skip</a></p>
+</li>
+<li><p class="first">Writing a plugin that adds detail to error reports</p>
+<p>Implement <tt class="docutils literal"><span class="pre">formatError</span></tt> and/or <tt class="docutils literal"><span class="pre">formatFailture</span></tt>. The error tuple
+you return (error class, error message, traceback) will replace the
+original error tuple.</p>
+<p>Examples: <a class="reference" href="plugin_capture.html">nose.plugins.capture</a>, <a class="reference" href="plugin_failuredetail.html">nose.plugins.failuredetail</a></p>
+</li>
 <li><p class="first">Writing a plugin that loads tests from files other than python modules</p>
 <p>Implement <tt class="docutils literal"><span class="pre">wantFile</span></tt> and <tt class="docutils literal"><span class="pre">loadTestsFromFile</span></tt>. In <tt class="docutils literal"><span class="pre">wantFile</span></tt>,
 return True for files that you want to examine for tests. In
 <tt class="docutils literal"><span class="pre">loadTestsFromFile</span></tt>, for those files, return an iterable
 containing TestCases (or yield them as you find them;
 <tt class="docutils literal"><span class="pre">loadTestsFromFile</span></tt> may also be a generator).</p>
-<p>Example: <a class="reference" href="http://python-nose.googlecode.com/svn/trunk/nose/plugins/doctests.py">nose.plugins.doctests</a></p>
+<p>Example: <a class="reference" href="plugin_doctests.html">nose.plugins.doctests</a></p>
 </li>
 <li><p class="first">Writing a plugin that prints a report</p>
 <p>Implement begin if you need to perform setup before testing
 begins. Implement <tt class="docutils literal"><span class="pre">report</span></tt> and output your report to the provided stream.</p>
-<p>Examples: <a class="reference" href="http://python-nose.googlecode.com/svn/trunk/nose/plugins/cover.py">nose.plugins.cover</a>, <a class="reference" href="http://python-nose.googlecode.com/svn/trunk/nose/plugins/profile.py">nose.plugins.profile</a></p>
+<p>Examples: <a class="reference" href="plugin_cover.html">nose.plugins.cover</a>, <a class="reference" href="plugin_prof.html">nose.plugins.prof</a></p>
 </li>
 <li><p class="first">Writing a plugin that selects or rejects tests</p>
 <p>Implement any or all <tt class="docutils literal"><span class="pre">want*</span></tt>  methods. Return False to reject the test
@@ -99,15 +109,15 @@ candidate, True to accept it -- which  means that the test candidate
 will pass through the rest of the system, so you must be prepared to
 load tests from it if tests can't be loaded by the core loader or
 another plugin -- and None if you don't care.</p>
-<p>Examples: <a class="reference" href="http://python-nose.googlecode.com/svn/trunk/nose/plugins/attrib.py">nose.plugins.attrib</a>, <a class="reference" href="http://python-nose.googlecode.com/svn/trunk/nose/plugins/doctests.py">nose.plugins.doctests</a></p>
+<p>Examples: <a class="reference" href="plugin_attrib.html">nose.plugins.attrib</a>, <a class="reference" href="plugin_doctests.html">nose.plugins.doctests</a>,
+<a class="reference" href="plugin_testid.html">nose.plugins.testid</a></p>
 </li>
 </ul>
 </div>
 <div class="section">
-<h1><a id="examples" name="examples">Examples</a></h1>
-<p>See <a class="reference" href="http://python-nose.googlecode.com/svn/trunk/nose/plugins/attrib.py">nose.plugins.attrib</a>, <a class="reference" href="http://python-nose.googlecode.com/svn/trunk/nose/plugins/cover.py">nose.plugins.cover</a>, <a class="reference" href="http://python-nose.googlecode.com/svn/trunk/nose/plugins/doctests.py">nose.plugins.doctests</a>
-and <a class="reference" href="http://python-nose.googlecode.com/svn/trunk/nose/plugins/profile.py">nose.plugins.profile</a> for examples. Further examples may be found the
-<a class="reference" href="http://python-nose.googlecode.com/svn/trunk/examples">examples</a> directory in the nose source distribution.</p>
+<h1><a id="more-examples" name="more-examples">More Examples</a></h1>
+<p>See any builtin plugin or example plugin in the <a class="reference" href="http://python-nose.googlecode.com/svn/trunk/examples">examples</a> directory in
+the nose source distribution.</p>
 </div>
 <div class="section">
 <h1><a id="testing-plugins" name="testing-plugins">Testing Plugins</a></h1>
@@ -124,7 +134,6 @@ designed to test plugins in their native runtime environment.</p>
 ...     pass
 &gt;&gt;&gt; class TestPluginFoo(PluginTester, unittest.TestCase):
 ...     activate = '--with-foo'
-...     debuglog = 'nose.plugins.foo'
 ...     plugins = [FooPlugin()]
 ...     def test_foo(self):
 ...         for line in self.output:

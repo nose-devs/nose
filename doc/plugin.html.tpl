@@ -29,6 +29,10 @@
 
       <pre>%(options)s</pre>
 
+      <h2>Source</h2>
+
+      %(source)s
+
     </div>
     <script src="http://www.google-analytics.com/urchin.js" 
 	    type="text/javascript">

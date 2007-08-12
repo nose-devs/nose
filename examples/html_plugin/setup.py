@@ -16,7 +16,7 @@ setup(
     license = 'GNU LGPL',
     py_modules = ['htmlplug'],
     entry_points = {
-        'nose.plugins': [
+        'nose.plugins.0.10': [
             'htmlout = htmlplug:HtmlOutput'
             ]
         }

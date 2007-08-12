@@ -6,8 +6,8 @@
   <body>
     
     <div id="menu">
-      <p>This document covers nose version <b>0.10.0a2</b></p>
-      <p>Last update: <b>Thu Jul 19 16:16:28 2007</b></p>
+      <p>This document covers nose version <b>0.10.0b1</b></p>
+      <p>Last update: <b>Sat Aug 11 21:09:27 2007</b></p>
       <h2>Plugins</h2><ul><li><a href="plugin_attrib.html">Builtin Plugin: attrib</a></li><li><a href="plugin_capture.html">Builtin Plugin: capture</a></li><li><a href="plugin_cover.html">Builtin Plugin: cover</a></li><li><a href="plugin_debug.html">Builtin Plugin: debug</a></li><li><a href="plugin_deprecated.html">Builtin Plugin: deprecated</a></li><li><a href="plugin_doctests.html">Builtin Plugin: doctests</a></li><li><a href="plugin_failuredetail.html">Builtin Plugin: failuredetail</a></li><li><a href="plugin_isolate.html">Builtin Plugin: isolate</a></li><li><a href="plugin_prof.html">Builtin Plugin: prof</a></li><li><a href="plugin_skip.html">Builtin Plugin: skip</a></li><li><a href="plugin_testid.html">Builtin Plugin: testid</a></li><li><a href="errorclassplugin.html">ErrorClass Plugins</a></li><li><a href="plugin_interface.html">Plugin Interface</a></li><li><a href="writing_plugins.html">Writing Plugins</a></li></ul><h2>Modules</h2><ul><li><a href="module_nose.case.html">Module: nose.case</a></li><li><a href="module_nose.commands.html">Module: nose.commands</a></li><li><a href="module_nose.config.html">Module: nose.config</a></li><li><a href="module_nose.core.html">Module: nose.core</a></li><li><a href="module_nose.exc.html">Module: nose.exc</a></li><li><a href="module_nose.importer.html">Module: nose.importer</a></li><li><a href="module_nose.inspector.html">Module: nose.inspector</a></li><li><a href="module_nose.loader.html">Module: nose.loader</a></li><li><a href="module_nose.plugins.manager.html">Module: nose.plugins.manager</a></li><li><a href="module_nose.proxy.html">Module: nose.proxy</a></li><li><a href="module_nose.result.html">Module: nose.result</a></li><li><a href="module_nose.selector.html">Module: nose.selector</a></li><li><a href="module_nose.suite.html">Module: nose.suite</a></li><li><a href="module_nose.tools.html">Module: nose.tools</a></li><li><a href="module_nose.twistedtools.html">Module: nose.twistedtools</a></li><li><a href="module_nose.util.html">Module: nose.util</a></li></ul>
     </div>
     
@@ -67,6 +67,108 @@ the coverage plugin.</p>
                     other case where module reloading may produce undesirable
                     side-effects.  [NOSE_WITH_ISOLATION]
 </pre>
+
+      <h2>Source</h2>
+
+      <div class="highlight"><pre><span class="sd">&quot;&quot;&quot;Use the isolation plugin with --with-isolation or the</span>
+<span class="sd">NOSE_WITH_ISOLATION environment variable to clean sys.modules after</span>
+<span class="sd">each test module is loaded and executed.</span>
+
+<span class="sd">The isolation module is in effect similar to wrapping the following</span>
+<span class="sd">functions around the import and execution of each test module::</span>
+
+<span class="sd">    def setup(module):</span>
+<span class="sd">        module._mods = sys.modules.copy()</span>
+<span class="sd">    </span>
+<span class="sd">    def teardown(module):</span>
+<span class="sd">        to_del = [ m for m in sys.modules.keys() if m not in</span>
+<span class="sd">                   module._mods ]</span>
+<span class="sd">        for mod in to_del:</span>
+<span class="sd">            del sys.modules[mod]</span>
+<span class="sd">        sys.modules.update(module._mods)</span>
+
+<span class="sd">Isolation works only during lazy loading. In normal use, this is only</span>
+<span class="sd">during discovery of modules within a directory, where the process of</span>
+<span class="sd">importing, loading tests and running tests from each module is</span>
+<span class="sd">encapsulated in a single loadTestsFromName call. This plugin</span>
+<span class="sd">implements loadTestsFromNames to force the same lazy-loading there,</span>
+<span class="sd">which allows isolation to work in directed mode as well as discovery,</span>
+<span class="sd">at the cost of some efficiency: lazy-loading names forces full context</span>
+<span class="sd">setup and teardown to run for each name, defeating the grouping that</span>
+<span class="sd">is normally used to ensure that context setup and teardown are run the</span>
+<span class="sd">fewest possible times for a given set of names.</span>
+
+<span class="sd">PLEASE NOTE that this plugin should not be used in conjunction with</span>
+<span class="sd">other plugins that assume that modules once imported will stay</span>
+<span class="sd">imported; for instance, it may cause very odd results when used with</span>
+<span class="sd">the coverage plugin.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="k">import</span> <span class="nn">logging</span>
+<span class="k">import</span> <span class="nn">sys</span>
+
+<span class="k">from</span> <span class="nn">nose.plugins</span> <span class="k">import</span> <span class="n">Plugin</span>
+
+
+<span class="n">log</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s">&#39;nose.plugins.isolation&#39;</span><span class="p">)</span>
+
+<span class="k">class</span> <span class="nc">IsolationPlugin</span><span class="p">(</span><span class="n">Plugin</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Activate the isolation plugin to isolate changes to external</span>
+<span class="sd">    modules to a single test module or package. The isolation plugin</span>
+<span class="sd">    resets the contents of sys.modules after each test module or</span>
+<span class="sd">    package runs to its state before the test. PLEASE NOTE that this</span>
+<span class="sd">    plugin should not be used with the coverage plugin in any other case</span>
+<span class="sd">    where module reloading may produce undesirable side-effects.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">score</span> <span class="o">=</span> <span class="mi">10</span> <span class="c"># I want to be last</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="s">&#39;isolation&#39;</span>
+
+    <span class="k">def</span> <span class="nf">configure</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">options</span><span class="p">,</span> <span class="n">conf</span><span class="p">):</span>
+        <span class="n">Plugin</span><span class="o">.</span><span class="n">configure</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">options</span><span class="p">,</span> <span class="n">conf</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_mod_stack</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">def</span> <span class="nf">beforeContext</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Copy sys.modules onto my mod stack</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">mods</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">modules</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_mod_stack</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">mods</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">afterContext</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Pop my mod stack and restore sys.modules to the state</span>
+<span class="sd">        it was in when mod stack was pushed.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">mods</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mod_stack</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
+        <span class="n">to_del</span> <span class="o">=</span> <span class="p">[</span> <span class="n">m</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">sys</span><span class="o">.</span><span class="n">modules</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="k">if</span> <span class="n">m</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">mods</span> <span class="p">]</span>
+        <span class="k">if</span> <span class="n">to_del</span><span class="p">:</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&#39;removing sys modules entries: </span><span class="si">%s</span><span class="s">&#39;</span><span class="p">,</span> <span class="n">to_del</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">mod</span> <span class="ow">in</span> <span class="n">to_del</span><span class="p">:</span>
+                <span class="k">del</span> <span class="n">sys</span><span class="o">.</span><span class="n">modules</span><span class="p">[</span><span class="n">mod</span><span class="p">]</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">modules</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">mods</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">loadTestsFromNames</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">names</span><span class="p">,</span> <span class="n">module</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Create a lazy suite that calls beforeContext and afterContext</span>
+<span class="sd">        around each name. The side-effect of this is that full context</span>
+<span class="sd">        fixtures will be set up and torn down around each test named.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c"># Fast path for when we don&#39;t care</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">names</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">names</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">return</span> 
+        <span class="n">loader</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">loader</span>
+        <span class="n">plugins</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">conf</span><span class="o">.</span><span class="n">plugins</span>
+        <span class="k">def</span> <span class="nf">lazy</span><span class="p">():</span>
+            <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">names</span><span class="p">:</span>
+                <span class="n">plugins</span><span class="o">.</span><span class="n">beforeContext</span><span class="p">()</span>
+                <span class="k">yield</span> <span class="n">loader</span><span class="o">.</span><span class="n">loadTestsFromName</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">module</span><span class="o">=</span><span class="n">module</span><span class="p">)</span>
+                <span class="n">plugins</span><span class="o">.</span><span class="n">afterContext</span><span class="p">()</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">loader</span><span class="o">.</span><span class="n">suiteClass</span><span class="p">(</span><span class="n">lazy</span><span class="p">),</span> <span class="p">[])</span>
+
+    <span class="k">def</span> <span class="nf">prepareTestLoader</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">loader</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get handle on test loader so we can use it in loadTestsFromNames.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">loader</span> <span class="o">=</span> <span class="n">loader</span>
+</pre></div>
+
 
     </div>
     <script src="http://www.google-analytics.com/urchin.js" 

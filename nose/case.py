@@ -84,10 +84,9 @@ class Test(unittest.TestCase):
             pass
 
     def exc_info(self):
-        """Extract exception info into a useable form, including
-        appending captured output and assert introspection information, if
-        so configured.
+        """Extract exception info.
         """
+        
         exc, exv, tb = sys.exc_info()
         return (exc, exv, tb)
         
@@ -178,6 +177,8 @@ class TestBase(unittest.TestCase):
         self.test(*self.arg)
     
     def shortDescription(self):
+        if hasattr(self.test, 'description'):
+            return self.test.description
         func, arg = self._descriptors()
         doc = getattr(func, '__doc__', None)
         if not doc:

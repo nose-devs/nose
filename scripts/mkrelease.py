@@ -93,14 +93,19 @@ runcmd('scripts/mkdocs.py')
 runcmd('python setup.py sdist')
 
 # upload docs and distribution
-if 'NOSE_UPLOAD' in os.environ and False:
+if 'NOSE_UPLOAD' in os.environ:
     cv = {'version':version,
           'upload': os.environ['NOSE_UPLOAD'],
           'upload_docs': "%s/%s" % (os.environ['NOSE_UPLOAD'], version) }
     cmd = 'scp -C dist/nose-%(version)s.tar.gz %(upload)s' % cv
     runcmd(cmd)
 
-    cmd = 'scp -Cr index.html doc %(upload_docs)s' % cv
+    cmd = 'mkdir -p %(upload_docs)s/doc' % cv
+
+    cmd = 'scp -C index.html %(upload_docs)s' % cv
+    runcmd(cmd)
+
+    cmd = 'scp -C doc/*.html doc/*.css doc/*.png %(upload_docs)s/doc' % cv
     runcmd(cmd)
     
 os.chdir(current)

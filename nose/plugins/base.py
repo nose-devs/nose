@@ -12,8 +12,9 @@ class Plugin(object):
 
     Plugins should not be enabled by default.
 
-    Subclassing Plugin will give your plugin some friendly default
-    behavior:
+    Subclassing Plugin (and calling the superclass methods in
+    __init__, configure, and options, if you override them) will give
+    your plugin some friendly default behavior:
 
       * A --with-$name option will be added to the command line
         interface to enable the plugin. The plugin class's docstring
@@ -295,7 +296,7 @@ class IPluginInterface(object):
         pass
     addSkip.deprecated = True
 
-    def addSuccess(self, test, capt):
+    def addSuccess(self, test):
         """Called when a test passes. DO NOT return a value unless you
         want to stop other plugins from seeing the passing test.
 
@@ -425,6 +426,11 @@ class IPluginInterface(object):
         test results or perform final cleanup. Return None to allow
         other plugins to continue printing, any other value to stop
         them.
+
+        .. Note:: When tests are run under a test runner other than
+           `nose.core.TextTestRunner`_, for example when tests are run
+           via ``python setup.py test``, this method may be called
+           **before** the default report output is sent.
         """
         pass
 
@@ -442,7 +448,7 @@ class IPluginInterface(object):
     def formatError(self, test, err):
         """Called in result.addError, before plugin.addError. If you
         want to replace or modify the error tuple, return a new error
-        tuple.
+        tuple. 
 
         :Parameters:
           test : `nose.case.Test`_
@@ -453,11 +459,16 @@ class IPluginInterface(object):
         pass
     formatError._new = True
     formatError.chainable = True
+    # test arg is not chainable
+    formatError.static_args = (True, False)
 
     def formatFailure(self, test, err):
         """Called in result.addFailure, before plugin.addFailure. If you
         want to replace or modify the error tuple, return a new error
-        tuple.
+        tuple. Since this method is chainable, you must return the
+        test as well, so you you'll return something like::
+
+          return (test, err)
 
         :Parameters:
           test : `nose.case.Test`_
@@ -468,6 +479,8 @@ class IPluginInterface(object):
         pass
     formatFailure._new = True
     formatFailure.chainable = True
+    # test arg is not chainable
+    formatFailure.static_args = (True, False)
 
     def handleError(self, test, err):
         """Called on addError. To handle the error yourself and prevent normal

@@ -2,13 +2,47 @@
 Plugin Manager
 --------------
 
-A plugin manager class is used to load plugins and proxy calls
-to plugins.
+A plugin manager class is used to load plugins, manage the list of
+loaded plugins, and proxy calls to those plugins.
 
-FIXME docs
+The plugin managers provided with nose are:
 
-* Built in
-* Entry point
+``PluginManager``
+    This manager doesn't implement loadPlugins, so it can only work
+    with a static list of plugins.
+
+``BuiltinPluginManager``
+    This manager loads plugins referenced in ``nose.plugins.builtin``.
+
+``EntryPointPluginManager``
+    This manager uses setuptools entrypoints to load plugins.
+
+``DefaultPluginMananger``
+    This is the manager class that will be used by default. If
+    setuptools is installed, it is a subclass of
+    ``EntryPointPluginManager`` and ``BuiltinPluginManager``; otherwise, an
+    alias to ``BuiltinPluginManager``.
+
+``RestrictedPluginManager``
+    This manager is for use in test runs where some plugin calls are
+    not available, such as runs started with `python setup.py test`,
+    where the test runner is the default unittest ``TextTestRunner``. It
+    is a subclass of ``DefaultPluginManager``.
+
+Writing a plugin manager
+========================
+
+If you want to load plugins via some other means, you can write a
+plugin manager and pass an instance of your plugin manager class when
+instantiating the `nose.config.Config`_ instance that you pass to
+``TestProgram`` (or ``main`` or ``run``).
+
+To implement your plugin loading scheme, implement ``loadPlugins()``,
+and in that method, call ``addPlugin()`` with an instance each plugin
+you wish to make available. Make sure to call
+``super(self).loadPlugins()`` as well if have subclassed a manager
+other than ``PluginManager``.
+
 """
 import logging
 import os
@@ -24,9 +58,18 @@ log = logging.getLogger(__name__)
 class PluginProxy(object):
     """Proxy for plugin calls. Essentially a closure bound to the
     given call and plugin list.
+
+    The plugin proxy also must be bound to a particular plugin
+    interface specification, so that it knows what calls are available
+    and any special handling that is required for each call.
     """
     interface = IPluginInterface
     def __init__(self, call, plugins):
+        try:
+            self.method = getattr(self.interface, call)
+        except AttributeError:
+            raise AttributeError("%s is not a valid %s method"
+                                 % (call, self.interface.__name__))
         self.call = self.makeCall(call)
         self.plugins = []
         for p in plugins:
@@ -49,11 +92,8 @@ class PluginProxy(object):
             # from other chainable calls, because plugins return a tuple, only
             # part of which can be chained to the next plugin.
             return self._loadTestsFromNames
-        try:
-            meth = getattr(self.interface, call)
-        except AttributeError:
-            raise AttributeError("%s is not a valid %s method"
-                                 % (call, self.interface.__name__))
+
+        meth = self.method
         if getattr(meth, 'generative', False):
             # call all plugins and yield a flattened iterator of their results
             return lambda *arg, **kw: list(self.generate(*arg, **kw))
@@ -68,9 +108,15 @@ class PluginProxy(object):
         sent to the next plugin as input. The final output result is returned.
         """
         result = None
+        # extract the static arguments (if any) from arg so they can
+        # be passed to each plugin call in the chain
+        static = [a for (static, a)
+                  in zip(getattr(self.method, 'static_args', []), arg)
+                  if static]
         for p, meth in self.plugins:
             result = meth(*arg, **kw)
-            arg = (result,)
+            arg = static[:]
+            arg.append(result)
         return result
 
     def generate(self, *arg, **kw):
@@ -111,7 +157,7 @@ class PluginManager(object):
     may only be used with a static list of plugins.
 
     The basic functionality of a plugin manager is to proxy all unknown
-    attributes through `PluginProxy`s to a list of plugins.
+    attributes through a ``PluginProxy`` to a list of plugins.
 
     Note that the list of plugins *may not* be changed after the first plugin
     call.

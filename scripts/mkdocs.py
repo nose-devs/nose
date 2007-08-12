@@ -12,6 +12,9 @@ import nose
 import textwrap
 from optparse import OptionParser
 from nose.util import resolve_name, odict
+from pygments import highlight
+from pygments.lexers import PythonLexer
+from pygments.formatters import HtmlFormatter
 
 
 remove_at = re.compile(r' at 0x[0-9a-f]+')
@@ -26,7 +29,10 @@ def write(filename, tpl, ctx):
     print filename
     ctx.setdefault('submenu', '')
     fp = open(filename, 'w')
-    fp.write(tpl % ctx)
+    try:
+        fp.write(tpl % ctx)
+    except UnicodeEncodeError:
+        print ctx
     fp.close()
 
 
@@ -40,6 +46,7 @@ def doc_word(node):
     if '.' in name:
 
         parts = name.split('.')
+            
         # if the first letter of a part is capitalized, assume it's
         # a class name, and put all parts from that part on into
         # the anchor part of the link
@@ -50,13 +57,18 @@ def doc_word(node):
             if addto == link and part[0].upper() == part[0]:
                 addto = anchor
             addto.append(part)
-        node['refuri'] = 'module_' + '.'.join(link) + '.html'
+        if name.startswith('nose.plugins'):
+            base = 'plugin_'
+            link = link[-1:]
+        else:
+            base = 'module_'
+        node['refuri'] = base + '.'.join(link) + '.html'
         if anchor:
             node['refuri'] += '#' + '.'.join(anchor)
     else:
         node['refuri'] = '_'.join(
             map(lambda s: s.lower(), name.split(' '))) + '.html'
-                
+
     del node['refname']
     node.resolved = True
     return True
@@ -379,7 +391,7 @@ for section in ('new', 'changed', 'deprecated'):
     menu.append('<h2>%s methods</h2>' % section.title())
     menu.append('<ul><li>')
     menu.append('</li><li>'.join([
-        '<a href="%(name)s">%(name)s</a>' % {'name': n}
+        '<a href="#%(name)s">%(name)s</a>' % {'name': n}
         for n in menu_links[section]]))
     menu.append('</li></ul>')
 itf['sub_menu'] = ''.join(menu)
@@ -425,7 +437,9 @@ for modulename, clsname in builtins:
             hooks.append('<li><a href="plugin_interface.html#%(name)s">'
                          '%(name)s</a></li>' % {'name': m})
     pdoc['hooks'] = ''.join(hooks)
-            
+
+    source = inspect.getsource(mod)
+    pdoc['source'] = highlight(source, PythonLexer(), HtmlFormatter())
     to_write.append(
         ('Plugins',
          'Builtin Plugin: %s' % modname,

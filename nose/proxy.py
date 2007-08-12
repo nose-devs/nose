@@ -84,7 +84,7 @@ class ResultProxy(object):
         self.assertMyTest(test)
         self.plugins.afterTest(self.test)
         try:
-            self.result.afterTest(test)
+            self.result.afterTest(self.test)
         except AttributeError:
             pass
 
@@ -92,54 +92,54 @@ class ResultProxy(object):
         self.assertMyTest(test)
         self.plugins.beforeTest(self.test)
         try:
-            self.result.beforeTest(test)
+            self.result.beforeTest(self.test)
         except AttributeError:
             pass
         
     def addError(self, test, err):
         self.assertMyTest(test)
         plugins = self.plugins
-        plugin_handled = plugins.handleError(test, err)
+        plugin_handled = plugins.handleError(self.test, err)
         if plugin_handled:
             return
         formatted = plugins.formatError(self.test, err)
         if formatted is not None:
             err = formatted
         plugins.addError(self.test, err)
-        self.result.addError(test, err)
+        self.result.addError(self.test, err)
         if self.config.stopOnError:
             self.shouldStop = True
 
     def addFailure(self, test, err):
         self.assertMyTest(test)
         plugins = self.plugins
-        plugin_handled = plugins.handleFailure(test, err)
+        plugin_handled = plugins.handleFailure(self.test, err)
         if plugin_handled:
             return
         formatted = plugins.formatFailure(self.test, err)
         if formatted is not None:
             err = formatted
         plugins.addFailure(self.test, err)
-        self.result.addFailure(test, err)
+        self.result.addFailure(self.test, err)
         if self.config.stopOnError:
             self.shouldStop = True
     
     def addSuccess(self, test):
         self.assertMyTest(test)
         self.plugins.addSuccess(self.test)
-        self.result.addSuccess(test)
+        self.result.addSuccess(self.test)
 
     def startTest(self, test):
         self.assertMyTest(test)
         self.plugins.startTest(self.test)
-        self.result.startTest(test)
+        self.result.startTest(self.test)
     
     def stop(self):
         self.result.stop()
     
     def stopTest(self, test):
         self.plugins.stopTest(self.test)
-        self.result.stopTest(test)
+        self.result.stopTest(self.test)
     
     def get_shouldStop(self):
         return self.result.shouldStop
