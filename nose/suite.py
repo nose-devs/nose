@@ -13,11 +13,10 @@ from __future__ import generators
 import logging
 import sys
 import unittest
-from inspect import isclass
 from nose.case import Test
 from nose.config import Config
 from nose.proxy import ResultProxyFactory
-from nose.util import resolve_name, try_run
+from nose.util import isclass, resolve_name, try_run
 
 log = logging.getLogger(__name__)
 #log.setLevel(logging.DEBUG)
