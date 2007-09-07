@@ -1,3 +1,9 @@
+0.10.0
+
+- Fixed bug that broke plugins with names containing underscores or
+  hyphens. Thanks to John J Lee for the bug report and patch (Issue
+  #81).
+
 0.10.0b1
 
 - Added support for a description attribute on tests in function and
