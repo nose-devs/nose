@@ -3,6 +3,7 @@
 - Fixed bug that broke plugins with names containing underscores or
   hyphens. Thanks to John J Lee for the bug report and patch (Issue
   #81).
+- Fixed typo in nose.__all__. Thanks to John J Lee for the bug report.
 
 0.10.0b1
 

@@ -396,7 +396,7 @@ __versioninfo__ = (0, 10, '0b1')
 __version__ = '.'.join(map(str, __versioninfo__))
 
 __all__ = [
-    'main', 'run', 'run_ext', 'runmodule', 'with_setup',
+    'main', 'run', 'run_exit', 'runmodule', 'with_setup',
     'SkipTest', 'DeprecatedTest', 'collector'
     ]
 
