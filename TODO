@@ -1,43 +1,21 @@
-DOCUMENTATION
-
- CHANGELOG
-
- NEWS
-
- sep. upload of index for 0.10 -- link from 0.9 index
- 
 FEATURES
 
-rename Failure and split into subclasses for Import and other, and make
-it optionally include the name of the file being considered so that
-Failure test logs can be more informative
-
+* rename Failure and split into subclasses for Import and other, and
+  make it optionally include the name of the file being considered so
+  that Failure test logs can be more informative
 
 * loader
   - support module.callable in addition to module:callable names
-  - loadTestsFromTestCase -- override to add plugin call
-
-* result/proxy
-  - don't use sep proxy obj for each test? -- see under PROFILE
 
 
 BUGS
 
--- testid plugin should store ids in .noseids in cwd, not in user home
-
--- when run vs spine suite, makeTest seemingly was called on an object
-   that should not have passed the selector --
-   sqlalchemy.sql._FunctionGateway, which doesn't match testmatch and
-   isn't a testcase subclass -- need to look into it further.
-
-
-2.3 COMPAT
-
-all tests passing as of r203
+* testid plugin should store ids in .noseids in cwd, not in user home
 
      
 CHORES
 
+* clean up all scripts
 
 TESTS NEEDED
 
@@ -50,52 +28,3 @@ TESTS NEEDED
  coverage/doctest -- need tests for coverage/doctest interaction
 
 
-PROFILE
-
-need to profile -- on 250 tests with discovery, 0.10-dev is ~ 1 second
-slower than 0.9. Profile and optimize.
-
-one possiblity -- instead of instantiating a result proxy for every
-test, tag each test with a weakref to the nose.case.Test that wraps
-it.
-
-
-older notes:
-   not sure how this one can be made to work at the module level, since
-   import and testrunning take place separately now -- mods a, b, c are all 
-   imported before tests are run in a. probably best to have it work at the
-   directory and context levels -- that will get pretty close to what it
-   does in 0.9
-
-   it can be made to work only in surrounding contexts that are generators:
-      hook before
-      load and yield suite
-      hook after
-   
-   needed in 2 places -- loadTestsFromDir, loadTestsFromNames. 
-   So loadTestsFromNames will have to become lazy -- what impact will that
-     have on unittest compatibility, etc? can it just return a lazysuite?
-
-     the problem with loadTestsFromNames is that context teardown requires
-     that for a given context, all tests within the context are known before
-     teardown of the first suite within the context. Say you have a package of 
-     tests, a, with subpackages a.b and a.c. User wants to run tests a.b.test 
-     and a.c.test:
-
-     nosetests a.b.test a.c.test
-
-     'a' and 'b' setup and 'b' teardown run naturally with the 1st test
-     'c' setup and teardown run natually with the 2nd test. But when, or
-     how, does 'a' teardown run? If all tests are known, then a.c.test can
-     run a teardown, because it knows that no more tests in 'a' are going
-     to run. But if the 2 tests are loaded lazily -- as is REQUIRED for 
-     the isolation plugin -- then 1st test will mistakenly run 'a' teardown, 
-     since it doesn't know as it is torn down that another test in the
-     same context is about to load.
-
-     can't fix this by a call at the end of the loading process, since then
-     context teardowns may interleave -- 'a' and 'b' may be present at once
-
-     can only fix it by forcing full context load & unload around each
-     test WHEN USING loadTestFromNames -- this is inefficient, but unavoidable
-     without controlling the *order* of tests passed to loadTestsFromNames.
