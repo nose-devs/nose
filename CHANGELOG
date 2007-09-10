@@ -4,6 +4,8 @@
   hyphens. Thanks to John J Lee for the bug report and patch (Issue
   #81).
 - Fixed typo in nose.__all__. Thanks to John J Lee for the bug report.
+- Fixed handling of test descriptions that are multiline
+  docstrings. Thanks to James Casbon for the patch (Issue #50).
 
 0.10.0b1
 

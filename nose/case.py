@@ -163,8 +163,23 @@ class Test(unittest.TestCase):
         desc = self.plugins.describeTest(self)
         if desc is not None:
             return desc
-        return self.test.shortDescription()
-        
+        doc = self.test.shortDescription()
+        if doc is not None:
+            return doc
+        # work around bug in unittest.TestCase.shortDescription
+        # with multiline docstrings.
+        test = self.test
+        try:
+            doc = test._testMethodDoc # 2.5
+        except AttributeError:
+            try:
+                doc = test._TestCase__testMethodDoc # 2.4 and earlier
+            except AttributeError:
+                print dir(test)
+                pass
+        if doc is not None:
+            doc = doc.strip().split("\n")[0].strip()
+        return doc
 
 class TestBase(unittest.TestCase):
     """Common functionality for FunctionTestCase and MethodTestCase.
@@ -183,7 +198,7 @@ class TestBase(unittest.TestCase):
         doc = getattr(func, '__doc__', None)
         if not doc:
             doc = str(self)
-        return doc.split("\n")[0].strip()
+        return doc.strip().split("\n")[0].strip()
 
     
 class FunctionTestCase(TestBase):
