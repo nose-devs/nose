@@ -727,7 +727,7 @@ class IPluginInterface(object):
     def prepareTestRunner(self, runner):
         """Called before tests are run. To replace the test runner,
         return a test runner. To allow other plugins to process the
-        test runner, return None. Only valid when using nose.TesrProgram.
+        test runner, return None. Only valid when using nose.TestProgram.
 
         :Parameters:
            runner : `nose.core.TextTestRunner` or other runner instance
