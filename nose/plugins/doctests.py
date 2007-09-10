@@ -70,8 +70,10 @@ class Doctest(Plugin):
         parser.add_option('--doctest-tests', action='store_true',
                           dest='doctest_tests',
                           default=env.get('NOSE_DOCTEST_TESTS'),
-                          help="Also look for doctests in test modules "
-                          "[NOSE_DOCTEST_TESTS]")
+                          help="Also look for doctests in test modules. "
+                          "Note that classes, methods and functions should "
+                          "have either doctests or non-doctest tests, "
+                          "not both. [NOSE_DOCTEST_TESTS]")
         parser.add_option('--doctest-extension', action="append",
                           dest="doctestExtension",
                           help="Also look for doctests in files with "
