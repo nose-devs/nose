@@ -19,6 +19,10 @@ CHORES
 
 TESTS NEEDED
 
+ plugin examples
+   - controlling selection by selector injection
+   - running init code before the test run
+
  deprecated at module/module setup
  error at module/module setup
  plugin api -- comprehensive integration test that runs a suite with a plugin 
