@@ -123,7 +123,8 @@ class Doctest(Plugin):
                 dh.close()
             parser = doctest.DocTestParser()
             test = parser.get_doctest(
-                doc, globs={}, name=name, filename=filename, lineno=0)
+                doc, globs={'__file__': filename}, name=name,
+                filename=filename, lineno=0)
             if test.examples:
                 yield DocFileCase(test)
             else:
