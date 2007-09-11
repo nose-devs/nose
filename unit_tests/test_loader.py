@@ -4,7 +4,7 @@ import sys
 import unittest
 from nose.loader import TestLoader as Loader
 
-from nose import util # so we can set its __import__
+from nose import util, loader, selector # so we can set mocks
 import nose.case
 
 
@@ -117,6 +117,7 @@ M = mods()
 _listdir = os.listdir
 _isdir = os.path.isdir
 _isfile = os.path.isfile
+_exists = os.path.exists
 _import = __import__
 
 
@@ -146,6 +147,12 @@ def mock_isfile(path):
     if path in ('.', '..'):
         return False
     return '.' in path
+
+
+def mock_exists(path):
+    print "exists '%s'?" % path
+    return path in ('/package', '/package/__init__.py',
+                    '/package/subpackage', '/package/subpackage/__init__.py')
 
 
 def mock_import(modname, gl=None, lc=None, fr=None):
@@ -185,15 +192,17 @@ class TestTestLoader(unittest.TestCase):
 
     def setUp(self):
         os.listdir = mock_listdir
-        os.path.isdir = mock_isdir
-        os.path.isfile = mock_isfile
+        loader.op_isdir = selector.op_isdir = os.path.isdir = mock_isdir
+        loader.op_isfile = selector.op_isfile = os.path.isfile = mock_isfile
+        selector.op_exists = os.path.exists = mock_exists
         util.__import__ = mock_import
         self.l = Loader(importer=MockImporter())#, context=MockContext)
 
     def tearDown(self):
         os.listdir = _listdir
-        os.path.isdir = _isdir
-        os.path.isfile = _isfile
+        loader.op_isdir = selector.op_isdir = os.path.isdir = _isdir
+        loader.op_isfile = selector.op_isfile = os.path.isfile = _isfile
+        selector.op_exists = os.path.exists = _exists
         util.__import__ = _import
 
     def test_lint(self):

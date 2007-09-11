@@ -10,6 +10,9 @@
   entities may have doctests, or themselves be tests, but not
   both. Thanks to John J Lee for the bug report and patch (Issue #84).
 - Made __file__ available in non-python-module doctests.
+- Fixed bug that made it impossible for plugins to exclude package
+  directories from test discovery (Issue #89). Thanks to John J Lee
+  for the bug report and patch.
 
 0.10.0b1
 

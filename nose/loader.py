@@ -24,6 +24,14 @@ from suite import ContextSuiteFactory, ContextList, LazySuite
 log = logging.getLogger(__name__)
 #log.setLevel(logging.DEBUG)
 
+# for efficiency and easier mocking
+op_normpath = os.path.normpath
+op_abspath = os.path.abspath
+op_join = os.path.join
+op_isdir = os.path.isdir
+op_isfile = os.path.isfile
+
+
 __all__ = ['TestLoader', 'defaultTestLoader']
 
 class TestLoader(unittest.TestLoader):
@@ -69,7 +77,7 @@ class TestLoader(unittest.TestLoader):
             selector = defaultSelector(config)
         self.config = config
         self.importer = importer
-        self.workingDir = os.path.normpath(os.path.abspath(workingDir))
+        self.workingDir = op_normpath(op_abspath(workingDir))
         self.selector = selector
         if config.addPaths:
             add_path(workingDir, config)        
@@ -117,32 +125,32 @@ class TestLoader(unittest.TestLoader):
         for entry in entries:
             if entry.startswith('.') or entry.startswith('_'):
                 continue
-            entry_path = os.path.abspath(os.path.join(path, entry))
-            is_file = os.path.isfile(entry_path)
-            is_test = False
+            entry_path = op_abspath(op_join(path, entry))
+            is_file = op_isfile(entry_path)
+            wanted = False
             if is_file:
                 is_dir = False
-                is_test = self.selector.wantFile(entry_path)
+                wanted = self.selector.wantFile(entry_path)
             else:
-                is_dir = os.path.isdir(entry_path)
+                is_dir = op_isdir(entry_path)
                 if is_dir:
-                    is_test = self.selector.wantDirectory(entry_path)
+                    wanted = self.selector.wantDirectory(entry_path)
             is_package = ispackage(entry_path)
-            if is_test and is_file:
-                plugins.beforeContext()
-                if entry.endswith('.py'):
-                    yield self.loadTestsFromName(
-                        entry_path, discovered=True)
-                else:
-                    yield self.loadTestsFromFile(entry_path)
-                plugins.afterContext()
-            elif is_dir:
-                if is_package:
+            if wanted:
+                if is_file:
+                    plugins.beforeContext()
+                    if entry.endswith('.py'):
+                        yield self.loadTestsFromName(
+                            entry_path, discovered=True)
+                    else:
+                        yield self.loadTestsFromFile(entry_path)
+                    plugins.afterContext()
+                elif is_package:
                     # Load the entry as a package: given the full path,
                     # loadTestsFromName() will figure it out
                     yield self.loadTestsFromName(
                         entry_path, discovered=True)
-                elif is_test:
+                else:
                     # Another test dir in this one: recurse lazily
                     yield self.suiteClass(
                         lambda: self.loadTestsFromDir(entry_path))
@@ -367,7 +375,7 @@ class TestLoader(unittest.TestLoader):
                                     (addr.call, path))])
                     return self.loadTestsFromName(addr.call, module=package)
                 else:
-                    if os.path.isdir(path):
+                    if op_isdir(path):
                         # In this case we *can* be lazy since we know
                         # that each module in the dir will be fully
                         # loaded before its tests are executed; we
@@ -376,7 +384,7 @@ class TestLoader(unittest.TestLoader):
                         # of this named test load*
                         return LazySuite(
                             lambda: self.loadTestsFromDir(path))
-                    elif os.path.isfile(path):
+                    elif op_isfile(path):
                         return self.loadTestsFromFile(path)
                     else:
                         return suite([

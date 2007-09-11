@@ -17,6 +17,15 @@ log = logging.getLogger(__name__)
 __all__ = ['Selector', 'defaultSelector', 'TestAddress']
 
 
+# for efficiency and easier mocking
+op_join = os.path.join
+op_basename = os.path.basename
+op_exists = os.path.exists
+op_splitext = os.path.splitext
+op_isabs = os.path.isabs
+op_abspath = os.path.abspath
+
+
 class Selector(object):
     """Core test selector. Examines test candidates and determines whether,
     given the specified configuration, the test candidate should be selected
@@ -77,9 +86,9 @@ class Selector(object):
         All package directories match, so long as they do not match exclude. 
         All other directories must match test requirements.
         """
-        init = os.path.join(dirname, '__init__.py')
-        tail = os.path.basename(dirname)   
-        if os.path.exists(init):
+        init = op_join(dirname, '__init__.py')
+        tail = op_basename(dirname)
+        if op_exists(init):
             wanted = (not self.exclude
                       or not filter(None,
                                     [exc.search(tail) for exc in self.exclude]
@@ -105,7 +114,7 @@ class Selector(object):
         """
         # never, ever load files that match anything in ignore
         # (.* _* and *setup*.py by default)
-        base = os.path.basename(file)
+        base = op_basename(file)
         ignore_matches = [ ignore_this for ignore_this in self.ignoreFiles
                            if ignore_this.search(base) ]
         if ignore_matches:
@@ -115,7 +124,7 @@ class Selector(object):
         if not self.config.includeExe and os.access(file, os.X_OK):
             log.info('%s is executable; skipped', file)
             return False
-        dummy, ext = os.path.splitext(base)
+        dummy, ext = op_splitext(base)
         pysrc = ext == '.py'
 
         wanted = pysrc and self.matches(base) 
@@ -222,9 +231,9 @@ class TestAddress(object):
                 self.filename = getfilename(self.module, self.workingDir)
         if self.filename:
             self.filename = src(self.filename)
-            if not os.path.isabs(self.filename):
-                self.filename = os.path.abspath(os.path.join(workingDir,
-                                                             self.filename))
+            if not op_isabs(self.filename):
+                self.filename = op_abspath(op_join(workingDir,
+                                                   self.filename))
             if self.module is None:
                 self.module = getpackage(self.filename)
         log.debug(
