@@ -19,18 +19,19 @@ and an unwanted package called ``unwanted_package``.
     >>> support_files
     ['unwanted_package', 'wanted_package']
 
-.. Note ::
-
-   The run() function in nose.plugins.doctests reformats test result
-   output and redirects it to stdout.
-
-    >>> from nose.plugins.doctests import run
-..
-
 When we run nose normally, tests are loaded from both packages. (To
 avoid side-effects, the test run is configured to use no plugins and a
 clean environment.)
 
+.. Note ::
+
+   The run() function in nose.plugins.doctests reformats test result
+   output to remove timings, which will vary from run to run, and
+   redirects the output to stdout.
+
+    >>> from nose.plugins.doctests import run
+
+..
     >>> config = Config(plugins=PluginManager())
     >>> argv = [__file__, '-v', support]
     >>> env = {}
