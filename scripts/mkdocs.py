@@ -335,9 +335,16 @@ def link_to_class(cls):
 
 
 def plugin_example_tests():
-    # FIXME find them, don't hardcode
-    return [ os.path.join(root, 'functional_tests', 'doc_tests',
-                          'test_issue089', 'unwanted_package.rst')]
+    dt_root = os.path.join(root, 'functional_tests', 'doc_tests')
+    for dirpath, dirnames, filenames in os.walk(dt_root):
+        for filename in filenames:
+            if filename.startswith('.'):
+                continue
+            base, ext = os.path.splitext(filename)
+            if ext == '.rst':
+                yield os.path.join(dirpath, filename)
+        if '.svn' in dirnames:
+            dirnames.remove('.svn')
 
 
 def document_rst_test(filename, section):

@@ -47,7 +47,7 @@ clean environment.)
     OK
 
 To exclude the tests in the unwanted package, we can write a simple
-plugin that implements ``wantDirectory()`` and returns ``False`` if
+plugin that implements `wantDirectory()`_ and returns ``False`` if
 the basename of the directory is ``"unwanted_package"``. This will
 prevent nose from descending into the unwanted package.
 
