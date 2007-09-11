@@ -12,15 +12,24 @@ doctest tests are run like any other test, with the exception that output
 capture does not work, because doctest does its own output capture in the
 course of running a test.
 
+This module also includes a specialized version of nose.run() that
+makes it easier to write doctests that test test runs.
+
 .. _doctest: http://docs.python.org/lib/module-doctest.html
 """
 from __future__ import generators
 
 import logging
 import os
+import re
+import sys
 from inspect import getmodule
 from nose.plugins.base import Plugin
 from nose.util import anyp, getpackage, test_address, resolve_name, tolist
+try:
+    from cStringIO import StringIO
+except ImportError:
+    from StringIO import StringIO
 
 log = logging.getLogger(__name__)
 
@@ -31,6 +40,7 @@ try:
 except (ImportError, AttributeError):
     # system version is too old
     import nose.ext.dtcompat as doctest
+
 
 #
 # Doctest and coverage don't get along, so we need to create
@@ -220,3 +230,28 @@ class DocFileCase(doctest.DocFileCase):
     """
     def address(self):
         return (self._dt_test.filename, None, None)
+
+
+def run(*arg, **kw):
+    """
+    Specialized version of nose.run for use inside of doctests that
+    test test runs.
+
+    This version of run() prints the result output to stdout, first
+    replacing the timing information with an ellipsis (...).
+
+    Use this version of run wherever you are writing a doctest that
+    tests nose (or unittest) test result output.
+    """
+    from nose import run
+    from nose.config import Config
+
+    buffer = StringIO()
+    if 'config' not in kw:
+        kw['config'] = Config()        
+    kw['config'].stream = buffer
+    run(*arg, **kw)
+    out = buffer.getvalue()
+    print re.sub(
+        r"Ran (\d+ tests?) in [0-9.]+s", r"Ran \1 in ...s", out).strip()
+    

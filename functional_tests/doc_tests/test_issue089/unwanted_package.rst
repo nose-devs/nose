@@ -1,6 +1,13 @@
 Excluding Unwanted Packages
 ---------------------------
 
+.. Note ::
+
+   The run() function in nose.plugins.doctests reformats test result
+   output and redirects it to stdout.
+
+    >>> from nose.plugins.doctests import run
+
 Normally, nose discovery descends into all packages. Plugins can
 change this behavior by implementing ``wantDirectory()``.
 
@@ -10,29 +17,27 @@ and an unwanted package called ``unwanted_package``.
     >>> import os
     >>> import sys
     >>> support = os.path.join(os.path.dirname(__file__), 'support')
-    >>> os.listdir(support)
+    >>> [d for d in os.listdir(support) if not d.startswith('.')]
     ['unwanted_package', 'wanted_package']
 
 When we run nose normally, tests are loaded from both packages. The
 only config change we're making here is to send the test output to
 sys.stdout, so doctest will catch it.
 
-    >>> import nose
     >>> from nose.config import Config
     >>> from nose.plugins import Plugin, PluginManager
-    >>> config = Config(stream=sys.stdout,
-    ...                 plugins=PluginManager())
+
+    >>> config = Config(plugins=PluginManager())
     >>> argv = [__file__, '-v', support]
-    >>> nose.run(argv=argv,
-    ...          config=config) # doctest: +REPORT_NDIFF +ELLIPSIS
+    >>> run(argv=argv,
+    ...     config=config) # doctest: +REPORT_NDIFF
     unwanted_package.test_spam.test_spam ... ok
     wanted_package.test_eggs.test_eggs ... ok
     <BLANKLINE>
     ----------------------------------------------------------------------
-    Ran 2 tests in ...
+    Ran 2 tests in ...s
     <BLANKLINE>
     OK
-    True
 
 To exclude the tests in the unwanted package, we can write a simple
 plugin that implements ``wantDirectory()`` and returns ``False`` if
@@ -58,13 +63,12 @@ the config instance a `PluginManager` that includes the new plugin.
 We can now execute the test run and see in the output that the test in
 the unwanted package is not discovered.
 
-    >>> nose.run(argv=argv,
-    ...          config=config) # doctest: +REPORT_NDIFF +ELLIPSIS
+    >>> run(argv=argv,
+    ...     config=config) # doctest: +REPORT_NDIFF
     wanted_package.test_eggs.test_eggs ... ok
     <BLANKLINE>
     ----------------------------------------------------------------------
-    Ran 1 test in ...
+    Ran 1 test in ...s
     <BLANKLINE>
     OK
-    True
 
