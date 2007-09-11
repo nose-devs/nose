@@ -5,6 +5,7 @@ import re
 import time
 from docutils.core import publish_string, publish_parts
 from docutils.readers.standalone import Reader
+from docutils.writers.html4css1 import Writer, HTMLTranslator
 from pudge.browser import Browser
 from epydoc.objdoc import _lookup_class_field
 import inspect
@@ -13,7 +14,7 @@ import textwrap
 from optparse import OptionParser
 from nose.util import resolve_name, odict
 from pygments import highlight
-from pygments.lexers import PythonLexer
+from pygments.lexers import PythonLexer, PythonConsoleLexer
 from pygments.formatters import HtmlFormatter
 
 
@@ -80,6 +81,26 @@ class DocReader(Reader):
     unknown_reference_resolvers = (doc_word,)
 
 
+class PygHTMLTranslator(HTMLTranslator):
+    """HTML translator that uses pygments to highlight doctests.
+    """
+    def visit_doctest_block(self, node):
+        self.body.append(
+            highlight(node.rawsource, PythonConsoleLexer(), HtmlFormatter()))
+        # hacky way of capturing children -- we've processed the whole node
+        self._body = self.body
+        self.body = []
+
+    def depart_doctest_block(self, node):
+        # restore the real body, doctest node is done
+        self.body = self._body
+        del self._body
+    
+class PygWriter(Writer):
+    def __init__(self):
+        Writer.__init__(self)
+        self.translator_class = PygHTMLTranslator
+
 def formatargspec(func, exclude=()):
     try:
         args, varargs, varkw, defaults = inspect.getargspec(func)
@@ -105,9 +126,12 @@ def clean_default(val):
     return val
 
 
+def to_html_parts(rst):
+    return publish_parts(rst, reader=DocReader(), writer=PygWriter())    
+
+
 def to_html(rst):
-    parts = publish_parts(rst, reader=DocReader(), writer_name='html')
-    return parts['body']
+    return to_html_parts(rst)['body']
 
 
 def document_module(mod):
@@ -297,6 +321,7 @@ def format_attr(obj, attr):
     val = remove_at.sub('', val)
     return val
 
+
 def link_to_class(cls):
     mod = cls.__module__
     name = cls.__name__
@@ -308,6 +333,23 @@ def link_to_class(cls):
         return qname
     return '<a href="module_%s.html#%s">%s</a>' % (mod, name, name)
 
+
+def plugin_example_tests():
+    # FIXME find them, don't hardcode
+    return [ os.path.join(root, 'functional_tests', 'doc_tests',
+                          'test_issue089', 'unwanted_package.rst')]
+
+
+def document_rst_test(filename, section):
+    base, ext = os.path.splitext(os.path.basename(filename))
+    rst = open(filename, 'r').read()
+    parts = to_html_parts(rst)
+    parts.update(std_info)
+    to_write.append((section,
+                     parts['title'],
+                     os.path.join(doc, base + '.html'),
+                     tpl,
+                     parts))
 
 root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 doc = os.path.join(root, 'doc')
@@ -455,6 +497,11 @@ for mod in b.modules(recursive=1):
         continue
     print mod.qualified_name()
     document_module(mod)
+
+
+# plugin examples doctests
+for testfile in plugin_example_tests():
+    document_rst_test(testfile, "Plugin Examples")
 
 
 # finally build the menu and write all pages

@@ -1,35 +1,41 @@
 Excluding Unwanted Packages
 ---------------------------
 
+Normally, nose discovery descends into all packages. Plugins can
+change this behavior by implementing `wantDirectory()`_.
+    
+    >>> import os
+    >>> import sys
+    >>> from nose.config import Config
+    >>> from nose.plugins import Plugin, PluginManager
+
+In this example, we have a wanted package called ``wanted_package``
+and an unwanted package called ``unwanted_package``. 
+
+    >>> support = os.path.join(os.path.dirname(__file__), 'support')
+    >>> support_files = [d for d in os.listdir(support)
+    ...                  if not d.startswith('.')]
+    >>> support_files.sort()
+    >>> support_files
+    ['unwanted_package', 'wanted_package']
+
 .. Note ::
 
    The run() function in nose.plugins.doctests reformats test result
    output and redirects it to stdout.
 
     >>> from nose.plugins.doctests import run
+..
 
-Normally, nose discovery descends into all packages. Plugins can
-change this behavior by implementing ``wantDirectory()``.
-
-In this example, we have a wanted package called ``wanted_package``
-and an unwanted package called ``unwanted_package``. 
-
-    >>> import os
-    >>> import sys
-    >>> support = os.path.join(os.path.dirname(__file__), 'support')
-    >>> [d for d in os.listdir(support) if not d.startswith('.')]
-    ['unwanted_package', 'wanted_package']
-
-When we run nose normally, tests are loaded from both packages. The
-only config change we're making here is to send the test output to
-sys.stdout, so doctest will catch it.
-
-    >>> from nose.config import Config
-    >>> from nose.plugins import Plugin, PluginManager
+When we run nose normally, tests are loaded from both packages. (To
+avoid side-effects, the test run is configured to use no plugins and a
+clean environment.)
 
     >>> config = Config(plugins=PluginManager())
     >>> argv = [__file__, '-v', support]
+    >>> env = {}
     >>> run(argv=argv,
+    ...     env={},
     ...     config=config) # doctest: +REPORT_NDIFF
     unwanted_package.test_spam.test_spam ... ok
     wanted_package.test_eggs.test_eggs ... ok
@@ -60,10 +66,11 @@ the config instance a `PluginManager` that includes the new plugin.
 
     >>> config.plugins = PluginManager(plugins=[UnwantedPackagePlugin()])
 
-We can now execute the test run and see in the output that the test in
+We can now execute the test run again and see in the output that the test in
 the unwanted package is not discovered.
 
     >>> run(argv=argv,
+    ...     env={},
     ...     config=config) # doctest: +REPORT_NDIFF
     wanted_package.test_eggs.test_eggs ... ok
     <BLANKLINE>
@@ -72,3 +79,4 @@ the unwanted package is not discovered.
     <BLANKLINE>
     OK
 
+.. _`wantDirectory()` : plugin_interface.html#wantDirectory
