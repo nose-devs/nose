@@ -7,7 +7,7 @@
     
     <div id="menu">
       <p>This document covers nose version <b>0.10.0b1</b></p>
-      <p>Last update: <b>Tue Sep 11 18:24:03 2007</b></p>
+      <p>Last update: <b>Fri Sep 14 16:28:01 2007</b></p>
       <h2>Plugins</h2><ul><li><a href="plugin_attrib.html">Builtin Plugin: attrib</a></li><li><a href="plugin_capture.html">Builtin Plugin: capture</a></li><li><a href="plugin_cover.html">Builtin Plugin: cover</a></li><li><a href="plugin_debug.html">Builtin Plugin: debug</a></li><li><a href="plugin_deprecated.html">Builtin Plugin: deprecated</a></li><li><a href="plugin_doctests.html">Builtin Plugin: doctests</a></li><li><a href="plugin_failuredetail.html">Builtin Plugin: failuredetail</a></li><li><a href="plugin_isolate.html">Builtin Plugin: isolate</a></li><li><a href="plugin_prof.html">Builtin Plugin: prof</a></li><li><a href="plugin_skip.html">Builtin Plugin: skip</a></li><li><a href="plugin_testid.html">Builtin Plugin: testid</a></li><li><a href="errorclassplugin.html">ErrorClass Plugins</a></li><li><a href="plugin_interface.html">Plugin Interface</a></li><li><a href="writing_plugins.html">Writing Plugins</a></li></ul><h2>Modules</h2><ul><li><a href="module_nose.case.html">Module: nose.case</a></li><li><a href="module_nose.commands.html">Module: nose.commands</a></li><li><a href="module_nose.config.html">Module: nose.config</a></li><li><a href="module_nose.core.html">Module: nose.core</a></li><li><a href="module_nose.exc.html">Module: nose.exc</a></li><li><a href="module_nose.importer.html">Module: nose.importer</a></li><li><a href="module_nose.inspector.html">Module: nose.inspector</a></li><li><a href="module_nose.loader.html">Module: nose.loader</a></li><li><a href="module_nose.plugins.manager.html">Module: nose.plugins.manager</a></li><li><a href="module_nose.proxy.html">Module: nose.proxy</a></li><li><a href="module_nose.result.html">Module: nose.result</a></li><li><a href="module_nose.selector.html">Module: nose.selector</a></li><li><a href="module_nose.suite.html">Module: nose.suite</a></li><li><a href="module_nose.tools.html">Module: nose.tools</a></li><li><a href="module_nose.twistedtools.html">Module: nose.twistedtools</a></li><li><a href="module_nose.util.html">Module: nose.util</a></li></ul><h2>Plugin Examples</h2><ul><li><a href="unwanted_package.html">Excluding Unwanted Packages</a></li><li><a href="init_plugin.html">Runing Initialization Code Before the Test Run</a></li></ul>
       
     </div>
@@ -15,16 +15,10 @@
     <div id="main">
       <h1>nose: Runing Initialization Code Before the Test Run</h1>
       
-      <p>Many applications, especially those using web frameworks like <a class="reference" href="pylons.html">Pylons</a>
-or <a class="reference" href="django.html">Django</a>, can't be tested without first being configured or
+      <p>Many applications, especially those using web frameworks like <a class="reference" href="http://pylonshq.com/">Pylons</a>
+or <a class="reference" href="http://www.djangoproject.com/">Django</a>, can't be tested without first being configured or
 otherwise initialized. Plugins can fulfill this requirement by
-implementing <a class="reference" href="begin().html">begin()</a>.</p>
-<blockquote>
-<div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="k">import</span> <span class="nn">os</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="k">from</span> <span class="nn">nose.config</span> <span class="k">import</span> <span class="n">Config</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="k">from</span> <span class="nn">nose.plugins</span> <span class="k">import</span> <span class="n">Plugin</span><span class="p">,</span> <span class="n">PluginManager</span>
-</pre></div>
-</blockquote>
+implementing <a class="reference" href="plugin_interface.html#begin">begin()</a>.</p>
 <p>In this example, we'll use a very simple example: a widget class that
 can't be tested without a configuration.</p>
 <p>Here's the widget class. It's configured at the class or instance
@@ -55,21 +49,28 @@ can be called without raising any exceptions.</p>
 </blockquote>
 <p>The tests are bundled into a suite that we can pass to the test runner.</p>
 <blockquote>
-<div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">suite</span> <span class="o">=</span> <span class="n">unittest</span><span class="o">.</span><span class="n">TestSuite</span><span class="p">([</span>
-<span class="gp">... </span>    <span class="n">TestConfigurableWidget</span><span class="p">(</span><span class="s">&#39;test_can_frobnicate&#39;</span><span class="p">),</span>
-<span class="gp">... </span>    <span class="n">TestConfigurableWidget</span><span class="p">(</span><span class="s">&#39;test_likes_cheese&#39;</span><span class="p">)])</span>
+<div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">suite</span><span class="p">():</span>
+<span class="gp">... </span>    <span class="k">return</span> <span class="n">unittest</span><span class="o">.</span><span class="n">TestSuite</span><span class="p">([</span>
+<span class="gp">... </span>        <span class="n">TestConfigurableWidget</span><span class="p">(</span><span class="s">&#39;test_can_frobnicate&#39;</span><span class="p">),</span>
+<span class="gp">... </span>        <span class="n">TestConfigurableWidget</span><span class="p">(</span><span class="s">&#39;test_likes_cheese&#39;</span><span class="p">)])</span>
 </pre></div>
 </blockquote>
 <p>When we run tests without first configuring the ConfigurableWidget,
 the tests fail.</p>
-<blockquote>
+<div class="note">
+<p class="first admonition-title">Note</p>
+<p>The run() function in nose.plugins.doctests reformats test result
+output to remove timings, which will vary from run to run, and
+redirects the output to stdout.</p>
+<blockquote class="last">
 <div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="k">from</span> <span class="nn">nose.plugins.doctests</span> <span class="k">import</span> <span class="n">run</span>
 </pre></div>
-<div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">config</span> <span class="o">=</span> <span class="n">Config</span><span class="p">(</span><span class="n">plugins</span><span class="o">=</span><span class="n">PluginManager</span><span class="p">())</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">argv</span> <span class="o">=</span> <span class="p">[</span><span class="n">__file__</span><span class="p">,</span> <span class="s">&#39;-v&#39;</span><span class="p">]</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">env</span> <span class="o">=</span> <span class="p">{}</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">run</span><span class="p">(</span><span class="n">argv</span><span class="o">=</span><span class="n">argv</span><span class="p">,</span> <span class="n">env</span><span class="o">=</span><span class="n">env</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
-<span class="gp">... </span>    <span class="n">suite</span><span class="o">=</span><span class="n">suite</span><span class="p">)</span>  <span class="c"># doctest: +REPORT_NDIFF</span>
+</blockquote>
+</div>
+<!--  -->
+<blockquote>
+<div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">argv</span> <span class="o">=</span> <span class="p">[</span><span class="n">__file__</span><span class="p">,</span> <span class="s">&#39;-v&#39;</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">run</span><span class="p">(</span><span class="n">argv</span><span class="o">=</span><span class="n">argv</span><span class="p">,</span> <span class="n">suite</span><span class="o">=</span><span class="n">suite</span><span class="p">())</span>  <span class="c"># doctest: +REPORT_NDIFF</span>
 <span class="go">Widgets can frobnicate (or not) ... ERROR</span>
 <span class="go">Widgets might like cheese ... ERROR</span>
 <span class="go">&lt;BLANKLINE&gt;</span>
@@ -77,9 +78,9 @@ the tests fail.</p>
 <span class="go">ERROR: Widgets can frobnicate (or not)</span>
 <span class="go">----------------------------------------------------------------------</span>
 <span class="gt">Traceback (most recent call last):</span>
-  File <span class="nb">&quot;&lt;doctest init_plugin.rst[5]&gt;&quot;</span>, line <span class="m">6</span>, in <span class="n-Identifier">test_can_frobnicate</span>
+  File <span class="nb">&quot;&lt;doctest init_plugin.rst[2]&gt;&quot;</span>, line <span class="m">6</span>, in <span class="n-Identifier">test_can_frobnicate</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">widget</span><span class="o">.</span><span class="n">can_frobnicate</span><span class="p">()</span>
-  File <span class="nb">&quot;&lt;doctest init_plugin.rst[3]&gt;&quot;</span>, line <span class="m">4</span>, in <span class="n-Identifier">can_frobnicate</span>
+  File <span class="nb">&quot;&lt;doctest init_plugin.rst[0]&gt;&quot;</span>, line <span class="m">4</span>, in <span class="n-Identifier">can_frobnicate</span>
     <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;can_frobnicate&#39;</span><span class="p">,</span> <span class="bp">True</span><span class="p">)</span>
 <span class="nc">AttributeError</span>: <span class="n-Identifier">&#39;NoneType&#39; object has no attribute &#39;get&#39;</span>
 <span class="go">&lt;BLANKLINE&gt;</span>
@@ -87,9 +88,9 @@ the tests fail.</p>
 <span class="go">ERROR: Widgets might like cheese</span>
 <span class="go">----------------------------------------------------------------------</span>
 <span class="gt">Traceback (most recent call last):</span>
-  File <span class="nb">&quot;&lt;doctest init_plugin.rst[5]&gt;&quot;</span>, line <span class="m">9</span>, in <span class="n-Identifier">test_likes_cheese</span>
+  File <span class="nb">&quot;&lt;doctest init_plugin.rst[2]&gt;&quot;</span>, line <span class="m">9</span>, in <span class="n-Identifier">test_likes_cheese</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">widget</span><span class="o">.</span><span class="n">likes_cheese</span><span class="p">()</span>
-  File <span class="nb">&quot;&lt;doctest init_plugin.rst[3]&gt;&quot;</span>, line <span class="m">6</span>, in <span class="n-Identifier">likes_cheese</span>
+  File <span class="nb">&quot;&lt;doctest init_plugin.rst[0]&gt;&quot;</span>, line <span class="m">6</span>, in <span class="n-Identifier">likes_cheese</span>
     <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;likes_cheese&#39;</span><span class="p">,</span> <span class="bp">True</span><span class="p">)</span>
 <span class="nc">AttributeError</span>: <span class="n-Identifier">&#39;NoneType&#39; object has no attribute &#39;get&#39;</span>
 <span class="go">&lt;BLANKLINE&gt;</span>
@@ -100,12 +101,15 @@ the tests fail.</p>
 </pre></div>
 </blockquote>
 <p>To configure the widget system before running tests, write a plugin
-that implements <a class="reference" href="begin().html">begin()</a> and initializes the system with a
+that implements <a class="reference" href="plugin_interface.html#begin">begin()</a> and initializes the system with a
 hard-coded configuration. Later, we'll extend the plugin to
 accept a command-line argument specifying the configuration file.</p>
 <blockquote>
-<div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="k">class</span> <span class="nc">ConfiguringPlugin</span><span class="p">(</span><span class="n">Plugin</span><span class="p">):</span>
+<div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="k">from</span> <span class="nn">nose.plugins</span> <span class="k">import</span> <span class="n">Plugin</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">class</span> <span class="nc">ConfiguringPlugin</span><span class="p">(</span><span class="n">Plugin</span><span class="p">):</span>
 <span class="gp">... </span>    <span class="n">enabled</span> <span class="o">=</span> <span class="bp">True</span>
+<span class="gp">... </span>    <span class="k">def</span> <span class="nf">configure</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">options</span><span class="p">,</span> <span class="n">conf</span><span class="p">):</span>
+<span class="gp">... </span>        <span class="k">pass</span> <span class="c"># always on</span>
 <span class="gp">... </span>    <span class="k">def</span> <span class="nf">begin</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="gp">... </span>        <span class="n">ConfigurableWidget</span><span class="o">.</span><span class="n">cfg</span> <span class="o">=</span> <span class="p">{}</span>
 </pre></div>
@@ -113,9 +117,8 @@ accept a command-line argument specifying the configuration file.</p>
 <p>Now configure and execute a new test run using the plugin, which will
 inject the hard-coded configuration.</p>
 <blockquote>
-<div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">config</span><span class="o">.</span><span class="n">plugins</span> <span class="o">=</span> <span class="n">PluginManager</span><span class="p">(</span><span class="n">plugins</span><span class="o">=</span><span class="p">[</span><span class="n">ConfiguringPlugin</span><span class="p">()])</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">run</span><span class="p">(</span><span class="n">argv</span><span class="o">=</span><span class="n">argv</span><span class="p">,</span> <span class="n">env</span><span class="o">=</span><span class="n">env</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
-<span class="gp">... </span>    <span class="n">suite</span><span class="o">=</span><span class="n">suite</span><span class="p">)</span>  <span class="c"># doctest: +REPORT_NDIFF</span>
+<div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">run</span><span class="p">(</span><span class="n">argv</span><span class="o">=</span><span class="n">argv</span><span class="p">,</span> <span class="n">suite</span><span class="o">=</span><span class="n">suite</span><span class="p">(),</span>
+<span class="gp">... </span>    <span class="n">plugins</span><span class="o">=</span><span class="p">[</span><span class="n">ConfiguringPlugin</span><span class="p">()])</span>  <span class="c"># doctest: +REPORT_NDIFF</span>
 <span class="go">Widgets can frobnicate (or not) ... ok</span>
 <span class="go">Widgets might like cheese ... ok</span>
 <span class="go">&lt;BLANKLINE&gt;</span>
@@ -126,12 +129,55 @@ inject the hard-coded configuration.</p>
 </pre></div>
 </blockquote>
 <p>This time the tests pass, because the widget class is configured.</p>
-<div class="note">
-<p class="first admonition-title">Note</p>
-<p>TODO</p>
-<p class="last">Add another, better plugin that loads a config file based
-specified on command line.</p>
-</div>
+<p>But the ConfiguringPlugin is pretty lame -- the configuration it
+installs is hard coded. A better plugin would allow the user to
+specify a configuration file on the command line:</p>
+<blockquote>
+<div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="k">class</span> <span class="nc">BetterConfiguringPlugin</span><span class="p">(</span><span class="n">Plugin</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="k">def</span> <span class="nf">options</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parser</span><span class="p">,</span> <span class="n">env</span><span class="o">=</span><span class="p">{}):</span>
+<span class="gp">... </span>        <span class="n">parser</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s">&#39;--widget-config&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&#39;store&#39;</span><span class="p">,</span>
+<span class="gp">... </span>                          <span class="n">dest</span><span class="o">=</span><span class="s">&#39;widget_config&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+<span class="gp">... </span>                          <span class="n">help</span><span class="o">=</span><span class="s">&#39;Specify path to widget config file&#39;</span><span class="p">)</span>
+<span class="gp">... </span>    <span class="k">def</span> <span class="nf">configure</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">options</span><span class="p">,</span> <span class="n">conf</span><span class="p">):</span>
+<span class="gp">... </span>        <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">widget_config</span><span class="p">:</span>
+<span class="gp">... </span>            <span class="bp">self</span><span class="o">.</span><span class="n">load_config</span><span class="p">(</span><span class="n">options</span><span class="o">.</span><span class="n">widget_config</span><span class="p">)</span>
+<span class="gp">... </span>            <span class="bp">self</span><span class="o">.</span><span class="n">enabled</span> <span class="o">=</span> <span class="bp">True</span>
+<span class="gp">... </span>    <span class="k">def</span> <span class="nf">begin</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="gp">... </span>        <span class="n">ConfigurableWidget</span><span class="o">.</span><span class="n">cfg</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cfg</span>
+<span class="gp">... </span>    <span class="k">def</span> <span class="nf">load_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
+<span class="gp">... </span>        <span class="k">from</span> <span class="nn">ConfigParser</span> <span class="k">import</span> <span class="n">ConfigParser</span>
+<span class="gp">... </span>        <span class="n">p</span> <span class="o">=</span> <span class="n">ConfigParser</span><span class="p">()</span>
+<span class="gp">... </span>        <span class="n">p</span><span class="o">.</span><span class="n">read</span><span class="p">([</span><span class="n">path</span><span class="p">])</span>
+<span class="gp">... </span>        <span class="bp">self</span><span class="o">.</span><span class="n">cfg</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">items</span><span class="p">(</span><span class="s">&#39;DEFAULT&#39;</span><span class="p">))</span>
+</pre></div>
+</blockquote>
+<p>To use the plugin, we need a config file.</p>
+<blockquote>
+<div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="k">import</span> <span class="nn">os</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cfg_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">__file__</span><span class="p">),</span> <span class="s">&#39;example.cfg&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">open</span><span class="p">(</span><span class="n">cfg_file</span><span class="p">,</span> <span class="s">&#39;w&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;&quot;&quot;</span><span class="se">\</span>
+<span class="gp">... </span><span class="s">[DEFAULT]</span>
+<span class="gp">... </span><span class="s">can_frobnicate = 1</span>
+<span class="gp">... </span><span class="s">likes_cheese = 0</span>
+<span class="gp">... </span><span class="s">&quot;&quot;&quot;</span><span class="p">)</span>
+</pre></div>
+</blockquote>
+<p>Now we can execute a test run using that configuration, after first
+resetting the widget system to an unconfigured state.</p>
+<blockquote>
+<div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">ConfigurableWidget</span><span class="o">.</span><span class="n">cfg</span> <span class="o">=</span> <span class="bp">None</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">argv</span> <span class="o">=</span> <span class="p">[</span><span class="n">__file__</span><span class="p">,</span> <span class="s">&#39;-v&#39;</span><span class="p">,</span> <span class="s">&#39;--widget-config&#39;</span><span class="p">,</span> <span class="n">cfg_file</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">run</span><span class="p">(</span><span class="n">argv</span><span class="o">=</span><span class="n">argv</span><span class="p">,</span> <span class="n">suite</span><span class="o">=</span><span class="n">suite</span><span class="p">(),</span>
+<span class="gp">... </span>    <span class="n">plugins</span><span class="o">=</span><span class="p">[</span><span class="n">BetterConfiguringPlugin</span><span class="p">()])</span> <span class="c"># doctest: +REPORT_NDIFF</span>
+<span class="go">Widgets can frobnicate (or not) ... ok</span>
+<span class="go">Widgets might like cheese ... ok</span>
+<span class="go">&lt;BLANKLINE&gt;</span>
+<span class="go">----------------------------------------------------------------------</span>
+<span class="go">Ran 2 tests in ...s</span>
+<span class="go">&lt;BLANKLINE&gt;</span>
+<span class="go">OK</span>
+</pre></div>
+</blockquote>
 
 
     </div>

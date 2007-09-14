@@ -6,9 +6,6 @@ or Django_, can't be tested without first being configured or
 otherwise initialized. Plugins can fulfill this requirement by
 implementing `begin()`_.
 
-    >>> import os
-    >>> from nose.plugins import Plugin
-
 In this example, we'll use a very simple example: a widget class that
 can't be tested without a configuration.
 
@@ -22,8 +19,8 @@ level by setting the ``cfg`` attribute to a dictionary.
     ...     def likes_cheese(self):
     ...         return self.cfg.get('likes_cheese', True)
 
-Gere are the tests. The tests only test that the widget's methods
-can be called without raising any exceptions.
+The tests verify that the widget's methods can be called without
+raising any exceptions.
 
     >>> import unittest
     >>> class TestConfigurableWidget(unittest.TestCase):
@@ -38,17 +35,26 @@ can be called without raising any exceptions.
 
 The tests are bundled into a suite that we can pass to the test runner.
 
-    >>> suite = unittest.TestSuite([
-    ...     TestConfigurableWidget('test_can_frobnicate'),
-    ...     TestConfigurableWidget('test_likes_cheese')])
+    >>> def suite():
+    ...     return unittest.TestSuite([
+    ...         TestConfigurableWidget('test_can_frobnicate'),
+    ...         TestConfigurableWidget('test_likes_cheese')])
 
 When we run tests without first configuring the ConfigurableWidget,
 the tests fail.
 
+.. Note ::
+
+   The run() function in nose.plugins.doctests reformats test result
+   output to remove timings, which will vary from run to run, and
+   redirects the output to stdout.
+
     >>> from nose.plugins.doctests import run
 
+..
+
     >>> argv = [__file__, '-v']
-    >>> run(argv=argv, suite=suite)  # doctest: +REPORT_NDIFF
+    >>> run(argv=argv, suite=suite())  # doctest: +REPORT_NDIFF
     Widgets can frobnicate (or not) ... ERROR
     Widgets might like cheese ... ERROR
     <BLANKLINE>
@@ -56,9 +62,9 @@ the tests fail.
     ERROR: Widgets can frobnicate (or not)
     ----------------------------------------------------------------------
     Traceback (most recent call last):
-      File "<doctest init_plugin.rst[4]>", line 6, in test_can_frobnicate
+      File "<doctest init_plugin.rst[2]>", line 6, in test_can_frobnicate
         self.widget.can_frobnicate()
-      File "<doctest init_plugin.rst[2]>", line 4, in can_frobnicate
+      File "<doctest init_plugin.rst[0]>", line 4, in can_frobnicate
         return self.cfg.get('can_frobnicate', True)
     AttributeError: 'NoneType' object has no attribute 'get'
     <BLANKLINE>
@@ -66,9 +72,9 @@ the tests fail.
     ERROR: Widgets might like cheese
     ----------------------------------------------------------------------
     Traceback (most recent call last):
-      File "<doctest init_plugin.rst[4]>", line 9, in test_likes_cheese
+      File "<doctest init_plugin.rst[2]>", line 9, in test_likes_cheese
         self.widget.likes_cheese()
-      File "<doctest init_plugin.rst[2]>", line 6, in likes_cheese
+      File "<doctest init_plugin.rst[0]>", line 6, in likes_cheese
         return self.cfg.get('likes_cheese', True)
     AttributeError: 'NoneType' object has no attribute 'get'
     <BLANKLINE>
@@ -79,9 +85,10 @@ the tests fail.
 
 To configure the widget system before running tests, write a plugin
 that implements `begin()`_ and initializes the system with a
-hard-coded configuration. Later, we'll extend the plugin to
-accept a command-line argument specifying the configuration file.
+hard-coded configuration. (Later, we'll write a better plugin that
+accepts a command-line argument specifying the configuration file.)
 
+    >>> from nose.plugins import Plugin
     >>> class ConfiguringPlugin(Plugin):
     ...     enabled = True
     ...     def configure(self, options, conf):
@@ -92,7 +99,7 @@ accept a command-line argument specifying the configuration file.
 Now configure and execute a new test run using the plugin, which will
 inject the hard-coded configuration.
 
-    >>> run(argv=argv, suite=suite,
+    >>> run(argv=argv, suite=suite(),
     ...     plugins=[ConfiguringPlugin()])  # doctest: +REPORT_NDIFF
     Widgets can frobnicate (or not) ... ok
     Widgets might like cheese ... ok
@@ -104,7 +111,52 @@ inject the hard-coded configuration.
 
 This time the tests pass, because the widget class is configured.
 
-.. Note :: TODO
+But the ConfiguringPlugin is pretty lame -- the configuration it
+installs is hard coded. A better plugin would allow the user to
+specify a configuration file on the command line:
 
-   Add another, better plugin that loads a config file based
-   specified on command line.
+    >>> class BetterConfiguringPlugin(Plugin):
+    ...     def options(self, parser, env={}):
+    ...         parser.add_option('--widget-config', action='store',
+    ...                           dest='widget_config', default=None,
+    ...                           help='Specify path to widget config file')
+    ...     def configure(self, options, conf):
+    ...         if options.widget_config:
+    ...             self.load_config(options.widget_config)
+    ...             self.enabled = True
+    ...     def begin(self):
+    ...         ConfigurableWidget.cfg = self.cfg
+    ...     def load_config(self, path):
+    ...         from ConfigParser import ConfigParser
+    ...         p = ConfigParser()
+    ...         p.read([path])
+    ...         self.cfg = dict(p.items('DEFAULT'))
+
+To use the plugin, we need a config file.
+
+    >>> import os
+    >>> cfg_file = os.path.join(os.path.dirname(__file__), 'example.cfg')
+    >>> open(cfg_file, 'w').write("""\
+    ... [DEFAULT]
+    ... can_frobnicate = 1
+    ... likes_cheese = 0
+    ... """)
+
+Now we can execute a test run using that configuration, after first
+resetting the widget system to an unconfigured state.
+
+    >>> ConfigurableWidget.cfg = None
+    >>> argv = [__file__, '-v', '--widget-config', cfg_file]
+    >>> run(argv=argv, suite=suite(),
+    ...     plugins=[BetterConfiguringPlugin()]) # doctest: +REPORT_NDIFF
+    Widgets can frobnicate (or not) ... ok
+    Widgets might like cheese ... ok
+    <BLANKLINE>
+    ----------------------------------------------------------------------
+    Ran 2 tests in ...s
+    <BLANKLINE>
+    OK
+
+.. _Pylons: http://pylonshq.com/
+.. _Django: http://www.djangoproject.com/
+.. _`begin()`: plugin_interface.html#begin
