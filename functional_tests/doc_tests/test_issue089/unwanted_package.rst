@@ -6,8 +6,7 @@ change this behavior by implementing `wantDirectory()`_.
     
     >>> import os
     >>> import sys
-    >>> from nose.config import Config
-    >>> from nose.plugins import Plugin, PluginManager
+    >>> from nose.plugins import Plugin
 
 In this example, we have a wanted package called ``wanted_package``
 and an unwanted package called ``unwanted_package``. 
@@ -32,12 +31,8 @@ clean environment.)
     >>> from nose.plugins.doctests import run
 
 ..
-    >>> config = Config(plugins=PluginManager())
     >>> argv = [__file__, '-v', support]
-    >>> env = {}
-    >>> run(argv=argv,
-    ...     env={},
-    ...     config=config) # doctest: +REPORT_NDIFF
+    >>> run(argv=argv) # doctest: +REPORT_NDIFF
     unwanted_package.test_spam.test_spam ... ok
     wanted_package.test_eggs.test_eggs ... ok
     <BLANKLINE>
@@ -56,6 +51,9 @@ prevent nose from descending into the unwanted package.
     ...     enabled = True
     ...     name = "unwanted-package"
     ...     
+    ...     def configure(self, options, conf):
+    ...         pass # always on
+    ...     
     ...     def wantDirectory(self, dirname):
     ...         want = None
     ...         if os.path.basename(dirname) == "unwanted_package":
@@ -64,15 +62,10 @@ prevent nose from descending into the unwanted package.
 
 To test the plugin, we'll configure a test run to use it by giving
 the config instance a `PluginManager` that includes the new plugin.
-
-    >>> config.plugins = PluginManager(plugins=[UnwantedPackagePlugin()])
-
-We can now execute the test run again and see in the output that the test in
-the unwanted package is not discovered.
+In this test run, the unwanted package is not discovered.
 
     >>> run(argv=argv,
-    ...     env={},
-    ...     config=config) # doctest: +REPORT_NDIFF
+    ...     plugins=[UnwantedPackagePlugin()]) # doctest: +REPORT_NDIFF    
     wanted_package.test_eggs.test_eggs ... ok
     <BLANKLINE>
     ----------------------------------------------------------------------

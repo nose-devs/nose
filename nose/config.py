@@ -27,7 +27,7 @@ class Config(object):
     behavior, including plugin lists. Here are the default values for
     all config keys::
 
-      self.env = env = kw.pop('env', os.environ)
+      self.env = env = kw.pop('env', {})
       self.args = ()
       self.testMatch = re.compile(r'(?:^|[\\b_\\.%s-])[Tt]est' % os.sep)
       self.addPaths = not env.get('NOSE_NOPATH', False)
@@ -59,7 +59,7 @@ class Config(object):
     """
 
     def __init__(self, **kw):
-        self.env = env = kw.pop('env', os.environ)
+        self.env = env = kw.pop('env', {})
         self.args = ()
         self.testMatchPat = env.get('NOSE_TESTMATCH',
                                     r'(?:^|[\b_\.%s-])[Tt]est' % os.sep)
@@ -86,7 +86,7 @@ class Config(object):
         self.runOnInit = True
         self.stopOnError = env.get('NOSE_STOP', False)
         self.stream = sys.stderr
-        self.testNames = ()
+        self.testNames = []
         self.verbosity = int(env.get('NOSE_VERBOSE', 1))
         self.where = ()
         self.workingDir = os.getcwd()
@@ -122,12 +122,12 @@ class Config(object):
         # load those config files to create a new argv set and reparse
         if options.files:
             argv = self.loadConfig(options.files, argv)
-            options, args = parser.parse_args(argv)       
-        try:
-            self.options, self.testNames = options, args[1:]
-        except IndexError:
-            self.options = options
+            options, args = parser.parse_args(argv)
 
+        self.options = options
+        tests = args[1:]
+        if tests:
+            self.testNames = tests
         if options.testNames is not None:
             self.testNames.extend(tolist(options.testNames))
 

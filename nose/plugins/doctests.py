@@ -245,10 +245,12 @@ def run(*arg, **kw):
     """
     from nose import run
     from nose.config import Config
+    from nose.plugins.manager import PluginManager
 
     buffer = StringIO()
     if 'config' not in kw:
-        kw['config'] = Config()        
+        plugins = kw.pop('plugins', None)
+        kw['config'] = Config(plugins=PluginManager(plugins=plugins))
     kw['config'].stream = buffer
     run(*arg, **kw)
     out = buffer.getvalue()

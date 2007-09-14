@@ -7,8 +7,7 @@ otherwise initialized. Plugins can fulfill this requirement by
 implementing `begin()`_.
 
     >>> import os
-    >>> from nose.config import Config
-    >>> from nose.plugins import Plugin, PluginManager
+    >>> from nose.plugins import Plugin
 
 In this example, we'll use a very simple example: a widget class that
 can't be tested without a configuration.
@@ -48,11 +47,8 @@ the tests fail.
 
     >>> from nose.plugins.doctests import run
 
-    >>> config = Config(plugins=PluginManager())
     >>> argv = [__file__, '-v']
-    >>> env = {}
-    >>> run(argv=argv, env=env, config=config,
-    ...     suite=suite)  # doctest: +REPORT_NDIFF
+    >>> run(argv=argv, suite=suite)  # doctest: +REPORT_NDIFF
     Widgets can frobnicate (or not) ... ERROR
     Widgets might like cheese ... ERROR
     <BLANKLINE>
@@ -60,9 +56,9 @@ the tests fail.
     ERROR: Widgets can frobnicate (or not)
     ----------------------------------------------------------------------
     Traceback (most recent call last):
-      File "<doctest init_plugin.rst[5]>", line 6, in test_can_frobnicate
+      File "<doctest init_plugin.rst[4]>", line 6, in test_can_frobnicate
         self.widget.can_frobnicate()
-      File "<doctest init_plugin.rst[3]>", line 4, in can_frobnicate
+      File "<doctest init_plugin.rst[2]>", line 4, in can_frobnicate
         return self.cfg.get('can_frobnicate', True)
     AttributeError: 'NoneType' object has no attribute 'get'
     <BLANKLINE>
@@ -70,9 +66,9 @@ the tests fail.
     ERROR: Widgets might like cheese
     ----------------------------------------------------------------------
     Traceback (most recent call last):
-      File "<doctest init_plugin.rst[5]>", line 9, in test_likes_cheese
+      File "<doctest init_plugin.rst[4]>", line 9, in test_likes_cheese
         self.widget.likes_cheese()
-      File "<doctest init_plugin.rst[3]>", line 6, in likes_cheese
+      File "<doctest init_plugin.rst[2]>", line 6, in likes_cheese
         return self.cfg.get('likes_cheese', True)
     AttributeError: 'NoneType' object has no attribute 'get'
     <BLANKLINE>
@@ -88,15 +84,16 @@ accept a command-line argument specifying the configuration file.
 
     >>> class ConfiguringPlugin(Plugin):
     ...     enabled = True
+    ...     def configure(self, options, conf):
+    ...         pass # always on
     ...     def begin(self):
     ...         ConfigurableWidget.cfg = {}
 
 Now configure and execute a new test run using the plugin, which will
 inject the hard-coded configuration.
 
-    >>> config.plugins = PluginManager(plugins=[ConfiguringPlugin()])
-    >>> run(argv=argv, env=env, config=config,
-    ...     suite=suite)  # doctest: +REPORT_NDIFF
+    >>> run(argv=argv, suite=suite,
+    ...     plugins=[ConfiguringPlugin()])  # doctest: +REPORT_NDIFF
     Widgets can frobnicate (or not) ... ok
     Widgets might like cheese ... ok
     <BLANKLINE>

@@ -13,6 +13,8 @@
 - Fixed bug that made it impossible for plugins to exclude package
   directories from test discovery (Issue #89). Thanks to John J Lee
   for the bug report and patch.
+- Fixed inconsistencies in many interfaces and docs. Thanks to John J
+  Lee for many bug reports.
 
 0.10.0b1
 
