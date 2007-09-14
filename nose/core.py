@@ -198,8 +198,6 @@ class TestProgram(unittest.TestProgram):
     def parseArgs(self, argv):
         """Parse argv and env and configure running environment.
         """
-        log.debug("parseArgs is called %s", argv)
-
         self.config.configure(argv, doc=TestProgram.__doc__)
         log.debug("configured %s", self.config)
 
@@ -236,11 +234,11 @@ class TestProgram(unittest.TestProgram):
         self.createTests()
         
     def createTests(self):
-        """Create the tests to run. Default behavior is to discover
-        tests using TestCollector using nose.loader.TestLoader as the
+        """Create the tests to run. If a self.suite
+        is set, then that suite will be used. Otherwise, tests will be
+        loaded from the given test names (self.testNames) using the
         test loader.
         """
-        log.debug("createTests called")
         if self.suite is not None:
             # We were given an explicit suite to run. Make sure it's
             # loaded and wrapped correctly.
