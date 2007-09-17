@@ -154,7 +154,9 @@ class TestLoader(unittest.TestLoader):
                     # Another test dir in this one: recurse lazily
                     yield self.suiteClass(
                         lambda: self.loadTestsFromDir(entry_path))
-        # give plugins a chance
+        # Catch TypeError and AttributeError exceptions here and discard
+        # them: the default plugin manager, NoPlugins, will raise TypeError
+        # on generative calls.
         try:
             tests = []
             for test in plugins.loadTestsFromDir(path):
@@ -288,7 +290,9 @@ class TestLoader(unittest.TestLoader):
         for path in paths:
             tests.extend(self.loadTestsFromDir(path))
             
-        # give plugins a chance
+        # Catch TypeError and AttributeError exceptions here and discard
+        # them: the default plugin manager, NoPlugins, will raise TypeError
+        # on generative calls.
         try:
             for test in self.config.plugins.loadTestsFromModule(module):
                 tests.append(test)
@@ -414,6 +418,9 @@ class TestLoader(unittest.TestLoader):
         """
         cases = []
         plugins = self.config.plugins
+        # Catch TypeError and AttributeError exceptions here and discard
+        # them: the default plugin manager, NoPlugins, will raise TypeError
+        # on generative calls.
         try:
             for case in plugins.loadTestsFromTestCase(testCaseClass):
                 cases.append(case)
@@ -448,7 +455,9 @@ class TestLoader(unittest.TestLoader):
             return sel.wantMethod(item)
         cases = [self.makeTest(getattr(cls, case), cls)
                  for case in filter(wanted, dir(cls))]
-        # Give plugins a chance
+        # Catch TypeError and AttributeError exceptions here and discard
+        # them: the default plugin manager, NoPlugins, will raise TypeError
+        # on generative calls.
         try:
             for test in self.config.plugins.loadTestsFromTestClass(cls):
                 cases.append(test)
@@ -464,7 +473,9 @@ class TestLoader(unittest.TestLoader):
         """Given a test object and its parent, return a test case
         or test suite.
         """
-        # plugins get first crack
+        # Catch TypeError and AttributeError exceptions here and discard
+        # them: the default plugin manager, NoPlugins, will raise TypeError
+        # on generative calls.
         plug_tests = []
         try:
             for test in self.config.plugins.makeTest(obj, parent):

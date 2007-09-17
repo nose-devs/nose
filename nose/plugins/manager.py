@@ -46,7 +46,9 @@ other than ``PluginManager``.
 """
 import logging
 import os
+import sys
 from warnings import warn
+from nose.case import Failure
 from nose.plugins.base import IPluginInterface
 
 __all__ = ['DefaultPluginManager', 'PluginManager', 'EntryPointPluginManager',
@@ -123,10 +125,18 @@ class PluginProxy(object):
         """Call all plugins, yielding each item in each non-None result.
         """
         for p, meth in self.plugins:
-            result = meth(*arg, **kw)
-            if result is not None:
-                for r in result:
-                    yield r
+            result = None
+            try:
+                result = meth(*arg, **kw)
+            except (KeyboardInterrupt, SystemExit):
+                raise
+            except:
+                exc = sys.exc_info()
+                yield Failure(*exc)
+            else:
+                if result is not None:
+                    for r in result:
+                        yield r
 
     def simple(self, *arg, **kw):
         """Call all plugins, returning the first non-None result.
