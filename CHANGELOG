@@ -18,7 +18,8 @@
   the bug report.
 - Fixed inconsistencies in many interfaces and docs. Thanks to John J
   Lee for many bug reports.
-
+- Fixed bugs in rpm generation (Issue #96). Thanks to Mike Verdone for
+  the bug report and http://bugs.python.org/issue644744 for the fix.
 
 0.10.0b1
 
