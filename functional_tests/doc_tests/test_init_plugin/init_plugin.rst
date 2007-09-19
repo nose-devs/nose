@@ -1,5 +1,5 @@
-Runing Initialization Code Before the Test Run
-----------------------------------------------
+Running Initialization Code Before the Test Run
+-----------------------------------------------
 
 Many applications, especially those using web frameworks like Pylons_
 or Django_, can't be tested without first being configured or
