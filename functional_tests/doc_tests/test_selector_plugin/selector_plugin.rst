@@ -58,7 +58,7 @@ nose's default selector is unable to discover this project's tests.
 
 The tests for the example project follow a few basic conventions:
 
-* The are all located undee the tests/ directory.
+* The are all located under the tests/ directory.
 * Test modules are organized into groups under directories named for
   the module or package they test.
 * testlib is *not* a test module, but it must be importable by the
