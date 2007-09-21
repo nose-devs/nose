@@ -20,6 +20,9 @@
   Lee for many bug reports.
 - Fixed bugs in rpm generation (Issue #96). Thanks to Mike Verdone for
   the bug report and http://bugs.python.org/issue644744 for the fix.
+- Fixed inconsisent use of os.environ in plug testing
+  utilities. Thanks to John J Lee for the bug report and patch (Issue
+  #97).
 
 0.10.0b1
 

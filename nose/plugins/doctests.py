@@ -250,7 +250,8 @@ def run(*arg, **kw):
     buffer = StringIO()
     if 'config' not in kw:
         plugins = kw.pop('plugins', None)
-        kw['config'] = Config(plugins=PluginManager(plugins=plugins))
+        env = kw.pop('env', {})
+        kw['config'] = Config(env=env, plugins=PluginManager(plugins=plugins))
     kw['config'].stream = buffer
     run(*arg, **kw)
     out = buffer.getvalue()

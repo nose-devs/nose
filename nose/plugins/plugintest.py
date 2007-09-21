@@ -74,20 +74,19 @@ class PluginTester(object):
         
         suite = None
         stream = StringIO()
-        conf = Config(stream=stream,
+        conf = Config(env=self.env,
+                      stream=stream,
                       plugins=PluginManager(plugins=self.plugins))
         if not self.suitepath:
             suite = self.makeSuite()
             
-        self.nose = TestProgram(argv=self.argv, env=self.env,
-                                config=conf, suite=suite, exit=False)
+        self.nose = TestProgram(argv=self.argv, config=conf, suite=suite,
+                                exit=False)
         self.output = AccessDecorator(stream)
                                 
     def setUp(self):
         """runs nosetests within a directory named self.suitepath
         """
-        if not self.env:  
-            self.env = dict([(k,v) for k,v in os.environ.items()])
         self.argv = ['nosetests', self.activate]
         if self.args:
             self.argv.extend(self.args)

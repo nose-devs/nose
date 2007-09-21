@@ -320,11 +320,12 @@ def run(*arg, **kw):
     * argv: Command line arguments (default: None; sys.argv is read)
     * testRunner: Test runner instance (default: None)
     * testLoader: Test loader instance (default: None)
-    * env: Environment (default: None; os.environ is read)
+    * env: Environment; ignored if config is provided (default: None;
+      os.environ is read)
     * config: nose.config.Config instance (default: None)
     * suite: Suite of tests to run (default: None)
-    * plugins: List of plugins to use (default: load plugins with
-      DefaultPluginManager)
+    * plugins: List of plugins to use; ignored if config is provided
+      (default: load plugins with DefaultPluginManager)
     
     With the exception that the ``exit`` argument is always set
     to False.    
