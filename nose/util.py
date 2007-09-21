@@ -307,14 +307,20 @@ def test_address(test):
     # type-based polymorphism sucks in general, but I believe is
     # appropriate here
     t = type(test)
+    file = module = call = None
     if t == types.ModuleType:
-        return (os.path.abspath(test.__file__), test.__name__, None)
-    if t == types.FunctionType:
-        m = sys.modules[test.__module__]
-        return (os.path.abspath(m.__file__), test.__module__, test.__name__)
-    if t in (type, types.ClassType):
-        m = sys.modules[test.__module__]
-        return (os.path.abspath(m.__file__), test.__module__, test.__name__)
+        file = getattr(test, '__file__', None)
+        module = getattr(test, '__name__', None)
+        return (file, module, call)
+    if t == types.FunctionType or t in (type, types.ClassType):
+        module = getattr(test, '__module__', None)
+        if module is not None:
+            m = sys.modules[module]
+            file = getattr(m, '__file__', None)
+            if file is not None:
+                file = os.path.abspath(file)
+        call = getattr(test, '__name__', None)
+        return (file, module, call)
     if t == types.InstanceType:
         return test_address(test.__class__)
     if t == types.MethodType:
