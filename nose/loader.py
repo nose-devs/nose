@@ -64,17 +64,21 @@ class TestLoader(unittest.TestLoader):
         * workingDir: the directory to which file and module names are
           relative. If not provided, assumed to be the current working
           directory.
-        * selector: a selector class. If not provided, a
-          `nose.selector.Selector`_ is used.
+        * selector: a selector class or instance. If a class is
+          provided, it will be instantiated with one argument, the
+          current config. If not provided, a nose.selector.Selector`_
+          is used.
         """
         if config is None:
             config = Config()
         if importer is None:
             importer = Importer(config=config)
         if workingDir is None:
-            workingDir = config.workingDir            
+            workingDir = config.workingDir
         if selector is None:
             selector = defaultSelector(config)
+        elif isclass(selector):
+            selector = selector(config)
         self.config = config
         self.importer = importer
         self.workingDir = op_normpath(op_abspath(workingDir))
