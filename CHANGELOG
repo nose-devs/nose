@@ -23,6 +23,10 @@
 - Fixed inconsisent use of os.environ in plug testing
   utilities. Thanks to John J Lee for the bug report and patch (Issue
   #97).
+- Fixed bug in test_address that prevented use of nose.case.Test in
+  doctests (Issue #100). Thanks to John J Lee for the bug report.
+- Fixed bug in error class plugin that caused string exceptions to be
+  masked (#Isse 101). Thanks to depaula for the bug report.
 
 0.10.0b1
 
