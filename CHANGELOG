@@ -27,6 +27,8 @@
   doctests (Issue #100). Thanks to John J Lee for the bug report.
 - Fixed bug in error class plugin that caused string exceptions to be
   masked (#Issue 101). Thanks to depaula for the bug report.
+- Fixed bugs in tests and the profiler plugin when running under
+  Windows (Issue #103). Thanks to Sidnei Da Silva for the bug report.
 
 0.10.0b1
 
