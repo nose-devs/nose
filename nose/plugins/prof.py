@@ -82,6 +82,10 @@ class Profile(Plugin):
             sys.stdout = tmp
 
     def finalize(self, result):
+        try:
+            self.prof.close()
+        except AttributeError:
+            pass
         if self.clean_stats_file:
             if self.fileno:
                 try:
