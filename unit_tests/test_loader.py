@@ -33,7 +33,6 @@ def mods():
     M['test_module_with_generators'] = imp.new_module(
         'test_module_with_generators')
 
-
     # a unittest testcase subclass
     class TC(unittest.TestCase):
         def runTest(self):
@@ -144,10 +143,13 @@ def mock_listdir(path):
 
 def mock_isdir(path):
     print "is dir '%s'?" % path
-    if path in (safepath('/a/dir/path'), safepath('/package'),
-                safepath('/package/subpackage'), safepath('/sort/lib'),
-                safepath('/sort/src'), safepath('/sort/a_test'),
-                safepath('/sort/test'), safepath('/sort')):
+    paths = map(safepath, [
+        '/a/dir/path', '/package',
+        '/package/subpackage', '/sort/lib',
+        '/sort/src', '/sort/a_test',
+        '/sort/test', '/sort'])
+    paths = paths + map(os.path.abspath, paths)
+    if path in paths:
         return True
     return False
 
@@ -160,9 +162,12 @@ def mock_isfile(path):
 
 def mock_exists(path):
     print "exists '%s'?" % path
-    return path in (safepath('/package'), safepath('/package/__init__.py'),
-                    safepath('/package/subpackage'),
-                    safepath('/package/subpackage/__init__.py'))
+    paths = map(safepath, [
+        '/package', '/package/__init__.py', '/package/subpackage',
+        '/package/subpackage/__init__.py'
+        ])
+    paths = paths + map(os.path.abspath, paths)
+    return path in paths
 
 
 def mock_import(modname, gl=None, lc=None, fr=None):
