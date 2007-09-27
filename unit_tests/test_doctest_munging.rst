@@ -22,10 +22,10 @@ resulting block.
     >>> list(blankline_separated_blocks("spam"))
     ['spam']
 
-``remove_stack_traces`` removes the stack traces.  Note the first line
-here is chosen not to be "Traceback (most recent...", since doctest
-would interpret that as meaning that the example should raise an
-exception!
+``remove_stack_traces`` removes the stack traces, replacing them with
+an ellipsis.  Note the first line here is chosen not to be "Traceback
+(most recent...", since doctest would interpret that as meaning that
+the example should raise an exception!
 
     >>> from nose.plugins.doctests import remove_stack_traces
     >>> print remove_stack_traces("""\
