@@ -62,20 +62,14 @@ the tests fail.
     ERROR: Widgets can frobnicate (or not)
     ----------------------------------------------------------------------
     Traceback (most recent call last):
-      File "<doctest init_plugin.rst[2]>", line 6, in test_can_frobnicate
-        self.widget.can_frobnicate()
-      File "<doctest init_plugin.rst[0]>", line 4, in can_frobnicate
-        return self.cfg.get('can_frobnicate', True)
+    ...
     AttributeError: 'NoneType' object has no attribute 'get'
     <BLANKLINE>
     ======================================================================
     ERROR: Widgets might like cheese
     ----------------------------------------------------------------------
     Traceback (most recent call last):
-      File "<doctest init_plugin.rst[2]>", line 9, in test_likes_cheese
-        self.widget.likes_cheese()
-      File "<doctest init_plugin.rst[0]>", line 6, in likes_cheese
-        return self.cfg.get('likes_cheese', True)
+    ...
     AttributeError: 'NoneType' object has no attribute 'get'
     <BLANKLINE>
     ----------------------------------------------------------------------

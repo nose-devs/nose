@@ -872,14 +872,14 @@ class IPluginInterface(object):
 
         :Parameters:
           module : python module
-            The module object being examined by the selecto
+            The module object being examined by the selector
         """
         pass
     
     def wantModuleTests(self, module):
         """
         .. Note:: DEPRECATED -- this method will not be called, it has
-                  been folded in to wantModule.
+                  been folded into wantModule.
         """
         pass
     wantModuleTests.deprecated = True

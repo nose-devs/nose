@@ -232,16 +232,61 @@ class DocFileCase(doctest.DocFileCase):
         return (self._dt_test.filename, None, None)
 
 
+def blankline_separated_blocks(text):
+    block = []
+    for line in text.splitlines(True):
+        block.append(line)
+        if not line.strip():
+            yield "".join(block)
+            block = []
+    if block:
+        yield "".join(block)
+
+
+def remove_stack_traces(out):
+    # this regexp taken from Python 2.5's doctest
+    traceback_re = re.compile(r"""
+        # Grab the traceback header.  Different versions of Python have
+        # said different things on the first traceback line.
+        ^(?P<hdr> Traceback\ \(
+            (?: most\ recent\ call\ last
+            |   innermost\ last
+            ) \) :
+        )
+        \s* $                # toss trailing whitespace on the header.
+        (?P<stack> .*?)      # don't blink: absorb stuff until...
+        ^ (?P<msg> \w+ .*)   #     a line *starts* with alphanum.
+        """, re.VERBOSE | re.MULTILINE | re.DOTALL)
+    blocks = []
+    for block in blankline_separated_blocks(out):
+        blocks.append(traceback_re.sub(r"\g<hdr>\n...\n\g<msg>", block))
+    return "".join(blocks)
+
+
+def munge_nose_output_for_doctest(out):
+    """Modify nose output to make it easy to use in doctests."""
+    out = remove_stack_traces(out)
+    return re.sub(
+        r"Ran (\d+ tests?) in [0-9.]+s", r"Ran \1 in ...s", out).strip()
+
+
 def run(*arg, **kw):
     """
     Specialized version of nose.run for use inside of doctests that
     test test runs.
 
-    This version of run() prints the result output to stdout, first
-    replacing the timing information with an ellipsis (...).
+    This version of run() prints the result output to stdout.  Before
+    printing, the output is processed by replacing the timing
+    information with an ellipsis (...), removing traceback stacks, and
+    removing trailing whitespace.
 
     Use this version of run wherever you are writing a doctest that
     tests nose (or unittest) test result output.
+
+    Note: do not use doctest: +ELLIPSIS when testing nose output,
+    since ellipses ("test_foo ... ok") in your expected test runner
+    output may match multiple lines of output, causing spurious test
+    passes!
     """
     from nose import run
     from nose.config import Config
@@ -255,6 +300,4 @@ def run(*arg, **kw):
     kw['config'].stream = buffer
     run(*arg, **kw)
     out = buffer.getvalue()
-    print re.sub(
-        r"Ran (\d+ tests?) in [0-9.]+s", r"Ran \1 in ...s", out).strip()
-    
+    print munge_nose_output_for_doctest(out)

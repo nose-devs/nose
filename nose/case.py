@@ -181,6 +181,7 @@ class Test(unittest.TestCase):
             doc = doc.strip().split("\n")[0].strip()
         return doc
 
+
 class TestBase(unittest.TestCase):
     """Common functionality for FunctionTestCase and MethodTestCase.
     """
