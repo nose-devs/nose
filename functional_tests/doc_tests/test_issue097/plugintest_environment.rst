@@ -1,10 +1,11 @@
 nose.plugins.plugintest and os.environ
 --------------------------------------
 
-``nose.plugins.plugintest`` and ``nose.plugins.doctest.run()`` are
-utilities for testing nose plugins.  When testing plugins, it should
-be possible to control the environment seen plugins under test, and
-that environment should never be affected by ``os.environ``.
+`nose.plugins.plugintest.PluginTester`_ and
+`nose.plugins.plugintest.run()`_ are utilities for testing nose
+plugins.  When testing plugins, it should be possible to control the
+environment seen plugins under test, and that environment should never
+be affected by ``os.environ``.
 
     >>> import os
     >>> import unittest
@@ -73,9 +74,9 @@ An empty ``env`` is respected...
     {'foo': 'bar'}
 
 
-``nose.plugins.doctests.run()`` should work analogously.
+``nose.plugins.plugintest.run()`` should work analogously.
 
-    >>> from nose.plugins.doctests import run
+    >>> from nose.plugins.plugintest import run
 
     >>> run(suite=unittest.TestSuite(tests=[]),
     ...     plugins=[PrintEnvPlugin()]) # doctest: +REPORT_NDIFF

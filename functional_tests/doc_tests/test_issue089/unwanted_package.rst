@@ -19,11 +19,11 @@ When we run nose normally, tests are loaded from both packages.
 
 .. Note ::
 
-   The run() function in nose.plugins.doctests reformats test result
+   The run() function in `nose.plugins.plugintest`_ reformats test result
    output to remove timings, which will vary from run to run, and
    redirects the output to stdout.
 
-    >>> from nose.plugins.doctests import run
+    >>> from nose.plugins.plugintest import run
 
 ..
 

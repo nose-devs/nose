@@ -66,7 +66,7 @@ class TestLoader(unittest.TestLoader):
           directory.
         * selector: a selector class or instance. If a class is
           provided, it will be instantiated with one argument, the
-          current config. If not provided, a nose.selector.Selector`_
+          current config. If not provided, a `nose.selector.Selector`_
           is used.
         """
         if config is None:

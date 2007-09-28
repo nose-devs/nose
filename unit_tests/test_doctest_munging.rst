@@ -1,7 +1,7 @@
 doctest output normalization for plugin testing support
 =======================================================
 
-nose.plugins.doctests.run() is used for testing nose plugins in
+nose.plugins.plugintest.run() is used for testing nose plugins in
 doctests, so it needs to normalise nose output to remove information
 that is not of interest to most plugin tests.
 
@@ -10,7 +10,7 @@ from ``doctest.py``.  That regexp always matches to the end of a
 string, so we split on blank lines before running the regexp on each
 resulting block.
 
-    >>> from nose.plugins.doctests import blankline_separated_blocks
+    >>> from nose.plugins.plugintest import blankline_separated_blocks
     >>> list(blankline_separated_blocks("spam\neggs\n\nfoo\nbar\n\n"))
     ['spam\neggs\n\n', 'foo\nbar\n\n']
     >>> list(blankline_separated_blocks("spam\neggs\n\nfoo\nbar\n"))
@@ -27,7 +27,7 @@ an ellipsis.  Note the first line here is chosen not to be "Traceback
 (most recent...", since doctest would interpret that as meaning that
 the example should raise an exception!
 
-    >>> from nose.plugins.doctests import remove_stack_traces
+    >>> from nose.plugins.plugintest import remove_stack_traces
     >>> print remove_stack_traces("""\
     ... Ceci n'est pas une traceback.
     ... Traceback (most recent call last):
@@ -69,7 +69,7 @@ Putting it together, ``munge_nose_output_for_doctest()`` removes stack
 traces, removes test timings from "Ran n test(s)" output, and strips
 trailing blank lines.
 
-    >>> from nose.plugins.doctests import munge_nose_output_for_doctest
+    >>> from nose.plugins.plugintest import munge_nose_output_for_doctest
     >>> print munge_nose_output_for_doctest("""\
     ... runTest (foomodule.PassingTest) ... ok
     ... runTest (foomodule.FailingTest) ... FAIL

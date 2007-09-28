@@ -172,8 +172,8 @@ Here's a simple example with a do-nothing plugin and a composed suite.
     >>> res.testsRun
     1
 
-Here is a more complex example of testing a plugin that has extra arguments and 
-reads environment variables ::
+And here is a more complex example of testing a plugin that has extra
+arguments and reads environment variables.
     
     >>> import unittest, os
     >>> from nose.plugins import Plugin, PluginTester
