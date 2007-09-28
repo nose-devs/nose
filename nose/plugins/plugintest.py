@@ -2,9 +2,11 @@
 Plugin tester
 -------------
 
-FIXME docs
+Utilities for testing plugins.
 
-utilities for testing plugins
+See also `nose.plugins.doctests`_, which contains a version of `nose.run()`
+that is useful for writing doctests about nose runs.
+
 """
 
 import os
@@ -15,13 +17,14 @@ except ImportError:
     
 __all__ = ['PluginTester']
 
+
 class PluginTester(object):
     """A mixin for testing nose plugins in their runtime environment.
     
     Subclass this and mix in unittest.TestCase to run integration/functional 
-    tests on your plugin.  After setUp() the class contains an attribute, 
-    self.nose, which is an instance of NoseStream.  See NoseStream docs for 
-    more details
+    tests on your plugin.  When setUp() is called, the stub test suite is 
+    executed with your plugin so that during an actual test you can inspect the 
+    artifacts of how your plugin interacted with the stub test suite.
     
     Class Variables
     ---------------
@@ -59,14 +62,27 @@ class PluginTester(object):
     plugins = []
     
     def makeSuite(self):
-        """Must override to return a suite of tests to run if you
-        don't supply a suitepath. May return None.
+        """returns a suite object of tests to run (unittest.TestSuite())
+        
+        If self.suitepath is None, this must be implemented. The returned suite 
+        object will be executed with all plugins activated.  It may return 
+        None.
+        
+        Here is an example of a basic suite object you can return ::
+        
+            >>> import unittest
+            >>> class SomeTest(unittest.TestCase):
+            ...     def runTest(self):
+            ...         raise ValueError("Now do something, plugin!")
+            ... 
+            >>> unittest.TestSuite([SomeTest()]) # doctest: +ELLIPSIS
+            <unittest.TestSuite tests=[<...SomeTest testMethod=runTest>]>
+        
         """
         raise NotImplementedError
     
     def _execPlugin(self):
-        """Create a TestProgram run with the given plugins, for
-        the suite returned by makeSuite or found at suitePath
+        """execute the plugin on the internal test suite.
         """
         from nose.config import Config
         from nose.core import TestProgram
@@ -85,7 +101,8 @@ class PluginTester(object):
         self.output = AccessDecorator(stream)
                                 
     def setUp(self):
-        """runs nosetests within a directory named self.suitepath
+        """runs nosetests with the specified test suite, all plugins 
+        activated.
         """
         self.argv = ['nosetests', self.activate]
         if self.args:
@@ -110,3 +127,7 @@ class AccessDecorator(object):
         return self.stream
     def __str__(self):
         return self._buf
+
+if __name__ == '__main__':
+    import doctest
+    doctest.testmod()

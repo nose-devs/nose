@@ -171,8 +171,65 @@ Here's a simple example with a do-nothing plugin and a composed suite.
     True
     >>> res.testsRun
     1
+
+Here is a more complex example of testing a plugin that has extra arguments and 
+reads environment variables ::
+    
+    >>> import unittest, os
+    >>> from nose.plugins import Plugin, PluginTester
+    >>> class FancyOutputter(Plugin):
+    ...     name = "fancy"
+    ...     def configure(self, options, conf):
+    ...         Plugin.configure(self, options, conf)
+    ...         if not self.enabled:
+    ...             return
+    ...         self.fanciness = 1
+    ...         if options.more_fancy:
+    ...             self.fanciness = 2
+    ...         if 'EVEN_FANCIER' in self.env:
+    ...             self.fanciness = 3
+    ... 
+    ...     def options(self, parser, env=os.environ):
+    ...         self.env = env
+    ...         parser.add_option('--more-fancy', action='store_true')
+    ...         Plugin.options(self, parser, env=env)
+    ... 
+    ...     def report(self, stream):
+    ...         stream.write("FANCY " * self.fanciness)
+    ... 
+    >>> class TestFancyOutputter(PluginTester, unittest.TestCase):
+    ...     activate = '--with-fancy' # enables the plugin
+    ...     plugins = [FancyOutputter()]
+    ...     args = ['--more-fancy']
+    ...     env = {'EVEN_FANCIER': '1'}
+    ... 
+    ...     def test_fancy_output(self):
+    ...         assert "FANCY FANCY FANCY" in self.output, (
+    ...                                         "got: %s" % self.output)
+    ...     def makeSuite(self):
+    ...         class TC(unittest.TestCase):
+    ...             def runTest(self):
+    ...                 raise ValueError("I hate fancy stuff")
+    ...         return unittest.TestSuite([TC()])
+    ... 
+    >>> res = unittest.TestResult()
+    >>> case = TestFancyOutputter('test_fancy_output')
+    >>> case(res)
+    >>> res.errors
+    []
+    >>> res.failures
+    []
+    >>> res.wasSuccessful()
+    True
+    >>> res.testsRun
+    1
+    
 """
 from nose.plugins.base import Plugin
 from nose.plugins.manager import *
 from nose.plugins.plugintest import PluginTester
 
+if __name__ == '__main__':
+    import doctest
+    doctest.testmod()
+    
