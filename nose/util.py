@@ -248,7 +248,7 @@ def resolve_name(name, module=None):
     obj = module
     log.debug("resolve: %s, %s, %s, %s", parts, name, obj, module)
     for part in parts:
-        parent, obj = obj, getattr(obj, part)
+        obj = getattr(obj, part)
     return obj
 
 

@@ -138,6 +138,7 @@ class ResultProxy(object):
         self.result.stop()
     
     def stopTest(self, test):
+        self.assertMyTest(test)
         self.plugins.stopTest(self.test)
         self.result.stopTest(self.test)
     

@@ -140,7 +140,6 @@ class ContextSuite(LazySuite):
         """Run tests in suite inside of suite fixtures.
         """
         # proxy the result for myself
-        config = self.config
         if self.resultProxy:
             result, orig = self.resultProxy(result, self), result
         else:

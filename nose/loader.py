@@ -19,7 +19,7 @@ from nose.importer import Importer, add_path, remove_path
 from nose.selector import defaultSelector, TestAddress
 from nose.util import cmp_lineno, getpackage, isclass, isgenerator, ispackage, \
     match_last, resolve_name
-from suite import ContextSuiteFactory, ContextList, LazySuite
+from nose.suite import ContextSuiteFactory, ContextList, LazySuite
 
 log = logging.getLogger(__name__)
 #log.setLevel(logging.DEBUG)
@@ -87,7 +87,7 @@ class TestLoader(unittest.TestLoader):
         if config.addPaths:
             add_path(workingDir, config)        
         self.suiteClass = ContextSuiteFactory(config=config)
-        unittest.TestLoader.__init__(self)        
+        unittest.TestLoader.__init__(self)     
 
     def getTestCaseNames(self, testCaseClass):
         """Override to select with selector, unless
