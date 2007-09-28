@@ -55,10 +55,15 @@ def doc_word(node):
         addto = link
         while parts:
             part = parts.pop(0)
-            if addto == link and part[0].upper() == part[0]:
-                addto = anchor
+            if addto == link:
+                if part[0].upper() == part[0]:
+                    addto = anchor
+                elif part.endswith('()'):
+                    addto = anchor
+                    part = part[:-2]
             addto.append(part)
-        if name.startswith('nose.plugins'):
+        if (name.startswith('nose.plugins')
+            and 'plugintest' not in name):
             base = 'plugin_'
             link = link[-1:]
         else:
