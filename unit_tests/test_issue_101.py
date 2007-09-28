@@ -1,5 +1,6 @@
 import sys
 import unittest
+import warnings
 from nose.plugins.errorclass import ErrorClass, ErrorClassPlugin
 
 class TestErrorClassWithStringException(unittest.TestCase):
@@ -12,7 +13,9 @@ class TestErrorClassWithStringException(unittest.TestCase):
         class EP(ErrorClassPlugin):
             xes = ErrorClass(X, label='XXX', isfailure=True)
 
+        warnings.filterwarnings(action='ignore', category=DeprecationWarning)
         try:
+
             raise "oh no!"
         except:
             exc = sys.exc_info()
