@@ -7,8 +7,8 @@
     
     <div id="menu">
       <p>This document covers nose version <b>0.10.0b1</b></p>
-      <p>Last update: <b>Fri Sep 21 12:26:34 2007</b></p>
-      <h2>Plugins</h2><ul><li><a href="plugin_attrib.html">Builtin Plugin: attrib</a></li><li><a href="plugin_capture.html">Builtin Plugin: capture</a></li><li><a href="plugin_cover.html">Builtin Plugin: cover</a></li><li><a href="plugin_debug.html">Builtin Plugin: debug</a></li><li><a href="plugin_deprecated.html">Builtin Plugin: deprecated</a></li><li><a href="plugin_doctests.html">Builtin Plugin: doctests</a></li><li><a href="plugin_failuredetail.html">Builtin Plugin: failuredetail</a></li><li><a href="plugin_isolate.html">Builtin Plugin: isolate</a></li><li><a href="plugin_prof.html">Builtin Plugin: prof</a></li><li><a href="plugin_skip.html">Builtin Plugin: skip</a></li><li><a href="plugin_testid.html">Builtin Plugin: testid</a></li><li><a href="errorclassplugin.html">ErrorClass Plugins</a></li><li><a href="plugin_interface.html">Plugin Interface</a></li><li><a href="writing_plugins.html">Writing Plugins</a></li></ul><h2>Modules</h2><ul><li><a href="module_nose.case.html">Module: nose.case</a></li><li><a href="module_nose.commands.html">Module: nose.commands</a></li><li><a href="module_nose.config.html">Module: nose.config</a></li><li><a href="module_nose.core.html">Module: nose.core</a></li><li><a href="module_nose.exc.html">Module: nose.exc</a></li><li><a href="module_nose.importer.html">Module: nose.importer</a></li><li><a href="module_nose.inspector.html">Module: nose.inspector</a></li><li><a href="module_nose.loader.html">Module: nose.loader</a></li><li><a href="module_nose.plugins.manager.html">Module: nose.plugins.manager</a></li><li><a href="module_nose.proxy.html">Module: nose.proxy</a></li><li><a href="module_nose.result.html">Module: nose.result</a></li><li><a href="module_nose.selector.html">Module: nose.selector</a></li><li><a href="module_nose.suite.html">Module: nose.suite</a></li><li><a href="module_nose.tools.html">Module: nose.tools</a></li><li><a href="module_nose.twistedtools.html">Module: nose.twistedtools</a></li><li><a href="module_nose.util.html">Module: nose.util</a></li></ul><h2>Plugin Examples</h2><ul><li><a href="unwanted_package.html">Excluding Unwanted Packages</a></li><li><a href="init_plugin.html">Running Initialization Code Before the Test Run</a></li><li><a href="selector_plugin.html">Using a Custom Selector</a></li><li><a href="plugintest_environment.html">nose.plugins.plugintest and os.environ</a></li></ul>
+      <p>Last update: <b>Fri Sep 28 15:18:36 2007</b></p>
+      <h2>Plugins</h2><ul><li><a href="plugin_attrib.html">Builtin Plugin: attrib</a></li><li><a href="plugin_capture.html">Builtin Plugin: capture</a></li><li><a href="plugin_cover.html">Builtin Plugin: cover</a></li><li><a href="plugin_debug.html">Builtin Plugin: debug</a></li><li><a href="plugin_deprecated.html">Builtin Plugin: deprecated</a></li><li><a href="plugin_doctests.html">Builtin Plugin: doctests</a></li><li><a href="plugin_failuredetail.html">Builtin Plugin: failuredetail</a></li><li><a href="plugin_isolate.html">Builtin Plugin: isolate</a></li><li><a href="plugin_prof.html">Builtin Plugin: prof</a></li><li><a href="plugin_skip.html">Builtin Plugin: skip</a></li><li><a href="plugin_testid.html">Builtin Plugin: testid</a></li><li><a href="errorclassplugin.html">ErrorClass Plugins</a></li><li><a href="plugin_interface.html">Plugin Interface</a></li><li><a href="writing_plugins.html">Writing Plugins</a></li></ul><h2>Modules</h2><ul><li><a href="module_nose.case.html">Module: nose.case</a></li><li><a href="module_nose.commands.html">Module: nose.commands</a></li><li><a href="module_nose.config.html">Module: nose.config</a></li><li><a href="module_nose.core.html">Module: nose.core</a></li><li><a href="module_nose.exc.html">Module: nose.exc</a></li><li><a href="module_nose.importer.html">Module: nose.importer</a></li><li><a href="module_nose.inspector.html">Module: nose.inspector</a></li><li><a href="module_nose.loader.html">Module: nose.loader</a></li><li><a href="module_nose.plugins.manager.html">Module: nose.plugins.manager</a></li><li><a href="module_nose.plugins.plugintest.html">Module: nose.plugins.plugintest</a></li><li><a href="module_nose.proxy.html">Module: nose.proxy</a></li><li><a href="module_nose.result.html">Module: nose.result</a></li><li><a href="module_nose.selector.html">Module: nose.selector</a></li><li><a href="module_nose.suite.html">Module: nose.suite</a></li><li><a href="module_nose.tools.html">Module: nose.tools</a></li><li><a href="module_nose.twistedtools.html">Module: nose.twistedtools</a></li><li><a href="module_nose.util.html">Module: nose.util</a></li></ul><h2>Plugin Examples</h2><ul><li><a href="unwanted_package.html">Excluding Unwanted Packages</a></li><li><a href="init_plugin.html">Running Initialization Code Before the Test Run</a></li><li><a href="selector_plugin.html">Using a Custom Selector</a></li><li><a href="plugintest_environment.html">nose.plugins.plugintest and os.environ</a></li></ul>
       
     </div>
     
@@ -59,11 +59,11 @@ raising any exceptions.</p>
 the tests fail.</p>
 <div class="note">
 <p class="first admonition-title">Note</p>
-<p>The run() function in nose.plugins.doctests reformats test result
+<p>The run() function in <a class="reference" href="module_nose.plugins.plugintest.html">nose.plugins.plugintest</a> reformats test result
 output to remove timings, which will vary from run to run, and
 redirects the output to stdout.</p>
 <blockquote class="last">
-<div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="k">from</span> <span class="nn">nose.plugins.doctests</span> <span class="k">import</span> <span class="n">run</span>
+<div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="k">from</span> <span class="nn">nose.plugins.plugintest</span> <span class="k">import</span> <span class="n">run</span>
 </pre></div>
 </blockquote>
 </div>
@@ -78,20 +78,14 @@ redirects the output to stdout.</p>
 <span class="go">ERROR: Widgets can frobnicate (or not)</span>
 <span class="go">----------------------------------------------------------------------</span>
 <span class="gt">Traceback (most recent call last):</span>
-  File <span class="nb">&quot;&lt;doctest init_plugin.rst[2]&gt;&quot;</span>, line <span class="m">6</span>, in <span class="n-Identifier">test_can_frobnicate</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">widget</span><span class="o">.</span><span class="n">can_frobnicate</span><span class="p">()</span>
-  File <span class="nb">&quot;&lt;doctest init_plugin.rst[0]&gt;&quot;</span>, line <span class="m">4</span>, in <span class="n-Identifier">can_frobnicate</span>
-    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;can_frobnicate&#39;</span><span class="p">,</span> <span class="bp">True</span><span class="p">)</span>
+<span class="c">...</span>
 <span class="nc">AttributeError</span>: <span class="n-Identifier">&#39;NoneType&#39; object has no attribute &#39;get&#39;</span>
 <span class="go">&lt;BLANKLINE&gt;</span>
 <span class="go">======================================================================</span>
 <span class="go">ERROR: Widgets might like cheese</span>
 <span class="go">----------------------------------------------------------------------</span>
 <span class="gt">Traceback (most recent call last):</span>
-  File <span class="nb">&quot;&lt;doctest init_plugin.rst[2]&gt;&quot;</span>, line <span class="m">9</span>, in <span class="n-Identifier">test_likes_cheese</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">widget</span><span class="o">.</span><span class="n">likes_cheese</span><span class="p">()</span>
-  File <span class="nb">&quot;&lt;doctest init_plugin.rst[0]&gt;&quot;</span>, line <span class="m">6</span>, in <span class="n-Identifier">likes_cheese</span>
-    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;likes_cheese&#39;</span><span class="p">,</span> <span class="bp">True</span><span class="p">)</span>
+<span class="c">...</span>
 <span class="nc">AttributeError</span>: <span class="n-Identifier">&#39;NoneType&#39; object has no attribute &#39;get&#39;</span>
 <span class="go">&lt;BLANKLINE&gt;</span>
 <span class="go">----------------------------------------------------------------------</span>
