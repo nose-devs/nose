@@ -94,7 +94,6 @@ class Plugin(object):
 
     # Compatiblity shim
     def tolist(self, val):
-        from warnings import warn
         warn("Plugin.tolist is deprecated. Use nose.util.tolist instead",
              DeprecationWarning)
         return tolist(val)
