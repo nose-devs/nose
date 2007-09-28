@@ -496,7 +496,7 @@ for modulename, clsname in builtins:
 
 
 # individual module docs
-b = Browser(['nose','nose.plugins.manager'],
+b = Browser(['nose','nose.plugins.manager', 'nose.plugins.plugintest'],
             exclude_modules=['nose.plugins', 'nose.ext'])
 for mod in b.modules(recursive=1):
     if mod.name == 'nose':
