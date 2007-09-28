@@ -34,6 +34,7 @@ op_isfile = os.path.isfile
 
 __all__ = ['TestLoader', 'defaultTestLoader']
 
+
 class TestLoader(unittest.TestLoader):
     """Test loader that extends unittest.TestLoader to:
 
@@ -56,7 +57,7 @@ class TestLoader(unittest.TestLoader):
         Parameters (all optional):
 
         * config: provide a `nose.config.Config`_ or other config class
-          instance; if not provided a `nose.config.Config` with
+          instance; if not provided a `nose.config.Config`_ with
           default values is used.          
         * importer: provide an importer instance that implements
           `importFromPath`. If not provided, a

@@ -6,7 +6,6 @@ Utilities for testing plugins.
 
 """
 
-import os
 import re
 try:
     from cStringIO import StringIO
