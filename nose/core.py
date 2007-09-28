@@ -248,6 +248,7 @@ class TestProgram(unittest.TestProgram):
         loaded from the given test names (self.testNames) using the
         test loader.
         """
+        log.debug("createTests called with %s", self.suite)
         if self.suite is not None:
             # We were given an explicit suite to run. Make sure it's
             # loaded and wrapped correctly.

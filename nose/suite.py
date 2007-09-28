@@ -323,12 +323,12 @@ class ContextSuiteFactory(object):
         """
         log.debug("Create suite for %s", tests)
         context = getattr(tests, 'context', None)
+        log.debug("tests %s context %s", tests, context)
         if context is None:
             tests = self.wrapTests(tests)
             try:
                 context = self.findContext(tests)
             except MixedContextError:
-                self.count = 0
                 return self.makeSuite(self.mixedSuites(tests), None)
         return self.makeSuite(tests, context)
         
@@ -410,7 +410,6 @@ class ContextSuiteFactory(object):
         context = getattr(head, 'context', None)
         if context is not None:
             ancestors = [context] + [a for a in self.ancestry(context)]
-            count = 0
             for ancestor in ancestors:
                 common = [suite] # tests with ancestor in common, so far
                 remain = [] # tests that remain to be processed
@@ -436,10 +435,13 @@ class ContextSuiteFactory(object):
         return [suite] + self.mixedSuites(tail)
             
     def wrapTests(self, tests):
+        log.debug("wrap %s", tests)
         if callable(tests) or isinstance(tests, unittest.TestSuite):
+            log.debug("I won't wrap")
             return tests
         wrapped = []
         for test in tests:
+            log.debug("wrapping %s", test)
             if isinstance(test, Test) or isinstance(test, unittest.TestSuite):
                 wrapped.append(test)
             else:
