@@ -45,7 +45,7 @@ class Config(object):
       self.include = None
       self.loggingConfig = None
       self.logStream = sys.stderr
-      self.options = ()
+      self.options = NoOptions()
       self.parser = None
       self.plugins = NoPlugins()
       self.srcDirs = ('lib', 'src')
@@ -79,7 +79,7 @@ class Config(object):
         self.include = None
         self.loggingConfig = None
         self.logStream = sys.stderr
-        self.options = ()
+        self.options = NoOptions()
         self.parser = None
         self.plugins = NoPlugins()
         self.srcDirs = ('lib', 'src')
@@ -426,6 +426,15 @@ class NoPlugins(object):
 
     def __call__(self, *arg, **kw):
         return
+
+class NoOptions(object):
+    """Options container that returns None for all options.
+    """
+    def __getattr__(self, attr):
+        return None
+
+    def __nonzero__(self):
+        return False
 
 
 def user_config_files():

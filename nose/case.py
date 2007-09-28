@@ -72,12 +72,16 @@ class Test(unittest.TestCase):
         return "Test(%r)" % self.test
 
     def afterTest(self, result):
+        """Called before test is run (before result.startTest)
+        """
         try:
             result.afterTest(self.test)
         except AttributeError:
             pass
 
     def beforeTest(self, result):
+        """Called after test is complete (after result.stopTest)
+        """
         try:
             result.beforeTest(self.test)
         except AttributeError:
@@ -85,12 +89,13 @@ class Test(unittest.TestCase):
 
     def exc_info(self):
         """Extract exception info.
-        """
-        
+        """        
         exc, exv, tb = sys.exc_info()
         return (exc, exv, tb)
         
     def id(self):
+        """Get a short(er) description of the test
+        """
         return self.test.id()
 
     def address(self):
@@ -175,7 +180,6 @@ class Test(unittest.TestCase):
             try:
                 doc = test._TestCase__testMethodDoc # 2.4 and earlier
             except AttributeError:
-                print dir(test)
                 pass
         if doc is not None:
             doc = doc.strip().split("\n")[0].strip()
@@ -186,6 +190,7 @@ class TestBase(unittest.TestCase):
     """Common functionality for FunctionTestCase and MethodTestCase.
     """
     __test__ = False # do not collect
+    
     def id(self):
         return str(self)
         
@@ -209,6 +214,7 @@ class FunctionTestCase(TestBase):
     create test cases for test functions.
     """
     __test__ = False # do not collect
+    
     def __init__(self, test, setUp=None, tearDown=None, arg=tuple(),
                  descriptor=None):
         """Initialize the MethodTestCase.
@@ -235,7 +241,7 @@ class FunctionTestCase(TestBase):
         self.tearDownFunc = tearDown
         self.arg = arg
         self.descriptor = descriptor
-        unittest.TestCase.__init__(self)        
+        TestBase.__init__(self)        
 
     def address(self):
         """Return a round-trip name for this test, a name that can be
@@ -306,6 +312,7 @@ class MethodTestCase(TestBase):
     create test cases for test methods.
     """
     __test__ = False # do not collect
+    
     def __init__(self, method, test=None, arg=tuple(), descriptor=None):
         """Initialize the MethodTestCase.
 
@@ -337,7 +344,7 @@ class MethodTestCase(TestBase):
         if self.test is None:
             method_name = self.method.__name__
             self.test = getattr(self.inst, method_name)            
-        unittest.TestCase.__init__(self)
+        TestBase.__init__(self)
 
     def __str__(self):
         func, arg = self._descriptors()
