@@ -235,6 +235,7 @@ def run(*arg, **kw):
     """
     import warnings
     warnings.warn("run() has been moved to nose.plugins.plugintest. Please "
-                  "update your imports.", category=DeprecationWarning)
+                  "update your imports.", category=DeprecationWarning,
+                  stacklevel=2)
     from nose.plugins.plugintest import run
     run(*arg, **kw)
