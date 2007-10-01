@@ -194,6 +194,7 @@ class Selector(object):
         plug_wants = self.plugins.wantModule(module)
         if plug_wants is not None:
             wanted = plug_wants
+        log.debug("wantModule %s? %s", module, wanted)
         return wanted
         
 defaultSelector = Selector        
