@@ -180,6 +180,31 @@ class TestProgram(unittest.TestProgram):
     def __init__(self, module=None, defaultTest='.', argv=None,
                  testRunner=None, testLoader=None, env=None, config=None,
                  suite=None, exit=True, plugins=None):
+        """
+        Collect and run tests, returning success or failure.
+
+        The arguments to __init__ are the same as to `main()` and `run()`:
+
+        * module: All tests are in this module (default: None)
+        * defaultTest: Tests to load (default: '.')
+        * argv: Command line arguments (default: None; sys.argv is read)
+        * testRunner: Test runner instance (default: None)
+        * testLoader: Test loader instance (default: None)
+        * env: Environment; ignored if config is provided (default: None;
+          os.environ is read)
+        * config: `nose.config.Config`_ instance (default: None)
+        * suite: Suite or list of tests to run (default: None). Passing a
+          suite or lists of tests will bypass all test discovery and
+          loading. *ALSO NOTE* that if you pass a unittest.TestSuite
+          instance as the suite, context fixtures at the class, module and
+          package level will not be used, and many plugin hooks will not
+          be called. If you want normal nose behavior, either pass a list
+          of tests, or a fully-configured `nose.suite.ContextSuite`_.
+        * exit: Exit after running tests and printing report (default: True)
+        * plugins: List of plugins to use; ignored if config is provided
+          (default: load plugins with DefaultPluginManager)
+
+        """
         if env is None:
             env = os.environ
         if config is None:
@@ -322,8 +347,14 @@ def run(*arg, **kw):
     * testLoader: Test loader instance (default: None)
     * env: Environment; ignored if config is provided (default: None;
       os.environ is read)
-    * config: nose.config.Config instance (default: None)
-    * suite: Suite of tests to run (default: None)
+    * config: `nose.config.Config`_ instance (default: None)
+    * suite: Suite or list of tests to run (default: None). Passing a
+      suite or lists of tests will bypass all test discovery and
+      loading. *ALSO NOTE* that if you pass a unittest.TestSuite
+      instance as the suite, context fixtures at the class, module and
+      package level will not be used, and many plugin hooks will not
+      be called. If you want normal nose behavior, either pass a list
+      of tests, or a fully-configured `nose.suite.ContextSuite`_.      
     * plugins: List of plugins to use; ignored if config is provided
       (default: load plugins with DefaultPluginManager)
     

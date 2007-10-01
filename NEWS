@@ -1,21 +1,9 @@
-What's New In 0.10b1
+What's New In 0.10.0
 --------------------
 
-.. note:: The entry point for 0.10-series plugins is now
-   **nose.plugins.0.10**.
+0.10 is finally final!
 
-Release 0.10b1 is primarily a bugfix release. Among other bugs, it
-fixes serious issues in the FailureDetail and Capture plugins and
-object introspection during test loading, all of which could result in
-halted test runs. Thanks to Ian Bicking and Jeff Cousens for the bug
-reports.
-
-0.10b1 adds one new feature: tests produced by generators may now set
-a ``description`` attribute. If this attribute is present, its value
-will be output as the test description instead of the default ``test
-name (args)`` description.
-
-The development release of nose, 0.10, marks a major change from the
+The new release of nose, 0.10, marks a major change from the
 0.9 series in philosophy and implementation.
 
 Prior to this release, nose was entirely discovery-centric: it would
