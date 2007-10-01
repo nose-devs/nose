@@ -29,6 +29,10 @@
   masked (#Issue 101). Thanks to depaula for the bug report.
 - Fixed bugs in tests and the profiler plugin when running under
   Windows (Issue #103). Thanks to Sidnei Da Silva for the bug report.
+- Fixed bugs in plugin class that caused exception swallowing (Issue
+  #107). Thanks to John L Lee for the bug report and patch.
+- Added more plugin example doctests. Thanks to Kumar McMillan and
+  John L Lee for patches and lots of help.
 
 0.10.0b1
 
