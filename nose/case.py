@@ -75,17 +75,21 @@ class Test(unittest.TestCase):
         """Called before test is run (before result.startTest)
         """
         try:
-            result.afterTest(self.test)
+            afterTest = result.afterTest
         except AttributeError:
             pass
+        else:
+            afterTest(self.test)
 
     def beforeTest(self, result):
         """Called after test is complete (after result.stopTest)
         """
         try:
-            result.beforeTest(self.test)
+            beforeTest = result.beforeTest
         except AttributeError:
             pass
+        else:
+            beforeTest(self.test)
 
     def exc_info(self):
         """Extract exception info.
@@ -141,9 +145,9 @@ class Test(unittest.TestCase):
         """
         if self.resultProxy:
             result = self.resultProxy(result, self)
-        self.beforeTest(result)
         try:
             try:
+                self.beforeTest(result)
                 self.runTest(result)
             except KeyboardInterrupt:
                 raise
