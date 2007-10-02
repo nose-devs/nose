@@ -15,6 +15,8 @@ import sys
 import textwrap
 import time
 
+sys.path.insert(0, os.path.abspath(os.path.dirname(__file__)))
+from mkdocs import formatargspec
 
 # constants
 success = 0
@@ -208,7 +210,7 @@ def plugin_interface():
     mdoc = []
     for m in methods:
         # FIXME fix the arg list so literal os.environ is not in there
-        mdoc.append('*%s%s*\n\n' %  (m.name, m.formatargs()))
+        mdoc.append('*%s%s*\n\n' %  (m.name, formatargspec(m.obj)))
         # FIXME this is resulting in poorly formatted doc sections
         mdoc.append(' ' + m.doc().replace('\n', '\n '))
         mdoc.append('\n\n')
@@ -344,10 +346,20 @@ class Wiki(object):
         if page in self.newpages:
             runcmd('svn add %s' % self.filename(page))
 
-        
+            
+def findwiki(root):
+    if not root:
+        raise ValueError("wiki path not found")
+    if not os.path.isdir(root):
+        return findwiki(os.path.dirname(root))
+    entries = os.listdir(root)
+    if 'wiki' in entries:
+        return os.path.join(root, 'wiki')
+    return findwiki(os.path.dirname(root))
+
+
 def main():
-    path = os.path.abspath(
-        os.path.join(os.path.dirname(__file__), '..', '..', '..', 'wiki'))
+    path = findwiki(os.path.abspath(__file__))
     mkwiki(path)
 
     
