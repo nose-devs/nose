@@ -348,7 +348,7 @@ class Wiki(object):
 
             
 def findwiki(root):
-    if not root:
+    if not root or root is '/': # not likely to work on windows
         raise ValueError("wiki path not found")
     if not os.path.isdir(root):
         return findwiki(os.path.dirname(root))

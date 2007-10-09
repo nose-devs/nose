@@ -119,8 +119,8 @@ def main():
         runcmd(cmd)
 
         cmd = ('ssh %(host)s '
-               '"ln -nfs %(versionpath)s/index.html %(path)sindex.html; '
-               'ln -nfs %(docpath)s %(path)sdoc"' % cv)
+               '"ln -nfs %(versionpath)s/index.html %(path)s/index.html; '
+               'ln -nfs %(docpath)s %(path)s/doc"' % cv)
         runcmd(cmd)
         
     cd(current)
