@@ -27,5 +27,10 @@ plugins`_ for more.
 There are many other, less user-visible changes under the hood. See 
 http://code.google.com/p/python-nose/wiki/VersionZeroTen for an outline.
 
+This release would have been near-impossible to complete without the
+help of John J Lee and new members of the nose development team Kumar
+McMillan, Grig Gheorgiu, James Casbon, and Titus Brown. Many thanks to
+all of them.
+
 .. _`plugin interface reference`: doc/plugin_interface.html
 .. _`guide to writing plugins`: doc/writing_plugins.html

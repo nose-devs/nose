@@ -275,6 +275,11 @@ function test case wrapper for each tuple it yields. As in the example, test
 generators must yield tuples, the first element of which must be a callable
 and the remaining elements the arguments to be passed to the callable.
 
+By default, the test name output for a generated test in verbose mode
+will be the name of the generator function or method, followed by the
+args passed to the yielded callable. If you want to show a different test
+name, set the ``description`` attribute of the yielded callable.
+
 Setup and teardown functions may be used with test generators. The setup and
 teardown attributes must be attached to the generator function::
 
@@ -319,7 +324,7 @@ nose, by default, follows a few simple rules for test discovery.
   loaded as package.module and the directory of *package* will be added to
   sys.path.
 
-* If a object defines a __test__ attribute that does not evaluate to
+* If an object defines a __test__ attribute that does not evaluate to
   True, that object will not be collected, nor will any objects it
   contains.
 

@@ -20,7 +20,7 @@
   Lee for many bug reports.
 - Fixed bugs in rpm generation (Issue #96). Thanks to Mike Verdone for
   the bug report and http://bugs.python.org/issue644744 for the fix.
-- Fixed inconsisent use of os.environ in plug testing
+- Fixed inconsisent use of os.environ in plugin testing
   utilities. Thanks to John J Lee for the bug report and patch (Issue
   #97).
 - Fixed bug in test_address that prevented use of nose.case.Test in
@@ -29,10 +29,12 @@
   masked (#Issue 101). Thanks to depaula for the bug report.
 - Fixed bugs in tests and the profiler plugin when running under
   Windows (Issue #103). Thanks to Sidnei Da Silva for the bug report.
-- Fixed bugs in plugin class that caused exception swallowing (Issue
+- Fixed bugs in plugin calls that caused exception swallowing (Issue
   #107). Thanks to John L Lee for the bug report and patch.
 - Added more plugin example doctests. Thanks to Kumar McMillan and
   John L Lee for patches and lots of help.
+- Changed default location of id file for TestId plugin from ~/.noseids to
+  .noseids in the configured working directory.
 
 0.10.0b1
 
