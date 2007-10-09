@@ -132,10 +132,12 @@ class TestProgram(unittest.TestProgram):
     Configuration
     -------------
 
-    In addition to passing command-line options, you may also put configuration
-    options in a .noserc or nose.cfg file in your home directory. These are
-    standard .ini-style config files. Put your nosetests configuration in a
-    [nosetests] section, with the -- prefix removed:
+    In addition to passing command-line options, you may also put
+    configuration options in a .noserc or nose.cfg file in your home
+    directory. These are standard .ini-style config files. Put your
+    nosetests configuration in a [nosetests] section. Options are the
+    same as on the command line, with the -- prefix removed. For
+    options that are simple switches, you must supply a value:
 
       [nosetests]
       verbosity=3

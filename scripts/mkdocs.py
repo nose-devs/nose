@@ -52,12 +52,9 @@ def doc_word(node):
     # handle links like package.module and module.Class
     # as wellas 'foo bar'
     
-    name = node.astext()
-    print "Unknown ref %s" % name
+    orig = name = node.astext()
     if '.' in name:
-
         parts = name.split('.')
-            
         # if the first letter of a part is capitalized, assume it's
         # a class name, and put all parts from that part on into
         # the anchor part of the link
@@ -82,9 +79,12 @@ def doc_word(node):
         if anchor:
             node['refuri'] += '#' + '.'.join(anchor)
     else:
-        node['refuri'] = '_'.join(
-            map(lambda s: s.lower(), name.split(' '))) + '.html'
+        # pad out wiki-words
+        name = name[0].lower() + name[1:]
+        name = re.sub(r'([A-Z])', r' \1', name).lower()
+        node['refuri'] = '_'.join(name.split(' ')) + '.html'
 
+    print "Unknown ref %s -> %s" % (orig, node['refuri'])
     del node['refname']
     node.resolved = True
     return True
@@ -396,7 +396,7 @@ def main():
     to_write.append(
         ('Plugins',
          'ErrorClass Plugins',
-         os.path.join(doc, 'errorclassplugin.html'), tpl, ecp))
+         os.path.join(doc, 'error_class_plugin.html'), tpl, ecp))
 
     # interface
     itf = {'body': to_html(textwrap.dedent(IPluginInterface.__doc__))}

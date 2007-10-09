@@ -6,9 +6,8 @@ You can run tests using the `nosetests` setuptools command::
 
   python setup.py nosetests
 
-This command has a few benefits over the standard `test` command: all nose
-plugins are supported, and you can configure the test run with both command
-line arguments and settings in your setup.cfg file.
+This command has one benefit over the standard `test` command: all nose
+plugins are supported.
 
 To configure the `nosetests` command, add a [nosetests] section to your
 setup.cfg. The [nosetests] section can contain any command line arguments that

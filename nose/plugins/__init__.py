@@ -7,11 +7,11 @@ reporting. There are two basic rules for plugins:
 
 * Plugin classes should subclass `nose.plugins.Plugin`_.
 * Plugins may implement any of the methods described in the class
-  PluginInterface in nose.plugins.base. Please note that this class is for
+  `PluginInterface`_ in nose.plugins.base. Please note that this class is for
   documentary purposes only; plugins may not subclass PluginInterface.
 
 .. _nose.plugins.Plugin: http://python-nose.googlecode.com/svn/trunk/nose/plugins/base.py
-   
+
 Registering
 ===========
 
