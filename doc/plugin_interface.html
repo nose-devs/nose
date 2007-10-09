@@ -7,7 +7,7 @@
     
     <div id="menu">
       <p>This document covers nose version <b>0.10.0</b></p>
-      <p>Last update: <b>Mon Oct  1 15:14:08 2007</b></p>
+      <p>Last update: <b>Tue Oct  9 16:04:13 2007</b></p>
       <h2>Plugins</h2><ul><li><a href="plugin_attrib.html">Builtin Plugin: attrib</a></li><li><a href="plugin_capture.html">Builtin Plugin: capture</a></li><li><a href="plugin_cover.html">Builtin Plugin: cover</a></li><li><a href="plugin_debug.html">Builtin Plugin: debug</a></li><li><a href="plugin_deprecated.html">Builtin Plugin: deprecated</a></li><li><a href="plugin_doctests.html">Builtin Plugin: doctests</a></li><li><a href="plugin_failuredetail.html">Builtin Plugin: failuredetail</a></li><li><a href="plugin_isolate.html">Builtin Plugin: isolate</a></li><li><a href="plugin_prof.html">Builtin Plugin: prof</a></li><li><a href="plugin_skip.html">Builtin Plugin: skip</a></li><li><a href="plugin_testid.html">Builtin Plugin: testid</a></li><li><a href="errorclassplugin.html">ErrorClass Plugins</a></li><li><a href="plugin_interface.html">Plugin Interface</a></li><li><a href="writing_plugins.html">Writing Plugins</a></li></ul><h2>Modules</h2><ul><li><a href="module_nose.case.html">Module: nose.case</a></li><li><a href="module_nose.commands.html">Module: nose.commands</a></li><li><a href="module_nose.config.html">Module: nose.config</a></li><li><a href="module_nose.core.html">Module: nose.core</a></li><li><a href="module_nose.exc.html">Module: nose.exc</a></li><li><a href="module_nose.importer.html">Module: nose.importer</a></li><li><a href="module_nose.inspector.html">Module: nose.inspector</a></li><li><a href="module_nose.loader.html">Module: nose.loader</a></li><li><a href="module_nose.plugins.manager.html">Module: nose.plugins.manager</a></li><li><a href="module_nose.plugins.plugintest.html">Module: nose.plugins.plugintest</a></li><li><a href="module_nose.proxy.html">Module: nose.proxy</a></li><li><a href="module_nose.result.html">Module: nose.result</a></li><li><a href="module_nose.selector.html">Module: nose.selector</a></li><li><a href="module_nose.suite.html">Module: nose.suite</a></li><li><a href="module_nose.tools.html">Module: nose.tools</a></li><li><a href="module_nose.twistedtools.html">Module: nose.twistedtools</a></li><li><a href="module_nose.util.html">Module: nose.util</a></li></ul><h2>Plugin Examples</h2><ul><li><a href="unwanted_package.html">Excluding Unwanted Packages</a></li><li><a href="init_plugin.html">Running Initialization Code Before the Test Run</a></li><li><a href="selector_plugin.html">Using a Custom Selector</a></li><li><a href="plugin_exceptions.html">When Plugins Fail</a></li><li><a href="plugintest_environment.html">nose.plugins.plugintest and os.environ</a></li></ul>
       <h2>New methods</h2><ul><li><a href="#afterContext">afterContext</a></li><li><a href="#afterDirectory">afterDirectory</a></li><li><a href="#afterImport">afterImport</a></li><li><a href="#afterTest">afterTest</a></li><li><a href="#beforeContext">beforeContext</a></li><li><a href="#beforeDirectory">beforeDirectory</a></li><li><a href="#beforeImport">beforeImport</a></li><li><a href="#beforeTest">beforeTest</a></li><li><a href="#describeTest">describeTest</a></li><li><a href="#formatError">formatError</a></li><li><a href="#formatFailure">formatFailure</a></li><li><a href="#handleError">handleError</a></li><li><a href="#handleFailure">handleFailure</a></li><li><a href="#loadTestsFromDir">loadTestsFromDir</a></li><li><a href="#loadTestsFromFile">loadTestsFromFile</a></li><li><a href="#loadTestsFromNames">loadTestsFromNames</a></li><li><a href="#loadTestsFromTestClass">loadTestsFromTestClass</a></li><li><a href="#makeTest">makeTest</a></li><li><a href="#options">options</a></li><li><a href="#prepareTestCase">prepareTestCase</a></li><li><a href="#prepareTestLoader">prepareTestLoader</a></li><li><a href="#prepareTestResult">prepareTestResult</a></li><li><a href="#prepareTestRunner">prepareTestRunner</a></li><li><a href="#startContext">startContext</a></li><li><a href="#stopContext">stopContext</a></li><li><a href="#testName">testName</a></li></ul><h2>Changed methods</h2><ul><li><a href="#addError">addError</a></li><li><a href="#addFailure">addFailure</a></li><li><a href="#addSuccess">addSuccess</a></li></ul><h2>Deprecated methods</h2><ul><li><a href="#addDeprecated">addDeprecated</a></li><li><a href="#addOptions">addOptions</a></li><li><a href="#addSkip">addSkip</a></li><li><a href="#add_options">add_options</a></li><li><a href="#loadTestsFromPath">loadTestsFromPath</a></li><li><a href="#wantModuleTests">wantModuleTests</a></li></ul>
     </div>
@@ -131,10 +131,10 @@ runs the test through the hotshot profiler's runcall() method.</li>
 	<img src="chain.png" alt="chainable" />.</p>
 
       
-<div class="method deprecated">
-<a name="addDeprecated">
-<span class="name">addDeprecated</span><span class="arg">(self, test)</span></a>
-<div class="doc"><p>Called when a deprecated test is seen. DO NOT return a value
+    <div class="method deprecated">
+    <a name="addDeprecated">
+    <span class="name">addDeprecated</span><span class="arg">(self, test)</span></a>
+    <div class="doc"><p>Called when a deprecated test is seen. DO NOT return a value
 unless you want to stop other plugins from seeing the deprecated
 test.</p>
 <div class="note">
@@ -155,12 +155,12 @@ test.</p>
 </tbody>
 </table>
 </div>
-</div>
-
-<div class="method changed">
-<a name="addError">
-<span class="name">addError</span><span class="arg">(self, test, err)</span></a>
-<div class="doc"><p>Called when a test raises an uncaught exception. DO NOT return a
+    </div>
+    
+    <div class="method changed">
+    <a name="addError">
+    <span class="name">addError</span><span class="arg">(self, test, err)</span></a>
+    <div class="doc"><p>Called when a test raises an uncaught exception. DO NOT return a
 value unless you want to stop other plugins from seeing that the
 test has raised an error.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -187,12 +187,12 @@ test has raised an error.</p>
 </tbody>
 </table>
 </div>
-</div>
-
-<div class="method changed">
-<a name="addFailure">
-<span class="name">addFailure</span><span class="arg">(self, test, err)</span></a>
-<div class="doc"><p>Called when a test fails. DO NOT return a value unless you
+    </div>
+    
+    <div class="method changed">
+    <a name="addFailure">
+    <span class="name">addFailure</span><span class="arg">(self, test, err)</span></a>
+    <div class="doc"><p>Called when a test fails. DO NOT return a value unless you
 want to stop other plugins from seeing that the test has failed.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -225,12 +225,12 @@ want to stop other plugins from seeing that the test has failed.</p>
 </tbody>
 </table>
 </div>
-</div>
-
-<div class="method deprecated">
-<a name="addOptions">
-<span class="name">addOptions</span><span class="arg">(self, parser, env=os.environ)</span></a>
-<div class="doc"><p>Called to allow plugin to register command line
+    </div>
+    
+    <div class="method deprecated">
+    <a name="addOptions">
+    <span class="name">addOptions</span><span class="arg">(self, parser, env=os.environ)</span></a>
+    <div class="doc"><p>Called to allow plugin to register command line
 options with the parser.</p>
 <p>Do <em>not</em> return a value from this method unless you want to stop
 all other plugins from setting their options.</p>
@@ -239,12 +239,12 @@ all other plugins from setting their options.</p>
 <p class="last">DEPRECATED -- implement <cite>options</cite> instead.</p>
 </div>
 </div>
-</div>
-
-<div class="method deprecated">
-<a name="addSkip">
-<span class="name">addSkip</span><span class="arg">(self, test)</span></a>
-<div class="doc"><p>Called when a test is skipped. DO NOT return a value unless
+    </div>
+    
+    <div class="method deprecated">
+    <a name="addSkip">
+    <span class="name">addSkip</span><span class="arg">(self, test)</span></a>
+    <div class="doc"><p>Called when a test is skipped. DO NOT return a value unless
 you want to stop other plugins from seeing the skipped test.</p>
 <div class="note">
 <p class="first admonition-title">Note</p>
@@ -264,12 +264,12 @@ you want to stop other plugins from seeing the skipped test.</p>
 </tbody>
 </table>
 </div>
-</div>
-
-<div class="method changed">
-<a name="addSuccess">
-<span class="name">addSuccess</span><span class="arg">(self, test)</span></a>
-<div class="doc"><p>Called when a test passes. DO NOT return a value unless you
+    </div>
+    
+    <div class="method changed">
+    <a name="addSuccess">
+    <span class="name">addSuccess</span><span class="arg">(self, test)</span></a>
+    <div class="doc"><p>Called when a test passes. DO NOT return a value unless you
 want to stop other plugins from seeing the passing test.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -292,12 +292,12 @@ want to stop other plugins from seeing the passing test.</p>
 </tbody>
 </table>
 </div>
-</div>
-
-<div class="method deprecated">
-<a name="add_options">
-<span class="name">add_options</span><span class="arg">(self, parser, env=os.environ)</span></a>
-<div class="doc"><p>Called to allow plugin to register command line
+    </div>
+    
+    <div class="method deprecated">
+    <a name="add_options">
+    <span class="name">add_options</span><span class="arg">(self, parser, env=os.environ)</span></a>
+    <div class="doc"><p>Called to allow plugin to register command line
 options with the parser.</p>
 <p>Do <em>not</em> return a value from this method unless you want to stop
 all other plugins from setting their options.</p>
@@ -306,21 +306,21 @@ all other plugins from setting their options.</p>
 <p class="last">DEPRECATED -- implement <cite>options</cite> instead.</p>
 </div>
 </div>
-</div>
-
-<div class="method new">
-<a name="afterContext">
-<span class="name">afterContext</span><span class="arg">(self)</span></a>
-<div class="doc"><p>Called after a context (generally a module) has been
+    </div>
+    
+    <div class="method new">
+    <a name="afterContext">
+    <span class="name">afterContext</span><span class="arg">(self)</span></a>
+    <div class="doc"><p>Called after a context (generally a module) has been
 lazy-loaded, imported, setup, had its tests loaded and
 executed, and torn down.</p>
 </div>
-</div>
-
-<div class="method new">
-<a name="afterDirectory">
-<span class="name">afterDirectory</span><span class="arg">(self, path)</span></a>
-<div class="doc"><p>Called after all tests have been loaded from directory at path
+    </div>
+    
+    <div class="method new">
+    <a name="afterDirectory">
+    <span class="name">afterDirectory</span><span class="arg">(self, path)</span></a>
+    <div class="doc"><p>Called after all tests have been loaded from directory at path
 and run.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -336,12 +336,12 @@ and run.</p>
 </tbody>
 </table>
 </div>
-</div>
-
-<div class="method new">
-<a name="afterImport">
-<span class="name">afterImport</span><span class="arg">(self, filename, module)</span></a>
-<div class="doc"><p>Called after module is imported from filename. afterImport
+    </div>
+    
+    <div class="method new">
+    <a name="afterImport">
+    <span class="name">afterImport</span><span class="arg">(self, filename, module)</span></a>
+    <div class="doc"><p>Called after module is imported from filename. afterImport
 is called even if the import failed.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -360,12 +360,12 @@ is called even if the import failed.</p>
 </tbody>
 </table>
 </div>
-</div>
-
-<div class="method new">
-<a name="afterTest">
-<span class="name">afterTest</span><span class="arg">(self, test)</span></a>
-<div class="doc"><p>Called after the test has been run and the result recorded
+    </div>
+    
+    <div class="method new">
+    <a name="afterTest">
+    <span class="name">afterTest</span><span class="arg">(self, test)</span></a>
+    <div class="doc"><p>Called after the test has been run and the result recorded
 (after stopTest).</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -381,12 +381,12 @@ is called even if the import failed.</p>
 </tbody>
 </table>
 </div>
-</div>
-
-<div class="method new">
-<a name="beforeContext">
-<span class="name">beforeContext</span><span class="arg">(self)</span></a>
-<div class="doc"><p>Called before a context (generally a module) is
+    </div>
+    
+    <div class="method new">
+    <a name="beforeContext">
+    <span class="name">beforeContext</span><span class="arg">(self)</span></a>
+    <div class="doc"><p>Called before a context (generally a module) is
 examined. Since the context is not yet loaded, plugins don't
 get to know what the context is; so any context operations
 should use a stack that is pushed in <cite>beforeContext</cite> and popped
@@ -399,12 +399,12 @@ and <cite>stopContext</cite>, which are passed the context in question, but
 are called after it has been loaded (imported in the module
 case).</p>
 </div>
-</div>
-
-<div class="method new">
-<a name="beforeDirectory">
-<span class="name">beforeDirectory</span><span class="arg">(self, path)</span></a>
-<div class="doc"><p>Called before tests are loaded from directory at path.</p>
+    </div>
+    
+    <div class="method new">
+    <a name="beforeDirectory">
+    <span class="name">beforeDirectory</span><span class="arg">(self, path)</span></a>
+    <div class="doc"><p>Called before tests are loaded from directory at path.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -419,12 +419,12 @@ case).</p>
 </tbody>
 </table>
 </div>
-</div>
-
-<div class="method new">
-<a name="beforeImport">
-<span class="name">beforeImport</span><span class="arg">(self, filename, module)</span></a>
-<div class="doc"><p>Called before module is imported from filename.</p>
+    </div>
+    
+    <div class="method new">
+    <a name="beforeImport">
+    <span class="name">beforeImport</span><span class="arg">(self, filename, module)</span></a>
+    <div class="doc"><p>Called before module is imported from filename.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -442,12 +442,12 @@ case).</p>
 </tbody>
 </table>
 </div>
-</div>
-
-<div class="method new">
-<a name="beforeTest">
-<span class="name">beforeTest</span><span class="arg">(self, test)</span></a>
-<div class="doc"><p>Called before the test is run (before startTest).</p>
+    </div>
+    
+    <div class="method new">
+    <a name="beforeTest">
+    <span class="name">beforeTest</span><span class="arg">(self, test)</span></a>
+    <div class="doc"><p>Called before the test is run (before startTest).</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -462,32 +462,32 @@ case).</p>
 </tbody>
 </table>
 </div>
-</div>
-
-<div class="method ">
-<a name="begin">
-<span class="name">begin</span><span class="arg">(self)</span></a>
-<div class="doc"><p>Called before any tests are collected or run. Use this to
+    </div>
+    
+    <div class="method ">
+    <a name="begin">
+    <span class="name">begin</span><span class="arg">(self)</span></a>
+    <div class="doc"><p>Called before any tests are collected or run. Use this to
 perform any setup needed before testing begins.</p>
 </div>
-</div>
-
-<div class="method ">
-<a name="configure">
-<span class="name">configure</span><span class="arg">(self, options, conf)</span></a>
-<div class="doc"><p>Called after the command line has been parsed, with the
+    </div>
+    
+    <div class="method ">
+    <a name="configure">
+    <span class="name">configure</span><span class="arg">(self, options, conf)</span></a>
+    <div class="doc"><p>Called after the command line has been parsed, with the
 parsed options and the config container. Here, implement any
 config storage or changes to state or operation that are set
 by command line options.</p>
 <p>Do <em>not</em> return a value from this method unless you want to
 stop all other plugins from being configured.</p>
 </div>
-</div>
-
-<div class="method new">
-<a name="describeTest">
-<span class="name">describeTest</span><span class="arg">(self, test)</span></a>
-<div class="doc"><p>Return a test description. Called by
+    </div>
+    
+    <div class="method new">
+    <a name="describeTest">
+    <span class="name">describeTest</span><span class="arg">(self, test)</span></a>
+    <div class="doc"><p>Return a test description. Called by
 <cite>nose.case.Test.shortDescription</cite>.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -503,12 +503,12 @@ stop all other plugins from being configured.</p>
 </tbody>
 </table>
 </div>
-</div>
-
-<div class="method ">
-<a name="finalize">
-<span class="name">finalize</span><span class="arg">(self, result)</span></a>
-<div class="doc"><p>Called after all report output, including output from all
+    </div>
+    
+    <div class="method ">
+    <a name="finalize">
+    <span class="name">finalize</span><span class="arg">(self, result)</span></a>
+    <div class="doc"><p>Called after all report output, including output from all
 plugins, has been sent to the stream. Use this to print final
 test results or perform final cleanup. Return None to allow
 other plugins to continue printing, any other value to stop
@@ -521,12 +521,12 @@ via <tt class="docutils literal"><span class="pre">python</span> <span class="pr
 <strong>before</strong> the default report output is sent.</p>
 </div>
 </div>
-</div>
-
-<div class="method new chainable">
-<a name="formatError">
-<span class="name">formatError</span><span class="arg">(self, test, err)</span></a>
-<div class="doc"><p>Called in result.addError, before plugin.addError. If you
+    </div>
+    
+    <div class="method new chainable">
+    <a name="formatError">
+    <span class="name">formatError</span><span class="arg">(self, test, err)</span></a>
+    <div class="doc"><p>Called in result.addError, before plugin.addError. If you
 want to replace or modify the error tuple, return a new error
 tuple.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -546,12 +546,12 @@ tuple.</p>
 </tbody>
 </table>
 </div>
-</div>
-
-<div class="method new chainable">
-<a name="formatFailure">
-<span class="name">formatFailure</span><span class="arg">(self, test, err)</span></a>
-<div class="doc"><p>Called in result.addFailure, before plugin.addFailure. If you
+    </div>
+    
+    <div class="method new chainable">
+    <a name="formatFailure">
+    <span class="name">formatFailure</span><span class="arg">(self, test, err)</span></a>
+    <div class="doc"><p>Called in result.addFailure, before plugin.addFailure. If you
 want to replace or modify the error tuple, return a new error
 tuple. Since this method is chainable, you must return the
 test as well, so you you'll return something like:</p>
@@ -575,12 +575,12 @@ return (test, err)
 </tbody>
 </table>
 </div>
-</div>
-
-<div class="method new">
-<a name="handleError">
-<span class="name">handleError</span><span class="arg">(self, test, err)</span></a>
-<div class="doc"><p>Called on addError. To handle the error yourself and prevent normal
+    </div>
+    
+    <div class="method new">
+    <a name="handleError">
+    <span class="name">handleError</span><span class="arg">(self, test, err)</span></a>
+    <div class="doc"><p>Called on addError. To handle the error yourself and prevent normal
 error processing, return a true value.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -599,12 +599,12 @@ error processing, return a true value.</p>
 </tbody>
 </table>
 </div>
-</div>
-
-<div class="method new">
-<a name="handleFailure">
-<span class="name">handleFailure</span><span class="arg">(self, test, err)</span></a>
-<div class="doc"><p>Called on addFailure. To handle the failure yourself and
+    </div>
+    
+    <div class="method new">
+    <a name="handleFailure">
+    <span class="name">handleFailure</span><span class="arg">(self, test, err)</span></a>
+    <div class="doc"><p>Called on addFailure. To handle the failure yourself and
 prevent normal failure processing, return a true value.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -623,12 +623,12 @@ prevent normal failure processing, return a true value.</p>
 </tbody>
 </table>
 </div>
-</div>
-
-<div class="method new generative">
-<a name="loadTestsFromDir">
-<span class="name">loadTestsFromDir</span><span class="arg">(self, path)</span></a>
-<div class="doc"><p>Return iterable of tests from a directory. May be a
+    </div>
+    
+    <div class="method new generative">
+    <a name="loadTestsFromDir">
+    <span class="name">loadTestsFromDir</span><span class="arg">(self, path)</span></a>
+    <div class="doc"><p>Return iterable of tests from a directory. May be a
 generator.  Each item returned must be a runnable
 unittest.TestCase (or subclass) instance or suite instance.
 Return None if your plugin cannot collect any tests from
@@ -647,12 +647,12 @@ directory.</p>
 </tbody>
 </table>
 </div>
-</div>
-
-<div class="method new generative">
-<a name="loadTestsFromFile">
-<span class="name">loadTestsFromFile</span><span class="arg">(self, filename)</span></a>
-<div class="doc"><p>Return tests in this file. Return None if you are not
+    </div>
+    
+    <div class="method new generative">
+    <a name="loadTestsFromFile">
+    <span class="name">loadTestsFromFile</span><span class="arg">(self, filename)</span></a>
+    <div class="doc"><p>Return tests in this file. Return None if you are not
 interested in loading any tests, or an iterable if you are and
 can load some. May be a generator. <em>If you are interested in
 loading tests from the file and encounter no errors, but find
@@ -676,12 +676,12 @@ API.</p>
 </tbody>
 </table>
 </div>
-</div>
-
-<div class="method generative">
-<a name="loadTestsFromModule">
-<span class="name">loadTestsFromModule</span><span class="arg">(self, module)</span></a>
-<div class="doc"><p>Return iterable of tests in a module. May be a
+    </div>
+    
+    <div class="method generative">
+    <a name="loadTestsFromModule">
+    <span class="name">loadTestsFromModule</span><span class="arg">(self, module)</span></a>
+    <div class="doc"><p>Return iterable of tests in a module. May be a
 generator. Each item returned must be a runnable
 unittest.TestCase (or subclass) instance.
 Return None if your plugin cannot
@@ -700,12 +700,12 @@ collect any tests from module.</p>
 </tbody>
 </table>
 </div>
-</div>
-
-<div class="method generative">
-<a name="loadTestsFromName">
-<span class="name">loadTestsFromName</span><span class="arg">(self, name, module=None, importPath=None)</span></a>
-<div class="doc"><p>Return tests in this file or module. Return None if you are not able
+    </div>
+    
+    <div class="method generative">
+    <a name="loadTestsFromName">
+    <span class="name">loadTestsFromName</span><span class="arg">(self, name, module=None, importPath=None)</span></a>
+    <div class="doc"><p>Return tests in this file or module. Return None if you are not able
 to load any tests, or an iterable if you are. May be a
 generator.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -735,12 +735,12 @@ whatever you want.</p>
 </tbody>
 </table>
 </div>
-</div>
-
-<div class="method new chainable">
-<a name="loadTestsFromNames">
-<span class="name">loadTestsFromNames</span><span class="arg">(self, names, module=None)</span></a>
-<div class="doc"><p>Return a tuple of (tests loaded, remaining names). Return
+    </div>
+    
+    <div class="method new chainable">
+    <a name="loadTestsFromNames">
+    <span class="name">loadTestsFromNames</span><span class="arg">(self, names, module=None)</span></a>
+    <div class="doc"><p>Return a tuple of (tests loaded, remaining names). Return
 None if you are not able to load any tests. Multiple plugins
 may implement loadTestsFromNames; the remaining name list from
 each will be passed to the next as input.</p>
@@ -761,22 +761,22 @@ each will be passed to the next as input.</p>
 </tbody>
 </table>
 </div>
-</div>
-
-<div class="method deprecated">
-<a name="loadTestsFromPath">
-<span class="name">loadTestsFromPath</span><span class="arg">(self, path)</span></a>
-<div class="doc"><div class="note">
+    </div>
+    
+    <div class="method deprecated">
+    <a name="loadTestsFromPath">
+    <span class="name">loadTestsFromPath</span><span class="arg">(self, path)</span></a>
+    <div class="doc"><div class="note">
 <p class="first admonition-title">Note</p>
 <p class="last">DEPRECATED -- use loadTestsFromFile instead</p>
 </div>
 </div>
-</div>
-
-<div class="method generative">
-<a name="loadTestsFromTestCase">
-<span class="name">loadTestsFromTestCase</span><span class="arg">(self, cls)</span></a>
-<div class="doc"><p>Return tests in this test case class. Return None if you are
+    </div>
+    
+    <div class="method generative">
+    <a name="loadTestsFromTestCase">
+    <span class="name">loadTestsFromTestCase</span><span class="arg">(self, cls)</span></a>
+    <div class="doc"><p>Return tests in this test case class. Return None if you are
 not able to load any tests, or an iterable if you are. May be a
 generator.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -793,12 +793,12 @@ generator.</p>
 </tbody>
 </table>
 </div>
-</div>
-
-<div class="method new generative">
-<a name="loadTestsFromTestClass">
-<span class="name">loadTestsFromTestClass</span><span class="arg">(self, cls)</span></a>
-<div class="doc"><p>Return tests in this test class. Class will <em>not</em> be a
+    </div>
+    
+    <div class="method new generative">
+    <a name="loadTestsFromTestClass">
+    <span class="name">loadTestsFromTestClass</span><span class="arg">(self, cls)</span></a>
+    <div class="doc"><p>Return tests in this test class. Class will <em>not</em> be a
 unittest.TestCase subclass. Return None if you are not able to
 load any tests, an iterable if you are. May be a generator.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -815,12 +815,12 @@ load any tests, an iterable if you are. May be a generator.</p>
 </tbody>
 </table>
 </div>
-</div>
-
-<div class="method new generative">
-<a name="makeTest">
-<span class="name">makeTest</span><span class="arg">(self, obj, parent)</span></a>
-<div class="doc"><p>Given an object and its parent, return or yield one or more
+    </div>
+    
+    <div class="method new generative">
+    <a name="makeTest">
+    <span class="name">makeTest</span><span class="arg">(self, obj, parent)</span></a>
+    <div class="doc"><p>Given an object and its parent, return or yield one or more
 test cases. Each test must be a unittest.TestCase (or subclass)
 instance. This is called before default test loading to allow
 plugins to load an alternate test case or cases for an
@@ -842,22 +842,22 @@ object. May be a generator.</p>
 </tbody>
 </table>
 </div>
-</div>
-
-<div class="method new">
-<a name="options">
-<span class="name">options</span><span class="arg">(self, parser, env=os.environ)</span></a>
-<div class="doc"><p>Called to allow plugin to register command line
+    </div>
+    
+    <div class="method new">
+    <a name="options">
+    <span class="name">options</span><span class="arg">(self, parser, env=os.environ)</span></a>
+    <div class="doc"><p>Called to allow plugin to register command line
 options with the parser.</p>
 <p>Do <em>not</em> return a value from this method unless you want to stop
 all other plugins from setting their options.</p>
 </div>
-</div>
-
-<div class="method ">
-<a name="prepareTest">
-<span class="name">prepareTest</span><span class="arg">(self, test)</span></a>
-<div class="doc"><p>Called before the test is run by the test runner. Please
+    </div>
+    
+    <div class="method ">
+    <a name="prepareTest">
+    <span class="name">prepareTest</span><span class="arg">(self, test)</span></a>
+    <div class="doc"><p>Called before the test is run by the test runner. Please
 note the article <em>the</em> in the previous sentence: prepareTest
 is called <em>only once</em>, and is passed the test case or test
 suite that the test runner will execute. It is <em>not</em> called
@@ -880,12 +880,12 @@ instead.</p>
 </tbody>
 </table>
 </div>
-</div>
-
-<div class="method new">
-<a name="prepareTestCase">
-<span class="name">prepareTestCase</span><span class="arg">(self, test)</span></a>
-<div class="doc"><p>Prepare or wrap an individual test case. Called before
+    </div>
+    
+    <div class="method new">
+    <a name="prepareTestCase">
+    <span class="name">prepareTestCase</span><span class="arg">(self, test)</span></a>
+    <div class="doc"><p>Prepare or wrap an individual test case. Called before
 execution of the test. The test passed here is a
 nose.case.Test instance; the case to be executed is in the
 test attribute of the passed case. To modify the test to be
@@ -909,12 +909,12 @@ exception handling and result calls, etc.</p>
 </tbody>
 </table>
 </div>
-</div>
-
-<div class="method new">
-<a name="prepareTestLoader">
-<span class="name">prepareTestLoader</span><span class="arg">(self, loader)</span></a>
-<div class="doc"><p>Called before tests are loaded. To replace the test loader,
+    </div>
+    
+    <div class="method new">
+    <a name="prepareTestLoader">
+    <span class="name">prepareTestLoader</span><span class="arg">(self, loader)</span></a>
+    <div class="doc"><p>Called before tests are loaded. To replace the test loader,
 return a test loader. To allow other plugins to process the
 test loader, return None. Only one plugin may replace the test
 loader. Only valid when using nose.TestProgram.</p>
@@ -932,12 +932,12 @@ loader. Only valid when using nose.TestProgram.</p>
 </tbody>
 </table>
 </div>
-</div>
-
-<div class="method new">
-<a name="prepareTestResult">
-<span class="name">prepareTestResult</span><span class="arg">(self, result)</span></a>
-<div class="doc"><p>Called before the first test is run. To use a different
+    </div>
+    
+    <div class="method new">
+    <a name="prepareTestResult">
+    <span class="name">prepareTestResult</span><span class="arg">(self, result)</span></a>
+    <div class="doc"><p>Called before the first test is run. To use a different
 test result handler for all tests than the given result,
 return a test result handler. NOTE however that this handler
 will only be seen by tests, that is, inside of the result
@@ -963,12 +963,12 @@ and return the patched result.</p>
 </tbody>
 </table>
 </div>
-</div>
-
-<div class="method new">
-<a name="prepareTestRunner">
-<span class="name">prepareTestRunner</span><span class="arg">(self, runner)</span></a>
-<div class="doc"><p>Called before tests are run. To replace the test runner,
+    </div>
+    
+    <div class="method new">
+    <a name="prepareTestRunner">
+    <span class="name">prepareTestRunner</span><span class="arg">(self, runner)</span></a>
+    <div class="doc"><p>Called before tests are run. To replace the test runner,
 return a test runner. To allow other plugins to process the
 test runner, return None. Only valid when using nose.TestProgram.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -985,12 +985,12 @@ test runner, return None. Only valid when using nose.TestProgram.</p>
 </tbody>
 </table>
 </div>
-</div>
-
-<div class="method ">
-<a name="report">
-<span class="name">report</span><span class="arg">(self, stream)</span></a>
-<div class="doc"><p>Called after all error output has been printed. Print your
+    </div>
+    
+    <div class="method ">
+    <a name="report">
+    <span class="name">report</span><span class="arg">(self, stream)</span></a>
+    <div class="doc"><p>Called after all error output has been printed. Print your
 plugin's report to the provided stream. Return None to allow
 other plugins to print reports, any other value to stop them.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -1007,12 +1007,12 @@ other plugins to print reports, any other value to stop them.</p>
 </tbody>
 </table>
 </div>
-</div>
-
-<div class="method ">
-<a name="setOutputStream">
-<span class="name">setOutputStream</span><span class="arg">(self, stream)</span></a>
-<div class="doc"><p>Called before test output begins. To direct test output to a
+    </div>
+    
+    <div class="method ">
+    <a name="setOutputStream">
+    <span class="name">setOutputStream</span><span class="arg">(self, stream)</span></a>
+    <div class="doc"><p>Called before test output begins. To direct test output to a
 new stream, return a stream object, which must implement a
 <cite>write(msg)</cite> method. If you only want to note the stream, not
 capture or redirect it, then return None.</p>
@@ -1030,12 +1030,12 @@ capture or redirect it, then return None.</p>
 </tbody>
 </table>
 </div>
-</div>
-
-<div class="method new">
-<a name="startContext">
-<span class="name">startContext</span><span class="arg">(self, context)</span></a>
-<div class="doc"><p>Called before context setup and the running of tests in the
+    </div>
+    
+    <div class="method new">
+    <a name="startContext">
+    <span class="name">startContext</span><span class="arg">(self, context)</span></a>
+    <div class="doc"><p>Called before context setup and the running of tests in the
 context. Note that tests have already been <em>loaded</em> from the
 context before this call.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -1053,12 +1053,12 @@ other object that contains tests.</p>
 </tbody>
 </table>
 </div>
-</div>
-
-<div class="method ">
-<a name="startTest">
-<span class="name">startTest</span><span class="arg">(self, test)</span></a>
-<div class="doc"><p>Called before each test is run. DO NOT return a value unless
+    </div>
+    
+    <div class="method ">
+    <a name="startTest">
+    <span class="name">startTest</span><span class="arg">(self, test)</span></a>
+    <div class="doc"><p>Called before each test is run. DO NOT return a value unless
 you want to stop other plugins from seeing the test start.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -1074,12 +1074,12 @@ you want to stop other plugins from seeing the test start.</p>
 </tbody>
 </table>
 </div>
-</div>
-
-<div class="method new">
-<a name="stopContext">
-<span class="name">stopContext</span><span class="arg">(self, context)</span></a>
-<div class="doc"><p>Called after the tests in a context have run and the
+    </div>
+    
+    <div class="method new">
+    <a name="stopContext">
+    <span class="name">stopContext</span><span class="arg">(self, context)</span></a>
+    <div class="doc"><p>Called after the tests in a context have run and the
 context has been torn down.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -1095,12 +1095,12 @@ context has been torn down.</p>
 </tbody>
 </table>
 </div>
-</div>
-
-<div class="method ">
-<a name="stopTest">
-<span class="name">stopTest</span><span class="arg">(self, test)</span></a>
-<div class="doc"><p>Called after each test is run. DO NOT return a value unless
+    </div>
+    
+    <div class="method ">
+    <a name="stopTest">
+    <span class="name">stopTest</span><span class="arg">(self, test)</span></a>
+    <div class="doc"><p>Called after each test is run. DO NOT return a value unless
 you want to stop other plugins from seeing that the test has stopped.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -1116,12 +1116,12 @@ you want to stop other plugins from seeing that the test has stopped.</p>
 </tbody>
 </table>
 </div>
-</div>
-
-<div class="method new">
-<a name="testName">
-<span class="name">testName</span><span class="arg">(self, test)</span></a>
-<div class="doc"><p>Return a short test name. Called by <cite>nose.case.Test.__str__</cite>.</p>
+    </div>
+    
+    <div class="method new">
+    <a name="testName">
+    <span class="name">testName</span><span class="arg">(self, test)</span></a>
+    <div class="doc"><p>Return a short test name. Called by <cite>nose.case.Test.__str__</cite>.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -1136,12 +1136,12 @@ you want to stop other plugins from seeing that the test has stopped.</p>
 </tbody>
 </table>
 </div>
-</div>
-
-<div class="method ">
-<a name="wantClass">
-<span class="name">wantClass</span><span class="arg">(self, cls)</span></a>
-<div class="doc"><p>Return true if you want the main test selector to collect
+    </div>
+    
+    <div class="method ">
+    <a name="wantClass">
+    <span class="name">wantClass</span><span class="arg">(self, cls)</span></a>
+    <div class="doc"><p>Return true if you want the main test selector to collect
 tests from this class, false if you don't, and None if you don't
 care.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -1158,12 +1158,12 @@ care.</p>
 </tbody>
 </table>
 </div>
-</div>
-
-<div class="method ">
-<a name="wantDirectory">
-<span class="name">wantDirectory</span><span class="arg">(self, dirname)</span></a>
-<div class="doc"><p>Return true if you want test collection to descend into this
+    </div>
+    
+    <div class="method ">
+    <a name="wantDirectory">
+    <span class="name">wantDirectory</span><span class="arg">(self, dirname)</span></a>
+    <div class="doc"><p>Return true if you want test collection to descend into this
 directory, false if you do not, and None if you don't care.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -1179,12 +1179,12 @@ directory, false if you do not, and None if you don't care.</p>
 </tbody>
 </table>
 </div>
-</div>
-
-<div class="method ">
-<a name="wantFile">
-<span class="name">wantFile</span><span class="arg">(self, file)</span></a>
-<div class="doc"><p>Return true if you want to collect tests from this file,
+    </div>
+    
+    <div class="method ">
+    <a name="wantFile">
+    <span class="name">wantFile</span><span class="arg">(self, file)</span></a>
+    <div class="doc"><p>Return true if you want to collect tests from this file,
 false if you do not and None if you don't care.</p>
 <p>Change from 0.9: The optional package parameter is no longer passed.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -1201,12 +1201,12 @@ false if you do not and None if you don't care.</p>
 </tbody>
 </table>
 </div>
-</div>
-
-<div class="method ">
-<a name="wantFunction">
-<span class="name">wantFunction</span><span class="arg">(self, function)</span></a>
-<div class="doc"><p>Return true to collect this function as a test, false to
+    </div>
+    
+    <div class="method ">
+    <a name="wantFunction">
+    <span class="name">wantFunction</span><span class="arg">(self, function)</span></a>
+    <div class="doc"><p>Return true to collect this function as a test, false to
 prevent it from being collected, and None if you don't care.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -1222,12 +1222,12 @@ prevent it from being collected, and None if you don't care.</p>
 </tbody>
 </table>
 </div>
-</div>
-
-<div class="method ">
-<a name="wantMethod">
-<span class="name">wantMethod</span><span class="arg">(self, method)</span></a>
-<div class="doc"><p>Return true to collect this method as a test, false to
+    </div>
+    
+    <div class="method ">
+    <a name="wantMethod">
+    <span class="name">wantMethod</span><span class="arg">(self, method)</span></a>
+    <div class="doc"><p>Return true to collect this method as a test, false to
 prevent it from being collected, and None if you don't care.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -1243,12 +1243,12 @@ prevent it from being collected, and None if you don't care.</p>
 </tbody>
 </table>
 </div>
-</div>
-
-<div class="method ">
-<a name="wantModule">
-<span class="name">wantModule</span><span class="arg">(self, module)</span></a>
-<div class="doc"><p>Return true if you want to collection to descend into this
+    </div>
+    
+    <div class="method ">
+    <a name="wantModule">
+    <span class="name">wantModule</span><span class="arg">(self, module)</span></a>
+    <div class="doc"><p>Return true if you want to collection to descend into this
 module, false to prevent the collector from descending into the
 module, and None if you don't care.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -1265,19 +1265,19 @@ module, and None if you don't care.</p>
 </tbody>
 </table>
 </div>
-</div>
-
-<div class="method deprecated">
-<a name="wantModuleTests">
-<span class="name">wantModuleTests</span><span class="arg">(self, module)</span></a>
-<div class="doc"><div class="note">
+    </div>
+    
+    <div class="method deprecated">
+    <a name="wantModuleTests">
+    <span class="name">wantModuleTests</span><span class="arg">(self, module)</span></a>
+    <div class="doc"><div class="note">
 <p class="first admonition-title">Note</p>
 <p class="last">DEPRECATED -- this method will not be called, it has
 been folded into wantModule.</p>
 </div>
 </div>
-</div>
-
+    </div>
+    
 
     </div>
 
