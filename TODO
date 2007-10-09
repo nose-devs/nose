@@ -10,8 +10,6 @@ FEATURES
 
 BUGS
 
-* testid plugin should store ids in .noseids in cwd, not in user home
-
      
 CHORES
 

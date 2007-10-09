@@ -59,13 +59,15 @@ class TestId(Plugin):
     def options(self, parser, env):
         Plugin.options(self, parser, env)
         parser.add_option('--id-file', action='store', dest='testIdFile',
-                          default='~/.noseids',
+                          default='.noseids',
                           help="Store test ids found in test runs in this "
                           "file.")
 
     def configure(self, options, conf):
         Plugin.configure(self, options, conf)
         self.idfile = os.path.expanduser(options.testIdFile)
+        if not os.path.isabs(self.idfile):
+            self.idfile = os.path.join(conf.workingDir, self.idfile)
         self.id = 1
         # Ids and tests are mirror images: ids are {id: test address} and
         # tests are {test address: id}
