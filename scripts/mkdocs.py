@@ -18,6 +18,16 @@ from pygments.formatters import HtmlFormatter
 
 
 remove_at = re.compile(r' at 0x[0-9a-f]+')
+root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+doc = os.path.join(root, 'doc')
+tpl = open(os.path.join(doc, 'doc.html.tpl'), 'r').read()
+api_tpl = open(os.path.join(doc, 'plugin_api.html.tpl'), 'r').read()
+plug_tpl = open(os.path.join(doc, 'plugin.html.tpl'), 'r').read()
+std_info = {
+    'version': nose.__version__,
+    'date': time.ctime()
+    }
+to_write = []
 
 
 def defining_class(cls, attr):
@@ -364,18 +374,6 @@ def document_rst_test(filename, section):
                      parts))
 
 def main():
-    root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
-    doc = os.path.join(root, 'doc')
-    tpl = open(os.path.join(doc, 'doc.html.tpl'), 'r').read()
-    api_tpl = open(os.path.join(doc, 'plugin_api.html.tpl'), 'r').read()
-    plug_tpl = open(os.path.join(doc, 'plugin.html.tpl'), 'r').read()
-    std_info = {
-        'version': nose.__version__,
-        'date': time.ctime()
-        }
-    to_write = []
-
-
     # plugins
     from nose import plugins
     from nose.plugins.base import IPluginInterface
