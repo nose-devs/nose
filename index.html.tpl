@@ -133,7 +133,7 @@
       
       <h2>Hack</h2>
 
-      <p><a href="http://code.google.com/p/python-nose/wiki/WritingPlugins">Write
+      <p><a href="doc/writing_plugins.html">Write
           plugins!</a> It's easy and fun.</p>
       
       <p>Get the code:
