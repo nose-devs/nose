@@ -76,7 +76,7 @@ class Importer(object):
                     # from a new path
                     log.debug("sys.modules has %s as %s", part_fqname, old)
                     if self.sameModule(old, filename):
-                       mod = old
+                        mod = old
                     else:
                         del sys.modules[part_fqname]
                         mod = load_module(part_fqname, fh, filename, desc)

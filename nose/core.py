@@ -4,7 +4,6 @@ from __future__ import generators
 
 import logging
 import os
-import re
 import sys
 import time
 import unittest
@@ -12,7 +11,8 @@ from warnings import warn
 
 from nose.config import Config, all_config_files
 from nose.loader import defaultTestLoader
-from nose.plugins.manager import DefaultPluginManager, RestrictedPluginManager
+from nose.plugins.manager import PluginManager, DefaultPluginManager, \
+     RestrictedPluginManager
 from nose.result import TextTestResult
 from nose.suite import FinalizingSuiteWrapper
 from nose.util import isclass, tolist
@@ -132,10 +132,12 @@ class TestProgram(unittest.TestProgram):
     Configuration
     -------------
 
-    In addition to passing command-line options, you may also put configuration
-    options in a .noserc or nose.cfg file in your home directory. These are
-    standard .ini-style config files. Put your nosetests configuration in a
-    [nosetests] section, with the -- prefix removed:
+    In addition to passing command-line options, you may also put
+    configuration options in a .noserc or nose.cfg file in your home
+    directory. These are standard .ini-style config files. Put your
+    nosetests configuration in a [nosetests] section. Options are the
+    same as on the command line, with the -- prefix removed. For
+    options that are simple switches, you must supply a value:
 
       [nosetests]
       verbosity=3
@@ -157,6 +159,10 @@ class TestProgram(unittest.TestProgram):
     You can add -v or -vv to that command to show more information
     about each plugin.
 
+    If you are running nose.main() or nose.run() from a script, you
+    can specify a list of plugins to use by passing a list of plugins
+    with the plugins keyword argument.
+
     0.9 plugins
     -----------
 
@@ -175,11 +181,36 @@ class TestProgram(unittest.TestProgram):
 
     def __init__(self, module=None, defaultTest='.', argv=None,
                  testRunner=None, testLoader=None, env=None, config=None,
-                 suite=None, exit=True):
+                 suite=None, exit=True, plugins=None):
+        """
+        Collect and run tests, returning success or failure.
+
+        The arguments to __init__ are the same as to `main()` and `run()`:
+
+        * module: All tests are in this module (default: None)
+        * defaultTest: Tests to load (default: '.')
+        * argv: Command line arguments (default: None; sys.argv is read)
+        * testRunner: Test runner instance (default: None)
+        * testLoader: Test loader instance (default: None)
+        * env: Environment; ignored if config is provided (default: None;
+          os.environ is read)
+        * config: `nose.config.Config`_ instance (default: None)
+        * suite: Suite or list of tests to run (default: None). Passing a
+          suite or lists of tests will bypass all test discovery and
+          loading. *ALSO NOTE* that if you pass a unittest.TestSuite
+          instance as the suite, context fixtures at the class, module and
+          package level will not be used, and many plugin hooks will not
+          be called. If you want normal nose behavior, either pass a list
+          of tests, or a fully-configured `nose.suite.ContextSuite`_.
+        * exit: Exit after running tests and printing report (default: True)
+        * plugins: List of plugins to use; ignored if config is provided
+          (default: load plugins with DefaultPluginManager)
+
+        """
         if env is None:
             env = os.environ
         if config is None:
-            config = self.makeConfig(env)
+            config = self.makeConfig(env, plugins)
         self.config = config
         self.suite = suite
         self.exit = exit
@@ -187,19 +218,21 @@ class TestProgram(unittest.TestProgram):
             self, module=module, defaultTest=defaultTest,
             argv=argv, testRunner=testRunner, testLoader=testLoader)
 
-    def makeConfig(self, env):
+    def makeConfig(self, env, plugins=None):
         """Load a Config, pre-filled with user config files if any are
         found.
         """
-        cfg_files = all_config_files()
+        cfg_files = all_config_files()        
+        if plugins:
+            manager = PluginManager(plugins=plugins)
+        else:
+            manager = DefaultPluginManager()
         return Config(
-            env=env, files=cfg_files, plugins=DefaultPluginManager())
+            env=env, files=cfg_files, plugins=manager)
         
     def parseArgs(self, argv):
         """Parse argv and env and configure running environment.
         """
-        log.debug("parseArgs is called %s", argv)
-
         self.config.configure(argv, doc=TestProgram.__doc__)
         log.debug("configured %s", self.config)
 
@@ -236,11 +269,12 @@ class TestProgram(unittest.TestProgram):
         self.createTests()
         
     def createTests(self):
-        """Create the tests to run. Default behavior is to discover
-        tests using TestCollector using nose.loader.TestLoader as the
+        """Create the tests to run. If a self.suite
+        is set, then that suite will be used. Otherwise, tests will be
+        loaded from the given test names (self.testNames) using the
         test loader.
         """
-        log.debug("createTests called")
+        log.debug("createTests called with %s", self.suite)
         if self.suite is not None:
             # We were given an explicit suite to run. Make sure it's
             # loaded and wrapped correctly.
@@ -313,10 +347,19 @@ def run(*arg, **kw):
     * argv: Command line arguments (default: None; sys.argv is read)
     * testRunner: Test runner instance (default: None)
     * testLoader: Test loader instance (default: None)
-    * env: Environment (default: None; os.environ is read)
-    * config: nose.config.Config instance (default: None)
-    * suite: Suite of tests to run (default: None)
-
+    * env: Environment; ignored if config is provided (default: None;
+      os.environ is read)
+    * config: `nose.config.Config`_ instance (default: None)
+    * suite: Suite or list of tests to run (default: None). Passing a
+      suite or lists of tests will bypass all test discovery and
+      loading. *ALSO NOTE* that if you pass a unittest.TestSuite
+      instance as the suite, context fixtures at the class, module and
+      package level will not be used, and many plugin hooks will not
+      be called. If you want normal nose behavior, either pass a list
+      of tests, or a fully-configured `nose.suite.ContextSuite`_.      
+    * plugins: List of plugins to use; ignored if config is provided
+      (default: load plugins with DefaultPluginManager)
+    
     With the exception that the ``exit`` argument is always set
     to False.    
     """

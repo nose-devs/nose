@@ -1,21 +1,7 @@
-What's New In 0.10b1
---------------------
+0.10 is finally final!
+----------------------
 
-.. note:: The entry point for 0.10-series plugins is now
-   **nose.plugins.0.10**.
-
-Release 0.10b1 is primarily a bugfix release. Among other bugs, it
-fixes serious issues in the FailureDetail and Capture plugins and
-object introspection during test loading, all of which could result in
-halted test runs. Thanks to Ian Bicking and Jeff Cousens for the bug
-reports.
-
-0.10b1 adds one new feature: tests produced by generators may now set
-a ``description`` attribute. If this attribute is present, its value
-will be output as the test description instead of the default ``test
-name (args)`` description.
-
-The development release of nose, 0.10, marks a major change from the
+The new release of nose, 0.10, marks a major change from the
 0.9 series in philosophy and implementation.
 
 Prior to this release, nose was entirely discovery-centric: it would
@@ -38,6 +24,11 @@ plugins`_ for more.
 
 There are many other, less user-visible changes under the hood. See 
 http://code.google.com/p/python-nose/wiki/VersionZeroTen for an outline.
+
+This release would have been near-impossible to complete without the
+help of John J Lee and new members of the nose development team Kumar
+McMillan, Grig Gheorgiu, James Casbon, and Titus Brown. Many thanks to
+all of them.
 
 .. _`plugin interface reference`: doc/plugin_interface.html
 .. _`guide to writing plugins`: doc/writing_plugins.html

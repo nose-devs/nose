@@ -89,7 +89,7 @@ Since we defined a Todo as a failure, the run was not successful.
 from new import instancemethod
 from nose.plugins.base import Plugin
 from nose.result import TextTestResult
-
+from nose.util import isclass
 
 class MetaErrorClass(type):
     """Metaclass for ErrorClassPlugins that allows error classes to be
@@ -128,6 +128,8 @@ class ErrorClassPlugin(Plugin):
 
     def addError(self, test, err):
         err_cls, a, b = err
+        if not isclass(err_cls):
+            return
         classes = [e[0] for e in self.errorClasses]
         if filter(lambda c: issubclass(err_cls, c), classes):
             return True

@@ -19,12 +19,21 @@ from nose.importer import Importer, add_path, remove_path
 from nose.selector import defaultSelector, TestAddress
 from nose.util import cmp_lineno, getpackage, isclass, isgenerator, ispackage, \
     match_last, resolve_name
-from suite import ContextSuiteFactory, ContextList, LazySuite
+from nose.suite import ContextSuiteFactory, ContextList, LazySuite
 
 log = logging.getLogger(__name__)
 #log.setLevel(logging.DEBUG)
 
+# for efficiency and easier mocking
+op_normpath = os.path.normpath
+op_abspath = os.path.abspath
+op_join = os.path.join
+op_isdir = os.path.isdir
+op_isfile = os.path.isfile
+
+
 __all__ = ['TestLoader', 'defaultTestLoader']
+
 
 class TestLoader(unittest.TestLoader):
     """Test loader that extends unittest.TestLoader to:
@@ -48,7 +57,7 @@ class TestLoader(unittest.TestLoader):
         Parameters (all optional):
 
         * config: provide a `nose.config.Config`_ or other config class
-          instance; if not provided a `nose.config.Config` with
+          instance; if not provided a `nose.config.Config`_ with
           default values is used.          
         * importer: provide an importer instance that implements
           `importFromPath`. If not provided, a
@@ -56,25 +65,29 @@ class TestLoader(unittest.TestLoader):
         * workingDir: the directory to which file and module names are
           relative. If not provided, assumed to be the current working
           directory.
-        * selector: a selector class. If not provided, a
-          `nose.selector.Selector`_ is used.
+        * selector: a selector class or instance. If a class is
+          provided, it will be instantiated with one argument, the
+          current config. If not provided, a `nose.selector.Selector`_
+          is used.
         """
         if config is None:
             config = Config()
         if importer is None:
             importer = Importer(config=config)
         if workingDir is None:
-            workingDir = config.workingDir            
+            workingDir = config.workingDir
         if selector is None:
             selector = defaultSelector(config)
+        elif isclass(selector):
+            selector = selector(config)
         self.config = config
         self.importer = importer
-        self.workingDir = os.path.normpath(os.path.abspath(workingDir))
+        self.workingDir = op_normpath(op_abspath(workingDir))
         self.selector = selector
         if config.addPaths:
             add_path(workingDir, config)        
         self.suiteClass = ContextSuiteFactory(config=config)
-        unittest.TestLoader.__init__(self)        
+        unittest.TestLoader.__init__(self)     
 
     def getTestCaseNames(self, testCaseClass):
         """Override to select with selector, unless
@@ -117,36 +130,38 @@ class TestLoader(unittest.TestLoader):
         for entry in entries:
             if entry.startswith('.') or entry.startswith('_'):
                 continue
-            entry_path = os.path.abspath(os.path.join(path, entry))
-            is_file = os.path.isfile(entry_path)
-            is_test = False
+            entry_path = op_abspath(op_join(path, entry))
+            is_file = op_isfile(entry_path)
+            wanted = False
             if is_file:
                 is_dir = False
-                is_test = self.selector.wantFile(entry_path)
+                wanted = self.selector.wantFile(entry_path)
             else:
-                is_dir = os.path.isdir(entry_path)
+                is_dir = op_isdir(entry_path)
                 if is_dir:
-                    is_test = self.selector.wantDirectory(entry_path)
+                    wanted = self.selector.wantDirectory(entry_path)
             is_package = ispackage(entry_path)
-            if is_test and is_file:
-                plugins.beforeContext()
-                if entry.endswith('.py'):
-                    yield self.loadTestsFromName(
-                        entry_path, discovered=True)
-                else:
-                    yield self.loadTestsFromFile(entry_path)
-                plugins.afterContext()
-            elif is_dir:
-                if is_package:
+            if wanted:
+                if is_file:
+                    plugins.beforeContext()
+                    if entry.endswith('.py'):
+                        yield self.loadTestsFromName(
+                            entry_path, discovered=True)
+                    else:
+                        yield self.loadTestsFromFile(entry_path)
+                    plugins.afterContext()
+                elif is_package:
                     # Load the entry as a package: given the full path,
                     # loadTestsFromName() will figure it out
                     yield self.loadTestsFromName(
                         entry_path, discovered=True)
-                elif is_test:
+                else:
                     # Another test dir in this one: recurse lazily
                     yield self.suiteClass(
                         lambda: self.loadTestsFromDir(entry_path))
-        # give plugins a chance
+        # Catch TypeError and AttributeError exceptions here and discard
+        # them: the default plugin manager, NoPlugins, will raise TypeError
+        # on generative calls.
         try:
             tests = []
             for test in plugins.loadTestsFromDir(path):
@@ -280,7 +295,9 @@ class TestLoader(unittest.TestLoader):
         for path in paths:
             tests.extend(self.loadTestsFromDir(path))
             
-        # give plugins a chance
+        # Catch TypeError and AttributeError exceptions here and discard
+        # them: the default plugin manager, NoPlugins, will raise TypeError
+        # on generative calls.
         try:
             for test in self.config.plugins.loadTestsFromModule(module):
                 tests.append(test)
@@ -367,7 +384,7 @@ class TestLoader(unittest.TestLoader):
                                     (addr.call, path))])
                     return self.loadTestsFromName(addr.call, module=package)
                 else:
-                    if os.path.isdir(path):
+                    if op_isdir(path):
                         # In this case we *can* be lazy since we know
                         # that each module in the dir will be fully
                         # loaded before its tests are executed; we
@@ -376,7 +393,7 @@ class TestLoader(unittest.TestLoader):
                         # of this named test load*
                         return LazySuite(
                             lambda: self.loadTestsFromDir(path))
-                    elif os.path.isfile(path):
+                    elif op_isfile(path):
                         return self.loadTestsFromFile(path)
                     else:
                         return suite([
@@ -406,6 +423,9 @@ class TestLoader(unittest.TestLoader):
         """
         cases = []
         plugins = self.config.plugins
+        # Catch TypeError and AttributeError exceptions here and discard
+        # them: the default plugin manager, NoPlugins, will raise TypeError
+        # on generative calls.
         try:
             for case in plugins.loadTestsFromTestCase(testCaseClass):
                 cases.append(case)
@@ -440,7 +460,9 @@ class TestLoader(unittest.TestLoader):
             return sel.wantMethod(item)
         cases = [self.makeTest(getattr(cls, case), cls)
                  for case in filter(wanted, dir(cls))]
-        # Give plugins a chance
+        # Catch TypeError and AttributeError exceptions here and discard
+        # them: the default plugin manager, NoPlugins, will raise TypeError
+        # on generative calls.
         try:
             for test in self.config.plugins.loadTestsFromTestClass(cls):
                 cases.append(test)
@@ -456,7 +478,9 @@ class TestLoader(unittest.TestLoader):
         """Given a test object and its parent, return a test case
         or test suite.
         """
-        # plugins get first crack
+        # Catch TypeError and AttributeError exceptions here and discard
+        # them: the default plugin manager, NoPlugins, will raise TypeError
+        # on generative calls.
         plug_tests = []
         try:
             for test in self.config.plugins.makeTest(obj, parent):

@@ -72,25 +72,34 @@ class Test(unittest.TestCase):
         return "Test(%r)" % self.test
 
     def afterTest(self, result):
+        """Called before test is run (before result.startTest)
+        """
         try:
-            result.afterTest(self.test)
+            afterTest = result.afterTest
         except AttributeError:
             pass
+        else:
+            afterTest(self.test)
 
     def beforeTest(self, result):
+        """Called after test is complete (after result.stopTest)
+        """
         try:
-            result.beforeTest(self.test)
+            beforeTest = result.beforeTest
         except AttributeError:
             pass
+        else:
+            beforeTest(self.test)
 
     def exc_info(self):
         """Extract exception info.
-        """
-        
+        """        
         exc, exv, tb = sys.exc_info()
         return (exc, exv, tb)
         
     def id(self):
+        """Get a short(er) description of the test
+        """
         return self.test.id()
 
     def address(self):
@@ -136,9 +145,9 @@ class Test(unittest.TestCase):
         """
         if self.resultProxy:
             result = self.resultProxy(result, self)
-        self.beforeTest(result)
         try:
             try:
+                self.beforeTest(result)
                 self.runTest(result)
             except KeyboardInterrupt:
                 raise
@@ -163,13 +172,29 @@ class Test(unittest.TestCase):
         desc = self.plugins.describeTest(self)
         if desc is not None:
             return desc
-        return self.test.shortDescription()
-        
+        doc = self.test.shortDescription()
+        if doc is not None:
+            return doc
+        # work around bug in unittest.TestCase.shortDescription
+        # with multiline docstrings.
+        test = self.test
+        try:
+            doc = test._testMethodDoc # 2.5
+        except AttributeError:
+            try:
+                doc = test._TestCase__testMethodDoc # 2.4 and earlier
+            except AttributeError:
+                pass
+        if doc is not None:
+            doc = doc.strip().split("\n")[0].strip()
+        return doc
+
 
 class TestBase(unittest.TestCase):
     """Common functionality for FunctionTestCase and MethodTestCase.
     """
     __test__ = False # do not collect
+    
     def id(self):
         return str(self)
         
@@ -183,7 +208,7 @@ class TestBase(unittest.TestCase):
         doc = getattr(func, '__doc__', None)
         if not doc:
             doc = str(self)
-        return doc.split("\n")[0].strip()
+        return doc.strip().split("\n")[0].strip()
 
     
 class FunctionTestCase(TestBase):
@@ -193,6 +218,7 @@ class FunctionTestCase(TestBase):
     create test cases for test functions.
     """
     __test__ = False # do not collect
+    
     def __init__(self, test, setUp=None, tearDown=None, arg=tuple(),
                  descriptor=None):
         """Initialize the MethodTestCase.
@@ -219,7 +245,7 @@ class FunctionTestCase(TestBase):
         self.tearDownFunc = tearDown
         self.arg = arg
         self.descriptor = descriptor
-        unittest.TestCase.__init__(self)        
+        TestBase.__init__(self)        
 
     def address(self):
         """Return a round-trip name for this test, a name that can be
@@ -290,6 +316,7 @@ class MethodTestCase(TestBase):
     create test cases for test methods.
     """
     __test__ = False # do not collect
+    
     def __init__(self, method, test=None, arg=tuple(), descriptor=None):
         """Initialize the MethodTestCase.
 
@@ -321,7 +348,7 @@ class MethodTestCase(TestBase):
         if self.test is None:
             method_name = self.method.__name__
             self.test = getattr(self.inst, method_name)            
-        unittest.TestCase.__init__(self)
+        TestBase.__init__(self)
 
     def __str__(self):
         func, arg = self._descriptors()

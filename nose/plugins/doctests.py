@@ -12,6 +12,9 @@ doctest tests are run like any other test, with the exception that output
 capture does not work, because doctest does its own output capture in the
 course of running a test.
 
+This module also includes a specialized version of nose.run() that
+makes it easier to write doctests that test test runs.
+
 .. _doctest: http://docs.python.org/lib/module-doctest.html
 """
 from __future__ import generators
@@ -21,6 +24,10 @@ import os
 from inspect import getmodule
 from nose.plugins.base import Plugin
 from nose.util import anyp, getpackage, test_address, resolve_name, tolist
+try:
+    from cStringIO import StringIO
+except ImportError:
+    from StringIO import StringIO
 
 log = logging.getLogger(__name__)
 
@@ -31,6 +38,7 @@ try:
 except (ImportError, AttributeError):
     # system version is too old
     import nose.ext.dtcompat as doctest
+
 
 #
 # Doctest and coverage don't get along, so we need to create
@@ -70,8 +78,10 @@ class Doctest(Plugin):
         parser.add_option('--doctest-tests', action='store_true',
                           dest='doctest_tests',
                           default=env.get('NOSE_DOCTEST_TESTS'),
-                          help="Also look for doctests in test modules "
-                          "[NOSE_DOCTEST_TESTS]")
+                          help="Also look for doctests in test modules. "
+                          "Note that classes, methods and functions should "
+                          "have either doctests or non-doctest tests, "
+                          "not both. [NOSE_DOCTEST_TESTS]")
         parser.add_option('--doctest-extension', action="append",
                           dest="doctestExtension",
                           help="Also look for doctests in files with "
@@ -121,7 +131,8 @@ class Doctest(Plugin):
                 dh.close()
             parser = doctest.DocTestParser()
             test = parser.get_doctest(
-                doc, globs={}, name=name, filename=filename, lineno=0)
+                doc, globs={'__file__': filename}, name=name,
+                filename=filename, lineno=0)
             if test.examples:
                 yield DocFileCase(test)
             else:
@@ -217,3 +228,14 @@ class DocFileCase(doctest.DocFileCase):
     """
     def address(self):
         return (self._dt_test.filename, None, None)
+
+
+def run(*arg, **kw):
+    """DEPRECATED: moved to nose.plugins.plugintest.
+    """
+    import warnings
+    warnings.warn("run() has been moved to nose.plugins.plugintest. Please "
+                  "update your imports.", category=DeprecationWarning,
+                  stacklevel=2)
+    from nose.plugins.plugintest import run
+    run(*arg, **kw)

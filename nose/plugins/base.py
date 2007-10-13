@@ -7,8 +7,9 @@ from nose.util import tolist
 class Plugin(object):
     """Base class for nose plugins. It's not *necessary* to subclass this
     class to create a plugin; however, all plugins must implement
-    `options(self, parser, env)` and `configure(self, options,
-    conf)`, and must have the attributes `enabled`, `name` and `score`.
+    `options(self, parser, env)` and `configure(self, options, conf)`, and
+    must have the attributes `enabled`, `name` and `score`.  The `name`
+    attribute may contain hyphens ('-').
 
     Plugins should not be enabled by default.
 
@@ -16,8 +17,9 @@ class Plugin(object):
     __init__, configure, and options, if you override them) will give
     your plugin some friendly default behavior:
 
-      * A --with-$name option will be added to the command line
-        interface to enable the plugin. The plugin class's docstring
+      * A --with-$name option will be added to the command line interface
+        to enable the plugin, and a corresponding environment variable
+        will be used as the default value. The plugin class's docstring
         will be used as the help for this option.
       * The plugin will not be enabled unless this option is selected by
         the user.
@@ -32,7 +34,7 @@ class Plugin(object):
         if self.name is None:
             self.name = self.__class__.__name__.lower()
         if self.enableOpt is None:
-            self.enableOpt = "enable_plugin_%s" % self.name
+            self.enableOpt = "enable_plugin_%s" % self.name.replace('-', '_')
             
     def addOptions(self, parser, env=os.environ):
         """Add command-line options for this plugin.
@@ -61,7 +63,7 @@ class Plugin(object):
         options behavior with protection from OptionConflictErrors.
         """
         env_opt = 'NOSE_WITH_%s' % self.name.upper()
-        env_opt.replace('-', '_')
+        env_opt = env_opt.replace('-', '_')
         parser.add_option("--with-%s" % self.name,
                           action="store_true",
                           dest=self.enableOpt,
@@ -92,7 +94,6 @@ class Plugin(object):
 
     # Compatiblity shim
     def tolist(self, val):
-        from warnings import warn
         warn("Plugin.tolist is deprecated. Use nose.util.tolist instead",
              DeprecationWarning)
         return tolist(val)
@@ -725,7 +726,7 @@ class IPluginInterface(object):
     def prepareTestRunner(self, runner):
         """Called before tests are run. To replace the test runner,
         return a test runner. To allow other plugins to process the
-        test runner, return None. Only valid when using nose.TesrProgram.
+        test runner, return None. Only valid when using nose.TestProgram.
 
         :Parameters:
            runner : `nose.core.TextTestRunner` or other runner instance
@@ -870,14 +871,14 @@ class IPluginInterface(object):
 
         :Parameters:
           module : python module
-            The module object being examined by the selecto
+            The module object being examined by the selector
         """
         pass
     
     def wantModuleTests(self, module):
         """
         .. Note:: DEPRECATED -- this method will not be called, it has
-                  been folded in to wantModule.
+                  been folded into wantModule.
         """
         pass
     wantModuleTests.deprecated = True

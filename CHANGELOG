@@ -1,3 +1,41 @@
+0.10.0
+
+- Fixed bug that broke plugins with names containing underscores or
+  hyphens. Thanks to John J Lee for the bug report and patch (Issue
+  #81).
+- Fixed typo in nose.__all__. Thanks to John J Lee for the bug report.
+- Fixed handling of test descriptions that are multiline
+  docstrings. Thanks to James Casbon for the patch (Issue #50).
+- Improved documentation of doctest plugin to make it clear that
+  entities may have doctests, or themselves be tests, but not
+  both. Thanks to John J Lee for the bug report and patch (Issue #84).
+- Made __file__ available in non-python-module doctests.
+- Fixed bug that made it impossible for plugins to exclude package
+  directories from test discovery (Issue #89). Thanks to John J Lee
+  for the bug report and patch.
+- Fixed bug that swallowed TypeError and AttributeError exceptions
+  raised in some plugin calls (Issue #95). Thanks to John J Lee for
+  the bug report.
+- Fixed inconsistencies in many interfaces and docs. Thanks to John J
+  Lee for many bug reports.
+- Fixed bugs in rpm generation (Issue #96). Thanks to Mike Verdone for
+  the bug report and http://bugs.python.org/issue644744 for the fix.
+- Fixed inconsisent use of os.environ in plugin testing
+  utilities. Thanks to John J Lee for the bug report and patch (Issue
+  #97).
+- Fixed bug in test_address that prevented use of nose.case.Test in
+  doctests (Issue #100). Thanks to John J Lee for the bug report.
+- Fixed bug in error class plugin that caused string exceptions to be
+  masked (#Issue 101). Thanks to depaula for the bug report.
+- Fixed bugs in tests and the profiler plugin when running under
+  Windows (Issue #103). Thanks to Sidnei Da Silva for the bug report.
+- Fixed bugs in plugin calls that caused exception swallowing (Issue
+  #107). Thanks to John L Lee for the bug report and patch.
+- Added more plugin example doctests. Thanks to Kumar McMillan and
+  John L Lee for patches and lots of help.
+- Changed default location of id file for TestId plugin from ~/.noseids to
+  .noseids in the configured working directory.
+
 0.10.0b1
 
 - Added support for a description attribute on tests in function and

@@ -54,6 +54,10 @@ class TestNoseConfig(unittest.TestCase):
         c.configure(['program', 'foo', 'bar', 'baz.buz.biz'])
         self.assertEqual(c.testNames, ['foo', 'bar', 'baz.buz.biz'])
 
+        c = nose.config.Config(testNames=['foo'])
+        c.configure([])
+        self.assertEqual(c.testNames, ['foo'])
+
     def test_where(self):
         # we don't need to see our own warnings
         warnings.filterwarnings(action='ignore',

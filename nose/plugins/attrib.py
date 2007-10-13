@@ -31,7 +31,6 @@ Eval expression syntax (-A, --eval-attr) examples:
 """
 import logging
 import os
-import re
 import sys
 from inspect import isfunction
 from nose.plugins.base import Plugin

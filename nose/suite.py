@@ -13,11 +13,10 @@ from __future__ import generators
 import logging
 import sys
 import unittest
-from inspect import isclass
 from nose.case import Test
 from nose.config import Config
 from nose.proxy import ResultProxyFactory
-from nose.util import resolve_name, try_run
+from nose.util import isclass, resolve_name, try_run
 
 log = logging.getLogger(__name__)
 #log.setLevel(logging.DEBUG)
@@ -141,7 +140,6 @@ class ContextSuite(LazySuite):
         """Run tests in suite inside of suite fixtures.
         """
         # proxy the result for myself
-        config = self.config
         if self.resultProxy:
             result, orig = self.resultProxy(result, self), result
         else:
@@ -324,12 +322,12 @@ class ContextSuiteFactory(object):
         """
         log.debug("Create suite for %s", tests)
         context = getattr(tests, 'context', None)
+        log.debug("tests %s context %s", tests, context)
         if context is None:
             tests = self.wrapTests(tests)
             try:
                 context = self.findContext(tests)
             except MixedContextError:
-                self.count = 0
                 return self.makeSuite(self.mixedSuites(tests), None)
         return self.makeSuite(tests, context)
         
@@ -411,7 +409,6 @@ class ContextSuiteFactory(object):
         context = getattr(head, 'context', None)
         if context is not None:
             ancestors = [context] + [a for a in self.ancestry(context)]
-            count = 0
             for ancestor in ancestors:
                 common = [suite] # tests with ancestor in common, so far
                 remain = [] # tests that remain to be processed
@@ -437,10 +434,13 @@ class ContextSuiteFactory(object):
         return [suite] + self.mixedSuites(tail)
             
     def wrapTests(self, tests):
+        log.debug("wrap %s", tests)
         if callable(tests) or isinstance(tests, unittest.TestSuite):
+            log.debug("I won't wrap")
             return tests
         wrapped = []
         for test in tests:
+            log.debug("wrapping %s", test)
             if isinstance(test, Test) or isinstance(test, unittest.TestSuite):
                 wrapped.append(test)
             else:

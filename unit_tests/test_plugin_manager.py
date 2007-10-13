@@ -21,6 +21,14 @@ class Plug2(Plugin):
     def addError(self, test, err):
         assert False, "Should not have been called"
 
+class Plug3(Plugin):
+    def loadTestsFromModule(self, module):
+        raise TypeError("I don't like to type")
+
+class Plug4(Plugin):
+    def loadTestsFromModule(self, module):
+        raise AttributeError("I am missing my nose")
+
 
 class TestPluginManager(unittest.TestCase):
 
@@ -44,6 +52,16 @@ class TestPluginManager(unittest.TestCase):
             self.assertEqual(plug, expect.pop(0))
         assert not expect, \
                "Some plugins were not found by iteration: %s" % expect
+
+    def test_plugin_generative_method_errors_not_hidden(self):
+        import nose.case
+        pm = PluginManager(plugins=[Plug3(), Plug4()])
+        loaded = list(pm.loadTestsFromModule('whatever'))
+        self.assertEqual(len(loaded), 2)
+        for test in loaded:
+            assert isinstance(test, nose.case.Failure), \
+                   "%s is not a failure" % test
+        
 
 if __name__ == '__main__':
     unittest.main()

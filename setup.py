@@ -58,7 +58,9 @@ setup(
     'http://somethingaboutorange.com/mrl/projects/nose/nose-%s.tar.gz' \
     % VERSION,
     data_files = [('man/man1', ['nosetests.1'])],
-    package_data = {'': ['*.txt']},
+    package_data = {'': ['*.txt',
+                         'examples/*.py',
+                         'examples/*/*.py']},
     classifiers = [
         'Development Status :: 3 - Alpha',
         'Intended Audience :: Developers',

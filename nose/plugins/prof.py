@@ -25,15 +25,15 @@ class Profile(Plugin):
     clean_stats_file = False
     def options(self, parser, env=os.environ):
         Plugin.options(self, parser, env)                
-        parser.add_option('--profile-sort',action='store',dest='profile_sort',
-                          default=env.get('NOSE_PROFILE_SORT','cumulative'),
+        parser.add_option('--profile-sort', action='store', dest='profile_sort',
+                          default=env.get('NOSE_PROFILE_SORT', 'cumulative'),
                           help="Set sort order for profiler output")
-        parser.add_option('--profile-stats-file',action='store',
+        parser.add_option('--profile-stats-file', action='store',
                           dest='profile_stats_file',
                           default=env.get('NOSE_PROFILE_STATS_FILE'),
                           help='Profiler stats file; default is a new '
                           'temp file on each run')
-        parser.add_option('--profile-restrict',action='append',
+        parser.add_option('--profile-restrict', action='append',
                           dest='profile_restrict',
                           default=env.get('NOSE_PROFILE_RESTRICT'),
                           help="Restrict profiler output. See help for "
@@ -82,6 +82,10 @@ class Profile(Plugin):
             sys.stdout = tmp
 
     def finalize(self, result):
+        try:
+            self.prof.close()
+        except AttributeError:
+            pass
         if self.clean_stats_file:
             if self.fileno:
                 try:

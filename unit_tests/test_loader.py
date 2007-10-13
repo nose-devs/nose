@@ -4,8 +4,14 @@ import sys
 import unittest
 from nose.loader import TestLoader as Loader
 
-from nose import util # so we can set its __import__
+from nose import util, loader, selector # so we can set mocks
 import nose.case
+
+
+def safepath(p):
+    """Helper function to make cross-platform safe paths
+    """
+    return p.replace('/', os.sep)
 
 
 def mods():
@@ -17,14 +23,15 @@ def mods():
     M['test_module'] = imp.new_module('test_module')
     M['module'] = imp.new_module('module')
     M['package'] = imp.new_module('package')
-    M['package'].__path__ = ['/package']
-    M['package'].__file__ = '/package/__init__.py'
+    M['package'].__path__ = [safepath('/package')]
+    M['package'].__file__ = safepath('/package/__init__.py')
     M['package.subpackage'] = imp.new_module('package.subpackage')
     M['package'].subpackage = M['package.subpackage']
-    M['package.subpackage'].__path__ = ['/package/subpackage']
-    M['package.subpackage'].__file__ = '/package/subpackage/__init__.py'
-    M['test_module_with_generators'] = imp.new_module('test_module_with_generators')
-
+    M['package.subpackage'].__path__ = [safepath('/package/subpackage')]
+    M['package.subpackage'].__file__ = safepath(
+        '/package/subpackage/__init__.py')
+    M['test_module_with_generators'] = imp.new_module(
+        'test_module_with_generators')
 
     # a unittest testcase subclass
     class TC(unittest.TestCase):
@@ -117,6 +124,7 @@ M = mods()
 _listdir = os.listdir
 _isdir = os.path.isdir
 _isfile = os.path.isfile
+_exists = os.path.exists
 _import = __import__
 
 
@@ -124,20 +132,24 @@ _import = __import__
 # Mock functions
 #
 def mock_listdir(path):
-    if path.endswith('/package'):
+    if path.endswith(safepath('/package')):
         return ['.', '..', 'subpackage', '__init__.py']
-    elif path.endswith('/subpackage'):
+    elif path.endswith(safepath('/subpackage')):
         return ['.', '..', '__init__.py']
-    elif path.endswith('/sort'):
+    elif path.endswith(safepath('/sort')):
         return ['.', '..', 'lib', 'src', 'test', 'test_module.py', 'a_test']
     return ['.', '..', 'test_module.py', 'module.py']
 
 
 def mock_isdir(path):
     print "is dir '%s'?" % path
-    if path in ('/a/dir/path', '/package', '/package/subpackage',
-                '/sort/lib', '/sort/src', '/sort/a_test', '/sort/test',
-                '/sort'):
+    paths = map(safepath, [
+        '/a/dir/path', '/package',
+        '/package/subpackage', '/sort/lib',
+        '/sort/src', '/sort/a_test',
+        '/sort/test', '/sort'])
+    paths = paths + map(os.path.abspath, paths)
+    if path in paths:
         return True
     return False
 
@@ -146,6 +158,16 @@ def mock_isfile(path):
     if path in ('.', '..'):
         return False
     return '.' in path
+
+
+def mock_exists(path):
+    print "exists '%s'?" % path
+    paths = map(safepath, [
+        '/package', '/package/__init__.py', '/package/subpackage',
+        '/package/subpackage/__init__.py'
+        ])
+    paths = paths + map(os.path.abspath, paths)
+    return path in paths
 
 
 def mock_import(modname, gl=None, lc=None, fr=None):
@@ -185,15 +207,17 @@ class TestTestLoader(unittest.TestCase):
 
     def setUp(self):
         os.listdir = mock_listdir
-        os.path.isdir = mock_isdir
-        os.path.isfile = mock_isfile
+        loader.op_isdir = selector.op_isdir = os.path.isdir = mock_isdir
+        loader.op_isfile = selector.op_isfile = os.path.isfile = mock_isfile
+        selector.op_exists = os.path.exists = mock_exists
         util.__import__ = mock_import
         self.l = Loader(importer=MockImporter())#, context=MockContext)
 
     def tearDown(self):
         os.listdir = _listdir
-        os.path.isdir = _isdir
-        os.path.isfile = _isfile
+        loader.op_isdir = selector.op_isdir = os.path.isdir = _isdir
+        loader.op_isfile = selector.op_isfile = os.path.isfile = _isfile
+        selector.op_exists = os.path.exists = _exists
         util.__import__ = _import
 
     def test_lint(self):
@@ -208,7 +232,7 @@ class TestTestLoader(unittest.TestCase):
     def test_load_from_name_dir_abs(self):
         print "load from name dir"
         l = self.l
-        suite = l.loadTestsFromName('/a/dir/path')
+        suite = l.loadTestsFromName(safepath('/a/dir/path'))
         tests = [t for t in suite]
         self.assertEqual(len(tests), 1)
 
@@ -361,17 +385,17 @@ class TestTestLoader(unittest.TestCase):
     def test_load_from_name_package_root_path(self):
         print "load from name package root path"
         l = self.l
-        suite = l.loadTestsFromName('/package')
+        suite = l.loadTestsFromName(safepath('/package'))
         print suite
         tests = [t for t in suite]
         assert len(tests) == 1, "Expected one test, got %s" % tests
         tests = list(tests[0])
         assert not tests, "The full test list %s was not empty" % tests
 
-    def test_load_from_name_subpackage_path(self):
+    def test_load_from_name_subpackage_safepath(self):
         print "load from name subpackage path"
         l = self.l
-        suite = l.loadTestsFromName('/package/subpackage')
+        suite = l.loadTestsFromName(safepath('/package/subpackage'))
         print suite
         tests = [t for t in suite]
         assert len(tests) == 0, "Expected no tests, got %s" % tests

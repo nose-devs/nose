@@ -5,22 +5,33 @@ import re
 import time
 from docutils.core import publish_string, publish_parts
 from docutils.readers.standalone import Reader
+from docutils.writers.html4css1 import Writer, HTMLTranslator
 from pudge.browser import Browser
-from epydoc.objdoc import _lookup_class_field
 import inspect
 import nose
 import textwrap
 from optparse import OptionParser
 from nose.util import resolve_name, odict
 from pygments import highlight
-from pygments.lexers import PythonLexer
+from pygments.lexers import PythonLexer, PythonConsoleLexer
 from pygments.formatters import HtmlFormatter
 
 
 remove_at = re.compile(r' at 0x[0-9a-f]+')
+root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+doc = os.path.join(root, 'doc')
+tpl = open(os.path.join(doc, 'doc.html.tpl'), 'r').read()
+api_tpl = open(os.path.join(doc, 'plugin_api.html.tpl'), 'r').read()
+plug_tpl = open(os.path.join(doc, 'plugin.html.tpl'), 'r').read()
+std_info = {
+    'version': nose.__version__,
+    'date': time.ctime()
+    }
+to_write = []
 
 
 def defining_class(cls, attr):
+    from epydoc.objdoc import _lookup_class_field
     val, container = _lookup_class_field(cls, attr)
     return container.value()
 
@@ -41,12 +52,9 @@ def doc_word(node):
     # handle links like package.module and module.Class
     # as wellas 'foo bar'
     
-    name = node.astext()
-    print "Unknown ref %s" % name
+    orig = name = node.astext()
     if '.' in name:
-
         parts = name.split('.')
-            
         # if the first letter of a part is capitalized, assume it's
         # a class name, and put all parts from that part on into
         # the anchor part of the link
@@ -54,10 +62,15 @@ def doc_word(node):
         addto = link
         while parts:
             part = parts.pop(0)
-            if addto == link and part[0].upper() == part[0]:
-                addto = anchor
+            if addto == link:
+                if part[0].upper() == part[0]:
+                    addto = anchor
+                elif part.endswith('()'):
+                    addto = anchor
+                    part = part[:-2]
             addto.append(part)
-        if name.startswith('nose.plugins'):
+        if (name.startswith('nose.plugins')
+            and 'plugintest' not in name):
             base = 'plugin_'
             link = link[-1:]
         else:
@@ -66,9 +79,12 @@ def doc_word(node):
         if anchor:
             node['refuri'] += '#' + '.'.join(anchor)
     else:
-        node['refuri'] = '_'.join(
-            map(lambda s: s.lower(), name.split(' '))) + '.html'
+        # pad out wiki-words
+        name = name[0].lower() + name[1:]
+        name = re.sub(r'([A-Z])', r' \1', name).lower()
+        node['refuri'] = '_'.join(name.split(' ')) + '.html'
 
+    print "Unknown ref %s -> %s" % (orig, node['refuri'])
     del node['refname']
     node.resolved = True
     return True
@@ -79,6 +95,26 @@ doc_word.priority = 100
 class DocReader(Reader):
     unknown_reference_resolvers = (doc_word,)
 
+
+class PygHTMLTranslator(HTMLTranslator):
+    """HTML translator that uses pygments to highlight doctests.
+    """
+    def visit_doctest_block(self, node):
+        self.body.append(
+            highlight(node.rawsource, PythonConsoleLexer(), HtmlFormatter()))
+        # hacky way of capturing children -- we've processed the whole node
+        self._body = self.body
+        self.body = []
+
+    def depart_doctest_block(self, node):
+        # restore the real body, doctest node is done
+        self.body = self._body
+        del self._body
+    
+class PygWriter(Writer):
+    def __init__(self):
+        Writer.__init__(self)
+        self.translator_class = PygHTMLTranslator
 
 def formatargspec(func, exclude=()):
     try:
@@ -105,9 +141,12 @@ def clean_default(val):
     return val
 
 
+def to_html_parts(rst):
+    return publish_parts(rst, reader=DocReader(), writer=PygWriter())    
+
+
 def to_html(rst):
-    parts = publish_parts(rst, reader=DocReader(), writer_name='html')
-    return parts['body']
+    return to_html_parts(rst)['body']
 
 
 def document_module(mod):
@@ -297,6 +336,7 @@ def format_attr(obj, attr):
     val = remove_at.sub('', val)
     return val
 
+
 def link_to_class(cls):
     mod = cls.__module__
     name = cls.__name__
@@ -309,180 +349,200 @@ def link_to_class(cls):
     return '<a href="module_%s.html#%s">%s</a>' % (mod, name, name)
 
 
-root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
-doc = os.path.join(root, 'doc')
-tpl = open(os.path.join(doc, 'doc.html.tpl'), 'r').read()
-api_tpl = open(os.path.join(doc, 'plugin_api.html.tpl'), 'r').read()
-plug_tpl = open(os.path.join(doc, 'plugin.html.tpl'), 'r').read()
-std_info = {
-    'version': nose.__version__,
-    'date': time.ctime()
-    }
-to_write = []
+def plugin_example_tests():
+    dt_root = os.path.join(root, 'functional_tests', 'doc_tests')
+    for dirpath, dirnames, filenames in os.walk(dt_root):
+        for filename in filenames:
+            if filename.startswith('.'):
+                continue
+            base, ext = os.path.splitext(filename)
+            if ext == '.rst':
+                yield os.path.join(dirpath, filename)
+        if '.svn' in dirnames:
+            dirnames.remove('.svn')
 
 
-# plugins
-from nose import plugins
-from nose.plugins.base import IPluginInterface
-from nose.plugins import errorclass
+def document_rst_test(filename, section):
+    base, ext = os.path.splitext(os.path.basename(filename))
+    rst = open(filename, 'r').read()
+    parts = to_html_parts(rst)
+    parts.update(std_info)
+    to_write.append((section,
+                     parts['title'],
+                     os.path.join(doc, base + '.html'),
+                     tpl,
+                     parts))
 
-# writing plugins guide
-writing_plugins = {'body': to_html(plugins.__doc__)}
-writing_plugins.update(std_info)
-writing_plugins['title'] = 'Writing Plugins'
-to_write.append(
-    ('Plugins',
-     'Writing Plugins',
-     os.path.join(doc, 'writing_plugins.html'), tpl, writing_plugins))
+def main():
+    # plugins
+    from nose import plugins
+    from nose.plugins.base import IPluginInterface
+    from nose.plugins import errorclass
 
-
-# error class plugins
-ecp = {'body': to_html(errorclass.__doc__)}
-ecp.update(std_info)
-ecp['title'] = 'ErrorClass Plugins'
-to_write.append(
-    ('Plugins',
-     'ErrorClass Plugins',
-     os.path.join(doc, 'errorclassplugin.html'), tpl, ecp))
-
-# interface
-itf = {'body': to_html(textwrap.dedent(IPluginInterface.__doc__))}
-
-# methods
-attr = [(a, getattr(IPluginInterface, a)) for a in dir(IPluginInterface)]
-methods = [m for m in attr if inspect.ismethod(m[1])]
-methods.sort()
-# print "Documenting methods", [a[0] for a in methods]
-
-method_html = []
-method_tpl = """
-<div class="method %(extra_class)s">
-<a name="%(name)s">
-<span class="name">%(name)s</span><span class="arg">%(arg)s</span></a>
-<div class="doc">%(body)s</div>
-</div>
-"""
-
-menu_links = {}
-
-m_attrs = ('_new', 'changed', 'deprecated', 'generative', 'chainable')
-for m in methods:
-    name, meth = m
-    ec = []
-    for att in m_attrs:
-        if hasattr(meth, att):
-            ec.append(att.replace('_', ''))
-            menu_links.setdefault(att.replace('_', ''), []).append(name)
-    # padding evens the lines
-    print name
-    mdoc = {'body': to_html(textwrap.dedent('        ' + meth.__doc__))}
-    argspec = formatargspec(meth)
-    mdoc.update({'name': name,
-                 'extra_class': ' '.join(ec),
-                 'arg': argspec})
-    method_html.append(method_tpl % mdoc)
-
-itf['methods'] = ''.join(method_html)
-itf.update(std_info)
-itf['title'] = 'Plugin Interface'
-
-menu = []
-for section in ('new', 'changed', 'deprecated'):
-    menu.append('<h2>%s methods</h2>' % section.title())
-    menu.append('<ul><li>')
-    menu.append('</li><li>'.join([
-        '<a href="#%(name)s">%(name)s</a>' % {'name': n}
-        for n in menu_links[section]]))
-    menu.append('</li></ul>')
-itf['sub_menu'] = ''.join(menu)
-
-to_write.append(
-    ('Plugins',
-     'Plugin Interface',
-     os.path.join(doc, 'plugin_interface.html'), api_tpl, itf))
-
-
-# individual plugin usage docs
-from nose.plugins.builtin import builtins
-
-pmeths = [m[0] for m in methods[:]
-          if not 'options' in m[0].lower()]
-pmeths.append('options')
-pmeths.sort()
-
-for modulename, clsname in builtins:
-    _, _, modname = modulename.split('.')
-    mod = resolve_name(modulename)
-    cls = getattr(mod, clsname)
-    filename = os.path.join(doc, 'plugin_%s.html' % modname)
-    print modname, filename
-    if not mod.__doc__:
-        print "No docs"
-        continue
-    pdoc = {'body': to_html(mod.__doc__)}
-    pdoc.update(std_info)
-    pdoc['title'] = 'builtin plugin: %s' % modname
-
-    # options
-    parser = OptionParser(add_help_option=False)
-    plug = cls()
-    plug.addOptions(parser)
-    options = parser.format_option_help()
-    pdoc['options'] = options
-
-    # hooks used
-    hooks = []
-    for m in pmeths:
-        if getattr(cls, m, None):
-            hooks.append('<li><a href="plugin_interface.html#%(name)s">'
-                         '%(name)s</a></li>' % {'name': m})
-    pdoc['hooks'] = ''.join(hooks)
-
-    source = inspect.getsource(mod)
-    pdoc['source'] = highlight(source, PythonLexer(), HtmlFormatter())
+    # writing plugins guide
+    writing_plugins = {'body': to_html(plugins.__doc__)}
+    writing_plugins.update(std_info)
+    writing_plugins['title'] = 'Writing Plugins'
     to_write.append(
         ('Plugins',
-         'Builtin Plugin: %s' % modname,
-         os.path.join(doc, filename), plug_tpl, pdoc))
+         'Writing Plugins',
+         os.path.join(doc, 'writing_plugins.html'), tpl, writing_plugins))
 
 
-# individual module docs
-b = Browser(['nose','nose.plugins.manager'],
-            exclude_modules=['nose.plugins', 'nose.ext'])
-for mod in b.modules(recursive=1):
-    if mod.name == 'nose':
-        # no need to regenerate, this is the source of the doc index page
-        continue
-    print mod.qualified_name()
-    document_module(mod)
+    # error class plugins
+    ecp = {'body': to_html(errorclass.__doc__)}
+    ecp.update(std_info)
+    ecp['title'] = 'ErrorClass Plugins'
+    to_write.append(
+        ('Plugins',
+         'ErrorClass Plugins',
+         os.path.join(doc, 'error_class_plugin.html'), tpl, ecp))
+
+    # interface
+    itf = {'body': to_html(textwrap.dedent(IPluginInterface.__doc__))}
+
+    # methods
+    attr = [(a, getattr(IPluginInterface, a)) for a in dir(IPluginInterface)]
+    methods = [m for m in attr if inspect.ismethod(m[1])]
+    methods.sort()
+    # print "Documenting methods", [a[0] for a in methods]
+
+    method_html = []
+    method_tpl = """
+    <div class="method %(extra_class)s">
+    <a name="%(name)s">
+    <span class="name">%(name)s</span><span class="arg">%(arg)s</span></a>
+    <div class="doc">%(body)s</div>
+    </div>
+    """
+
+    menu_links = {}
+
+    m_attrs = ('_new', 'changed', 'deprecated', 'generative', 'chainable')
+    for m in methods:
+        name, meth = m
+        ec = []
+        for att in m_attrs:
+            if hasattr(meth, att):
+                ec.append(att.replace('_', ''))
+                menu_links.setdefault(att.replace('_', ''), []).append(name)
+        # padding evens the lines
+        print name
+        mdoc = {'body': to_html(textwrap.dedent('        ' + meth.__doc__))}
+        argspec = formatargspec(meth)
+        mdoc.update({'name': name,
+                     'extra_class': ' '.join(ec),
+                     'arg': argspec})
+        method_html.append(method_tpl % mdoc)
+
+    itf['methods'] = ''.join(method_html)
+    itf.update(std_info)
+    itf['title'] = 'Plugin Interface'
+
+    menu = []
+    for section in ('new', 'changed', 'deprecated'):
+        menu.append('<h2>%s methods</h2>' % section.title())
+        menu.append('<ul><li>')
+        menu.append('</li><li>'.join([
+            '<a href="#%(name)s">%(name)s</a>' % {'name': n}
+            for n in menu_links[section]]))
+        menu.append('</li></ul>')
+    itf['sub_menu'] = ''.join(menu)
+
+    to_write.append(
+        ('Plugins',
+         'Plugin Interface',
+         os.path.join(doc, 'plugin_interface.html'), api_tpl, itf))
 
 
-# finally build the menu and write all pages
-menu = []
-sections = odict()
-for page in to_write:
-    section, _, _, _, _ = page
-    sections.setdefault(section, []).append(page)
+    # individual plugin usage docs
+    from nose.plugins.builtin import builtins
 
-for section, pages in sections.items():
-    menu.append('<h2>%s</h2>' % section)
-    menu.append('<ul>')
-    pages.sort()
-    menu.extend([
-        '<li><a href="%s">%s</a></li>' % (os.path.basename(filename), title)
-        for _, title, filename, _, _ in pages ])
-    menu.append('</ul>')
+    pmeths = [m[0] for m in methods[:]
+              if not 'options' in m[0].lower()]
+    pmeths.append('options')
+    pmeths.sort()
 
-menu = ''.join(menu)
-for section, title, filename, template, ctx in to_write:
-    ctx['menu'] = menu
-    write(filename, template, ctx)
+    for modulename, clsname in builtins:
+        _, _, modname = modulename.split('.')
+        mod = resolve_name(modulename)
+        cls = getattr(mod, clsname)
+        filename = os.path.join(doc, 'plugin_%s.html' % modname)
+        print modname, filename
+        if not mod.__doc__:
+            print "No docs"
+            continue
+        pdoc = {'body': to_html(mod.__doc__)}
+        pdoc.update(std_info)
+        pdoc['title'] = 'builtin plugin: %s' % modname
 
-# doc section index page
-idx_tpl = open(os.path.join(doc, 'index.html.tpl'), 'r').read()
-idx = {
-    'title': 'API documentation',
-    'menu': menu}
-idx.update(std_info)
-write(os.path.join(doc, 'index.html'), idx_tpl, idx)
+        # options
+        parser = OptionParser(add_help_option=False)
+        plug = cls()
+        plug.addOptions(parser)
+        options = parser.format_option_help()
+        pdoc['options'] = options
 
+        # hooks used
+        hooks = []
+        for m in pmeths:
+            if getattr(cls, m, None):
+                hooks.append('<li><a href="plugin_interface.html#%(name)s">'
+                             '%(name)s</a></li>' % {'name': m})
+        pdoc['hooks'] = ''.join(hooks)
+
+        source = inspect.getsource(mod)
+        pdoc['source'] = highlight(source, PythonLexer(), HtmlFormatter())
+        to_write.append(
+            ('Plugins',
+             'Builtin Plugin: %s' % modname,
+             os.path.join(doc, filename), plug_tpl, pdoc))
+
+
+    # individual module docs
+    b = Browser(['nose','nose.plugins.manager', 'nose.plugins.plugintest'],
+                exclude_modules=['nose.plugins', 'nose.ext'])
+    for mod in b.modules(recursive=1):
+        if mod.name == 'nose':
+            # no need to regenerate, this is the source of the doc index page
+            continue
+        print mod.qualified_name()
+        document_module(mod)
+
+
+    # plugin examples doctests
+    for testfile in plugin_example_tests():
+        document_rst_test(testfile, "Plugin Examples")
+
+
+    # finally build the menu and write all pages
+    menu = []
+    sections = odict()
+    for page in to_write:
+        section, _, _, _, _ = page
+        sections.setdefault(section, []).append(page)
+
+    for section, pages in sections.items():
+        menu.append('<h2>%s</h2>' % section)
+        menu.append('<ul>')
+        pages.sort()
+        menu.extend([
+            '<li><a href="%s">%s</a></li>' % (os.path.basename(filename), title)
+            for _, title, filename, _, _ in pages ])
+        menu.append('</ul>')
+
+    menu = ''.join(menu)
+    for section, title, filename, template, ctx in to_write:
+        ctx['menu'] = menu
+        write(filename, template, ctx)
+
+    # doc section index page
+    idx_tpl = open(os.path.join(doc, 'index.html.tpl'), 'r').read()
+    idx = {
+        'title': 'API documentation',
+        'menu': menu}
+    idx.update(std_info)
+    write(os.path.join(doc, 'index.html'), idx_tpl, idx)
+
+if __name__ == '__main__':
+    main()

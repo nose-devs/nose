@@ -6,7 +6,9 @@ from docutils.nodes import SparseNodeVisitor
 from docutils.readers.standalone import Reader
 from docutils.writers import Writer
 from nose.config import Config
+import nose.plugins
 from nose.plugins.manager import BuiltinPluginManager
+from nose.plugins import errorclass
 import nose
 import os
 import pudge.browser
@@ -15,6 +17,8 @@ import sys
 import textwrap
 import time
 
+sys.path.insert(0, os.path.abspath(os.path.dirname(__file__)))
+from mkdocs import formatargspec
 
 # constants
 success = 0
@@ -25,28 +29,37 @@ generated and edits above this line will be discarded.*
 
 = Comments =
 """
+wiki_word_re = re.compile(r'^[A-Z][a-z]+(?:[A-Z][a-z]+)+')
 
 def ucfirst(s):
     return s[0].upper() + s[1:].lower()
 
 def words(s):
     return s.split(' ')
+
+
+def is_wiki_word(text):
+    return wiki_word_re.match(text)
+
         
 def wiki_word(node):
-    text = node.astext()
-    print "Unknown ref %s" % text
+    orig = text = node.astext()
     # handle module/plugin links -- link to code
-    if '.' in text:
-        parts = text.split('.')
-        link = 'http://python-nose.googlecode.com/svn/trunk'
-        for p in parts:
-            # stop at class names
-            if p[0].upper() == p[0]:
-                break
-            link += '/' + p        
-        node['refuri'] = link
-        return True
-    node['refuri'] = ''.join(map(ucfirst, words(text)))
+    if is_wiki_word(text):
+        node['refuri'] = text
+    else:
+        if '.' in text:
+            parts = text.split('.')
+            link = 'http://python-nose.googlecode.com/svn/trunk'
+            for p in parts:
+                # stop at class names
+                if p[0].upper() == p[0]:
+                    break
+                link += '/' + p        
+            node['refuri'] = link
+            return True
+        node['refuri'] = ''.join(map(ucfirst, words(text)))
+    print "Unknown ref %s -> %s" % (orig, node['refuri'])
     del node['refname']
     node.resolved = True
     return True
@@ -208,7 +221,7 @@ def plugin_interface():
     mdoc = []
     for m in methods:
         # FIXME fix the arg list so literal os.environ is not in there
-        mdoc.append('*%s%s*\n\n' %  (m.name, m.formatargs()))
+        mdoc.append('*%s%s*\n\n' %  (m.name, formatargspec(m.obj)))
         # FIXME this is resulting in poorly formatted doc sections
         mdoc.append(' ' + m.doc().replace('\n', '\n '))
         mdoc.append('\n\n')
@@ -261,6 +274,7 @@ def mkwiki(path):
         'NoseFeatures': wikirst(section(nose.__doc__, 'Features')),
         'WritingPlugins': wikirst(nose.plugins.__doc__),
         'PluginInterface': plugin_interface(),
+        'ErrorClassPlugin': wikirst(errorclass.__doc__),
         'TestingTools': tools(),
         'FindingAndRunningTests': wikirst(
             section(nose.__doc__, 'Finding and running tests')),
@@ -313,7 +327,7 @@ class Wiki(object):
             return (headers, ''.join(content))
         except IOError:
             self.newpages.append(page)
-            return ''
+            return ('', '')
 
     def set_docs(self, page, headers, page_src, docs):
         wikified = docs + div
@@ -344,10 +358,20 @@ class Wiki(object):
         if page in self.newpages:
             runcmd('svn add %s' % self.filename(page))
 
-        
+            
+def findwiki(root):
+    if not root or root is '/': # not likely to work on windows
+        raise ValueError("wiki path not found")
+    if not os.path.isdir(root):
+        return findwiki(os.path.dirname(root))
+    entries = os.listdir(root)
+    if 'wiki' in entries:
+        return os.path.join(root, 'wiki')
+    return findwiki(os.path.dirname(root))
+
+
 def main():
-    path = os.path.abspath(
-        os.path.join(os.path.dirname(__file__), '..', '..', '..', 'wiki'))
+    path = findwiki(os.path.abspath(__file__))
     mkwiki(path)
 
     
