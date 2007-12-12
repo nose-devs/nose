@@ -24,8 +24,6 @@ a:hover {
         padding-left: 1em;
         padding-right: 1em;
         padding-bottom: 10px;
-        margin-left: 20px;
-        min-width: 200px;
         width: 20%;
         border-left: 1px solid #ddd;
         border-bottom: 1px solid #ddd;
@@ -36,10 +34,9 @@ a:hover {
 #main {
         margin: 0px;
         padding: 0px;
-        padding-right: 20px;
         width: 70%;
         float: left;
-        }      
+        }
 
 h1 {
      font-size: 140%;
@@ -54,7 +51,7 @@ h1 {
               font-size: 105%;
               }
 
-pre.literal-block, pre.doctest-block 
+pre.literal-block, pre.doctest-block
 {
   font-size: small;
   background: #f4fff4;
@@ -128,148 +125,148 @@ pre.literal-block, pre.doctest-block
         padding: 6px;
         }
 
-.note p 
-{ 
+.note p
+{
   margin-top: 0;
 }
 
-#news .note { 
+#news .note {
               margin-top: 1.2ex;
  }
 
-.new { 
-       
+.new {
+
        background-color: #ffe;
        color: #f00;
        font-weight: bold;
  }
 
-.admonition-title { 
+.admonition-title {
                    display: none;
                    padding: 0;
                     margin: 0;
  }
 
-.method, .attr, .func { 
+.method, .attr, .func {
           padding-top: 2px;
           padding-left: 1.5em;
           padding-right: 1em;
           margin-bottom: 2ex;
           }
 
-.method.new 
-{ 
+.method.new
+{
   background-color: #ffe;
   color: #000;
   font-weight: normal;
 }
 
-.method .doc 
-{ 
+.method .doc
+{
   margin-left: 2em;
   margin-top: 0px;
   padding-bottom: 1px;
 }
 
-.method .name 
-{ 
+.method .name
+{
   font-weight: bold;
 }
 
 .method.generative
-{ 
+{
   background: url(gen.png) no-repeat;
   background-position: 0 0;
 }
 
 .method.chainable
-{ 
+{
   background: url(chain.png) no-repeat;
   background-position: 0 0;
 }
 
 .method.deprecated .name
-{ 
+{
    text-decoration: line-through;
 }
 
-.method .field-list, .attr { 
+.method .field-list, .attr {
                       font-size/* */:/**/small;
                       font-size: /**/small;
 
 }
 
-.field-list dd, .field-list dd p { 
+.field-list dd, .field-list dd p {
                  padding: 0 0 0 0;
                  margin: 0 0 0 0;
                  margin-left: 1em;
  }
 
-.field-list td { 
+.field-list td {
                  padding-left: 20px;
  }
 
-.field-list dt { 
+.field-list dt {
                  font-weight: bold;
  }
 
-.field-list dt .classifier-delimier { 
+.field-list dt .classifier-delimier {
                                       font-weight: normal;
                                       font-size: 80%;
  }
 
-.field-list dt .classifier { 
+.field-list dt .classifier {
                              font-weight: normal;
                              color: #666;
-                             
+
 }
 
-.doc .note p { 
+.doc .note p {
              margin: 0px;
  }
 
-.cls.section, .func.section { 
+.cls.section, .func.section {
                margin-bottom: 2ex;
  }
 
-.cls.name, .func.name, .attr.name { 
+.cls.name, .func.name, .attr.name {
             font-size: 105%;
             font-weight: bold;
  }
 
-.cls.section .attr.name 
-{ 
+.cls.section .attr.name
+{
   font-size: small;
 }
 
-.cls.doc, .func.doc, .attr.doc { 
+.cls.doc, .func.doc, .attr.doc {
            padding-left: 2em;
            padding-right: 2em;
  }
 
 .attr.doc, .attr.doc p
-{ 
+{
   padding-top: 0px;
   margin-top: 0px;
 }
 
-.args 
-{ 
+.args
+{
   font-weight: normal;
 }
 
-.method.section, .attr.section 
-{ 
+.method.section, .attr.section
+{
   background: #ffe
 }
 
 .method.section.inherited, .attr.section
-{ 
+{
   background: none;
 }
 
-.attr.value 
-{ 
+.attr.value
+{
   display: block;
   color: #666;
   margin-bottom: 0px;
