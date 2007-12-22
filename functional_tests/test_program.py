@@ -3,6 +3,7 @@ import unittest
 from cStringIO import StringIO
 from nose.core import TestProgram
 from nose.config import Config
+from nose.plugins.manager import DefaultPluginManager
 
 here = os.path.dirname(__file__)
 support = os.path.join(here, 'support')
@@ -118,6 +119,63 @@ class TestTestProgram(unittest.TestCase):
         assert not res.wasSuccessful()
         assert len(res.errors) == 1
         assert len(res.failures) == 2
+
+    def test_issue_130(self):
+        """Collect and run tests in support/issue130 without error.
+
+        This tests that the result and error classes can handle string
+        exceptions.
+        """
+        import warnings
+        warnings.filterwarnings('ignore', category=DeprecationWarning,
+                                module='test')
+        
+        stream = StringIO()
+        runner = TestRunner(stream=stream, verbosity=2)
+
+        prog = TestProgram(defaultTest=os.path.join(support, 'issue130'),
+                           argv=['test_issue_130'],
+                           testRunner=runner,
+                           config=Config(stream=stream,
+                                         plugins=DefaultPluginManager()),
+                           exit=False)
+        res = runner.result
+        print stream.getvalue()
+        self.assertEqual(res.testsRun, 0) # error is in setup
+        assert not res.wasSuccessful()
+        assert res.errors
+        assert not res.failures
+
+    def test_defaultTest_list(self):
+        stream = StringIO()
+        runner = TestRunner(stream=stream, verbosity=2)
+        tests = [os.path.join(support, 'package2'),
+                 os.path.join(support, 'package3')]
+        prog = TestProgram(defaultTest=tests,
+                           argv=['test_run_support_package2_3', '-v'],
+                           testRunner=runner,
+                           config=Config(),
+                           exit=False)
+        res = runner.result
+        print stream.getvalue()
+        self.assertEqual(res.testsRun, 7)
+
+    def test_illegal_packages_not_selected(self):
+        stream = StringIO()
+        runner = TestRunner(stream=stream, verbosity=2)
+
+        prog = TestProgram(defaultTest=os.path.join(support, 'issue143'),
+                           argv=['test_issue_143'],
+                           testRunner=runner,
+                           config=Config(stream=stream,
+                                         plugins=DefaultPluginManager()),
+                           exit=False)
+        res = runner.result
+        print stream.getvalue()
+        self.assertEqual(res.testsRun, 0)
+        assert res.wasSuccessful()
+        assert not res.errors
+        assert not res.failures
         
 
 if __name__ == '__main__':

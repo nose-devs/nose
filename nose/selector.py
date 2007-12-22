@@ -10,7 +10,7 @@ import logging
 import os
 import unittest
 from nose.config import Config
-from nose.util import split_test_name, src, getfilename, getpackage
+from nose.util import split_test_name, src, getfilename, getpackage, ispackage
 
 log = logging.getLogger(__name__)
 
@@ -86,9 +86,8 @@ class Selector(object):
         All package directories match, so long as they do not match exclude. 
         All other directories must match test requirements.
         """
-        init = op_join(dirname, '__init__.py')
         tail = op_basename(dirname)
-        if op_exists(init):
+        if ispackage(dirname):
             wanted = (not self.exclude
                       or not filter(None,
                                     [exc.search(tail) for exc in self.exclude]

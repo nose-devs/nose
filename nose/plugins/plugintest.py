@@ -191,6 +191,8 @@ def run(*arg, **kw):
         plugins = kw.pop('plugins', None)
         env = kw.pop('env', {})
         kw['config'] = Config(env=env, plugins=PluginManager(plugins=plugins))
+    if 'argv' not in kw:
+        kw['argv'] = ['nosetests', '-v']
     kw['config'].stream = buffer
     run(*arg, **kw)
     out = buffer.getvalue()

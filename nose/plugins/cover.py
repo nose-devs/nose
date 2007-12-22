@@ -72,7 +72,10 @@ class Coverage(Plugin):
         self.conf = config
         self.coverErase = options.cover_erase
         self.coverTests = options.cover_tests
-        self.coverPackages = tolist(options.cover_packages)
+        self.coverPackages = []
+        if options.cover_packages:
+            for pkgs in [tolist(x) for x in options.cover_packages]:
+                self.coverPackages.extend(pkgs)
         self.coverInclusive = options.cover_inclusive
         if self.coverPackages:
             log.info("Coverage report will include only packages: %s",

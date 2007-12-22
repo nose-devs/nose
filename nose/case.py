@@ -26,7 +26,8 @@ class Failure(unittest.TestCase):
         unittest.TestCase.__init__(self)
 
     def __str__(self):
-        return "Failure: %s(%s)" % (self.exc_class, self.exc_val)
+        return "Failure: %s (%s)" % (
+            getattr(self.exc_class, '__name__', self.exc_class), self.exc_val)
 
     def runTest(self):
         if self.tb is not None:            

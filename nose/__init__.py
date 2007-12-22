@@ -397,7 +397,7 @@ from nose.exc import SkipTest, DeprecatedTest
 from nose.tools import with_setup 
 
 __author__ = 'Jason Pellerin'
-__versioninfo__ = (0, 11, 0)
+__versioninfo__ = (0, 10, 1)
 __version__ = '.'.join(map(str, __versioninfo__))
 
 __all__ = [

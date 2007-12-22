@@ -263,7 +263,8 @@ class ZeroNinePlugin:
         return self.plugin.addError(test.test, err, capt)
 
     def loadTestsFromFile(self, filename):
-        return self.plugin.loadTestsFromPath(filename)
+        if hasattr(self.plugin, 'loadTestsFromPath'):
+            return self.plugin.loadTestsFromPath(filename)
 
     def addFailure(self, test, err):
         if not hasattr(self.plugin, 'addFailure'):

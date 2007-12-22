@@ -183,11 +183,11 @@ class Doctest(Plugin):
         
 
 class DocTestCase(doctest.DocTestCase):
-    """Proxy for DocTestCase: provides an address() method that
-    returns the correct address for the doctest case. Otherwise
-    acts as a proxy to the test case. To provide hints for address(),
-    an obj may also be passed -- this will be used as the test object
-    for purposes of determining the test address, if it is provided.
+    """Overrides DocTestCase to
+    provide an address() method that returns the correct address for
+    the doctest case. To provide hints for address(), an obj may also
+    be passed -- this will be used as the test object for purposes of
+    determining the test address, if it is provided.    
     """
     def __init__(self, test, optionflags=0, setUp=None, tearDown=None,
                  checker=None, obj=None):
@@ -224,7 +224,8 @@ class DocTestCase(doctest.DocTestCase):
 
 
 class DocFileCase(doctest.DocFileCase):
-    """Overrides to provide filename
+    """Overrides to provide address() method that returns the correct
+    address for the doc file case.
     """
     def address(self):
         return (self._dt_test.filename, None, None)

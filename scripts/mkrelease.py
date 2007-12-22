@@ -13,11 +13,20 @@ current = os.getcwd()
 version = nose.__version__
 here = os.path.abspath(os.path.dirname(os.path.dirname(__file__)))
 parts = here.split('/')
-branchindex = parts.index('branches')
-svnroot = os.path.join('/', *parts[:branchindex])
+if 'branches' in parts:
+    lindex = parts.index('branches')
+elif 'tags' in parts:
+    lindex = parts.index('tags')
+elif 'trunk' in parts:
+    lindex = parts.index('trunk')
+else:
+    raise Exception("Unable to find svnroot from %s" % here)
+svnroot = os.path.join('/', *parts[:lindex])    
+    
 branchroot = os.path.join(svnroot, 'branches')
 tagroot = os.path.join(svnroot, 'tags')
 svntrunk = os.path.join(svnroot, 'trunk')
+svn_base_url = 'https://python-nose.googlecode.com/svn'
 svn_trunk_url = 'https://python-nose.googlecode.com/svn/trunk'
 
 SIMULATE = 'exec' not in sys.argv
@@ -45,6 +54,9 @@ def main():
     branch = 'branches/%s-stable' % version
     tag =  'tags/%s-release' % version
 
+    svn_branch_url = '%s/%s' % (svn_base_url, branch)
+    svn_tag_url = '%s/%s' % (svn_base_url, tag)
+
     if os.path.isdir(tag):
         raise Exception(
             "Tag path %s already exists. Can't release same version twice!"
@@ -52,46 +64,47 @@ def main():
 
     # make branch, if needed
     if not os.path.isdir(os.path.join(svnroot, branch)):
-        # update trunk
-        cd(svntrunk)
-        runcmd('svn up')
-        cd(svnroot)
-        runcmd('svn copy %s %s' % (svn_trunk_url, branch))
-
-        # clean up setup.cfg and check in branch
-        cd(branch)
-
-        # remove dev tag from setup
-        runcmd('cp setup.cfg.release setup.cfg')
-        runcmd('svn rm setup.cfg.release --force')
-
+        # make branch
+        runcmd("svn copy %s %s -m 'Release branch for %s'"
+               % (svn_trunk_url, svn_branch_url, version))
+        # clean up setup.cfg and check in tag
         cd(branchroot)
-        runcmd("svn ci -m 'Release branch for %s'" % version)
-
+        runcmd('svn co %s' % svn_branch_url)
     else:
         # re-releasing branch
         cd(branch)
         runcmd('svn up')
 
     # make tag from branch
-    cd(svnroot)
-    runcmd('svn copy %s %s' % (branch, tag))
+    runcmd('svn copy %s %s -m "Release tag for %s"'
+           % (svn_branch_url, svn_tag_url, version))
 
-    # check in tag
+    # check out tag
     cd(tagroot)
-    runcmd("svn ci -m 'Release tag for %s'" % version)
-
-    # make docs
-    cd(svnroot)
+    runcmd('svn co %s' % svn_tag_url)
     cd(tag)
 
-    runcmd('scripts/mkindex.py')
-    runcmd('scripts/mkdocs.py')
+    # remove dev tag from setup
+    runcmd('cp setup.cfg.release setup.cfg')
+    runcmd('svn rm setup.cfg.release --force')
+    runcmd("svn ci -m 'Updated setup.cfg to release status'")
+
+    # wiki pages must be built from tag checkout
     runcmd('scripts/mkwiki.py')
 
-    # FIXME need to do this from an *export* to limit files included
+    # need to build dist from an *export* to limit files included
     # (setuptools includes too many files when run under a checkout)
-    # setup sdist
+
+    # export tag
+    cd('/tmp')
+    runcmd('svn export %s nose_rel_%s' % (svn_tag_url, version))
+    cd('nose_rel_%s' % version)
+
+    # make docs
+    runcmd('scripts/mkindex.py')
+    runcmd('scripts/mkdocs.py')
+
+    # make sdist
     runcmd('python setup.py sdist')
 
     # upload docs and distribution

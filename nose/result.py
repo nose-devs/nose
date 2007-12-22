@@ -11,7 +11,7 @@ reporting.
 import logging
 from unittest import _TextTestResult
 from nose.config import Config
-from nose.util import odict, ln as _ln # backwards compat
+from nose.util import isclass, odict, ln as _ln # backwards compat
 
 log = logging.getLogger('nose.result')
 
@@ -44,7 +44,7 @@ class TextTestResult(_TextTestResult):
             # 2.3 compat
             exc_info = self._exc_info_to_string(err)
         for cls, (storage, label, isfail) in self.errorClasses.items():
-            if issubclass(ec, cls):
+            if isclass(ec) and issubclass(ec, cls):
                 storage.append((test, exc_info))
                 # Might get patched into a streamless result
                 if stream is not None:

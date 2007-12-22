@@ -70,16 +70,28 @@ class Profile(Plugin):
         self.prof.close()
         stats = hotshot.stats.load(self.pfile)
         stats.sort_stats(self.sort)
-        try:
+
+        # 2.5 has completely different stream handling from 2.4 and earlier.
+        # Before 2.5, stats objects have no stream attribute; in 2.5 and later
+        # a reference sys.stdout is stored before we can tweak it.
+        compat_25 = hasattr(stats, 'stream')
+        if compat_25:
+            tmp = stats.stream
+            stats.stream = stream
+        else:
             tmp = sys.stdout
             sys.stdout = stream
+        try:
             if self.restrict:
                 log.debug('setting profiler restriction to %s', self.restrict)
                 stats.print_stats(*self.restrict)
             else:
                 stats.print_stats()
         finally:
-            sys.stdout = tmp
+            if compat_25:
+                stats.stream = tmp
+            else:
+                sys.stdout = tmp
 
     def finalize(self, result):
         try:

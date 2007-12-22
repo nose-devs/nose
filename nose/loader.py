@@ -341,8 +341,11 @@ class TestLoader(unittest.TestLoader):
             if addr.call:
                 name = addr.call
             parent, obj = self.resolve(name, module)
-            return suite(ContextList([self.makeTest(obj, parent)],
-                                     context=parent))
+            if isinstance(obj, Failure):
+                return suite([obj])
+            else:
+                return suite(ContextList([self.makeTest(obj, parent)],
+                                         context=parent))
         else:
             if addr.module:
                 try:

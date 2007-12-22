@@ -63,6 +63,29 @@ class TestResultProxy(unittest.TestCase):
             assert method in res.called, "%s was not proxied"
         self.assertEqual(res.shouldStop, 'yes please')
 
+    def test_attributes_are_proxied(self):
+        res = unittest.TestResult()
+        proxy = ResultProxy(res, test=None)
+        proxy.errors
+        proxy.failures
+        proxy.shouldStop
+        proxy.testsRun
+
+    def test_test_cases_can_access_result_attributes(self):
+        from nose.case import Test
+        class TC(unittest.TestCase):
+            def run(self, result):
+                unittest.TestCase.run(self, result)
+                print "errors", result.errors
+                print "failures", result.failures
+            def runTest(self):
+                pass
+        test = TC()
+        case = Test(test)
+        res = unittest.TestResult()
+        proxy = ResultProxy(res, test=case)
+        case(proxy)
+
     def test_proxy_handles_missing_methods(self):
         from nose.case import Test
         class TC(unittest.TestCase):

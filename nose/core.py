@@ -262,7 +262,8 @@ class TestProgram(unittest.TestProgram):
         if self.config.testNames:
             self.testNames = self.config.testNames
         else:
-            self.testNames = (self.defaultTest,)
+            self.testNames = tolist(self.defaultTest)
+        log.debug('defaultTest %s', self.defaultTest)
         log.debug('Test names are %s', self.testNames)
         if self.config.workingDir is not None:
             os.chdir(self.config.workingDir)

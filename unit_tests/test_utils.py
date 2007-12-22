@@ -1,8 +1,11 @@
+import os
 import unittest
 import nose
 from nose import case
 # don't import * -- some util functions look testlike
 from nose import util
+
+np = os.path.normpath
 
 class TestUtils(unittest.TestCase):
     
@@ -23,29 +26,31 @@ class TestUtils(unittest.TestCase):
         assert split_test_name('some.module') == \
             (None, 'some.module', None)
         assert split_test_name('this/file.py:func') == \
-            ('this/file.py', None, 'func')
+            (np('this/file.py'), None, 'func')
         assert split_test_name('some/file.py') == \
-            ('some/file.py', None, None)
+            (np('some/file.py'), None, None)
         assert split_test_name(':Baz') == \
             (None, None, 'Baz')
+        assert split_test_name('foo:bar/baz.py') == \
+            (np('foo:bar/baz.py'), None, None)
 
     def test_split_test_name_windows(self):
         # convenience
         stn = util.split_test_name
         self.assertEqual(stn(r'c:\some\path.py:a_test'),
-                         (r'c:\some\path.py', None, 'a_test'))
+                         (np(r'c:\some\path.py'), None, 'a_test'))
         self.assertEqual(stn(r'c:\some\path.py'),
-                         (r'c:\some\path.py', None, None))
+                         (np(r'c:\some\path.py'), None, None))
         self.assertEqual(stn(r'c:/some/other/path.py'),
-                         (r'c:/some/other/path.py', None, None))
+                         (np(r'c:/some/other/path.py'), None, None))
         self.assertEqual(stn(r'c:/some/other/path.py:Class.test'),
-                         (r'c:/some/other/path.py', None, 'Class.test'))
+                         (np(r'c:/some/other/path.py'), None, 'Class.test'))
         try:
-            stn('c:something')
+            stn('cat:dog:something')
         except ValueError:
             pass
         else:
-            self.fail("Ambiguous test name should throw ValueError")
+            self.fail("Nonsense test name should throw ValueError")
         
     def test_test_address(self):
         # test addresses are specified as

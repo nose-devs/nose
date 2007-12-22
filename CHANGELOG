@@ -1,3 +1,42 @@
+0.10.1
+
+- Fixed bug in capture plugin that caused it to record captured output
+  on the test in the wrong attribute (#113).
+- Fixed bug in result proxy that caused tests to fail if they accessed
+  certain result attibutes directly (#114). Thanks to Neilen Marais
+  for the bug report.
+- Fixed bug in capture plugin that caused other error formatters
+  changes to be lost if no output was captured (#124). Thanks to
+  someone at ilorentz.org for the bug report.
+- Fixed several bugs in the nosetests setup command that made some
+  options unusable and the command itself unusable when no options
+  were set (#125, #126, #128). Thanks to Alain Poirier for the bug
+  reports.
+- Fixed bug in handling of string errors (#130). Thanks to schl... at
+  uni-oldenburg.de for the bug report.
+- Fixed bug in coverage plugin option handling that prevented
+  --cover-package=mod1,mod2 from working (#117). Thanks to Allen
+  Bierbaum for the patch.
+- Fixed bug in profiler plugin that prevented output from being
+  produced when output capture was enabled on python 2.5
+  (#129). Thanks to James Casbon for the patch.
+- Fixed bug in adapting 0.9 plugins to 0.10 (#119 part one). Thanks to
+  John J Lee for the bug report and tests.
+- Fixed bug in handling of argv in config and plugin test utilities
+  (#119 part two). Thanks to John J Lee for the bug report and patch.
+- Fixed bug where Failure cases due to invalid test name
+  specifications were passed to plugins makeTest (#120). Thanks to
+  John J Lee for the bug report and patch.
+- Fixed bugs in doc css that mangled display in small windows. Thanks
+  to Ben Hoyt for the bug report and Michal Kwiatkowski for the fix.
+- Made it possible to pass a list or comma-separated string as
+  defaultTest to main(). Thanks to Allen Bierbaum for the suggestion
+  and patch.
+- Fixed a bug in nose.selector and nose.util.getpackage that caused
+  directories with names that are not legal python identifiers to be
+  collected as packages (#143). Thanks to John J Lee for the bug
+  report.
+
 0.10.0
 
 - Fixed bug that broke plugins with names containing underscores or
