@@ -97,23 +97,8 @@
         <pre>python setup.py install</pre>
       </p>
 
-      <p>If you have an older version of setuptools installed, you may see an
-        error like this:
-        
-        <blockquote>
-          <tt>The required version of setuptools (>=0.6c5) is not available, and
-          can't be installed while this script is running. Please install
-          a more recent version first.</tt>
-        </blockquote>
-        
-        In that case, you'll need to update your setuptools install first,
-        either by running:
-
-        <pre>easy_install -U setuptools</pre>
-
-        or:
-
-        <pre>python ez_setup.py</pre>
+      <p>However, <b>please note</b> that without setuptools
+	installed, you will not be able to use 3rd-party nose plugins.
       </p>
         
       %(body)s
