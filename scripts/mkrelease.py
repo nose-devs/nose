@@ -82,6 +82,7 @@ def main():
     # check out tag
     cd(tagroot)
     runcmd('svn co %s' % svn_tag_url)
+    cd(svnroot)
     cd(tag)
 
     # remove dev tag from setup
@@ -90,7 +91,7 @@ def main():
     runcmd("svn ci -m 'Updated setup.cfg to release status'")
 
     # wiki pages must be built from tag checkout
-    runcmd('scripts/mkwiki.py')
+    runcmd('./scripts/mkwiki.py')
 
     # need to build dist from an *export* to limit files included
     # (setuptools includes too many files when run under a checkout)
@@ -101,8 +102,8 @@ def main():
     cd('nose_rel_%s' % version)
 
     # make docs
-    runcmd('scripts/mkindex.py')
-    runcmd('scripts/mkdocs.py')
+    runcmd('./scripts/mkindex.py')
+    runcmd('./scripts/mkdocs.py')
 
     # make sdist
     runcmd('python setup.py sdist')
