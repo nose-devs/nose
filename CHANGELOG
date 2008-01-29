@@ -1,3 +1,9 @@
+0.10.2
+
+- Fixed bugs in loader and default plugin manager that caused plugin
+  exceptions to be swallowed (#152). Thanks to John J Lee for the bug
+  report and patch.
+
 0.10.1
 
 - Fixed bug in capture plugin that caused it to record captured output
