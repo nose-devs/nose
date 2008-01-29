@@ -5,6 +5,7 @@ import sys
 import ConfigParser
 from optparse import OptionParser
 from nose.util import absdir, tolist
+from nose.plugins.manager import NoPlugins
 from warnings import warn
 
 log = logging.getLogger(__name__)
@@ -416,16 +417,6 @@ class Config(object):
     def update(self, d):
         self.__dict__.update(d)
 
-
-class NoPlugins(object):
-    """Plugin 'manager' that includes no plugins and returns None
-    for all calls
-    """
-    def __getattr__(self, call):
-        return self
-
-    def __call__(self, *arg, **kw):
-        return
 
 class NoOptions(object):
     """Options container that returns None for all options.

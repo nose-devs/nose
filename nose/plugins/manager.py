@@ -48,7 +48,7 @@ import logging
 import os
 import sys
 from warnings import warn
-from nose.case import Failure
+from nose.failure import Failure
 from nose.plugins.base import IPluginInterface
 
 __all__ = ['DefaultPluginManager', 'PluginManager', 'EntryPointPluginManager',
@@ -128,15 +128,15 @@ class PluginProxy(object):
             result = None
             try:
                 result = meth(*arg, **kw)
+                if result is not None:
+                    for r in result:
+                        yield r
             except (KeyboardInterrupt, SystemExit):
                 raise
             except:
                 exc = sys.exc_info()
                 yield Failure(*exc)
-            else:
-                if result is not None:
-                    for r in result:
-                        yield r
+                continue
 
     def simple(self, *arg, **kw):
         """Call all plugins, returning the first non-None result.
@@ -160,6 +160,44 @@ class PluginProxy(object):
                 if suite_part:
                     suite.extend(suite_part)
         return suite, names
+
+
+class NoPlugins(object):
+    """Null Plugin manager that has no plugins."""
+    interface = IPluginInterface
+    def __init__(self):
+        self.plugins = ()
+
+    def __iter__(self):
+        return ()
+
+    def _doNothing(self, *args, **kwds):
+        pass
+
+    def _emptyIterator(self, *args, **kwds):
+        return ()
+
+    def __getattr__(self, call):
+        method = getattr(self.interface, call)
+        if getattr(method, "generative", False):
+            return self._emptyIterator
+        else:
+            return self._doNothing
+
+    def addPlugin(self, plug):
+        raise NotImplementedError()
+
+    def addPlugins(self, plugins):
+        raise NotImplementedError()
+
+    def configure(self, options, config):
+        pass
+
+    def loadPlugins(self):
+        pass
+
+    def sort(self, cmpf=None):
+        pass
 
 
 class PluginManager(object):

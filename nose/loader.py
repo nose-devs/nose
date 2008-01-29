@@ -13,7 +13,8 @@ import os
 import sys
 import unittest
 from inspect import isfunction, ismethod
-from nose.case import Failure, FunctionTestCase, MethodTestCase
+from nose.case import FunctionTestCase, MethodTestCase
+from nose.failure import Failure
 from nose.config import Config
 from nose.importer import Importer, add_path, remove_path
 from nose.selector import defaultSelector, TestAddress
@@ -159,16 +160,13 @@ class TestLoader(unittest.TestLoader):
                     # Another test dir in this one: recurse lazily
                     yield self.suiteClass(
                         lambda: self.loadTestsFromDir(entry_path))
-        # Catch TypeError and AttributeError exceptions here and discard
-        # them: the default plugin manager, NoPlugins, will raise TypeError
-        # on generative calls.
+        tests = []
+        for test in plugins.loadTestsFromDir(path):
+            tests.append(test)
+        # TODO: is this try/except needed?
         try:
-            tests = []
-            for test in plugins.loadTestsFromDir(path):
-                tests.append(test)
-            yield self.suiteClass(tests)
-        except (TypeError, AttributeError):
-            pass
+            if tests:
+                yield self.suiteClass(tests)
         except (KeyboardInterrupt, SystemExit):
             raise
         except:
@@ -295,18 +293,8 @@ class TestLoader(unittest.TestLoader):
         for path in paths:
             tests.extend(self.loadTestsFromDir(path))
             
-        # Catch TypeError and AttributeError exceptions here and discard
-        # them: the default plugin manager, NoPlugins, will raise TypeError
-        # on generative calls.
-        try:
-            for test in self.config.plugins.loadTestsFromModule(module):
-                tests.append(test)
-        except (TypeError, AttributeError):
-            pass
-        except (KeyboardInterrupt, SystemExit):
-            raise
-        except:
-            tests.append(Failure(*sys.exc_info()))
+        for test in self.config.plugins.loadTestsFromModule(module):
+            tests.append(test)
 
         return self.suiteClass(ContextList(tests, context=module))
     
@@ -426,18 +414,8 @@ class TestLoader(unittest.TestLoader):
         """
         cases = []
         plugins = self.config.plugins
-        # Catch TypeError and AttributeError exceptions here and discard
-        # them: the default plugin manager, NoPlugins, will raise TypeError
-        # on generative calls.
-        try:
-            for case in plugins.loadTestsFromTestCase(testCaseClass):
-                cases.append(case)
-        except (TypeError, AttributeError):
-            pass
-        except (KeyboardInterrupt, SystemExit):
-            raise
-        except:
-            cases.append(Failure(*sys.exc_info()))
+        for case in plugins.loadTestsFromTestCase(testCaseClass):
+            cases.append(case)
         # For efficiency in the most common case, just call and return from
         # super. This avoids having to extract cases and rebuild a context
         # suite when there are no plugin-contributed cases.
@@ -463,35 +441,21 @@ class TestLoader(unittest.TestLoader):
             return sel.wantMethod(item)
         cases = [self.makeTest(getattr(cls, case), cls)
                  for case in filter(wanted, dir(cls))]
-        # Catch TypeError and AttributeError exceptions here and discard
-        # them: the default plugin manager, NoPlugins, will raise TypeError
-        # on generative calls.
-        try:
-            for test in self.config.plugins.loadTestsFromTestClass(cls):
-                cases.append(test)
-        except (TypeError, AttributeError):
-            pass
-        except (KeyboardInterrupt, SystemExit):
-            raise
-        except:
-            cases.append(Failure(*sys.exc_info()))
+        for test in self.config.plugins.loadTestsFromTestClass(cls):
+            cases.append(test)
         return self.suiteClass(ContextList(cases, context=cls))
 
     def makeTest(self, obj, parent=None):
         """Given a test object and its parent, return a test case
         or test suite.
         """
-        # Catch TypeError and AttributeError exceptions here and discard
-        # them: the default plugin manager, NoPlugins, will raise TypeError
-        # on generative calls.
         plug_tests = []
+        for test in self.config.plugins.makeTest(obj, parent):
+            plug_tests.append(test)
+        # TODO: is this try/except needed?
         try:
-            for test in self.config.plugins.makeTest(obj, parent):
-                plug_tests.append(test)
             if plug_tests:
                 return self.suiteClass(plug_tests)
-        except (TypeError, AttributeError):
-            pass
         except (KeyboardInterrupt, SystemExit):
             raise
         except:

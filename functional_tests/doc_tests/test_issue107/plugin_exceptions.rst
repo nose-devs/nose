@@ -3,7 +3,7 @@ When Plugins Fail
 
 Plugin methods should not fail silently. When a plugin method raises
 an exception before or during the execution of a test, the exception
-will be wrapped in a `nose.case.Failure`_ instance and appear as a
+will be wrapped in a `nose.failure.Failure`_ instance and appear as a
 failing test. Exceptions raised at other times, such as in the
 preparation phase with ``prepareTestLoader`` or ``prepareTestResult``,
 or after a test executes, in ``afterTest`` will stop the entire test
@@ -89,4 +89,67 @@ of test execution, the entire test run fails when the plugin is used.
     Traceback (most recent call last):
     ...
     TypeError: That loader is not my type
-    
+
+
+Even AttributeErrors and TypeErrors are not silently suppressed as
+they used to be for some generative plugin methods (issueXXX).
+
+These methods caught TypeError and AttributeError and did not record
+the exception, before issue152 was fixed: .loadTestsFromDir(),
+.loadTestsFromModule(), .loadTestsFromTestCase(),
+loadTestsFromTestClass, and .makeTest().  Now, the exception is
+caught, but logged as a Failure.
+
+    >>> class FailLoadPlugin(EnabledPlugin):
+    ...     name = "fail-load"
+    ...     
+    ...     def loadTestsFromModule(self, module):
+    ...         # we're testing exception handling behaviour during
+    ...         # iteration, so be a generator function, without
+    ...         # actually yielding any tests
+    ...         if False:
+    ...             yield None
+    ...         raise TypeError("bug in plugin")
+
+    >>> run(argv=['nosetests', suitepath],
+    ...     plugins=[FailLoadPlugin()])
+    ..E
+    ======================================================================
+    ERROR: Failure: TypeError (bug in plugin)
+    ----------------------------------------------------------------------
+    Traceback (most recent call last):
+    ...
+    TypeError: bug in plugin
+    <BLANKLINE>
+    ----------------------------------------------------------------------
+    Ran 3 tests in ...s
+    <BLANKLINE>
+    FAILED (errors=1)
+
+
+Also, before issue152 was resolved, .loadTestsFromFile() and
+.loadTestsFromName() didn't catch these errors at all, so the
+following test would crash nose:
+
+    >>> class FailLoadFromNamePlugin(EnabledPlugin):
+    ...     name = "fail-load-from-name"
+    ...     
+    ...     def loadTestsFromName(self, name, module=None, importPath=None):
+    ...         if False:
+    ...             yield None
+    ...         raise TypeError("bug in plugin")
+
+    >>> run(argv=['nosetests', suitepath],
+    ...     plugins=[FailLoadFromNamePlugin()])
+    E
+    ======================================================================
+    ERROR: Failure: TypeError (bug in plugin)
+    ----------------------------------------------------------------------
+    Traceback (most recent call last):
+    ...
+    TypeError: bug in plugin
+    <BLANKLINE>
+    ----------------------------------------------------------------------
+    Ran 1 test in ...s
+    <BLANKLINE>
+    FAILED (errors=1)

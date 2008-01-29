@@ -2,6 +2,7 @@ import unittest
 import pdb
 import sys
 import nose.case
+import nose.failure
 from nose.config import Config
 from mock import ResultProxyFactory, ResultProxy
 
@@ -88,7 +89,7 @@ class TestNoseCases(unittest.TestCase):
 
     def test_failure_case(self):
         res = unittest.TestResult()
-        f = nose.case.Failure(ValueError, "a is not b")
+        f = nose.failure.Failure(ValueError, "No such test spam")
         f(res)
         assert res.errors
 

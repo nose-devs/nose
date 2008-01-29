@@ -2,6 +2,7 @@ import imp
 import sys
 from nose.config import Config
 from nose import proxy
+from nose.plugins.manager import NoPlugins
 from nose.util import odict
 
 
@@ -63,7 +64,11 @@ class RecordingPluginManager(object):
     def __getattr__(self, call):
         return RecordingPluginProxy(self, call)
 
+    def null_call(self, call, *arg, **kw):
+        return getattr(self._nullPluginManager, call)(*arg, **kw)
+
     def reset(self):
+        self._nullPluginManager = NoPlugins()
         self.called = odict()
 
     def calls(self):
@@ -75,9 +80,10 @@ class RecordingPluginProxy(object):
     def __init__(self, manager, call):
         self.man = manager
         self.call = call
-        
+
     def __call__(self, *arg, **kw):
         self.man.called.setdefault(self.call, []).append((arg, kw))
+        return self.man.null_call(self.call, *arg, **kw)
 
 
 class Bucket(object):

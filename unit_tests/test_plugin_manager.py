@@ -54,12 +54,12 @@ class TestPluginManager(unittest.TestCase):
                "Some plugins were not found by iteration: %s" % expect
 
     def test_plugin_generative_method_errors_not_hidden(self):
-        import nose.case
+        import nose.failure
         pm = PluginManager(plugins=[Plug3(), Plug4()])
         loaded = list(pm.loadTestsFromModule('whatever'))
         self.assertEqual(len(loaded), 2)
         for test in loaded:
-            assert isinstance(test, nose.case.Failure), \
+            assert isinstance(test, nose.failure.Failure), \
                    "%s is not a failure" % test
         
 
