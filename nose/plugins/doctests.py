@@ -107,7 +107,11 @@ class Doctest(Plugin):
         if not self.matches(module.__name__):
             log.debug("Doctest doesn't want module %s", module)
             return
-        tests = self.finder.find(module)
+        try:
+            tests = self.finder.find(module)
+        except AttributeError:
+            # nose allows module.__test__ = False; doctest does not
+            return
         if not tests:
             return
         tests.sort()
