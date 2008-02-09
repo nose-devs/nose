@@ -373,7 +373,7 @@ class Config(object):
             try:
                 cfg.readfp(file)
             except AttributeError:
-                # Filename not an fp
+                # Filename, not a file object
                 cfg.read(file)
         except ConfigParser.Error, e:
             warn("Error reading config file %s: %s" % (file, e),
