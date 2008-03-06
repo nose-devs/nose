@@ -109,7 +109,8 @@ def isclass(obj):
     """Is obj a class? inspect's isclass is too liberal and returns True
     for objects that can't be subclasses of anything.
     """
-    return type(obj) in class_types
+    obj_type = type(obj)
+    return obj_type in class_types or issubclass(obj_type, type)
 
 
 def isgenerator(func):

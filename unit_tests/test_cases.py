@@ -31,6 +31,22 @@ class TestNoseCases(unittest.TestCase):
         case(res)
         assert a[0] == 1
 
+    def test_method_test_case_with_metaclass(self):
+        res = unittest.TestResult()
+        
+        class TestType(type):
+            def __new__(cls, name, bases, dct):
+                return type.__new__(cls, name, bases, dct)
+        a = []
+        class TestClass(object):
+            __metaclass__ = TestType
+            def test_func(self, a=a):
+                a.append(1)
+
+        case = nose.case.MethodTestCase(TestClass.test_func)
+        case(res)
+        assert a[0] == 1
+
     def test_method_test_case_fixtures(self):        
         res = unittest.TestResult()
         called = []

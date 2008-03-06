@@ -52,11 +52,17 @@ class TestSelector(unittest.TestCase):
             pass
         class TestMe:
             pass
+        class TestType(type):
+            def __new__(cls, name, bases, dct):
+                return type.__new__(cls, name, bases, dct)
+        class TestClass(object):
+            __metaclass__ = TestType
         
         s = Selector(Config())
         assert not s.wantClass(Foo)
         assert s.wantClass(Bar)
         assert s.wantClass(TestMe)
+        assert s.wantClass(TestClass)
 
         TestMe.__test__ = False
         assert not s.wantClass(TestMe), "Failed to respect __test__ = False"

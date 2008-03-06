@@ -32,6 +32,8 @@ def mods():
         '/package/subpackage/__init__.py')
     M['test_module_with_generators'] = imp.new_module(
         'test_module_with_generators')
+    M['test_module_with_metaclass_tests'] = imp.new_module(
+        'test_module_with_metaclass_tests')
 
     # a unittest testcase subclass
     class TC(unittest.TestCase):
@@ -40,6 +42,17 @@ def mods():
 
     class TC2(unittest.TestCase):
         def runTest(self):
+            pass
+    
+    # test class that uses a metaclass
+    class TCType(type):
+        def __new__(cls, name, bases, dct):
+            return type.__new__(cls, name, bases, dct)
+    class TestMetaclassed(object):
+        __metaclass__ = TCType
+        def test_one(self):
+            pass
+        def test_two(self):
             pass
 
     # test function
@@ -110,8 +123,12 @@ def mods():
     test_func_generator_name.__module__ = 'test_module_with_generators'
     test_func_generator.__module__ = 'test_module_with_generators'
     try_odd.__module__ = 'test_module_with_generators'
+    M['test_module_with_metaclass_tests'].TestMetaclassed = TestMetaclassed
+    TestMetaclassed.__module__ = 'test_module_with_metaclass_tests'
     del TC
     del TC2
+    del TestMetaclassed
+    # del TCType
     del test_func
     del TestClass
     del test_func_generator
@@ -399,6 +416,15 @@ class TestTestLoader(unittest.TestCase):
         print suite
         tests = [t for t in suite]
         assert len(tests) == 0, "Expected no tests, got %s" % tests
+    
+    def test_load_metaclass_customized_classes(self):
+        print "load metaclass-customized classes"
+        test_module_with_generators = M['test_module_with_metaclass_tests']
+        l = self.l
+        suite = l.loadTestsFromModule(test_module_with_generators)
+        tc = [t for t in suite][0]
+        tc_methods = [m for m in tc]
+        self.assertEqual(len(tc_methods), 2)
 
     def test_load_generators(self):
         print "load generators"
