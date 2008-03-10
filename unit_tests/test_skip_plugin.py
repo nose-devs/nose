@@ -80,9 +80,7 @@ class TestSkipPlugin(unittest.TestCase):
         res.printErrors()
         out = stream.getvalue()
         assert out
-        assert out.startswith('S')
-        assert 'SKIP: ' in out
-        assert 'skip me' in out
+        assert out.strip() == "S"
         assert res.wasSuccessful()
 
     def test_skip_output_verbose(self):

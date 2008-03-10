@@ -16,6 +16,14 @@ from nose.util import isclass, odict, ln as _ln # backwards compat
 log = logging.getLogger('nose.result')
 
 
+def _exception_detail(exc):
+    # this is what stdlib module traceback does
+    try:
+        return str(exc)
+    except:
+        return '<unprintable %s object>' % type(exc).__name__
+
+
 class TextTestResult(_TextTestResult):
     """Text test result that extends unittest's default test result
     support for a configurable set of errorClasses (eg, Skip,
@@ -49,7 +57,11 @@ class TextTestResult(_TextTestResult):
                 # Might get patched into a streamless result
                 if stream is not None:
                     if self.showAll:
-                        stream.writeln(label)
+                        message = [label]
+                        detail = _exception_detail(err[1])
+                        if detail:
+                            message.append(detail)
+                        stream.writeln(": ".join(message))
                     elif self.dots:
                         stream.write(label[:1])
                 return
@@ -66,7 +78,8 @@ class TextTestResult(_TextTestResult):
         _TextTestResult.printErrors(self)
         for cls in self.errorClasses.keys():
             storage, label, isfail = self.errorClasses[cls]
-            self.printErrorList(label, storage)
+            if isfail:
+                self.printErrorList(label, storage)
         # Might get patched into a result with no config
         if hasattr(self, 'config'):
             self.config.plugins.report(self.stream)

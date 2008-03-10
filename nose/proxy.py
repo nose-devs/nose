@@ -123,7 +123,7 @@ class ResultProxy(object):
             err = formatted
         plugins.addError(self.test, err)
         self.result.addError(self.test, err)
-        if self.config.stopOnError:
+        if not self.result.wasSuccessful() and self.config.stopOnError:
             self.shouldStop = True
 
     def addFailure(self, test, err):

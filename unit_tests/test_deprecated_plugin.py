@@ -82,9 +82,7 @@ class TestDeprecatedPlugin(unittest.TestCase):
         res.printErrors()
         out = stream.getvalue()
         assert out
-        assert out.startswith('D')
-        assert 'DEPRECATED: ' in out
-        assert 'deprecated me' in out
+        assert out.strip() == "D"
         assert res.wasSuccessful()
 
     def test_deprecated_output_verbose(self):
