@@ -28,6 +28,7 @@ try:
     from cStringIO import StringIO
 except ImportError:
     from StringIO import StringIO
+import sys
 
 log = logging.getLogger(__name__)
 
@@ -57,7 +58,7 @@ class NoseOutputRedirectingPdb(_orp):
 
     def set_trace(self):
         self.__debugger_used = True
-        _orp.set_trace(self)
+        _orp.set_trace(self, sys._getframe().f_back)
 
     def set_continue(self):
         # Calling set_continue unconditionally would break unit test 
