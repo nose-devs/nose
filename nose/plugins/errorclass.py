@@ -111,11 +111,11 @@ class ErrorClass(object):
     def __init__(self, *errorClasses, **kw):
         self.errorClasses = errorClasses
         try:
-            self.label = kw.pop('label')
-            self.isfailure = kw.pop('isfailure')
-        except KeyError, e:
-            raise TypeError("%s is a required named argument for ErrorClass"
-                            % e)
+            for key in ('label', 'isfailure'):
+                setattr(self, key, kw.pop(key))
+        except KeyError:
+            raise TypeError("%r is a required named argument for ErrorClass"
+                            % key)
 
     def __iter__(self):
         return iter(self.errorClasses)
