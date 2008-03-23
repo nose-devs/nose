@@ -14,8 +14,8 @@ represent test failures.
     >>> support = os.path.join(os.path.dirname(__file__), 'support')
     >>> sys.path.insert(0, support)
 
-    >>> from errorclass_failure_plugin import (Todo, TodoPlugin,
-    ...                                        NonFailureTodoPlugin)
+    >>> from errorclass_failure_plugin import Todo, TodoPlugin, \
+    ...                                       NonFailureTodoPlugin
 
     >>> todo_test = os.path.join(support, 'errorclass_failing_test.py')
     >>> misc_test = os.path.join(support, 'errorclass_tests.py')
