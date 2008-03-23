@@ -87,9 +87,9 @@ class Test(unittest.TestCase):
         fed back as input to loadTestByName and (assuming the same
         plugin configuration) result in the loading of this test.
         """
-        try:
+        if hasattr(self.test, 'address'):
             return self.test.address()
-        except AttributeError:
+        else:
             # not a nose case
             return test_address(self.test)
 

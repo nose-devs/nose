@@ -99,19 +99,15 @@ class ResultProxy(object):
     def afterTest(self, test):
         self.assertMyTest(test)
         self.plugins.afterTest(self.test)
-        try:
+        if hasattr(self.result, "afterTest"):
             self.result.afterTest(self.test)
-        except AttributeError:
-            pass
 
     def beforeTest(self, test):
         self.assertMyTest(test)
         self.plugins.beforeTest(self.test)
-        try:
+        if hasattr(self.result, "beforeTest"):
             self.result.beforeTest(self.test)
-        except AttributeError:
-            pass
-        
+
     def addError(self, test, err):
         self.assertMyTest(test)
         plugins = self.plugins

@@ -97,6 +97,9 @@ class Profile(Plugin):
         try:
             self.prof.close()
         except AttributeError:
+            # TODO: is this trying to catch just the case where not
+            # hasattr(self.prof, "close")?  If so, the function call should be
+            # moved out of the try: suite.
             pass
         if self.clean_stats_file:
             if self.fileno:

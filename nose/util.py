@@ -322,10 +322,8 @@ def test_address(test):
     """Find the test address for a test, which may be a module, filename,
     class, method or function.
     """
-    try:
+    if hasattr(test, "address"):
         return test.address()
-    except AttributeError:
-        pass
     # type-based polymorphism sucks in general, but I believe is
     # appropriate here
     t = type(test)

@@ -97,11 +97,7 @@ class Doctest(Plugin):
     def configure(self, options, config):
         Plugin.configure(self, options, config)
         self.doctest_tests = options.doctest_tests
-        try:
-            self.extension = tolist(options.doctestExtension)
-        except AttributeError:
-            # 2.3, no other-file option
-            self.extension = None
+        self.extension = tolist(options.doctestExtension)
         self.finder = doctest.DocTestFinder()
 
     def loadTestsFromModule(self, module):
@@ -111,7 +107,8 @@ class Doctest(Plugin):
         try:
             tests = self.finder.find(module)
         except AttributeError:
-            # nose allows module.__test__ = False; doctest does not
+            # nose allows module.__test__ = False; doctest does not and throws
+            # AttributeError
             return
         if not tests:
             return
