@@ -34,7 +34,8 @@ def _ls_tree_lines(dir_path, skip_pattern,
 
     lines = []
 
-    names = sorted(os.listdir(dir_path))
+    names = os.listdir(dir_path)
+    names.sort()
     dirs, nondirs = [], []
     for name in names:
         if re.match(skip_pattern, name):
@@ -45,8 +46,8 @@ def _ls_tree_lines(dir_path, skip_pattern,
             nondirs.append(name)
 
     # list non-directories first
-    entries = list(itertools.chain(((name, False) for name in nondirs),
-                                   ((name, True) for name in dirs)))
+    entries = list(itertools.chain([(name, False) for name in nondirs],
+                                   [(name, True) for name in dirs]))
     def ls_entry(name, is_dir, ind, branch_ind):
         if not is_dir:
             yield ind + name
