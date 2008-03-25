@@ -1,6 +1,7 @@
 """Utility functions and classes used by nose internally.
 """
 import inspect
+import itertools
 import logging
 import os
 import re
@@ -14,6 +15,57 @@ log = logging.getLogger('nose')
 
 ident_re = re.compile(r'^[A-Za-z_][A-Za-z0-9_.]*$')
 class_types = (ClassType, TypeType)
+
+
+def ls_tree(dir_path="",
+            skip_pattern=r"(?:\.svn)|(?:[^.]+\.py[co])|(?:.*~)",
+            indent="|-- ", branch_indent="|   ",
+            last_indent="`-- ", last_branch_indent="    "):
+    # TODO: empty directories look like non-directory files
+    return "\n".join(_ls_tree_lines(dir_path, skip_pattern,
+                                    indent, branch_indent,
+                                    last_indent, last_branch_indent))
+
+
+def _ls_tree_lines(dir_path, skip_pattern,
+                   indent, branch_indent, last_indent, last_branch_indent):
+    if dir_path == "":
+        dir_path = os.getcwd()
+
+    lines = []
+
+    names = sorted(os.listdir(dir_path))
+    dirs, nondirs = [], []
+    for name in names:
+        if re.match(skip_pattern, name):
+            continue
+        if os.path.isdir(os.path.join(dir_path, name)):
+            dirs.append(name)
+        else:
+            nondirs.append(name)
+
+    # list non-directories first
+    entries = list(itertools.chain(((name, False) for name in nondirs),
+                                   ((name, True) for name in dirs)))
+    def ls_entry(name, is_dir, ind, branch_ind):
+        if not is_dir:
+            yield ind + name
+        else:
+            path = os.path.join(dir_path, name)
+            if not os.path.islink(path):
+                yield ind + name
+                subtree = _ls_tree_lines(path, skip_pattern,
+                                         indent, branch_indent,
+                                         last_indent, last_branch_indent)
+                for x in subtree:
+                    yield branch_ind + x
+    for name, is_dir in entries[:-1]:
+        for line in ls_entry(name, is_dir, indent, branch_indent):
+            yield line
+    if entries:
+        name, is_dir = entries[-1]
+        for line in ls_entry(name, is_dir, last_indent, last_branch_indent):
+            yield line
 
 
 def absdir(path):

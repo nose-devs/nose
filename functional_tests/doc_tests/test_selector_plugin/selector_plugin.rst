@@ -12,30 +12,30 @@ older projects with a different test naming scheme. Fortunately, you
 can easily override this behavior by providing a custom selector using
 a plugin.
 
-In this example, the project to be tested consists of a module and
-package and associated tests, layed out like this::
-
-  |-- mymodule.py
-  |-- mypackage
-  |   |-- __init__.py
-  |   |-- math
-  |   |   |-- __init__.py
-  |   |   `-- basic.py
-  |   `-- strings.py
-  `-- tests
-      |-- testlib.py
-      |-- math
-      |   `-- basic.py
-      |-- mymodule
-      |   `-- my_function.py
-      `-- strings
-          `-- cat.py
-
-The project is located in the ``support`` directory next to this test file.
-
     >>> import os
     >>> support = os.path.join(os.path.dirname(__file__), 'support')
-  
+
+In this example, the project to be tested consists of a module and
+package and associated tests, laid out like this::
+
+    >>> from nose.util import ls_tree
+    >>> print ls_tree(support)
+    |-- mymodule.py
+    |-- mypackage
+    |   |-- __init__.py
+    |   |-- strings.py
+    |   `-- math
+    |       |-- __init__.py
+    |       `-- basic.py
+    `-- tests
+        |-- testlib.py
+        |-- math
+        |   `-- basic.py
+        |-- mymodule
+        |   `-- my_function.py
+        `-- strings
+            `-- cat.py
+
 Because the test modules do not include ``test`` in their names,
 nose's default selector is unable to discover this project's tests.
 
