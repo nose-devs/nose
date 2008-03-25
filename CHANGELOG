@@ -1,9 +1,14 @@
 0.10.2
 
+- nose now runs under jython (jython svn trunk only at this time). Thanks to
+  Philip Jenvey, Pam Zerbinos and the other pycon sprinters (#160).
 - Fixed bugs in loader and default plugin manager that caused plugin
   exceptions to be swallowed (#152). Thanks to John J Lee for the bug
   report and patch.
-
+- Added selftest.py script, used to test a non-installed distribution of
+  nose. Thanks to Antoine Pitrou and John J Lee for the bug report and
+  patches.
+  
 0.10.1
 
 - Fixed bug in capture plugin that caused it to record captured output
