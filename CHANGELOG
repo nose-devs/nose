@@ -8,6 +8,8 @@
 - Added selftest.py script, used to test a non-installed distribution of
   nose. Thanks to Antoine Pitrou and John J Lee for the bug report and
   patches.
+- Fixed bug in nose.importer that caused errors with namespace
+  packages. Thanks to Philip Jenvey for the bug report and patch (#164).
   
 0.10.1
 

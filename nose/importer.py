@@ -94,23 +94,28 @@ class Importer(object):
         return mod
 
     def sameModule(self, mod, filename):
+        mod_paths = []
         if hasattr(mod, '__path__'):
-            mod_path = os.path.dirname(
-                os.path.normpath(
-                os.path.abspath(mod.__path__[0])))
+            for path in mod.__path__:
+                mod_paths.append(os.path.dirname(
+                    os.path.normpath(
+                    os.path.abspath(path))))
         elif hasattr(mod, '__file__'):
-            mod_path = os.path.dirname(
+            mod_paths.append(os.path.dirname(
                 os.path.normpath(
-                os.path.abspath(mod.__file__)))
+                os.path.abspath(mod.__file__))))
         else:
             # builtin or other module-like object that
             # doesn't have __file__; must be new
             return False
         new_path = os.path.dirname(os.path.normpath(filename))
-        log.debug(
-            "module already loaded? mod: %s new: %s",
-            mod_path, new_path)
-        return mod_path == new_path
+        for mod_path in mod_paths:
+            log.debug(
+                "module already loaded? mod: %s new: %s",
+                mod_path, new_path)
+            if mod_path == new_path:
+                return True
+        return False
 
 
 def add_path(path, config=None):
