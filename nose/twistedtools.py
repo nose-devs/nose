@@ -28,7 +28,6 @@ Or, more realistically::
 
 import sys
 from Queue import Queue, Empty
-
 from nose.tools import make_decorator, TimeExpired
 
 __all__ = [
@@ -45,7 +44,10 @@ def threaded_reactor():
     The thread will automatically be destroyed when all the tests are done.
     """
     global _twisted_thread
-    from twisted.internet import reactor
+    try:
+        from twisted.internet import reactor
+    except ImportError:
+        return None, None
     if not _twisted_thread:
         from twisted.python import threadable
         from threading import Thread
@@ -110,7 +112,8 @@ def deferred(timeout=None):
             return reactor.resolve("xxxjhjhj.biz")
     """
     reactor, reactor_thread = threaded_reactor()
-
+    if reactor is None:
+        raise ImportError("twisted is not available or could not be imported")
     # Check for common syntax mistake
     # (otherwise, tests can be silently ignored
     # if one writes "@deferred" instead of "@deferred()")

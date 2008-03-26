@@ -10,6 +10,7 @@
 # python 2.3:
 #
 # - all doctests removed from module (they fail under 2.3 and 2.5) 
+# - now handles the $py.class extension when ran under Jython
 
 r"""Module doctest -- a framework for running examples in docstrings.
 
@@ -970,6 +971,9 @@ class DocTestFinder:
             filename = getattr(module, '__file__', module.__name__)
             if filename[-4:] in (".pyc", ".pyo"):
                 filename = filename[:-1]
+            elif sys.platform.startswith('java') and \
+                    filename.endswith('$py.class'):
+                filename = '%s.py' % filename[:-9]
         return self._parser.get_doctest(docstring, globs, name,
                                         filename, lineno)
 
@@ -2060,6 +2064,9 @@ def DocTestSuite(module=None, globs=None, extraglobs=None, test_finder=None,
             filename = module.__file__
             if filename[-4:] in (".pyc", ".pyo"):
                 filename = filename[:-1]
+            elif sys.platform.startswith('java') and \
+                    filename.endswith('$py.class'):
+                filename = '%s.py' % filename[:-9]
             test.filename = filename
         suite.addTest(DocTestCase(test, **options))
 

@@ -7,7 +7,11 @@ See the hotshot documentation in the standard library documentation for
 more details on the various output options.
 """
 
-import hotshot, hotshot.stats
+try:
+    import hotshot
+    from hotshot import stats
+except ImportError:
+    hotshot, stats = None, None
 import logging
 import os
 import sys
@@ -24,6 +28,8 @@ class Profile(Plugin):
     pfile = None
     clean_stats_file = False
     def options(self, parser, env=os.environ):
+        if not self.available():
+            return
         Plugin.options(self, parser, env)                
         parser.add_option('--profile-sort', action='store', dest='profile_sort',
                           default=env.get('NOSE_PROFILE_SORT', 'cumulative'),
@@ -38,16 +44,24 @@ class Profile(Plugin):
                           default=env.get('NOSE_PROFILE_RESTRICT'),
                           help="Restrict profiler output. See help for "
                           "pstats.Stats for details")
-    
+
+    def available(cls):
+        return hotshot is not None
+    available = classmethod(available)
+        
     def begin(self):
+        if not self.available():
+            return
         self._create_pfile()
         self.prof = hotshot.Profile(self.pfile)
 
     def configure(self, options, conf):
+        if not self.available():
+            self.enabled = False
+            return
         Plugin.configure(self, options, conf)
         self.options = options
         self.conf = conf
-
         if options.profile_stats_file:
             self.pfile = options.profile_stats_file
             self.clean_stats_file = False
@@ -59,6 +73,8 @@ class Profile(Plugin):
         self.restrict = tolist(options.profile_restrict)
             
     def prepareTest(self, test):
+        if not self.available():
+            return
         log.debug('preparing test %s' % test)
         def run_and_profile(result, prof=self.prof, test=test):
             self._create_pfile()
@@ -68,15 +84,15 @@ class Profile(Plugin):
     def report(self, stream):
         log.debug('printing profiler report')
         self.prof.close()
-        stats = hotshot.stats.load(self.pfile)
-        stats.sort_stats(self.sort)
+        prof_stats = stats.load(self.pfile)
+        prof_stats.sort_stats(self.sort)
 
         # 2.5 has completely different stream handling from 2.4 and earlier.
         # Before 2.5, stats objects have no stream attribute; in 2.5 and later
         # a reference sys.stdout is stored before we can tweak it.
         compat_25 = hasattr(stats, 'stream')
         if compat_25:
-            tmp = stats.stream
+            tmp = prof_stats.stream
             stats.stream = stream
         else:
             tmp = sys.stdout
@@ -84,9 +100,9 @@ class Profile(Plugin):
         try:
             if self.restrict:
                 log.debug('setting profiler restriction to %s', self.restrict)
-                stats.print_stats(*self.restrict)
+                prof_stats.print_stats(*self.restrict)
             else:
-                stats.print_stats()
+                prof_stats.print_stats()
         finally:
             if compat_25:
                 stats.stream = tmp
@@ -94,6 +110,8 @@ class Profile(Plugin):
                 sys.stdout = tmp
 
     def finalize(self, result):
+        if not self.available():
+            return
         try:
             self.prof.close()
         except AttributeError:

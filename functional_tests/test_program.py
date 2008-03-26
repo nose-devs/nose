@@ -1,6 +1,7 @@
 import os
 import unittest
 from cStringIO import StringIO
+from nose import SkipTest
 from nose.core import TestProgram
 from nose.config import Config
 from nose.plugins.manager import DefaultPluginManager
@@ -94,6 +95,10 @@ class TestTestProgram(unittest.TestCase):
 
         This should collect and run 4 tests with 2 fails and an error.
         """
+        try:
+            from twisted.trial.unittest import TestCase
+        except ImportError:
+            raise SkipTest('twisted not available; skipping')
         stream = StringIO()
         runner = TestRunner(stream=stream, verbosity=2)
 
@@ -108,7 +113,6 @@ class TestTestProgram(unittest.TestCase):
         # some versions of twisted.trial.unittest.TestCase have
         # runTest in the base class -- this is wrong! But we have
         # to deal with it
-        from twisted.trial.unittest import TestCase
         if hasattr(TestCase, 'runTest'):
             expect = 5
         else:

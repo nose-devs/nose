@@ -15,10 +15,10 @@ log = logging.getLogger('nose')
 
 ident_re = re.compile(r'^[A-Za-z_][A-Za-z0-9_.]*$')
 class_types = (ClassType, TypeType)
-
+skip_pattern = r"(?:\.svn)|(?:[^.]+\.py[co])|(?:.*~)|(?:.*\$py\.class)"
 
 def ls_tree(dir_path="",
-            skip_pattern=r"(?:\.svn)|(?:[^.]+\.py[co])|(?:.*~)",
+            skip_pattern=skip_pattern,
             indent="|-- ", branch_indent="|   ",
             last_indent="`-- ", last_branch_indent="    "):
     # TODO: empty directories look like non-directory files
@@ -196,6 +196,9 @@ def ispackage(path):
             for init in ('__init__.py', '__init__.pyc', '__init__.pyo'):
                 if os.path.isfile(os.path.join(path, init)):
                     return True
+            if sys.platform.startswith('java') and \
+                    os.path.isfile(os.path.join(path, '__init__$py.class')):
+                return True
     return False
 
 
@@ -451,11 +454,14 @@ def try_run(obj, names):
 
 
 def src(filename):
-    """Find the python source file for a .pyc or .pyo file. Returns the 
-    filename provided if it is not a python source file.
+    """Find the python source file for a .pyc, .pyo or $py.class file on
+    jython. Returns the filename provided if it is not a python source
+    file.
     """
     if filename is None:
         return filename
+    if sys.platform.startswith('java') and filename.endswith('$py.class'):
+        return '.'.join((filename[:-9], 'py'))
     base, ext = os.path.splitext(filename)
     if ext in ('.pyc', '.pyo', '.py'):
         return '.'.join((base, 'py'))

@@ -37,6 +37,7 @@ __test__ = False
 import logging
 import os
 from nose.plugins import Plugin
+from nose.util import src
 
 try:
     from cPickle import dump, load
@@ -114,9 +115,7 @@ class TestId(Plugin):
         log.debug("Make name %s", addr)
         filename, module, call = addr
         if filename is not None:
-            if filename[-4:] in ('.pyc', '.pyo'):
-                filename = filename[:-1]
-            head = filename
+            head = src(filename)
         else:
             head = module
         if call is not None:

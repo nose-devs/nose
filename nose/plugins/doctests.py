@@ -23,7 +23,7 @@ import logging
 import os
 from inspect import getmodule
 from nose.plugins.base import Plugin
-from nose.util import anyp, getpackage, test_address, resolve_name, tolist
+from nose.util import anyp, getpackage, test_address, resolve_name, src, tolist
 try:
     from cStringIO import StringIO
 except ImportError:
@@ -113,9 +113,7 @@ class Doctest(Plugin):
         if not tests:
             return
         tests.sort()
-        module_file = module.__file__
-        if module_file[-4:] in ('.pyc', '.pyo'):
-            module_file = module_file[:-1]
+        module_file = src(module.__file__)
         for test in tests:
             if not test.examples:
                 continue

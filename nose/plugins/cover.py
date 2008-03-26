@@ -14,7 +14,7 @@ import logging
 import os
 import sys
 from nose.plugins.base import Plugin
-from nose.util import tolist
+from nose.util import src, tolist
 
 log =  logging.getLogger(__name__)
 
@@ -105,8 +105,8 @@ class Coverage(Plugin):
         if not hasattr(module, '__file__'):
             log.debug("no coverage of %s: no __file__", name)
             return False
-        root, ext = os.path.splitext(module.__file__)
-        if not ext in ('.py', '.pyc', '.pyo'):
+        module_file = src(module.__file__)
+        if not module_file or not module_file.endswith('.py'):
             log.debug("no coverage of %s: not a python file", name)
             return False
         if self.coverPackages:
