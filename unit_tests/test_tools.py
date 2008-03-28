@@ -149,6 +149,59 @@ class TestTools(unittest.TestCase):
         if compat_24:
             assert 'assert_true' in tc_asserts
 
+    def test_multiple_with_setup(self):
+        from nose.tools import with_setup
+        from nose.case import FunctionTestCase
+        from unittest import TestResult
+        
+        called = []
+        def test():
+            called.append('test')
+
+        def test2():
+            called.append('test2')
+
+        def test3():
+            called.append('test3')
             
+        def s1():
+            called.append('s1')
+
+        def s2():
+            called.append('s2')
+
+        def s3():
+            called.append('s3')
+            
+        def t1():
+            called.append('t1')
+
+        def t2():
+            called.append('t2')
+
+        def t3():
+            called.append('t3')
+            
+        ws1 = with_setup(s1, t1)(test)
+        case1 = FunctionTestCase(ws1)
+        case1(TestResult())
+        self.assertEqual(called, ['s1', 'test', 't1'])
+
+        called[:] = []
+        ws2 = with_setup(s2, t2)(test2)
+        ws2 = with_setup(s1, t1)(ws2)
+        case2 = FunctionTestCase(ws2)
+        case2(TestResult())
+        self.assertEqual(called, ['s1', 's2', 'test2', 't2', 't1'])
+
+        called[:] = []
+        ws3 = with_setup(s3, t3)(test3)
+        ws3 = with_setup(s2, t2)(ws3)
+        ws3 = with_setup(s1, t1)(ws3)
+        case3 = FunctionTestCase(ws3)
+        case3(TestResult())
+        self.assertEqual(called, ['s1', 's2', 's3',
+                                  'test3', 't3', 't2', 't1'])
+        
 if __name__ == '__main__':
     unittest.main()

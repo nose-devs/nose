@@ -135,9 +135,23 @@ def with_setup(setup=None, teardown=None):
     """
     def decorate(func, setup=setup, teardown=teardown):
         if setup:
-            func.setup = setup
+            if hasattr(func, 'setup'):
+                _old_s = func.setup
+                def _s():
+                    setup()
+                    _old_s()
+                func.setup = _s
+            else:
+                func.setup = setup
         if teardown:
-            func.teardown = teardown
+            if hasattr(func, 'teardown'):
+                _old_t = func.teardown
+                def _t():
+                    _old_t()
+                    teardown()
+                func.teardown = _t
+            else:
+                func.teardown = teardown
         return func
     return decorate
 
