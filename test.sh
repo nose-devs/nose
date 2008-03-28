@@ -11,7 +11,7 @@ echo
 echo "python 2.5..."
 python2.5 selftest.py
 
-if [ "$JYTHONx" != "x" ] 
+if [ "${JYTHON}x" != "x" ] 
 then
     echo
     echo "jython..."
