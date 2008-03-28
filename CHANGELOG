@@ -10,6 +10,8 @@
   patches.
 - Fixed bug in nose.importer that caused errors with namespace
   packages. Thanks to Philip Jenvey for the bug report and patch (#164).
+- Fixed bug in nose.tools.with_setup that prevented use of multiple
+  @with_setup decorators. Thanks to tlesher for the bug report (#151).
   
 0.10.1
 
