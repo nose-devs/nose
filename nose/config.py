@@ -101,7 +101,7 @@ class ConfiguredDefaultsOptionParser(object):
         else:
             option.process(opt_str, value, values, parser)
 
-    def _applyConfigurationToValues(self, parser, config, values, plugins=None):
+    def _applyConfigurationToValues(self, parser, config, values):
         for name, value, filename in config:
             if name in option_blacklist:
                 continue
@@ -125,8 +125,7 @@ class ConfiguredDefaultsOptionParser(object):
         except ConfigError, exc:
             self._error(str(exc))
         else:
-            self._applyConfigurationToValues(
-                self._parser, config, values)                
+            self._applyConfigurationToValues(self._parser, config, values)
         return self._parser.parse_args(args, values)
 
 
