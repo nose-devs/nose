@@ -49,7 +49,7 @@ the tests fail.
    output to remove timings, which will vary from run to run, and
    redirects the output to stdout.
 
-    >>> from nose.plugins.plugintest import run
+    >>> from nose.plugins.plugintest import run_buffered as run
 
 ..
 

@@ -396,20 +396,31 @@ class RestrictedPluginManager(DefaultPluginManager):
     an excluded method will be removed from the manager's plugin list
     after plugins are loaded.
     """
-    def __init__(self, plugins=(), exclude=()):
+    def __init__(self, plugins=(), exclude=(), load=True):
         DefaultPluginManager.__init__(self, plugins)
+        self.load = load
         self.exclude = exclude
-
+        self.excluded = []
+        self._excludedOpts = None
+        
+    def excludedOption(self, name):
+        if self._excludedOpts is None:
+            from optparse import OptionParser
+            self._excludedOpts = OptionParser(add_help_option=False)
+            for plugin in self.excluded:
+                plugin.options(self._excludedOpts, env={})
+        return self._excludedOpts.get_option('--' + name)
+        
     def loadPlugins(self):
-        DefaultPluginManager.loadPlugins(self)
+        if self.load:
+            DefaultPluginManager.loadPlugins(self)
         allow = []
         for plugin in self.plugins:
             ok = True
             for method in self.exclude:
                 if hasattr(plugin, method):
-                    warn("Exclude plugin %s: implements %s" % (plugin, method),
-                         RuntimeWarning)
                     ok = False
+                    self.excluded.append(plugin)
                     break
             if ok:
                 allow.append(plugin)

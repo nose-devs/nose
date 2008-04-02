@@ -14,6 +14,9 @@
   @with_setup decorators. Thanks to tlesher for the bug report (#151).
 - Fixed bugs in handling of context fixtures for tests imported into a
   package. Thanks to Gary Bernhardt for the bug report (#145).
+- Fixed bugs in handling of config files and config file options for plugins
+  excluded by a RestrictedPluginManager. Thanks to John J Lee and Philip
+  Jenvey for the bug reports and patches (#158, #166).
   
 0.10.1
 

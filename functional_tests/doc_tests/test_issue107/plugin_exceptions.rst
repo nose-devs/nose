@@ -12,7 +12,7 @@ run.
     >>> import os
     >>> import sys
     >>> from nose.plugins import Plugin
-    >>> from nose.plugins.plugintest import run
+    >>> from nose.plugins.plugintest import run_buffered as run
 
 Our first test plugins take no command-line arguments and raises
 AttributeError in beforeTest and afterTest. 

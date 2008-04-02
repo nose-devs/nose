@@ -8,6 +8,8 @@ Utilities for testing plugins.
 
 import re
 import sys
+from warnings import warn
+
 try:
     from cStringIO import StringIO
 except ImportError:
@@ -158,9 +160,21 @@ def remove_stack_traces(out):
     return "".join(blocks)
 
 
+def simplify_warnings(out):
+    warn_re = re.compile(r"""
+        # Cut the file and line no, up to the warning name
+        ^.*:\d+:\s
+        (?P<category>\w+): \s+        # warning category
+        (?P<detail>.+) $ \n?          # warning message
+        ^ .* $                        # stack frame
+        """, re.VERBOSE | re.MULTILINE)
+    return warn_re.sub(r"\g<category>: \g<detail>", out)
+
+
 def munge_nose_output_for_doctest(out):
     """Modify nose output to make it easy to use in doctests."""
     out = remove_stack_traces(out)
+    out = simplify_warnings(out)
     return re.sub(
         r"Ran (\d+ tests?) in [0-9.]+s", r"Ran \1 in ...s", out).strip()
 
@@ -188,24 +202,46 @@ def run(*arg, **kw):
     from nose.plugins.manager import PluginManager
 
     buffer = StringIO()
-    # So prints will be in correct place in output
+    if 'config' not in kw:
+        plugins = kw.pop('plugins', [])
+        if isinstance(plugins, list):
+            plugins = PluginManager(plugins=plugins)
+        env = kw.pop('env', {})
+        kw['config'] = Config(env=env, plugins=plugins)
+    if 'argv' not in kw:
+        kw['argv'] = ['nosetests', '-v']
+    kw['config'].stream = buffer
+    
+    # Set up buffering so that all output goes to our buffer,
+    # or warn user if deprecated behavior is active. If this is not
+    # done, prints and warnings will either be out of place or
+    # disappear.
+    stderr = sys.stderr
     stdout = sys.stdout
-    sys.stdout = buffer
+    if kw.pop('buffer_all', False):
+        sys.stdout = sys.stderr = buffer
+        restore = True
+    else:
+        restore = False
+        warn("The behavior of nose.plugins.plugintest.run() will change in "
+             "the next release of nose. The current behavior does not "
+             "correctly account for output to stdout and stderr. To enable "
+             "correct behavior, use run_buffered() instead, or pass "
+             "the keyword argument buffer_all=True to run().",
+             DeprecationWarning, stacklevel=2)
     try:
-        if 'config' not in kw:
-            plugins = kw.pop('plugins', None)
-            env = kw.pop('env', {})
-            kw['config'] = Config(env=env,
-                                  plugins=PluginManager(plugins=plugins))
-        if 'argv' not in kw:
-            kw['argv'] = ['nosetests', '-v']
-        kw['config'].stream = buffer
         run(*arg, **kw)
-        out = buffer.getvalue()        
-        print >> stdout, munge_nose_output_for_doctest(out)
     finally:
-        sys.stdout = stdout
+        if restore:
+            sys.stderr = stderr
+            sys.stdout = stdout
+    out = buffer.getvalue()
+    print munge_nose_output_for_doctest(out)
 
+    
+def run_buffered(*arg, **kw):
+    kw['buffer_all'] = True
+    run(*arg, **kw)
 
 if __name__ == '__main__':
     import doctest

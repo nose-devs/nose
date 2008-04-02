@@ -1,4 +1,5 @@
 import logging
+import optparse
 import os
 import re
 import sys
@@ -19,6 +20,114 @@ config_files = [
     # Windows users will prefer this
     "~/nose.cfg"
     ]
+
+
+class NoSuchOptionError(Exception):
+    def __init__(self, name):
+        Exception.__init__(self, name)
+        self.name = name
+
+
+class ConfigError(Exception):
+    pass
+
+
+class ConfiguredDefaultsOptionParser(object):
+    """
+    Handler for options from commandline and config files.
+    """
+    def __init__(self, parser, config_section, error=None, file_error=None):
+        self._parser = parser
+        self._config_section = config_section
+        if error is None:
+            error = self._parser.error
+        self._error = error
+        if file_error is None:
+            file_error = lambda msg, **kw: error(msg)
+        self._file_error = file_error
+
+    def _configTuples(self, cfg, filename):
+        config = []
+        if self._config_section in cfg.sections():
+            for name, value in cfg.items(self._config_section):
+                config.append((name, value, filename))
+        return config
+
+    def _readFromFilenames(self, filenames):
+        config = []
+        for filename in filenames:
+            cfg = ConfigParser.RawConfigParser()
+            try:
+                cfg.read(filename)
+            except ConfigParser.Error, exc:
+                raise ConfigError("Error reading config file %r: %s" %
+                                  (filename, str(exc)))
+            config.extend(self._configTuples(cfg, filename))
+        return config
+
+    def _readFromFileObject(self, fh):
+        cfg = ConfigParser.RawConfigParser()
+        try:
+            filename = fh.name
+        except AttributeError:
+            filename = '<???>'
+        try:
+            cfg.readfp(fh)
+        except ConfigParser.Error, exc:
+            raise ConfigError("Error reading config file %r: %s" %
+                              (filename, str(exc)))
+        return self._configTuples(cfg, filename)
+
+    def _readConfiguration(self, config_files):
+        try:
+            config_files.readline
+        except AttributeError:
+            filename_or_filenames = config_files
+            if isinstance(filename_or_filenames, basestring):
+                filenames = [filename_or_filenames]
+            else:
+                filenames = filename_or_filenames
+            config = self._readFromFilenames(filenames)
+        else:
+            fh = config_files
+            config = self._readFromFileObject(fh)
+        return config
+
+    def _processConfigValue(self, name, value, values, parser):
+        opt_str = '--' + name
+        option = parser.get_option(opt_str)
+        if option is None:
+            raise NoSuchOptionError(name)
+        else:
+            option.process(opt_str, value, values, parser)
+
+    def _applyConfigurationToValues(self, parser, config, values, plugins=None):
+        for name, value, filename in config:
+            if name in option_blacklist:
+                continue
+            try:
+                self._processConfigValue(name, value, values, parser)
+            except NoSuchOptionError, exc:
+                self._file_error(
+                    "Error reading config file %r: "
+                    "no such option %r" % (filename, exc.name),
+                    name=name, filename=filename)
+            except optparse.OptionValueError, exc:
+                msg = str(exc).replace('--' + name, repr(name), 1)
+                self._file_error("Error reading config file %r: "
+                                 "%s" % (filename, msg),
+                                 name=name, filename=filename)
+
+    def parseArgsAndConfigFiles(self, args, config_files):
+        values = self._parser.get_default_values()
+        try:
+            config = self._readConfiguration(config_files)
+        except ConfigError, exc:
+            self._error(str(exc))
+        else:
+            self._applyConfigurationToValues(
+                self._parser, config, values)                
+        return self._parser.parse_args(args, values)
 
 
 class Config(object):
@@ -107,6 +216,20 @@ class Config(object):
                                           for k in keys ])
     __str__ = __repr__
 
+    def _parseArgs(self, args, cfg_files):
+        def warn_sometimes(msg, name=None, filename=None):
+            if (hasattr(self.plugins, 'excludedOption') and
+                self.plugins.excludedOption(name)):
+                msg = ("Option %r in config file %r ignored: "
+                       "excluded by runtime environment" %
+                       (name, filename))
+                warn(msg, RuntimeWarning)
+            else:
+                raise ConfigError(msg)
+        parser = ConfiguredDefaultsOptionParser(
+            self.getParser(), self.configSection, file_error=warn_sometimes)
+        return parser.parseArgsAndConfigFiles(args, cfg_files)
+
     def configure(self, argv=None, doc=None):
         """Configure the nose running environment. Execute configure before
         collecting tests with nose.TestCollector to enable output capture and
@@ -115,15 +238,13 @@ class Config(object):
         env = self.env
         if argv is None:
             argv = sys.argv
-        if hasattr(self, 'files'):
-            argv = self.loadConfig(self.files, argv)
-        parser = self.getParser(doc)        
-        options, args = parser.parse_args(argv)
+
+        cfg_files = getattr(self, 'files', [])
+        options, args = self._parseArgs(argv, cfg_files)
         # If -c --config has been specified on command line,
-        # load those config files to create a new argv set and reparse
-        if options.files:
-            argv = self.loadConfig(options.files, argv)
-            options, args = parser.parse_args(argv)
+        # load those config files and reparse
+        if getattr(options, 'files', []):
+            options, args = self._parseArgs(argv, options.files)
 
         self.options = options
         tests = args[1:]
@@ -363,47 +484,6 @@ class Config(object):
         """Return the generated help message
         """
         return self.getParser(doc).format_help()
-
-    def loadConfig(self, file, argv):
-        """Load config from file (may be filename or file-like object) and
-        push the config into argv.
-        """
-        cfg = ConfigParser.RawConfigParser()
-        try:
-            try:
-                cfg.readfp(file)
-            except AttributeError:
-                # Filename, not a file object
-                cfg.read(file)
-        except ConfigParser.Error, e:
-            warn("Error reading config file %s: %s" % (file, e),
-                 RuntimeWarning)
-            return argv
-        if self.configSection not in cfg.sections():
-            return argv
-        file_argv = []
-        for optname in cfg.options(self.configSection):
-            if optname in option_blacklist:
-                continue
-            value = cfg.get(self.configSection, optname)
-            file_argv.extend(self.cfgToArg(optname, value))
-        # Copy the given args and insert args loaded from file
-        # between the program name (first arg) and the rest
-        combined = argv[:]
-        combined[1:1] = file_argv
-        return combined
-
-    def cfgToArg(self, optname, value, tr=None):
-        if tr is not None:
-            optname = tr(optname)
-        argv = []
-        if flag(value):
-            if _bool(value):
-                argv.append('--' + optname)
-        else:
-            argv.append('--' + optname)
-            argv.append(value)
-        return argv
 
     def pluginOpts(self, parser):
         self.plugins.addOptions(parser, self.env)

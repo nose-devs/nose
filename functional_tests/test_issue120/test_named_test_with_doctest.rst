@@ -4,7 +4,7 @@ from module doctest, losing the original failure (failure to find the
 test).
 
     >>> import os
-    >>> from nose.plugins.plugintest import run
+    >>> from nose.plugins.plugintest import run_buffered as run
     >>> from nose.plugins.doctests import Doctest
 
     >>> support = os.path.join(os.path.dirname(__file__), 'support')

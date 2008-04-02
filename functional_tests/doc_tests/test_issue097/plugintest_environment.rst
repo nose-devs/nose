@@ -98,7 +98,7 @@ An empty ``env`` is respected...
 
 ``nose.plugins.plugintest.run()`` should work analogously.
 
-    >>> from nose.plugins.plugintest import run
+    >>> from nose.plugins.plugintest import run_buffered as run
 
     >>> run(suite=unittest.TestSuite(tests=[]),
     ...     plugins=[PrintEnvPlugin()]) # doctest: +REPORT_NDIFF

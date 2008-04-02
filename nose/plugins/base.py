@@ -47,7 +47,7 @@ class Plugin(object):
     def add_options(self, parser, env=os.environ):
         """Non-camel-case version of func name for backwards compatibility.
         """
-        # FIXME raise deprecation warning if wasn't called by wrapper 
+        # FIXME raise deprecation warning if wasn't called by wrapper
         try:
             self.options(parser, env)
             self.can_configure = True

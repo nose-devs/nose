@@ -18,7 +18,7 @@ nose.plugins.Plugin .
     ...         pass
 
     >>> import unittest
-    >>> from nose.plugins.plugintest import run
+    >>> from nose.plugins.plugintest import run_buffered as run
 
     >>> run(suite=unittest.TestSuite(tests=[]),
     ...     plugins=[NullPlugin()]) # doctest: +REPORT_NDIFF

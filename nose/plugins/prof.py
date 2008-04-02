@@ -60,7 +60,6 @@ class Profile(Plugin):
             self.enabled = False
             return
         Plugin.configure(self, options, conf)
-        self.options = options
         self.conf = conf
         if options.profile_stats_file:
             self.pfile = options.profile_stats_file

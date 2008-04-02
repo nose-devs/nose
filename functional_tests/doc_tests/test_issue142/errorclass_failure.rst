@@ -7,7 +7,7 @@ represent test failures.
     >>> import os
     >>> import sys
 
-    >>> from nose.plugins.plugintest import run
+    >>> from nose.plugins.plugintest import run_buffered as run
     >>> from nose.plugins.skip import Skip
     >>> from nose.plugins.deprecated import Deprecated
 
