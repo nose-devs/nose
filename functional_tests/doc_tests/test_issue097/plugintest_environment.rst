@@ -104,6 +104,7 @@ An empty ``env`` is respected...
     ...     plugins=[PrintEnvPlugin()]) # doctest: +REPORT_NDIFF
     argv: ['nosetests', '-v']
     env: {}
+    <BLANKLINE>
     ----------------------------------------------------------------------
     Ran 0 tests in ...s
     <BLANKLINE>
@@ -114,6 +115,7 @@ An empty ``env`` is respected...
     ...     plugins=[PrintEnvPlugin()]) # doctest: +REPORT_NDIFF
     argv: ['nosetests', '-v']
     env: {}
+    <BLANKLINE>
     ----------------------------------------------------------------------
     Ran 0 tests in ...s
     <BLANKLINE>
@@ -124,6 +126,7 @@ An empty ``env`` is respected...
     ...     plugins=[PrintEnvPlugin()]) # doctest: +REPORT_NDIFF
     argv: ['nosetests', '-v']
     env: {'foo': 'bar'}
+    <BLANKLINE>
     ----------------------------------------------------------------------
     Ran 0 tests in ...s
     <BLANKLINE>
@@ -136,6 +139,7 @@ An explicit argv parameter is honoured:
     ...     plugins=[PrintEnvPlugin()]) # doctest: +REPORT_NDIFF
     argv: ['spam']
     env: {}
+    <BLANKLINE>
     ----------------------------------------------------------------------
     Ran 0 tests in ...s
     <BLANKLINE>
@@ -151,6 +155,7 @@ An explicit config parameter with an env is honoured:
     ...     suite=unittest.TestSuite(tests=[])) # doctest: +REPORT_NDIFF
     argv: ['nosetests', '-v']
     env: {'foo': 'bar'}
+    <BLANKLINE>
     ----------------------------------------------------------------------
     Ran 0 tests in ...s
     <BLANKLINE>

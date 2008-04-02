@@ -12,6 +12,8 @@
   packages. Thanks to Philip Jenvey for the bug report and patch (#164).
 - Fixed bug in nose.tools.with_setup that prevented use of multiple
   @with_setup decorators. Thanks to tlesher for the bug report (#151).
+- Fixed bugs in handling of context fixtures for tests imported into a
+  package. Thanks to Gary Bernhardt for the bug report (#145).
   
 0.10.1
 

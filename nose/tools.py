@@ -169,7 +169,6 @@ def nottest(func):
     func.__test__ = False
     return func
 
-
 #
 # Expose assert* from unittest.TestCase
 # - give them pep8 style names

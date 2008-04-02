@@ -7,6 +7,7 @@ Utilities for testing plugins.
 """
 
 import re
+import sys
 try:
     from cStringIO import StringIO
 except ImportError:
@@ -187,17 +188,23 @@ def run(*arg, **kw):
     from nose.plugins.manager import PluginManager
 
     buffer = StringIO()
-    if 'config' not in kw:
-        plugins = kw.pop('plugins', None)
-        env = kw.pop('env', {})
-        kw['config'] = Config(env=env, plugins=PluginManager(plugins=plugins))
-    if 'argv' not in kw:
-        kw['argv'] = ['nosetests', '-v']
-    kw['config'].stream = buffer
-    run(*arg, **kw)
-    out = buffer.getvalue()
-    print munge_nose_output_for_doctest(out)
-
+    # So prints will be in correct place in output
+    stdout = sys.stdout
+    sys.stdout = buffer
+    try:
+        if 'config' not in kw:
+            plugins = kw.pop('plugins', None)
+            env = kw.pop('env', {})
+            kw['config'] = Config(env=env,
+                                  plugins=PluginManager(plugins=plugins))
+        if 'argv' not in kw:
+            kw['argv'] = ['nosetests', '-v']
+        kw['config'].stream = buffer
+        run(*arg, **kw)
+        out = buffer.getvalue()        
+        print >> stdout, munge_nose_output_for_doctest(out)
+    finally:
+        sys.stdout = stdout
 
 
 if __name__ == '__main__':

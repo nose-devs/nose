@@ -336,7 +336,7 @@ class MethodTestCase(TestBase):
             name = func.compat_func_name
         else:
             name = func.__name__
-        name = "%s.%s.%s" % (func.__module__,
+        name = "%s.%s.%s" % (self.cls.__module__,
                              self.cls.__name__,
                              name)
         if arg:
