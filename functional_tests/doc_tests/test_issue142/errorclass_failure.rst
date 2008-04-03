@@ -21,7 +21,7 @@ represent test failures.
     >>> misc_test = os.path.join(support, 'errorclass_tests.py')
 
 nose.plugins.errorclass.ErrorClass has an argument isfailure .  With a
-true isfailure, when the errorclass' exception is caught by nose,
+true isfailure, when the errorclass' exception is raised by a test,
 tracebacks are printed.
 
     >>> run(argv=["nosetests", "-v", "--with-todo", todo_test],
@@ -61,8 +61,9 @@ Also, --stop stops the test run.
     FAILED (TODO=1)
 
 
-With a false isfailure, when the errorclass' exception is caught by
-nose, tracebacks are not printed, and the test run does not stop.
+With a false .isfailure , errorclass exceptions raised by tests are
+treated as "ignored errors".  For ignored errors, tracebacks are not
+printed, and the test run does not stop.
 
     >>> run(argv=["nosetests", "-v", "--with-non-failure-todo", "--stop",
     ...           todo_test],
@@ -73,12 +74,12 @@ nose, tracebacks are not printed, and the test run does not stop.
     ----------------------------------------------------------------------
     Ran 2 tests in ...s
     <BLANKLINE>
-    OK
+    OK (TODO=1)
 
 
 Exception detail strings of errorclass errors are always printed when
--v is in effect, whether the errorclass is failure or non-failure.
-Note that exception detail strings may have more than one line.
+-v is in effect, regardless of whether the error is ignored.  Note
+that exception detail strings may have more than one line.
 
     >>> run(argv=["nosetests", "-v", "--with-todo", misc_test],
     ...     plugins=[TodoPlugin(), Skip(), Deprecated()])
@@ -103,10 +104,10 @@ Note that exception detail strings may have more than one line.
     ----------------------------------------------------------------------
     Ran 6 tests in ...s
     <BLANKLINE>
-    FAILED (TODO=1)
+    FAILED (DEPRECATED=2, SKIP=2, TODO=1)
 
-Without -v, the exception detail strings only appear in failure
-errorclass tracebacks
+Without -v, the exception detail strings are only displayed if the
+error is not ignored (otherwise, there's no traceback)
 
     >>> run(argv=["nosetests", "--with-todo", misc_test],
     ...     plugins=[TodoPlugin(), Skip(), Deprecated()])
@@ -122,6 +123,6 @@ errorclass tracebacks
     ----------------------------------------------------------------------
     Ran 6 tests in ...s
     <BLANKLINE>
-    FAILED (TODO=1)
+    FAILED (DEPRECATED=2, SKIP=2, TODO=1)
 
 >>> sys.path.remove(support)

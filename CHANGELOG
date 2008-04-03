@@ -17,6 +17,8 @@
 - Fixed bugs in handling of config files and config file options for plugins
   excluded by a RestrictedPluginManager. Thanks to John J Lee and Philip
   Jenvey for the bug reports and patches (#158, #166).
+- Updated ErrorClass exception reporting to be shorter and more clear. Thanks
+  to John J Lee for the patch (#142).
   
 0.10.1
 

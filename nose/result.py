@@ -11,7 +11,7 @@ reporting.
 import logging
 from unittest import _TextTestResult
 from nose.config import Config
-from nose.util import isclass, odict, ln as _ln # backwards compat
+from nose.util import isclass, ln as _ln # backwards compat
 
 log = logging.getLogger('nose.result')
 
@@ -97,27 +97,32 @@ class TextTestResult(_TextTestResult):
         writeln(self.separator2)
         writeln("Ran %s test%s in %.3fs" % (run, plural, taken))
         writeln()
+
+        summary = {}
+        eckeys = self.errorClasses.keys()
+        eckeys.sort()
+        for cls in eckeys:
+            storage, label, isfail = self.errorClasses[cls]
+            count = len(storage)
+            if not count:
+                continue
+            summary[label] = count
+        if len(self.failures):
+            summary['failures'] = len(self.failures)
+        if len(self.errors):
+            summary['errors'] = len(self.errors)
+
         if not self.wasSuccessful():
-            write("FAILED (")
-            summary = odict()
-            summary['failures'], summary['errors'] = \
-                               map(len, [self.failures, self.errors])
-            for cls in self.errorClasses.keys():
-                storage, label, isfail = self.errorClasses[cls]
-                if not isfail:
-                    continue
-                summary[label] = len(storage)
-            any = False
-            for label, count in summary.items():
-                if not count:
-                    continue
-                if any:
-                    write(", ")
-                write("%s=%s" % (label, count))
-                any = True
-            writeln(")")
+            write("FAILED")
         else:
-            writeln("OK")
+            write("OK")
+        items = summary.items()
+        if items:
+            items.sort()
+            write(" (")
+            write(", ".join(["%s=%s" % (label, count) for
+                             label, count in items]))
+            writeln(")")
 
     def wasSuccessful(self):
         """Overrides to check that there are no errors in errorClasses
