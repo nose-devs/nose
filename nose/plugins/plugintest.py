@@ -52,7 +52,7 @@ class PluginTester(object):
     - env
     
       - optional dict of environment variables to send nosetests
-      
+
     """
     activate = None
     suitepath = None
@@ -60,6 +60,7 @@ class PluginTester(object):
     env = {}
     argv = None
     plugins = []
+    ignoreFiles = None
     
     def makeSuite(self):
         """returns a suite object of tests to run (unittest.TestSuite())
@@ -93,6 +94,8 @@ class PluginTester(object):
         conf = Config(env=self.env,
                       stream=stream,
                       plugins=PluginManager(plugins=self.plugins))
+        if self.ignoreFiles is not None:
+            conf.ignoreFiles = self.ignoreFiles
         if not self.suitepath:
             suite = self.makeSuite()
             

@@ -130,7 +130,9 @@ class TestLoader(unittest.TestLoader):
         entries = os.listdir(path)
         entries.sort(lambda a, b: match_last(a, b, self.config.testMatch))
         for entry in entries:
-            if entry.startswith('.') or entry.startswith('_'):
+            # this hard-coded initial-dot test will be removed:
+            # http://code.google.com/p/python-nose/issues/detail?id=82
+            if entry.startswith('.'):
                 continue
             entry_path = op_abspath(op_join(path, entry))
             is_file = op_isfile(entry_path)
@@ -141,6 +143,10 @@ class TestLoader(unittest.TestLoader):
             else:
                 is_dir = op_isdir(entry_path)
                 if is_dir:
+                    # this hard-coded initial-underscore test will be removed:
+                    # http://code.google.com/p/python-nose/issues/detail?id=82
+                    if entry.startswith('_'):
+                        continue
                     wanted = self.selector.wantDirectory(entry_path)
             is_package = ispackage(entry_path)
             if wanted:

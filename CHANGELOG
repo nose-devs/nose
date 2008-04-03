@@ -19,6 +19,8 @@
   Jenvey for the bug reports and patches (#158, #166).
 - Updated ErrorClass exception reporting to be shorter and more clear. Thanks
   to John J Lee for the patch (#142).
+- Allowed plugins to load tests from modules starting with '_'. Thanks to John
+  J Lee for the patch (#82).
   
 0.10.1
 
