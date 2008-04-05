@@ -123,6 +123,8 @@ class TextTestResult(_TextTestResult):
             write(", ".join(["%s=%s" % (label, count) for
                              label, count in items]))
             writeln(")")
+        else:
+            writeln()
 
     def wasSuccessful(self):
         """Overrides to check that there are no errors in errorClasses

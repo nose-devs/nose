@@ -174,12 +174,17 @@ def simplify_warnings(out):
     return warn_re.sub(r"\g<category>: \g<detail>", out)
 
 
+def remove_timings(out):
+    return re.sub(
+        r"Ran (\d+ tests?) in [0-9.]+s", r"Ran \1 in ...s", out)
+
+
 def munge_nose_output_for_doctest(out):
     """Modify nose output to make it easy to use in doctests."""
     out = remove_stack_traces(out)
     out = simplify_warnings(out)
-    return re.sub(
-        r"Ran (\d+ tests?) in [0-9.]+s", r"Ran \1 in ...s", out).strip()
+    out = remove_timings(out)
+    return out.strip()
 
 
 def run(*arg, **kw):
