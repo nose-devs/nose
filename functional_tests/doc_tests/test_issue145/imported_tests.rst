@@ -79,3 +79,40 @@ packages are executed.
     Ran 2 tests in ...s
     <BLANKLINE>
     OK
+
+This also applies when only the specific tests are selected via the
+command-line.
+
+    >>> argv = [__file__, '-v',
+    ...         os.path.join(support, 'package2c', 'test_module.py') +
+    ...         ':TestClass.test_class']
+    >>> run(argv=argv) # doctest: +REPORT_NDIFF
+    package2c setup
+    package2c.test_module.TestClass.test_class ... ok
+    <BLANKLINE>
+    ----------------------------------------------------------------------
+    Ran 1 test in ...s
+    <BLANKLINE>
+    OK
+    >>> argv = [__file__, '-v',
+    ...         os.path.join(support, 'package2c', 'test_module.py') +
+    ...         ':TestCase.test']
+    >>> run(argv=argv) # doctest: +REPORT_NDIFF
+    package2c setup
+    test (package2c.test_module.TestCase) ... ok
+    <BLANKLINE>
+    ----------------------------------------------------------------------
+    Ran 1 test in ...s
+    <BLANKLINE>
+    OK
+    >>> argv = [__file__, '-v',
+    ...         os.path.join(support, 'package2f', 'test_module.py') +
+    ...         ':test_function']
+    >>> run(argv=argv) # doctest: +REPORT_NDIFF
+    package2f setup
+    package2f.test_module.test_function ... ok
+    <BLANKLINE>
+    ----------------------------------------------------------------------
+    Ran 1 test in ...s
+    <BLANKLINE>
+    OK

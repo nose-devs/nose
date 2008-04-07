@@ -336,6 +336,11 @@ class TestLoader(unittest.TestLoader):
             if addr.call:
                 name = addr.call
             parent, obj = self.resolve(name, module)
+            if (isclass(parent)
+                and getattr(parent, '__module__', None) != module.__name__):
+                parent = transplant_class(parent, module.__name__)
+                obj = getattr(parent, obj.__name__)
+            log.debug("parent %s obj %s module %s", parent, obj, module)
             if isinstance(obj, Failure):
                 return suite([obj])
             else:
