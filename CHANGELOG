@@ -21,6 +21,7 @@
   to John J Lee for the patch (#142).
 - Allowed plugins to load tests from modules starting with '_'. Thanks to John
   J Lee for the patch (#82).
+- Updated documentation about building as rpm (#127).
   
 0.10.1
 
