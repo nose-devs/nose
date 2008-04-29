@@ -2,11 +2,11 @@
 
 - nose now runs under jython (jython svn trunk only at this time). Thanks to
   Philip Jenvey, Pam Zerbinos and the other pycon sprinters (#160).
-- Fixed bugs in loader and default plugin manager that caused plugin
-  exceptions to be swallowed (#152). Thanks to John J Lee for the bug
-  report and patch.
+- Fixed bugs in loader, default plugin manager, and other modules that
+  caused plugin exceptions to be swallowed (#152, #155). Thanks to John J
+  Lee for the bug report and patch.
 - Added selftest.py script, used to test a non-installed distribution of
-  nose. Thanks to Antoine Pitrou and John J Lee for the bug report and
+  nose (#49). Thanks to Antoine Pitrou and John J Lee for the bug report and
   patches.
 - Fixed bug in nose.importer that caused errors with namespace
   packages. Thanks to Philip Jenvey for the bug report and patch (#164).
@@ -24,8 +24,19 @@
 - Updated documentation about building as rpm (#127).
 - Updated config to make including executable files the default on
   IronPython as well as on Windows. Thanks to sanxiyn for the bug
-  report and patch (#183).
-  
+  report and patch (#183).  
+- Fixed a python 2.3 incompatibility in errorclass_failure.rst
+  (#173). Thanks to Philip Jenvey for the bug report and patch.
+- Classes with metaclasses can now be collected as tests (#153).
+- Made sure the document tree in the selector plugin test is accurate
+  and tested (#144). Thanks to John J Lee for the bug report and
+  patch.
+- Fixed stack level used when dropping into pdb in a doctest
+  (#154). Thanks to John J Lee for the bug report and patch.
+- Fixed bug in ErrorClassPlugin that made some missing keyword
+  argument errors obscure (#159). Thanks to Philip Jenvey for the bug
+  report and patch.
+
 0.10.1
 
 - Fixed bug in capture plugin that caused it to record captured output
