@@ -21,6 +21,10 @@ config_files = [
     "~/nose.cfg"
     ]
 
+# plaforms on which the exe check defaults to off
+# Windows and IronPython
+exe_allowed_platforms = ('win32', 'cli')
+
 
 class NoSuchOptionError(Exception):
     def __init__(self, name):
@@ -146,7 +150,7 @@ class Config(object):
       self.exclude = None
       self.getTestCaseNamesCompat = False
       self.includeExe = env.get('NOSE_INCLUDE_EXE',
-                                sys.platform == 'win32')
+                                sys.platform in exe_allowed_platforms)
       self.ignoreFiles = (re.compile(r'^\.'),
                           re.compile(r'^_'),
                           re.compile(r'^setup\.py$')
@@ -180,7 +184,7 @@ class Config(object):
         self.exclude = None
         self.getTestCaseNamesCompat = False
         self.includeExe = env.get('NOSE_INCLUDE_EXE',
-                                  sys.platform == 'win32')
+                                  sys.platform in exe_allowed_platforms)
         self.ignoreFiles = (re.compile(r'^\.'),
                             re.compile(r'^_'),
                             re.compile(r'^setup\.py$')
