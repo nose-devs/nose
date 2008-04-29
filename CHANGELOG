@@ -22,6 +22,9 @@
 - Allowed plugins to load tests from modules starting with '_'. Thanks to John
   J Lee for the patch (#82).
 - Updated documentation about building as rpm (#127).
+- Updated config to make including executable files the default on
+  IronPython as well as on Windows. Thanks to sanxiyn for the bug
+  report and patch (#183).
   
 0.10.1
 
