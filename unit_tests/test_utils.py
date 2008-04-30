@@ -74,6 +74,15 @@ class TestUtils(unittest.TestCase):
             def test_two(self):
                 pass
         
+        class CustomTestType(type):
+            pass
+        class CustomTC(unittest.TestCase):
+            __metaclass__ = CustomTestType
+            def test_one(self):
+                pass
+            def test_two(self):
+                pass
+        
         foo_funct = case.FunctionTestCase(baz)
         foo_functu = unittest.FunctionTestCase(baz)
 
@@ -93,6 +102,8 @@ class TestUtils(unittest.TestCase):
         # missed test plugin must do
         self.assertEqual(test_address(FooTC('test_one')),
                          (me, __name__, 'FooTC.test_one'))
+        self.assertEqual(test_address(CustomTC('test_one')),
+                         (me, __name__, 'CustomTC.test_one'))
         self.assertEqual(test_address(foo_funct),
                          (me, __name__, 'baz'))
         self.assertEqual(test_address(foo_functu),

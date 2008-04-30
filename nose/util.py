@@ -388,7 +388,7 @@ def test_address(test):
         file = getattr(test, '__file__', None)
         module = getattr(test, '__name__', None)
         return (file, module, call)
-    if t == types.FunctionType or t in (type, types.ClassType):
+    if t == types.FunctionType or issubclass(t, type) or t == types.ClassType:
         module = getattr(test, '__module__', None)
         if module is not None:
             m = sys.modules[module]
