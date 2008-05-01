@@ -19,8 +19,10 @@ Simple syntax (-a, --attr) examples:
    Attribute "slow" must be defined and its value cannot equal to False
    (False, [], "", etc...)
 
-* `nosetests -a !slow`:
-   Attribute "slow" must NOT be defined or its value must be equal to False
+* `nosetests -a '!slow'`:
+   Attribute "slow" must NOT be defined or its value must be equal to False.  
+   Note the quotes around the value -- this may be necessary if your shell 
+   interprets `!' as a special character.
 
 Eval expression syntax (-A, --eval-attr) examples:
 
