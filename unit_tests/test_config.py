@@ -28,7 +28,7 @@ class TestNoseConfig(unittest.TestCase):
 
     def test_multiple_include(self):
         c = nose.config.Config()
-        c.configure(['--include=a', '--include=b'])
+        c.configure(['program', '--include=a', '--include=b'])
         self.assertEqual(len(c.include), 2)
         a, b = c.include
         assert a.match('a')
@@ -38,7 +38,7 @@ class TestNoseConfig(unittest.TestCase):
 
     def test_single_include(self):
         c = nose.config.Config()
-        c.configure(['--include=b'])
+        c.configure(['program', '--include=b'])
         self.assertEqual(len(c.include), 1)
         b = c.include[0]
         assert b.match('b')
@@ -71,6 +71,14 @@ class TestNoseConfig(unittest.TestCase):
         c.configure(['program', '-w', foo, '-w', 'bar'])
         self.assertEqual(c.workingDir, foo)
         self.assertEqual(c.testNames, ['bar'])
+
+    def test_progname_looks_like_option(self):
+        # issue #184
+        c = nose.config.Config()
+        # the -v here is the program name, not an option
+        # this matters eg. with python -c "import nose; nose.main()"
+        c.configure(['-v', 'mytests'])
+        self.assertEqual(c.verbosity, 1)
 
 if __name__ == '__main__':
     unittest.main()

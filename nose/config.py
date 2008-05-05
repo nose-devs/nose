@@ -166,7 +166,7 @@ class Config(object):
       self.stopOnError = env.get('NOSE_STOP', False)
       self.stream = sys.stderr
       self.testNames = ()
-      self.verbosity = int(env.get('NOSE_VERBOSE', 0))
+      self.verbosity = int(env.get('NOSE_VERBOSE', 1))
       self.where = ()
       self.workingDir = None   
     """
@@ -219,7 +219,7 @@ class Config(object):
                                           for k in keys ])
     __str__ = __repr__
 
-    def _parseArgs(self, args, cfg_files):
+    def _parseArgs(self, argv, cfg_files):
         def warn_sometimes(msg, name=None, filename=None):
             if (hasattr(self.plugins, 'excludedOption') and
                 self.plugins.excludedOption(name)):
@@ -231,7 +231,7 @@ class Config(object):
                 raise ConfigError(msg)
         parser = ConfiguredDefaultsOptionParser(
             self.getParser(), self.configSection, file_error=warn_sometimes)
-        return parser.parseArgsAndConfigFiles(args, cfg_files)
+        return parser.parseArgsAndConfigFiles(argv[1:], cfg_files)
 
     def configure(self, argv=None, doc=None):
         """Configure the nose running environment. Execute configure before
@@ -250,9 +250,8 @@ class Config(object):
             options, args = self._parseArgs(argv, options.files)
 
         self.options = options
-        tests = args[1:]
-        if tests:
-            self.testNames = tests
+        if args:
+            self.testNames = args
         if options.testNames is not None:
             self.testNames.extend(tolist(options.testNames))
 
