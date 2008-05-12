@@ -1,7 +1,8 @@
-0.10.1
+0.10.2
 ------
 
-nose version 0.10.1 fixes numerous bugs and misfeatures uncovered in
-0.10.0 since its release.
+nose version 0.10.2 fixes bugs found since the release of 0.10.1,
+improves reporting behavior of error classes, and introduces official
+support for jython (svn trunk only, for now).
 
 Thanks to all who reported bugs and contributed patches.
