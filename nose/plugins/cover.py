@@ -31,6 +31,7 @@ class Coverage(Plugin):
     """
     coverTests = False
     coverPackages = None
+    score = 200
     
     def options(self, parser, env=os.environ):
         Plugin.options(self, parser, env)
