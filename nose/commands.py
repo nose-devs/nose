@@ -96,9 +96,6 @@ else:
         def run(self):
             """ensure tests are capable of being run, then
             run nose.main with a reconstructed argument list"""
-            from nose.tools import set_trace
-            set_trace()
-            
             self.run_command('egg_info')
 
             # Build extensions in-place
