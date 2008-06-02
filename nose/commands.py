@@ -47,7 +47,8 @@ try:
 except ImportError:
     Command = nosetests = None
 else:
-    from nose.config import Config, option_blacklist, user_config_files
+    from nose.config import Config, option_blacklist, user_config_files, \
+        flag, _bool
     from nose.core import TestProgram
     from nose.plugins import DefaultPluginManager
 
@@ -95,6 +96,9 @@ else:
         def run(self):
             """ensure tests are capable of being run, then
             run nose.main with a reconstructed argument list"""
+            from nose.tools import set_trace
+            set_trace()
+            
             self.run_command('egg_info')
 
             # Build extensions in-place
@@ -112,6 +116,14 @@ else:
                 value = getattr(self, option_name)
                 if value is not None:
                     argv.extend(
-                        self.__config.cfgToArg(option_name, value,
-                                               lambda o: o.replace('_', '-')))
+                        self.cfgToArg(option_name.replace('_', '-'), value))
             TestProgram(argv=argv, config=self.__config)
+
+        def cfgToArg(self, optname, value):
+            argv = []
+            if flag(value):
+                if _bool(value):
+                    argv.append('--' + optname)
+            else:
+                argv.extend(['--' + optname, value])
+            return argv
