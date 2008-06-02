@@ -1,5 +1,4 @@
 import os
-import subprocess
 import sys
 import unittest
 from nose.plugins.skip import SkipTest
@@ -42,11 +41,6 @@ class TestCommands(unittest.TestCase):
             self.assertFalse(e.args[0], buf.getvalue())
         else:
             self.fail("cmd.run() did not exit")
-                           
-#        assert subprocess.call(
-#            ["python", "setup.py", "nosetests", "2>/dev/null"],
-#            shell=True) == 0, \
-#            "python setup.py nosetests in %s failed" % support
 
 
 if __name__ == '__main__':
