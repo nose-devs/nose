@@ -2,7 +2,10 @@
 
 - Fixed bug in nosetests setup command that caused an exception to be raised
   if run with options. Thanks to Philip Jenvey for the bug report (#191).
-
+- Raised score of coverage plugin to 200, so that it will execute before
+  default-score plugins, and so be able to catch more import-time code. Thanks
+  to Ned Batchelder for the bug report and patch (#190).
+  
 0.10.2
 
 - nose now runs under jython (jython svn trunk only at this time). Thanks to
