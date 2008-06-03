@@ -1,8 +1,7 @@
-0.10.2
+0.10.3
 ------
 
-nose version 0.10.2 fixes bugs found since the release of 0.10.1,
-improves reporting behavior of error classes, and introduces official
-support for jython (svn trunk only, for now).
-
-Thanks to all who reported bugs and contributed patches.
+nose version 0.10.3 fixes a serious bug found in 0.10.2's nosetests
+setuptools command, and updates the coverage plugin to be more
+friendly to other plugins that trigger imports in begin(). Thanks to
+Philip Jenvey and Ned Batchelder for reporting these issues.
