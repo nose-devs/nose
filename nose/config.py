@@ -317,7 +317,7 @@ class Config(object):
 
         # only add our default handler if there isn't already one there
         # this avoids annoying duplicate log messages.
-        if not logger.handlers:
+        if handler not in logger.handlers:
             logger.addHandler(handler)
 
         # default level    
