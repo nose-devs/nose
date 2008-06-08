@@ -68,3 +68,22 @@ class TestLogCapturePlugin(object):
         eq_(1, len(records))
         eq_("++Hello++", records[0])
 
+    def test_logging_filter(self):
+        env = {'NOSE_LOGFILTER': 'foo,bar'}
+        c = LogCapture()
+        parser = OptionParser()
+        c.addOptions(parser, env)
+        options, args = parser.parse_args()
+        print options, args
+        c.configure(options, Config())
+        c.start()
+        for name in ['foobar.something', 'foo', 'foo.x', 'abara', 'bar.quux']:
+            log = logging.getLogger(name)
+            log.info("Hello %s" % name)
+        c.end()
+        records = c.formatLogRecords()
+        eq_(3, len(records))
+        assert records[0].startswith('foo:'), records[0]
+        assert records[1].startswith('foo.x:'), records[1]
+        assert records[2].startswith('bar.quux:'), records[2]
+
