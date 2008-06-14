@@ -21,6 +21,7 @@ from __future__ import generators
 
 import logging
 import os
+import sys
 from inspect import getmodule
 from nose.plugins.base import Plugin
 from nose.util import anyp, getpackage, test_address, resolve_name, src, tolist
@@ -29,6 +30,7 @@ try:
 except ImportError:
     from StringIO import StringIO
 import sys
+import __builtin__
 
 log = logging.getLogger(__name__)
 
@@ -87,6 +89,13 @@ class Doctest(Plugin):
                           dest="doctestExtension",
                           help="Also look for doctests in files with "
                           "this extension [NOSE_DOCTEST_EXTENSION]")
+        parser.add_option('--doctest-result-variable', dest='doctest_result_var',
+                          default=env.get('NOSE_DOCTEST_RESULT_VAR'),
+                          help="Change the variable name set to the result of "
+                          "the last interpreter command from the default '_'. "
+                          "Can be used to avoid conflicts with the _() "
+                          "function used for text translation. "
+                          "[NOSE_DOCTEST_RESULT_VAR]")
         # Set the default as a list, if given in env; otherwise
         # an additional value set on the command line will cause
         # an error.
@@ -96,6 +105,7 @@ class Doctest(Plugin):
 
     def configure(self, options, config):
         Plugin.configure(self, options, config)
+        self.doctest_result_var = options.doctest_result_var
         self.doctest_tests = options.doctest_tests
         self.extension = tolist(options.doctestExtension)
         self.finder = doctest.DocTestFinder()
@@ -119,7 +129,7 @@ class Doctest(Plugin):
                 continue
             if not test.filename:
                 test.filename = module_file
-            yield DocTestCase(test)
+            yield DocTestCase(test, result_var=self.doctest_result_var)
             
     def loadTestsFromFile(self, filename):
         if self.extension and anyp(filename.endswith, self.extension):
@@ -134,7 +144,7 @@ class Doctest(Plugin):
                 doc, globs={'__file__': filename}, name=name,
                 filename=filename, lineno=0)
             if test.examples:
-                yield DocFileCase(test)
+                yield DocFileCase(test, result_var=self.doctest_result_var)
             else:
                 yield False # no tests to load
             
@@ -147,7 +157,7 @@ class Doctest(Plugin):
             for test in doctests:
                 if len(test.examples) == 0:
                     continue
-                yield DocTestCase(test, obj=obj)            
+                yield DocTestCase(test, obj=obj, result_var=self.doctest_result_var)
     
     def matches(self, name):
         """Doctest wants only non-test modules in general.
@@ -180,7 +190,7 @@ class Doctest(Plugin):
                                 for exc in self.conf.exclude]))):
             return True
         return None
-        
+
 
 class DocTestCase(doctest.DocTestCase):
     """Overrides DocTestCase to
@@ -190,7 +200,8 @@ class DocTestCase(doctest.DocTestCase):
     determining the test address, if it is provided.    
     """
     def __init__(self, test, optionflags=0, setUp=None, tearDown=None,
-                 checker=None, obj=None):
+                 checker=None, obj=None, result_var='_'):
+        self._result_var = result_var
         self._nose_obj = obj
         super(DocTestCase, self).__init__(
             test, optionflags=optionflags, setUp=None, tearDown=None,
@@ -222,13 +233,56 @@ class DocTestCase(doctest.DocTestCase):
     def shortDescription(self):
         return 'Doctest: %s' % self.id()
 
+    def setUp(self):
+        if self._result_var is not None:
+            self._old_displayhook = sys.displayhook
+            sys.displayhook = self._displayhook
+        super(DocTestCase, self).setUp()
+
+    def _displayhook(self, value):
+        if value is None:
+            return
+        setattr(__builtin__, self._result_var,  value)
+        print repr(value)
+
+    def tearDown(self):
+        super(DocTestCase, self).tearDown()
+        if self._result_var is not None:
+            sys.displayhook = self._old_displayhook
+            delattr(__builtin__, self._result_var)
+
 
 class DocFileCase(doctest.DocFileCase):
     """Overrides to provide address() method that returns the correct
     address for the doc file case.
     """
+    def __init__(self, test, optionflags=0, setUp=None, tearDown=None,
+                 checker=None, result_var='_'):
+        self._result_var = result_var
+        super(DocFileCase, self).__init__(
+            test, optionflags=optionflags, setUp=None, tearDown=None,
+            checker=None)
+
     def address(self):
         return (self._dt_test.filename, None, None)
+
+    def setUp(self):
+        if self._result_var is not None:
+            self._old_displayhook = sys.displayhook
+            sys.displayhook = self._displayhook
+        super(DocFileCase, self).setUp()
+
+    def _displayhook(self, value):
+        if value is None:
+            return
+        setattr(__builtin__, self._result_var, value)
+        print repr(value)
+
+    def tearDown(self):
+        super(DocFileCase, self).tearDown()
+        if self._result_var is not None:
+            sys.displayhook = self._old_displayhook
+            delattr(__builtin__, self._result_var)
 
 
 def run(*arg, **kw):
