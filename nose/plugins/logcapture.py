@@ -76,16 +76,25 @@ class LogCapture(Plugin):
         parser.add_option(
             "", "--nologcapture", action="store_false",
             default=not env.get(self.env_opt), dest="logcapture",
-            help="Don't capture logging output [NOSE_NOLOGCAPTURE]")
+            help="Disable logging capture plugin. "
+                 "Logging configurtion will be left intact."
+                 " [NOSE_NOLOGCAPTURE]")
         parser.add_option(
             "", "--logging-format", action="store", dest="logcapture_format",
             default=env.get('NOSE_LOGFORMAT') or self.logformat,
-            help="logging statements formatting [NOSE_LOGFORMAT]")
+            help="Specify custom format to print statements. "
+                 "Uses the same format as used by standard logging handlers."
+                 " [NOSE_LOGFORMAT]")
         parser.add_option(
             "", "--logging-filter", action="store", dest="logcapture_filters",
             default=env.get('NOSE_LOGFILTER') or self.logformat,
-            help="filters statements by loggers [NOSE_LOGFILTER]\n"
-                 "Captures only statements issued by named logger(s).")
+            help="Specify which statements to filter in/out. "
+                 "By default everything is captured. If the output is too verbose,\n"
+                 "use this option to filter out needless output\n"
+                 "Example: filter=foo will capture statements issued ONLY to\n"
+                 " foo or foo.what.ever.sub but not foobar or other logger.\n"
+                 "Specify multiple loggers with comma: filter=foo,bar,baz."
+                 " [NOSE_LOGFILTER]\n")
         parser.add_option(
             "", "--logging-clear-handlers", action="store_true",
             default=False, dest="logcapture_clear",
