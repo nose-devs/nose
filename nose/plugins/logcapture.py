@@ -54,7 +54,6 @@ class MyMemoryHandler(BufferingHandler):
         for name in self.filters:
             if rname == name or rname.startswith(name+'.'):
                 matched = True
-        print 'match', matched, record.name, self.filters
         return matched
 
 
