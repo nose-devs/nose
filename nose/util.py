@@ -202,6 +202,25 @@ def ispackage(path):
     return False
 
 
+def isproperty(obj):
+    """
+    Is this a property?
+
+    >>> class Foo:
+    ...     def got(self):
+    ...         return 2
+    ...     def get(self):
+    ...         return 1
+    ...     get = property(get)
+
+    >>> isproperty(Foo.got)
+    False
+    >>> isproperty(Foo.get)
+    True
+    """
+    return type(obj) == property
+
+
 def getfilename(package, relativeTo=None):
     """Find the python source file for a package, relative to a
     particular directory (defaults to current working directory if not

@@ -127,6 +127,7 @@ class TestId(Plugin):
 
     def startTest(self, test):
         adr = test.address()
+        log.debug('start test %s (%s)', adr, adr in self.tests)
         if adr in self.tests:
             if self.shouldSave or adr in self._seen:
                 self.stream.write('   ')

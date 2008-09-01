@@ -7,6 +7,7 @@ try:
 except ImportError:
     raise SkipTest('twisted not available; skipping')
 
+_multiprocess_ = False
 
 
 def teardown():

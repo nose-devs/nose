@@ -14,7 +14,8 @@ builtins = (
     ('nose.plugins.failuredetail', 'FailureDetail'),
     ('nose.plugins.prof', 'Profile'),
     ('nose.plugins.skip', 'Skip'),
-    ('nose.plugins.testid', 'TestId')
+    ('nose.plugins.testid', 'TestId'),
+    ('nose.plugins.multiprocess', 'MultiProcess')
     )
 
 for module, cls in builtins:

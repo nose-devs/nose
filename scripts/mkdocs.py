@@ -31,9 +31,15 @@ to_write = []
 
 
 def defining_class(cls, attr):
-    from epydoc.objdoc import _lookup_class_field
-    val, container = _lookup_class_field(cls, attr)
-    return container.value()
+    if hasattr(cls, '__bases__'):
+        try:
+            bases = list(cls.__bases__)
+        except (ValueError, TypeError):
+            return cls
+        for base in bases:
+            if attr in base.__dict__:
+                return base
+    return cls
 
 
 def write(filename, tpl, ctx):

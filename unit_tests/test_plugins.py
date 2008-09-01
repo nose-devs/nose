@@ -151,7 +151,7 @@ class TestDoctestPlugin(unittest.TestCase):
         plug.can_configure = True
         plug.configure(opt, conf)
         suite = plug.loadTestsFromModule(foo.bar.buz)        
-        expect = ['afunc (foo.bar.buz)']
+        expect = ['[afunc (foo.bar.buz)]']
         for test in suite:
             self.assertEqual(str(test), expect.pop(0))
 
@@ -172,7 +172,12 @@ class TestDoctestPlugin(unittest.TestCase):
             print test.address()
             file, mod, call = test.address()
             self.assertEqual(mod, 'foo.bar.buz')
-            self.assertEqual(call, 'afunc')
+            self.assertEqual(call, None)
+            for case in test:
+                print case.address()
+                file, mod, call = case.address()
+                self.assertEqual(mod, 'foo.bar.buz')
+                self.assertEqual(call, 'afunc')
             
     def test_collect_txtfile(self):
         here = os.path.abspath(os.path.dirname(__file__))

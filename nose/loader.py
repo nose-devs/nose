@@ -226,7 +226,7 @@ class TestLoader(unittest.TestLoader):
                 if not callable(test_func):
                     test_func = getattr(m, test_func)
                 yield FunctionTestCase(test_func, arg=arg, descriptor=g)
-        return self.suiteClass(generate)
+        return self.suiteClass(generate, context=generator, can_split=False)
 
     def loadTestsFromGeneratorMethod(self, generator, cls):
         """Lazy-load tests from a generator method.
@@ -264,7 +264,7 @@ class TestLoader(unittest.TestLoader):
                 else:
                     yield Failure(TypeError,
                                   "%s is not a function or method" % test_func)
-        return self.suiteClass(generate)
+        return self.suiteClass(generate, context=generator, can_split=False)
 
     def loadTestsFromModule(self, module, discovered=False):
         """Load all tests from module and return a suite containing

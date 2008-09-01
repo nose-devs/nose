@@ -858,7 +858,8 @@ class DocTestFinder:
         elif inspect.isfunction(object):
             return module.__dict__ is object.func_globals
         elif inspect.isclass(object):
-            return module.__name__ == object.__module__
+            # Some jython classes don't set __module__
+            return module.__name__ == getattr(object, '__module__', None)
         elif inspect.getmodule(object) is not None:
             return module is inspect.getmodule(object)
         elif hasattr(object, '__module__'):

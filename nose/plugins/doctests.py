@@ -3,17 +3,45 @@ environment variable to enable collection and execution of doctests. doctest_
 tests are usually included in the tested package, not grouped into packages or
 modules of their own. For this reason, nose will try to detect and run doctest
 tests only in the non-test packages it discovers in the working
-directory. Doctests may also be placed into files other than python modules,
-in which case they can be collected and executed by using the
---doctest-extension switch or NOSE_DOCTEST_EXTENSION environment variable to
-indicate which file extension(s) to load.
+directory.
 
-doctest tests are run like any other test, with the exception that output
+Doctests may also be placed into files other than python modules, in which
+case they can be collected and executed by using the --doctest-extension
+switch or NOSE_DOCTEST_EXTENSION environment variable to indicate which file
+extension(s) to load.
+
+When loading doctests from non-module files, you may specify how to find
+modules that contains fixtures for the tests using the --doctest-fixtures
+switch. The value of that switch will be appended to the base name of each
+doctest file loaded to produce a module name. For instance, for a doctest file
+"widgets.rst" with the switch ``--doctest_fixtures=_fixt``, fixtures will be
+loaded from the module ``widgets_fixt.py`` if it exists.
+
+A fixtures module may define any or all of the following functions:
+
+* setup([module]) or setup_module([module])
+   
+  Called before any tests are run. You may raise SkipTest to skip all tests.
+  
+* teardown([module]) or teardown_module([module])
+
+  Called after all tests are run, if setup/setup_module did not raise an
+  unhandled exception.
+
+* setup_test(test)
+
+  Called before each test in the file. NOTE: the argument passed is a
+  doctest.DocTest instance, *not* a unittest.TestCase.
+  
+* teardown_test(test)
+ 
+  Called after each test in the file whose setup_test call did not raise an
+  unhandled exception. NOTE: the argument passed is a doctest.DocTest
+  instance, *not* a unittest.TestCase
+  
+Doctest tests are run like any other test, with the exception that output
 capture does not work, because doctest does its own output capture in the
 course of running a test.
-
-This module also includes a specialized version of nose.run() that
-makes it easier to write doctests that test test runs.
 
 .. _doctest: http://docs.python.org/lib/module-doctest.html
 """
@@ -22,9 +50,12 @@ from __future__ import generators
 import logging
 import os
 import sys
+import unittest
 from inspect import getmodule
 from nose.plugins.base import Plugin
-from nose.util import anyp, getpackage, test_address, resolve_name, src, tolist
+from nose.suite import ContextSuite
+from nose.util import anyp, getpackage, test_address, resolve_name, \
+     src, tolist, isproperty
 try:
     from cStringIO import StringIO
 except ImportError:
@@ -70,11 +101,41 @@ class NoseOutputRedirectingPdb(_orp):
 doctest._OutputRedirectingPdb = NoseOutputRedirectingPdb    
 
 
+class DoctestSuite(unittest.TestSuite):
+    """
+    Doctest suites are parallelizable at the module or file level only,
+    since they may be attached to objects that are not individually
+    addressable (like properties). This suite subclass is used when
+    loading doctests from a module to ensure that behavior.
+
+    This class is used only if the plugin is not fully prepared;
+    in normal use, the loader's suiteClass is used.
+    
+    """
+    can_split = False
+    
+    def __init__(self, tests=(), context=None, can_split=False):
+        self.context = context
+        self.can_split = can_split
+        unittest.TestSuite.__init__(self, tests=tests)
+
+    def address(self):
+        return test_address(self.context)
+
+    def __iter__(self):
+        # 2.3 compat
+        return iter(self._tests)
+
+    def __str__(self):
+        return str(self._tests)
+
+        
 class Doctest(Plugin):
     """
     Activate doctest plugin to find and run doctests in non-test modules.
     """
     extension = None
+    suiteClass = DoctestSuite
     
     def options(self, parser, env=os.environ):
         Plugin.options(self, parser, env)
@@ -89,13 +150,19 @@ class Doctest(Plugin):
                           dest="doctestExtension",
                           help="Also look for doctests in files with "
                           "this extension [NOSE_DOCTEST_EXTENSION]")
-        parser.add_option('--doctest-result-variable', dest='doctest_result_var',
+        parser.add_option('--doctest-result-variable',
+                          dest='doctest_result_var',
                           default=env.get('NOSE_DOCTEST_RESULT_VAR'),
                           help="Change the variable name set to the result of "
                           "the last interpreter command from the default '_'. "
                           "Can be used to avoid conflicts with the _() "
                           "function used for text translation. "
                           "[NOSE_DOCTEST_RESULT_VAR]")
+        parser.add_option('--doctest-fixtures', action="store",
+                          dest="doctestFixtures",
+                          help="Find fixtures for a doctest file in module "
+                          "with this name appended to the base name "
+                          "of the doctest file")
         # Set the default as a list, if given in env; otherwise
         # an additional value set on the command line will cause
         # an error.
@@ -108,28 +175,40 @@ class Doctest(Plugin):
         self.doctest_result_var = options.doctest_result_var
         self.doctest_tests = options.doctest_tests
         self.extension = tolist(options.doctestExtension)
+        self.fixtures = options.doctestFixtures
         self.finder = doctest.DocTestFinder()
 
+    def prepareTestLoader(self, loader):
+        self.suiteClass = loader.suiteClass
+
     def loadTestsFromModule(self, module):
+        log.debug("loading from %s", module)
         if not self.matches(module.__name__):
             log.debug("Doctest doesn't want module %s", module)
             return
         try:
             tests = self.finder.find(module)
         except AttributeError:
+            log.exception("Attribute error loading from %s", module)
             # nose allows module.__test__ = False; doctest does not and throws
             # AttributeError
             return
         if not tests:
+            log.debug("No tests found in %s", module)
             return
         tests.sort()
         module_file = src(module.__file__)
+        # FIXME this breaks the id plugin somehow (tests probably don't
+        # get wrapped in result proxy or something)
+        cases = []
         for test in tests:
             if not test.examples:
                 continue
             if not test.filename:
-                test.filename = module_file
-            yield DocTestCase(test, result_var=self.doctest_result_var)
+                test.filename = module_file            
+            cases.append(DocTestCase(test, result_var=self.doctest_result_var))
+        if cases:
+            yield self.suiteClass(cases, context=module, can_split=False)
             
     def loadTestsFromFile(self, filename):
         if self.extension and anyp(filename.endswith, self.extension):
@@ -139,12 +218,38 @@ class Doctest(Plugin):
                 doc = dh.read()
             finally:
                 dh.close()
+
+            fixture_context = None
+            globs = {'__file__': filename}
+            if self.fixtures:
+                base, ext = os.path.splitext(name)
+                dirname = os.path.dirname(filename)
+                sys.path.append(dirname)
+                fixt_mod = base + self.fixtures
+                try:
+                    fixture_context = __import__(
+                        fixt_mod, globals(), locals(), ["nop"])
+                except ImportError, e:
+                    log.debug(
+                        "Could not import %s: %s (%s)", fixt_mod, e, sys.path)
+                log.debug("Fixture module %s resolved to %s",
+                          fixt_mod, fixture_context)
+                if hasattr(fixture_context, 'globs'):
+                    globs = fixture_context.globs(globs)
             parser = doctest.DocTestParser()
             test = parser.get_doctest(
-                doc, globs={'__file__': filename}, name=name,
+                doc, globs=globs, name=name,
                 filename=filename, lineno=0)
             if test.examples:
-                yield DocFileCase(test, result_var=self.doctest_result_var)
+                case = DocFileCase(
+                    test,
+                    setUp=getattr(fixture_context, 'setup_test', None),
+                    tearDown=getattr(fixture_context, 'teardown_test', None),
+                    result_var=self.doctest_result_var)
+                if fixture_context:
+                    yield ContextSuite(tests=(case,), context=fixture_context)
+                else:
+                    yield case
             else:
                 yield False # no tests to load
             
@@ -152,12 +257,14 @@ class Doctest(Plugin):
         """Look for doctests in the given object, which will be a
         function, method or class.
         """
-        doctests = self.finder.find(obj, module=getmodule(parent))
+        name = getattr(obj, '__name__', 'Unnammed %s' % type(obj))
+        doctests = self.finder.find(obj, module=getmodule(parent), name=name)
         if doctests:
             for test in doctests:
                 if len(test.examples) == 0:
                     continue
-                yield DocTestCase(test, obj=obj, result_var=self.doctest_result_var)
+                yield DocTestCase(test, obj=obj,
+                                  result_var=self.doctest_result_var)
     
     def matches(self, name):
         """Doctest wants only non-test modules in general.
@@ -204,13 +311,26 @@ class DocTestCase(doctest.DocTestCase):
         self._result_var = result_var
         self._nose_obj = obj
         super(DocTestCase, self).__init__(
-            test, optionflags=optionflags, setUp=None, tearDown=None,
-            checker=None)
+            test, optionflags=optionflags, setUp=setUp, tearDown=tearDown,
+            checker=checker)
     
     def address(self):
         if self._nose_obj is not None:
             return test_address(self._nose_obj)
-        return test_address(resolve_name(self._dt_test.name))
+        obj = resolve_name(self._dt_test.name)
+
+        if isproperty(obj):
+            # properties have no connection to the class they are in
+            # so we can't just look 'em up, we have to first look up
+            # the class, then stick the prop on the end
+            parts = self._dt_test.name.split('.')
+            class_name = '.'.join(parts[:-1])
+            cls = resolve_name(class_name)
+            base_addr = test_address(cls)
+            return (base_addr[0], base_addr[1],
+                    '.'.join([base_addr[2], parts[-1]]))
+        else:
+            return test_address(obj)
     
     # doctests loaded via find(obj) omit the module name
     # so we need to override id, __repr__ and shortDescription
@@ -260,7 +380,7 @@ class DocFileCase(doctest.DocFileCase):
                  checker=None, result_var='_'):
         self._result_var = result_var
         super(DocFileCase, self).__init__(
-            test, optionflags=optionflags, setUp=None, tearDown=None,
+            test, optionflags=optionflags, setUp=setUp, tearDown=tearDown,
             checker=None)
 
     def address(self):

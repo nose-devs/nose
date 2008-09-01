@@ -108,9 +108,19 @@ class ContextSuite(LazySuite):
     failureException = unittest.TestCase.failureException
     was_setup = False
     was_torndown = False
-
+    classSetup = ('setup_class', 'setup_all', 'setupClass', 'setupAll',
+                     'setUpClass', 'setUpAll')
+    classTeardown = ('teardown_class', 'teardown_all', 'teardownClass',
+                     'teardownAll', 'tearDownClass', 'tearDownAll')
+    moduleSetup = ('setup_module', 'setupModule', 'setUpModule', 'setup')
+    moduleTeardown = ('teardown_module', 'teardownModule', 'tearDownModule',
+                      'teardown')
+    packageSetup = ('setup_package', 'setupPackage', 'setUpPackage')
+    packageTeardown = ('teardown_package', 'teardownPackage',
+                       'tearDownPackage')
+    
     def __init__(self, tests=(), context=None, factory=None,
-                 config=None, resultProxy=None):
+                 config=None, resultProxy=None, can_split=True):
         log.debug("Context suite for %s (%s) (%s)", tests, context, id(self))
         self.context = context
         self.factory = factory
@@ -119,6 +129,7 @@ class ContextSuite(LazySuite):
         self.config = config
         self.resultProxy = resultProxy
         self.has_run = False
+        self.can_split = can_split
         LazySuite.__init__(self, tests)
 
     def __repr__(self):
@@ -169,6 +180,39 @@ class ContextSuite(LazySuite):
             except:
                 result.addError(self, self.exc_info())
 
+    def hasFixtures(self, ctx_callback=None):
+        context = self.context
+        if context is None:
+            return False
+        if self.implementsAnyFixture(context, ctx_callback=ctx_callback):
+            return True
+        # My context doesn't have any, but its ancestors might
+        factory = self.factory
+        if factory:
+            ancestors = factory.context.get(self, [])
+            for ancestor in ancestors:
+                if self.implementsAnyFixture(
+                    ancestor, ctx_callback=ctx_callback):
+                    return True
+        return False
+
+    def implementsAnyFixture(self, context, ctx_callback):
+        if isclass(context):
+            names = self.classSetup + self.classTeardown
+        else:
+            names = self.moduleSetup + self.moduleTeardown
+            if hasattr(context, '__path__'):
+                names += self.packageSetup + self.packageTeardown
+        # If my context has any fixture attribute, I have fixtures
+        fixt = False
+        for m in names:
+            if hasattr(context, m):
+                fixt = True
+                break
+        if ctx_callback is None:
+            return fixt
+        return ctx_callback(context, fixt)
+    
     def setUp(self):
         log.debug("suite %s setUp called, tests: %s", id(self), self._tests)
         if not self:
@@ -209,13 +253,11 @@ class ContextSuite(LazySuite):
             # the teardown in my teardown
             self.factory.was_setup[context] = self
         if isclass(context):
-            names = ('setup_class', 'setup_all', 'setupClass', 'setupAll',
-                     'setUpClass', 'setUpAll')
+            names = self.classSetup
         else:
-            names = ('setup_module', 'setupModule', 'setUpModule', 'setup')
+            names = self.moduleSetup
             if hasattr(context, '__path__'):
-                names = ('setup_package', 'setupPackage',
-                         'setUpPackage') + names
+                names += names
         try_run(context, names)
 
     def shortDescription(self):
@@ -261,14 +303,11 @@ class ContextSuite(LazySuite):
         if self.factory:
             self.factory.was_torndown[context] = self
         if isclass(context):
-            names = ('teardown_class', 'teardown_all', 'teardownClass',
-                     'teardownAll', 'tearDownClass', 'tearDownAll')
+            names = self.classTeardown
         else:
-            names = ('teardown_module', 'teardownModule', 'tearDownModule',
-                     'teardown')
+            names = self.moduleTeardown
             if hasattr(context, '__path__'):
-                names = ('teardown_package', 'teardownPackage',
-                         'tearDownPackage') + names
+                names += names
         try_run(context, names)
         self.config.plugins.stopContext(context)
 
@@ -311,7 +350,7 @@ class ContextSuiteFactory(object):
         self.was_setup = {}
         self.was_torndown = {}
 
-    def __call__(self, tests):
+    def __call__(self, tests, **kw):
         """Return ``ContextSuite`` for tests. ``tests`` may either
         be a callable (in which case the resulting ContextSuite will
         have no parent context and be evaluated lazily) or an
@@ -321,15 +360,15 @@ class ContextSuiteFactory(object):
         outermost suites belonging to the outermost contexts.
         """
         log.debug("Create suite for %s", tests)
-        context = getattr(tests, 'context', None)
+        context = kw.pop('context', getattr(tests, 'context', None))
         log.debug("tests %s context %s", tests, context)
         if context is None:
             tests = self.wrapTests(tests)
             try:
                 context = self.findContext(tests)
             except MixedContextError:
-                return self.makeSuite(self.mixedSuites(tests), None)
-        return self.makeSuite(tests, context)
+                return self.makeSuite(self.mixedSuites(tests), None, **kw)
+        return self.makeSuite(tests, context, **kw)
         
     def ancestry(self, context):
         """Return the ancestry of the context (that is, all of the
@@ -340,6 +379,11 @@ class ContextSuiteFactory(object):
         log.debug("get ancestry %s", context)
         if context is None:
             return
+        # Methods include reference to module they are defined in, we
+        # don't want that, instead want the module the class is in now
+        # (classes are re-ancestored elsewhere).
+        if hasattr(context, 'im_class'):
+            context = context.im_class
         if hasattr(context, '__module__'):
             ancestors = context.__module__.split('.')
         elif hasattr(context, '__name__'):
@@ -368,10 +412,10 @@ class ContextSuiteFactory(object):
                     % (context, ctx))
         return context
 
-    def makeSuite(self, tests, context):
+    def makeSuite(self, tests, context, **kw):
         suite = self.suiteClass(
             tests, context=context, config=self.config, factory=self,
-            resultProxy=self.resultProxy)
+            resultProxy=self.resultProxy, **kw)
         if context is not None:
             self.suites.setdefault(context, []).append(suite)
             self.context.setdefault(suite, []).append(context)
