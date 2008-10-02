@@ -46,6 +46,9 @@ class LazySuite(unittest.TestSuite):
     def __repr__(self):
         return "<%s tests=generator (%s)>" % (
             unittest._strclass(self.__class__), id(self))
+
+    def __hash__(self):
+        return object.__hash__(self)
     
     __str__ = __repr__
 
@@ -137,6 +140,9 @@ class ContextSuite(LazySuite):
             unittest._strclass(self.__class__),
             getattr(self.context, '__name__', self.context))
     __str__ = __repr__
+
+    def __hash__(self):
+        return object.__hash__(self)
 
     # 2.3 compat -- force 2.4 call sequence
     def __call__(self, *arg, **kw):

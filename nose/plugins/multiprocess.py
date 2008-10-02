@@ -89,12 +89,29 @@ from nose.util import test_address
 from Queue import Empty
 
 log = logging.getLogger(__name__)
-        
+
 try:
-    from processing import Process, Queue, Pool, Event
+    # 2.6
+    from multiprocessing import Process as Process_, Queue, Pool, Event
+    class Process(Process_):
+        def setDaemon(self, daemon):
+            self.daemon = daemon
+        def isAlive(self):
+            return self.is_alive()
+    def is_set(event):
+        return event.is_set()
+    
 except ImportError:
-    Process = Queue = Pool = Event = None
-    log.debug("processing module not available")
+    # Earlier
+    try:
+        from processing import Process, Queue, Pool, Event
+        def is_set(event):
+            return event.isSet()
+    except ImportError:
+        Process = Queue = Pool = Event = None
+        def is_set(event):
+            pass
+        log.debug("processing module not available")
 try:
     from cStringIO import StringIO
 except ImportError:
@@ -247,7 +264,7 @@ class MultiProcessTestRunner(TextTestRunner):
                                              self.loaderClass,
                                              result.__class__,
                                              self.config))
-            p.setDaemon(True)
+            # p.setDaemon(True)
             p.start()
             workers.append(p)
             log.debug("Started worker process %s", i+1)
@@ -435,7 +452,8 @@ def runner(ix, testQueue, resultQueue, shouldStop,
     try:
         try:
             for test_addr in iter(get, 'STOP'):
-                if shouldStop.isSet():
+                # 2.6 names changed
+                if is_set(shouldStop):
                     break
                 result = makeResult()
                 test = loader.loadTestsFromNames([test_addr])

@@ -73,7 +73,7 @@ class TestLogCapturePlugin(object):
         c = LogCapture()
         parser = OptionParser()
         c.addOptions(parser, env)
-        options, args = parser.parse_args()
+        options, args = parser.parse_args(['foo'])
         print options, args
         c.configure(options, Config())
         c.start()
