@@ -1,3 +1,7 @@
+0.10.4
+
+- Made nose compatible with python 2.6.
+
 0.10.3
 
 - Fixed bug in nosetests setup command that caused an exception to be raised

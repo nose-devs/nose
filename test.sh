@@ -11,6 +11,10 @@ echo
 echo "python 2.5..."
 python2.5 selftest.py
 
+echo
+echo "python 2.6..."
+python2.6 selftest.py
+
 if [ "${JYTHON}x" != "x" ] 
 then
     echo
