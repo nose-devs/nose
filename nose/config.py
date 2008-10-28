@@ -418,8 +418,9 @@ class Config(object):
             )
         parser.add_option("-m", "--match", "--testmatch", action="store",
                           dest="testMatch",
-                          help="Use this regular expression to "
-                          "find tests [NOSE_TESTMATCH]",
+                          help="Files, directories, function names, and class names "
+                          "that match this regular expression are considered tests.  "
+                          "Default: %s [NOSE_TESTMATCH]" % self.testMatchPat,
                           default=self.testMatchPat)
         parser.add_option(
             "--tests", action="store", dest="testNames", default=None,
@@ -451,8 +452,11 @@ class Config(object):
             "expression [NOSE_EXCLUDE]")
         parser.add_option(
             "-i", "--include", action="append", dest="include",
-            help="Also run tests that match regular "
-            "expression [NOSE_INCLUDE]")
+            help="This regular expression will be applied to files, "
+            "directories, function names, and class names for a chance "
+            "to include additional tests that do not match TESTMATCH.  "
+            "Specify this option multiple times "
+            "to add more regular expressions [NOSE_INCLUDE]")
         parser.add_option(
             "-x", "--stop", action="store_true", dest="stopOnError",
             default=self.stopOnError,
