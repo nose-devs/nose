@@ -87,31 +87,41 @@ from nose.result import TextTestResult
 from nose.suite import ContextSuite
 from nose.util import test_address
 from Queue import Empty
+from warnings import warn
 
 log = logging.getLogger(__name__)
 
-try:
-    # 2.6
-    from multiprocessing import Process as Process_, Queue, Pool, Event
-    class Process(Process_):
-        def setDaemon(self, daemon):
-            self.daemon = daemon
-        def isAlive(self):
-            return self.is_alive()
-    def is_set(event):
-        return event.is_set()
-    
-except ImportError:
-    # Earlier
+Process = Queue = Pool = Event = None
+is_set = lambda e: None
+
+def do_processing_imports():
+    global Process, Queue, Pool, Event, is_set
     try:
-        from processing import Process, Queue, Pool, Event
-        def is_set(event):
-            return event.isSet()
+        # 2.6
+        from multiprocessing import Process as Process_, \
+             Queue as Queue_, Pool as Pool_, Event as Event_
+        class Process26(Process_):
+            def setDaemon(self, daemon):
+                self.daemon = daemon
+            def isAlive(self):
+                return self.is_alive()
+        def is_set_26(event):
+            return event.is_set()
+        Process, Queue, Pool, Event = Process26, Queue_, Pool_, Event_
+        is_set = is_set_26
     except ImportError:
-        Process = Queue = Pool = Event = None
-        def is_set(event):
-            pass
-        log.debug("processing module not available")
+        # Earlier
+        try:
+            from processing import Process as Process_, \
+            Queue as Queue_, Pool as Pool_, Event as Event_
+            def is_set_(event):
+                return event.isSet()
+            Process, Queue, Pool, Event = Process_, Queue_, Pool_, Event_
+            is_set = is_set_
+        except ImportError:
+            warn("processing module is not available, multiprocess plugin "
+                 "cannot be used", RuntimeWarning)
+
 try:
     from cStringIO import StringIO
 except ImportError:
@@ -123,7 +133,7 @@ class TestLet:
         try:
             self._id = case.id()
         except AttributeError:
-            pass 
+            pass
         self._short_description = case.shortDescription()
         self._str = str(case)
 
@@ -144,10 +154,6 @@ class MultiProcess(Plugin):
     score = 1000
 
     def options(self, parser, env=os.environ):
-        if Process is None:
-            self.can_configure = False
-            self.enabled = False
-            return
         parser.add_option("--processes", action="store",
                           default=env.get('NOSE_PROCESSES', 0),
                           dest="multiprocess_workers",
@@ -171,13 +177,17 @@ class MultiProcess(Plugin):
         except (TypeError, ValueError):
             workers = 0
         if workers:
+            do_processing_imports()
+            if Process is None:
+                self.enabled = False
+                return
             self.enabled = True
             self.config.multiprocess_workers = workers
             self.config.multiprocess_timeout = int(options.multiprocess_timeout)
-    
+
     def prepareTestLoader(self, loader):
         self.loaderClass = loader.__class__
-        
+
     def prepareTestRunner(self, runner):
         # replace with our runner class
         return MultiProcessTestRunner(stream=runner.stream,
@@ -191,7 +201,7 @@ class MultiProcessTestRunner(TextTestRunner):
     def __init__(self, **kw):
         self.loaderClass = kw.pop('loaderClass', loader.defaultTestLoader)
         super(MultiProcessTestRunner, self).__init__(**kw)
-    
+
     def run(self, test):
         """
         Execute the test (which may be a test suite). If the test is a suite,
@@ -203,7 +213,7 @@ class MultiProcessTestRunner(TextTestRunner):
         wrapper = self.config.plugins.prepareTest(test)
         if wrapper is not None:
             test = wrapper
-        
+
         # plugins can decorate or capture the output stream
         wrapped = self.config.plugins.setOutputStream(self.stream)
         if wrapped is not None:
@@ -216,10 +226,10 @@ class MultiProcessTestRunner(TextTestRunner):
         workers = []
         to_teardown = []
         shouldStop = Event()
-        
+
         result = self._makeResult()
         start = time.time()
-        
+
         # dispatch and collect results
         # put indexes only on queue because tests aren't picklable
         for case in self.next_batch(test):
@@ -247,14 +257,14 @@ class MultiProcessTestRunner(TextTestRunner):
                         tasks[test_addr] = None
                         log.debug("Queued shared-fixture test %s (%s) to %s",
                                   len(tasks), test_addr, testQueue)
-                
+
             else:
                 test_addr = self.address(case)
                 testQueue.put(test_addr, block=False)
                 tasks[test_addr] = None
                 log.debug("Queued test %s (%s) to %s",
                           len(tasks), test_addr, testQueue)
-            
+
         log.debug("Starting %s workers", self.config.multiprocess_workers)
         for i in range(self.config.multiprocess_workers):
             p = Process(target=runner, args=(i,
@@ -269,7 +279,7 @@ class MultiProcessTestRunner(TextTestRunner):
             workers.append(p)
             log.debug("Started worker process %s", i+1)
 
-        num_tasks = len(tasks)            
+        num_tasks = len(tasks)
         while tasks:
             log.debug("Waiting for results (%s/%s tasks)",
                       len(completed), num_tasks)
@@ -310,9 +320,9 @@ class MultiProcessTestRunner(TextTestRunner):
                 raise
             except:
                 result.addError(case, sys.exc_info())
-        
+
         stop = time.time()
-        
+
         result.printErrors()
         result.printSummary(start, stop)
         self.config.plugins.finalize(result)
@@ -321,7 +331,7 @@ class MultiProcessTestRunner(TextTestRunner):
         for w in workers:
             if w.isAlive():
                 testQueue.put('STOP', block=False)
-        
+
         return result
 
     def address(self, case):
@@ -395,7 +405,7 @@ class MultiProcessTestRunner(TextTestRunner):
         context = getattr(case, 'context', None)
         if not context:
             return False
-        return getattr(context, '_multiprocess_shared_', False)            
+        return getattr(context, '_multiprocess_shared_', False)
 
     def consolidate(self, result, batch_result):
         log.debug("batch result is %s" , batch_result)
@@ -404,7 +414,7 @@ class MultiProcessTestRunner(TextTestRunner):
         except ValueError:
             log.debug("result in unexpected format %s", batch_result)
             failure.Failure(*sys.exc_info())(result)
-            return 
+            return
         self.stream.write(output)
         result.testsRun += testsRun
         result.failures.extend(failures)
@@ -419,17 +429,17 @@ class MultiProcessTestRunner(TextTestRunner):
             mystorage.extend(storage)
         log.debug("Ran %s tests (%s)", testsRun, result.testsRun)
 
-            
+
 def runner(ix, testQueue, resultQueue, shouldStop,
            loaderClass, resultClass, config):
     log.debug("Worker %s executing", ix)
     loader = loaderClass(config=config)
     loader.suiteClass.suiteClass = NoSharedFixtureContextSuite
-    
+
     def get():
         case = testQueue.get(timeout=config.multiprocess_timeout)
         return case
-            
+
     def makeResult():
         stream = unittest._WritelnDecorator(StringIO())
         return resultClass(stream, descriptions=1,
@@ -442,7 +452,7 @@ def runner(ix, testQueue, resultQueue, shouldStop,
         errorClasses = {}
         for key, (storage, label, isfail) in result.errorClasses.items():
             errorClasses[key] = ([(TestLet(c), err) for c in storage],
-                                 label, isfail)                
+                                 label, isfail)
         return (
             result.stream.getvalue(),
             result.testsRun,
@@ -482,9 +492,9 @@ class NoSharedFixtureContextSuite(ContextSuite):
     When a context sets _multiprocess_shared_, fixtures in that context
     are executed by the main process. Using this suite class prevents them
     from executing in the runner process as well.
-    
+
     """
-    
+
     def setupContext(self, context):
         if getattr(context, '_multiprocess_shared_', False):
             return
