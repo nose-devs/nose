@@ -117,19 +117,17 @@ all tests pass.
 
 .. Note ::
 
-   The run() function in `nose.plugins.plugintest`_ reformats test result
-   output to remove timings, which will vary from run to run, and
-   redirects the output to stdout.
-
-    >>> from nose.plugins.plugintest import run_buffered as run
+   The sh() function below executes a shell command.
 
 ..
 
     >>> import os
-    >>> import sys
     >>> support = os.path.join(os.path.dirname(__file__), 'support')
-    >>> argv = [__file__, '-v', os.path.join(support, 'test_shared.py')]
-    >>> run(argv=argv) #doctest: +REPORT_NDIFF
+    >>> test_not_shared = os.path.join(support, 'test_not_shared.py')
+    >>> test_shared = os.path.join(support, 'test_shared.py')
+    >>> test_can_split = os.path.join(support, 'test_can_split.py')
+
+    >>> sh('nosetests -v ' + test_shared) #doctest: +REPORT_NDIFF
     setup called
     test_shared.TestMe.test_one ... ok
     test_shared.test_a ... ok
@@ -141,8 +139,7 @@ all tests pass.
     <BLANKLINE>
     OK
 
-    >>> argv = [__file__, '-v', os.path.join(support, 'test_not_shared.py')]
-    >>> run(argv=argv) #doctest: +REPORT_NDIFF
+    >>> sh('nosetests -v ' + test_not_shared) #doctest: +REPORT_NDIFF
     setup called
     test_not_shared.TestMe.test_one ... ok
     test_not_shared.test_a ... ok
@@ -154,8 +151,7 @@ all tests pass.
     <BLANKLINE>
     OK
 
-    >>> argv = [__file__, '-v', os.path.join(support, 'test_can_split.py')]
-    >>> run(argv=argv) #doctest: +REPORT_NDIFF
+    >>> sh('nosetests -v ' + test_can_split) #doctest: +REPORT_NDIFF
     setup called
     test_can_split.TestMe.test_one ... ok
     test_can_split.test_a ... ok
@@ -170,22 +166,14 @@ all tests pass.
 However, when run with the `--processes=2` switch, each test module
 behaves differently.
 
-    >>> from nose.plugins.multiprocess import MultiProcess
+The module marked `_multiprocess_shared_` executes correctly, although as with
+any use of the multiprocess plugin, the order in which the tests execute is
+indeterminate.
 
-The module marked `_multiprocess_shared_` executes correctly.
 
-    # First we have to reset all of the test modules
-    >>> sys.modules['test_shared'].called[:] = []
-    >>> sys.modules['test_not_shared'].called[:] = []
-    >>> sys.modules['test_can_split'].called[:] = []
-
-    >>> argv = [__file__, '-v', '--processes=2',
-    ...         os.path.join(support, 'test_shared.py')]
-    >>> run(argv=argv, plugins=[MultiProcess()]) #doctest: +REPORT_NDIFF
+    >>> sh('nosetests -v --processes=2 ' + test_shared) #doctest: +ELLIPSIS
     setup called
-    test_shared.TestMe.test_one ... ok
-    test_shared.test_a ... ok
-    test_shared.test_b ... ok
+    test_shared.... ok
     teardown called
     <BLANKLINE>
     ----------------------------------------------------------------------
@@ -203,9 +191,9 @@ the fixtures *are not reentrant*. A module such as this *must not* be
 marked `_multiprocess_can_split_`, or tests will fail in one or more
 runner processes as fixtures are re-executed.
 
-    >>> argv = [__file__, '-v', '--processes=2',
-    ...         os.path.join(support, 'test_can_split.py')]
-    >>> run(argv=argv, plugins=[MultiProcess()]) #doctest: +ELLIPSIS
+    >>> sh('nosetests -v --processes=2 ' + test_can_split) #doctest: +ELLIPSIS +REPORT_NDIFF
+    setup called
+    ...
     test_can_split....
     ...
     FAILED (failures=...)
@@ -234,3 +222,11 @@ differences that may also impact your test suite:
   output. Since difference processes may complete their tests at different
   times, test result output order is not determinate.
 
+* Python 2.6 warning
+
+  This is unlikely to impact you unless you are writing tests for nose itself,
+  but be aware that under python 2.6, the multprocess plugin is not
+  re-entrant. For example, when running nose with the plugin active, you can't
+  use subprocess to launch another copy of nose that also uses the
+  multiprocess plugin. This is why this test fails under python 2.6 when run
+  with the --processes switch.

@@ -374,8 +374,16 @@ class MultiProcessTestRunner(TextTestRunner):
             or not getattr(test, 'can_split', True)
             or not isinstance(test, unittest.TestSuite)):
             # regular test case, or a suite with context fixtures
-            # either way we've hit something we can ask a worker
-            # to run
+            
+            # special case: when run like nosetests path/to/module.py
+            # the top-level suite has only one item, and it shares
+            # the same context as that item. In that case, we want the
+            # item, not the top-level suite
+            if isinstance(test, ContextSuite):
+                contained = list(test)
+                if (len(contained) == 1
+                    and getattr(contained[0], 'context', None) == test.context):
+                    test = contained[0]
             yield test
         else:
             # Suite is without fixtures at this level; but it may have
@@ -482,6 +490,7 @@ def runner(ix, testQueue, resultQueue, shouldStop,
             log.debug("Worker %s timed out waiting for tasks", ix)
     finally:
         resultQueue.close()
+        testQueue.close()
     log.debug("Worker %s ending", ix)
 
 

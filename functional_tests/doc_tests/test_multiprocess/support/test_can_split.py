@@ -1,14 +1,15 @@
+import sys
 called = []
 
 _multiprocess_can_split_ = 1
 
 def setup():
-    print "setup called"
+    print >> sys.stderr, "setup called"
     called.append('setup')
 
 
 def teardown():
-    print "teardown called"
+    print >> sys.stderr, "teardown called"
     called.append('teardown')
 
 
