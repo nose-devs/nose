@@ -255,6 +255,8 @@ class ContextSuite(LazySuite):
         self.config.plugins.startContext(context)
         log.debug("%s setup context %s", self, context)
         if self.factory:
+            if context in self.factory.was_setup:
+                return
             # note that I ran the setup for this context, so that I'll run
             # the teardown in my teardown
             self.factory.was_setup[context] = self
@@ -307,6 +309,8 @@ class ContextSuite(LazySuite):
     def teardownContext(self, context):
         log.debug("%s teardown context %s", self, context)
         if self.factory:
+            if context in self.factory.was_torndown:
+                return
             self.factory.was_torndown[context] = self
         if isclass(context):
             names = self.classTeardown
@@ -493,6 +497,8 @@ class ContextSuiteFactory(object):
             log.debug("wrapping %s", test)
             if isinstance(test, Test) or isinstance(test, unittest.TestSuite):
                 wrapped.append(test)
+            elif isinstance(test, ContextList):
+                wrapped.append(self.makeSuite(test, context=test.context))
             else:
                 wrapped.append(
                     Test(test, config=self.config, resultProxy=self.resultProxy)

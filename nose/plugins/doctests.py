@@ -53,7 +53,7 @@ import sys
 import unittest
 from inspect import getmodule
 from nose.plugins.base import Plugin
-from nose.suite import ContextSuite
+from nose.suite import ContextList
 from nose.util import anyp, getpackage, test_address, resolve_name, \
      src, tolist, isproperty
 try:
@@ -247,7 +247,7 @@ class Doctest(Plugin):
                     tearDown=getattr(fixture_context, 'teardown_test', None),
                     result_var=self.doctest_result_var)
                 if fixture_context:
-                    yield ContextSuite(tests=(case,), context=fixture_context)
+                    yield ContextList((case,), context=fixture_context)
                 else:
                     yield case
             else:
