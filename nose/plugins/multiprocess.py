@@ -152,7 +152,8 @@ class MultiProcess(Plugin):
     Run tests in multiple processes. Requires processing module.
     """
     score = 1000
-
+    status = {}
+    
     def options(self, parser, env=os.environ):
         parser.add_option("--processes", action="store",
                           default=env.get('NOSE_PROCESSES', 0),
@@ -168,6 +169,10 @@ class MultiProcess(Plugin):
                           "test runner process. [NOSE_PROCESS_TIMEOUT]")
 
     def configure(self, options, config):
+        try:
+            self.status.pop('active')
+        except KeyError:
+            pass
         if not hasattr(options, 'multiprocess_workers'):
             self.enabled = False
             return
@@ -184,7 +189,8 @@ class MultiProcess(Plugin):
             self.enabled = True
             self.config.multiprocess_workers = workers
             self.config.multiprocess_timeout = int(options.multiprocess_timeout)
-
+            self.status['active'] = True
+            
     def prepareTestLoader(self, loader):
         self.loaderClass = loader.__class__
 
@@ -459,7 +465,7 @@ def runner(ix, testQueue, resultQueue, shouldStop,
         errors = [(TestLet(c), err) for c, err in result.errors]
         errorClasses = {}
         for key, (storage, label, isfail) in result.errorClasses.items():
-            errorClasses[key] = ([(TestLet(c), err) for c in storage],
+            errorClasses[key] = ([(TestLet(c), err) for c, err in storage],
                                  label, isfail)
         return (
             result.stream.getvalue(),
