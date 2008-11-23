@@ -443,7 +443,8 @@ class MultiProcessTestRunner(TextTestRunner):
             mystorage.extend(storage)
         log.debug("Ran %s tests (%s)", testsRun, result.testsRun)
 
-
+# FIXME it looks like the error classes that should be on the
+# result disappear after the first test batch
 def runner(ix, testQueue, resultQueue, shouldStop,
            loaderClass, resultClass, config):
     log.debug("Worker %s executing", ix)
@@ -456,9 +457,13 @@ def runner(ix, testQueue, resultQueue, shouldStop,
 
     def makeResult():
         stream = unittest._WritelnDecorator(StringIO())
-        return resultClass(stream, descriptions=1,
-                           verbosity=config.verbosity,
-                           config=config)
+        result = resultClass(stream, descriptions=1,
+                             verbosity=config.verbosity,
+                             config=config)
+        plug_result = config.plugins.prepareTestResult(result)
+        if plug_result:
+            return plug_result
+        return result
 
     def batch(result):
         failures = [(TestLet(c), err) for c, err in result.failures]
