@@ -14,7 +14,8 @@ the error failure output.
 You can filter logging statements captured with the --logging-filter option. 
 If set, it specifies which logger(s) will be captured; loggers that do not match
 will be passed. Example: specifying --logging-filter=sqlalchemy,myapp 
-will ensure that only statements logged via sqlalchemy.engine or myapp or myapp.foo.bar logger will be logged.
+will ensure that only statements logged via sqlalchemy.engine or myapp
+or myapp.foo.bar logger will be logged.
 """
 
 import os
@@ -87,10 +88,10 @@ class LogCapture(Plugin):
                  " [NOSE_LOGFORMAT]")
         parser.add_option(
             "", "--logging-filter", action="store", dest="logcapture_filters",
-            default=env.get('NOSE_LOGFILTER') or self.logformat,
+            default=env.get('NOSE_LOGFILTER'),
             help="Specify which statements to filter in/out. "
-                 "By default everything is captured. If the output is too verbose,\n"
-                 "use this option to filter out needless output\n"
+                 "By default everything is captured. If the output is too"
+                 " verbose,\nuse this option to filter out needless output\n"
                  "Example: filter=foo will capture statements issued ONLY to\n"
                  " foo or foo.what.ever.sub but not foobar or other logger.\n"
                  "Specify multiple loggers with comma: filter=foo,bar,baz."
@@ -108,7 +109,8 @@ class LogCapture(Plugin):
             self.enabled = False        
         self.logformat = options.logcapture_format
         self.clear = options.logcapture_clear
-        self.filters = options.logcapture_filters.split(',')
+        if options.logcapture_filters:
+            self.filters = options.logcapture_filters.split(',')
         
     def setupLoghandler(self):
         # setup our handler with root logger
@@ -119,7 +121,8 @@ class LogCapture(Plugin):
         # make sure there isn't one already
         # you can't simply use "if self.handler not in root_logger.handlers"
         # since at least in unit tests this doesn't work --
-        # LogCapture() is instantiated for each test case while root_logger is module global
+        # LogCapture() is instantiated for each test case while root_logger
+        # is module global
         # so we always add new MyMemoryHandler instance
         for handler in root_logger.handlers[:]:
             if isinstance(handler, MyMemoryHandler):
