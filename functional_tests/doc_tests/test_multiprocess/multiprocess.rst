@@ -228,5 +228,5 @@ differences that may also impact your test suite:
   but be aware that under python 2.6, the multprocess plugin is not
   re-entrant. For example, when running nose with the plugin active, you can't
   use subprocess to launch another copy of nose that also uses the
-  multiprocess plugin. This is why this test fails under python 2.6 when run
-  with the --processes switch.
+  multiprocess plugin. This is why this test is skipped under python 2.6 when
+  run with the --processes switch.

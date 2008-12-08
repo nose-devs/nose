@@ -2,6 +2,7 @@ import sys
 import subprocess
 import os
 from nose.plugins.skip import SkipTest
+from nose.plugins.multiprocess import MultiProcess
 from nose.plugins.plugintest import munge_nose_output_for_doctest
 
 _multiprocess_can_split_ = True
@@ -9,7 +10,10 @@ _multiprocess_can_split_ = True
 def setup_module():
     try:
         import multiprocessing
-        # FIXME if mp plugin is enabled, skip
+        if 'active' in MultiProcess.status:
+            raise SkipTest("Multiprocess plugin is active. Skipping tests of "
+                           "plugin itself. multiprocessing module in python "
+                           "2.6 is not re-entrant")
     except ImportError:
         try:
             import processing
