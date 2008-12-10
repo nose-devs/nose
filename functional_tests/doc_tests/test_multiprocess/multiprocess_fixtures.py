@@ -1,5 +1,4 @@
 import sys
-import subprocess
 import os
 from nose.plugins.skip import SkipTest
 from nose.plugins.multiprocess import MultiProcess
@@ -19,6 +18,11 @@ def setup_module():
             import processing
         except ImportError:
             raise SkipTest("processing module not available")
+    try:
+        import subprocess
+    except ImportError:
+        raise SkipTest("subprocess module not available")
+
 
 
 def globs(globs):
@@ -27,6 +31,7 @@ def globs(globs):
 
 
 def sh(cmd):
+    import subprocess
     root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(
                     os.path.abspath(__file__)))))            
     cmd = cmd.replace('nosetests ', '')

@@ -500,6 +500,7 @@ def runner(ix, testQueue, resultQueue, shouldStop,
         except Empty:
             log.debug("Worker %s timed out waiting for tasks", ix)
     finally:
+        testQueue.close()
         resultQueue.close()
         testQueue.close()
     log.debug("Worker %s ending", ix)
