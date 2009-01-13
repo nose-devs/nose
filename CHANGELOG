@@ -1,3 +1,12 @@
+0.11
+
+- Added multiprocess plugin that allows tests to be run in parallel
+  across multiple processes.
+- Added logcapture plugin that captures logging messages and prints them with
+  failing tests. Thanks to Max Ischenko for the implementation.
+- Added optional HTML coverage reports to coverage plugin. Thanks to Augie 
+  Fackler for the patch.
+
 0.10.3
 
 - Fixed bug in nosetests setup command that caused an exception to be raised
