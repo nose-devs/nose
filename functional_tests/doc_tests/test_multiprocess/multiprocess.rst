@@ -222,6 +222,14 @@ differences that may also impact your test suite:
   output. Since difference processes may complete their tests at different
   times, test result output order is not determinate.
 
+* Plugin interaction warning
+
+  The multiprocess plugin does not work well with other plugins that expect to
+  wrap or gain control of the test-running process. Examples from nose's 
+  builtin plugins include coverage and profiling: a test run using
+  both multiprocess and either of those is likely to fail in some
+  confusing and spectacular way.
+
 * Python 2.6 warning
 
   This is unlikely to impact you unless you are writing tests for nose itself,
@@ -230,3 +238,4 @@ differences that may also impact your test suite:
   use subprocess to launch another copy of nose that also uses the
   multiprocess plugin. This is why this test is skipped under python 2.6 when
   run with the --processes switch.
+
