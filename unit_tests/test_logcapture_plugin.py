@@ -21,6 +21,8 @@ class TestLogCapturePlugin(object):
         c.configure(options, Config())
         assert c.enabled
         eq_(LogCapture.logformat, c.logformat)
+        eq_(LogCapture.clear, c.clear)
+        eq_(LogCapture.filters, c.filters)
 
     def test_disable_option(self):
         parser = OptionParser()
@@ -50,6 +52,10 @@ class TestLogCapturePlugin(object):
 
     def test_captures_logging(self):
         c = LogCapture()
+        parser = OptionParser()
+        c.addOptions(parser, {})
+        options, args = parser.parse_args()
+        c.configure(options, Config())
         c.start()
         log = logging.getLogger("foobar.something")
         log.debug("Hello")

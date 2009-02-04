@@ -6,7 +6,7 @@
   failing tests. Thanks to Max Ischenko for the implementation.
 - Added optional HTML coverage reports to coverage plugin. Thanks to Augie 
   Fackler for the patch.
-
+  
 0.10.3
 
 - Fixed bug in nosetests setup command that caused an exception to be raised
