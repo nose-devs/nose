@@ -260,7 +260,7 @@ class TestLoader(unittest.TestLoader):
                                   "%s is not a function or method" % test_func)
         return self.suiteClass(generate, context=generator, can_split=False)
 
-    def loadTestsFromModule(self, module, discovered=False):
+    def loadTestsFromModule(self, module, path=None, discovered=False):
         """Load all tests from module and return a suite containing
         them. If the module has been discovered and is not test-like,
         the suite will be empty by default, though plugins may add
@@ -290,11 +290,15 @@ class TestLoader(unittest.TestLoader):
         # Now, descend into packages
         # FIXME can or should this be lazy?
         # is this syntax 2.2 compatible?
-        paths = getattr(module, '__path__', [])
-        for path in paths:
-            tests.extend(self.loadTestsFromDir(path))
+        module_paths = getattr(module, '__path__', [])
+        if path:
+            path = os.path.realpath(path)
+        for module_path in module_paths:
+            if (self.config.traverseNamespace or not path) or \
+                    os.path.realpath(module_path).startswith(path):
+                tests.extend(self.loadTestsFromDir(module_path))
             
-        for test in self.config.plugins.loadTestsFromModule(module):
+        for test in self.config.plugins.loadTestsFromModule(module, path):
             tests.append(test)
 
         return self.suiteClass(ContextList(tests, context=module))
@@ -368,7 +372,8 @@ class TestLoader(unittest.TestLoader):
                     return self.loadTestsFromName(addr.call, module)
                 else:
                     return self.loadTestsFromModule(
-                        module, discovered=discovered)
+                        module, addr.filename,
+                        discovered=discovered)
             elif addr.filename:
                 path = addr.filename
                 if addr.call:

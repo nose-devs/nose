@@ -44,6 +44,7 @@ you wish to make available. Make sure to call
 other than ``PluginManager``.
 
 """
+import inspect
 import logging
 import os
 import sys
@@ -86,6 +87,10 @@ class PluginProxy(object):
         """
         meth = getattr(plugin, call, None)
         if meth is not None:
+            if call == 'loadTestsFromModule' and \
+                    len(inspect.getargspec(meth)[0]) == 2:
+                orig_meth = meth
+                meth = lambda module, path, **kwargs: orig_meth(module)
             self.plugins.append((plugin, meth))
 
     def makeCall(self, call):

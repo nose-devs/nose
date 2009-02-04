@@ -203,6 +203,7 @@ class Config(object):
         self.verbosity = int(env.get('NOSE_VERBOSE', 1))
         self.where = ()
         self.workingDir = os.getcwd()
+        self.traverseNamespace = True
         
         self._default = self.__dict__.copy()
         self.update(kw)
@@ -270,6 +271,7 @@ class Config(object):
         self.stopOnError = options.stopOnError
         self.verbosity = options.verbosity
         self.includeExe = options.includeExe
+        self.traverseNamespace = options.traverseNamespace
         self.debug = options.debug
         self.debugLog = options.debugLog
         self.loggingConfig = options.loggingConfig
@@ -479,6 +481,11 @@ class Config(object):
             help="DO NOT look for tests in python modules that are "
             "executable. (The default on the windows platform is to "
             "do so.)")
+        parser.add_option(
+            "--no-traverse-namespace", action="store_false",
+            default=self.traverseNamespace, dest="traverseNamespace",
+            help="DO NOT traverse through all path entries of a "
+            "namespace package")
 
         self.plugins.loadPlugins()
         self.pluginOpts(parser)

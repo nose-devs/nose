@@ -524,7 +524,7 @@ class IPluginInterface(object):
     loadTestsFromDir.generative = True
     loadTestsFromDir._new = True
     
-    def loadTestsFromModule(self, module):
+    def loadTestsFromModule(self, module, path=None):
         """Return iterable of tests in a module. May be a
         generator. Each item returned must be a runnable
         unittest.TestCase (or subclass) instance.
@@ -534,6 +534,8 @@ class IPluginInterface(object):
         :Parameters:
           module : python module 
             The module object
+          path : the path of the module to search, to
+            distinguish from namespace package modules
         """
         pass
     loadTestsFromModule.generative = True

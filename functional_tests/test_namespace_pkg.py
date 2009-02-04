@@ -8,7 +8,7 @@ from test_program import TestRunner
 here = os.path.dirname(__file__)
 support = os.path.join(here, 'support')
 
-class TestTestProgram(unittest.TestCase):
+class TestNamespacePackages(unittest.TestCase):
 
     def setUp(self):
         self.cwd = os.getcwd()
@@ -21,12 +21,8 @@ class TestTestProgram(unittest.TestCase):
         sys.path = self.orig_path
         os.chdir(self.cwd)
 
-    def test_run_support_ctx(self):
-        """Collect and run tests in functional_tests/support/ctx
-
-        This should collect no tests in the default configuration, since
-        none of the modules have test-like names.
-        """
+    def test_namespace_pkg(self):
+        """Ensure namespace packages work/can import from each other"""
         stream = StringIO()
         runner = TestRunner(stream=stream)
         runner.verbosity = 2
@@ -36,6 +32,23 @@ class TestTestProgram(unittest.TestCase):
         res = runner.result
         self.assertEqual(res.testsRun, 2,
                          "Expected to run 2 tests, ran %s" % res.testsRun)
+        assert res.wasSuccessful()
+        assert not res.errors
+        assert not res.failures
+
+    def test_no_traverse_namespace(self):
+        """Ensure the --no-traverse-namespace option only tests the specified
+        module, not its other namespace package sibling.
+        """
+        stream = StringIO()
+        runner = TestRunner(stream=stream)
+        runner.verbosity = 2
+        prog = TestProgram(argv=['', '--no-traverse-namespace'],
+                           testRunner=runner,
+                           exit=False)
+        res = runner.result
+        self.assertEqual(res.testsRun, 1,
+                         "Expected to run 1 tests, ran %s" % res.testsRun)
         assert res.wasSuccessful()
         assert not res.errors
         assert not res.failures
