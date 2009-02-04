@@ -219,10 +219,7 @@ class TestLoader(unittest.TestLoader):
         """
         def generate(g=generator, m=module):
             for test in g():
-                try:
-                    test_func, arg = (test[0], test[1:])
-                except ValueError:
-                    test_func, arg = test[0], tuple()
+                test_func, arg = self.parseGeneratedTest(test)
                 if not callable(test_func):
                     test_func = getattr(m, test_func)
                 yield FunctionTestCase(test_func, arg=arg, descriptor=g)
@@ -247,10 +244,7 @@ class TestLoader(unittest.TestLoader):
 
         def generate(g=generator, c=cls):
             for test in g():
-                try:
-                    test_func, arg = (test[0], test[1:])
-                except ValueError:
-                    test_func, arg = test[0], tuple()
+                test_func, arg = self.parseGeneratedTest(test)
                 if not callable(test_func):
                     test_func = getattr(c, test_func)
                 if ismethod(test_func):
@@ -514,6 +508,21 @@ class TestLoader(unittest.TestLoader):
             # no such test
             obj = Failure(ValueError, "No such test %s" % name)
         return parent, obj
+
+    def parseGeneratedTest(self, test):
+        """Given the yield value of a test generator, return a func and args.
+
+        This is used in the two loadTestsFromGenerator* methods.
+
+        """
+        if not isinstance(test, tuple):         # yield test
+            test_func, arg = (test, tuple())
+        elif len(test) == 1:                    # yield (test,)
+            test_func, arg = (test[0], tuple())
+        else:                                   # yield test, foo, bar, ...
+            assert len(test) > 1 # sanity check
+            test_func, arg = (test[0], test[1:])
+        return test_func, arg
 
 defaultTestLoader = TestLoader
 
