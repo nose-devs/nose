@@ -86,7 +86,7 @@ def tbsource(tb, context=6):
         try:
             lines, dummy = inspect.findsource(frame)
         except IOError:
-            lines = index = None
+            lines, index = [''], 0
         else:
             all_lines = lines
             start = max(start, 1)
@@ -101,7 +101,7 @@ def tbsource(tb, context=6):
                     start -= 1
                     lines = all_lines[start:start+context]
     else:
-        lines = index = None
+        lines, index = [''], 0
     log.debug("tbsource lines '''%s''' around index %s", lines, index)
     return (lines, index)    
 
