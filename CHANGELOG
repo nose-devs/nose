@@ -10,7 +10,10 @@
   `python setup.py nosetests` instead.
 - Made it possible to 'yield test' in addition to 'yield test,' from test
   generators. Thanks to Chad Whitacre for the patch (#230).
-
+- Fixed bug that caused traceback inspector to fail when source code file
+  could not be found. Thanks to Philip Jenvey for the bug report and patch
+  (#236).
+  
 0.10.4
 
 - nose is now compatible with python 2.6.
