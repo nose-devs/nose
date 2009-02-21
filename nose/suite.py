@@ -265,7 +265,7 @@ class ContextSuite(LazySuite):
         else:
             names = self.moduleSetup
             if hasattr(context, '__path__'):
-                names += names
+                names = self.packageSetup + names
         try_run(context, names)
 
     def shortDescription(self):
@@ -317,7 +317,7 @@ class ContextSuite(LazySuite):
         else:
             names = self.moduleTeardown
             if hasattr(context, '__path__'):
-                names += names
+                names = self.packageTeardown + names
         try_run(context, names)
         self.config.plugins.stopContext(context)
 
