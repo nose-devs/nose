@@ -382,6 +382,12 @@ def collector():
     all config files and execute loader.loadTestsFromNames() on the
     configured testNames, or '.' if no testNames are configured.
     """
+
+    warn("Support for `python setup.py test` is deprecated and will be "
+         "removed in the next release of nose. "
+         "Use `python setup.py nosetests` instead",
+         DeprecationWarning)
+    
     # plugins that implement any of these methods are disabled, since
     # we don't control the test runner and won't be able to run them
     # finalize() is also not called, but plugins that use it aren't disabled,
@@ -402,37 +408,6 @@ def collector():
         suite = loader.loadTestsFromNames(('.',))
     return FinalizingSuiteWrapper(suite, plugins.finalize)
 
-class TestCollector:
-    """Main nose test collector.
-
-    .. Note:: This class is deprecated and will be removed in a future release.
-
-    Uses a test loader to load tests from the directory given in conf
-    (conf.path). Uses the default test loader from nose.loader by
-    default. Any other loader may be used so long as it implements
-    loadTestsFromDir().
-    """
-    def __init__(self, conf, loader=None):
-        warn("TestCollector is deprecated and will be removed in the"
-             "next release of nose. "
-             "Use `nose.loader.TestLoader.loadTestsFromNames` instead",
-             DeprecationWarning)
-    
-        if loader is None:
-            loader = defaultTestLoader(conf)
-        self.conf = conf
-        self.loader = loader
-        self.path = conf.where
-        
-    def loadtests(self):
-        path = tolist(self.path)
-        return self.loader.loadTestsFromNames(path)
-            
-    def __repr__(self):
-        return "collector in %s" % self.path
-    __str__ = __repr__
-    
-defaultTestCollector = TestCollector
 
 
 if __name__ == '__main__':
