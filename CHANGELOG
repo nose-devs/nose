@@ -6,6 +6,14 @@
   failing tests. Thanks to Max Ischenko for the implementation.
 - Added optional HTML coverage reports to coverage plugin. Thanks to Augie 
   Fackler for the patch.
+- Deprecated support for `python setup.py test` via setuptools. Use
+  `python setup.py nosetests` instead.
+- Made it possible to 'yield test' in addition to 'yield test,' from test
+  generators. Thanks to Chad Whitacre for the patch (#230).
+
+0.10.4
+
+- nose is now compatible with python 2.6.
   
 0.10.3
 
