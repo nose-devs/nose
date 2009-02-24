@@ -102,6 +102,9 @@ else:
             self.reinitialize_command('build_ext', inplace=1)
             self.run_command('build_ext')
 
+            if self.distribution.install_requires:
+                self.distribution.fetch_build_eggs(
+                    self.distribution.install_requires)
             if self.distribution.tests_require:
                 self.distribution.fetch_build_eggs(
                     self.distribution.tests_require)

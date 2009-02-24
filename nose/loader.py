@@ -443,7 +443,7 @@ class TestLoader(unittest.TestLoader):
 
         In this case, we can't depend on the class's `__init__` taking method
         name arguments, so we have to compose a MethodTestCase for each
-        method in the class that looks testlike.        
+        method in the class that looks testlike.
         """
         def wanted(attr, cls=cls, sel=self.selector):
             item = getattr(cls, attr, None)
