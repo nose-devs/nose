@@ -218,11 +218,17 @@ class TestLoader(unittest.TestLoader):
         * a function name resolvable within the same module
         """
         def generate(g=generator, m=module):
-            for test in g():
-                test_func, arg = self.parseGeneratedTest(test)
-                if not callable(test_func):
-                    test_func = getattr(m, test_func)
-                yield FunctionTestCase(test_func, arg=arg, descriptor=g)
+            try:
+                for test in g():
+                    test_func, arg = self.parseGeneratedTest(test)
+                    if not callable(test_func):
+                        test_func = getattr(m, test_func)
+                    yield FunctionTestCase(test_func, arg=arg, descriptor=g)
+            except KeyboardInterrupt:
+                raise
+            except:
+                exc = sys.exc_info()
+                yield Failure(*exc)
         return self.suiteClass(generate, context=generator, can_split=False)
 
     def loadTestsFromGeneratorMethod(self, generator, cls):
@@ -243,21 +249,28 @@ class TestLoader(unittest.TestLoader):
         generator = getattr(inst, method)
 
         def generate(g=generator, c=cls):
-            for test in g():
-                test_func, arg = self.parseGeneratedTest(test)
-                if not callable(test_func):
-                    test_func = getattr(c, test_func)
-                if ismethod(test_func):
-                    yield MethodTestCase(test_func, arg=arg, descriptor=g)
-                elif isfunction(test_func):
-                    # In this case we're forcing the 'MethodTestCase'
-                    # to run the inline function as its test call,
-                    # but using the generator method as the 'method of
-                    # record' (so no need to pass it as the descriptor)
-                    yield MethodTestCase(g, test=test_func, arg=arg)
-                else:
-                    yield Failure(TypeError,
-                                  "%s is not a function or method" % test_func)
+            try:
+                for test in g():
+                    test_func, arg = self.parseGeneratedTest(test)
+                    if not callable(test_func):
+                        test_func = getattr(c, test_func)
+                    if ismethod(test_func):
+                        yield MethodTestCase(test_func, arg=arg, descriptor=g)
+                    elif isfunction(test_func):
+                        # In this case we're forcing the 'MethodTestCase'
+                        # to run the inline function as its test call,
+                        # but using the generator method as the 'method of
+                        # record' (so no need to pass it as the descriptor)
+                        yield MethodTestCase(g, test=test_func, arg=arg)
+                    else:
+                        yield Failure(
+                            TypeError,
+                            "%s is not a function or method" % test_func)
+            except KeyboardInterrupt:
+                raise
+            except:
+                exc = sys.exc_info()
+                yield Failure(*exc)
         return self.suiteClass(generate, context=generator, can_split=False)
 
     def loadTestsFromModule(self, module, path=None, discovered=False):

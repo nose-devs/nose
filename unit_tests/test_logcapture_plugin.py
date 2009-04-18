@@ -50,11 +50,20 @@ class TestLogCapturePlugin(object):
         c.configure(options, Config())
         eq_('++%(message)s++', c.logformat)
 
+    def test_logging_datefmt_option(self):
+        env = {'NOSE_LOGDATEFMT': '%H:%M:%S'}
+        c = LogCapture()
+        parser = OptionParser()
+        c.addOptions(parser, env)
+        options, args = parser.parse_args(['logging_datefmt'])
+        c.configure(options, Config())
+        eq_('%H:%M:%S', c.logdatefmt)
+
     def test_captures_logging(self):
         c = LogCapture()
         parser = OptionParser()
         c.addOptions(parser, {})
-        options, args = parser.parse_args()
+        options, args = parser.parse_args([])
         c.configure(options, Config())
         c.start()
         log = logging.getLogger("foobar.something")
@@ -73,7 +82,7 @@ class TestLogCapturePlugin(object):
         records = c.formatLogRecords()
         eq_(1, len(records))
         eq_("++Hello++", records[0])
-
+        
     def test_logging_filter(self):
         env = {'NOSE_LOGFILTER': 'foo,bar'}
         c = LogCapture()
@@ -93,3 +102,26 @@ class TestLogCapturePlugin(object):
         assert records[1].startswith('foo.x:'), records[1]
         assert records[2].startswith('bar.quux:'), records[2]
 
+    def test_unicode_messages_handled(self):
+        msg = u'Ivan Krsti\u0107'
+        c = LogCapture()
+        parser = OptionParser()
+        c.addOptions(parser, {})
+        options, args = parser.parse_args([])
+        c.configure(options, Config())
+        c.start()
+        log = logging.getLogger("foobar.something")
+        log.debug(msg)
+        log.debug("ordinary string log")
+        c.end()
+
+        class Dummy:
+            pass
+        test = Dummy() 
+        try:
+            raise Exception(msg)
+        except:
+            err = sys.exc_info()
+        (ec, ev, tb) = c.formatError(test, err)
+        print ev
+        assert msg.encode('utf-8') in ev

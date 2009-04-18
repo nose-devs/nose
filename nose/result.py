@@ -53,6 +53,8 @@ class TextTestResult(_TextTestResult):
             exc_info = self._exc_info_to_string(err)
         for cls, (storage, label, isfail) in self.errorClasses.items():
             if isclass(ec) and issubclass(ec, cls):
+                if isfail:
+                    test.passed = False
                 storage.append((test, exc_info))
                 # Might get patched into a streamless result
                 if stream is not None:
@@ -66,6 +68,7 @@ class TextTestResult(_TextTestResult):
                         stream.write(label[:1])
                 return
         self.errors.append((test, exc_info))
+        test.passed = False
         if stream is not None:
             if self.showAll:
                 self.stream.writeln('ERROR')

@@ -6,18 +6,21 @@ nose supports plugins for test collection, selection, observation and
 reporting. There are two basic rules for plugins:
 
 * Plugin classes should subclass `nose.plugins.Plugin`_.
+
 * Plugins may implement any of the methods described in the class
   `IPluginInterface`_ in nose.plugins.base. Please note that this class is for
   documentary purposes only; plugins may not subclass IPluginInterface.
 
 .. _nose.plugins.Plugin: http://python-nose.googlecode.com/svn/trunk/nose/plugins/base.py
+.. _IPluginInterface: plugins.interface
 
 Registering
 ===========
 
-.. Note:: Important note: the following applies only to the default \
-plugin manager. Other plugin managers may use different means to \
-locate and load plugins.
+.. Note:: 
+  Important note: the following applies only to the default 
+  plugin manager. Other plugin managers may use different means to 
+  locate and load plugins.
 
 For nose to find a plugin, it must be part of a package that uses
 setuptools_, and the plugin must be included in the entry points defined
@@ -119,111 +122,29 @@ Recipes
  
   Examples: `nose.plugins.attrib`_, `nose.plugins.doctests`_,
   `nose.plugins.testid`_
+  
+.. _ErrorClassPlugin: plugins.errorclasses
+.. _nose.plugins.deprecated: plugins.deprecated
+.. _nose.plugins.skip: plugins.skip
+.. _nose.plugins.capture: plugins.capture
+.. _nose.plugins.failuredetail: plugins.failuredetail
+.. _nose.plugins.doctests: plugins.doctests
+.. _nose.plugins.cover: plugins.cover
+.. _nose.plugins.prof: plugins.prof
+.. _nose.plugins.attrib: plugins.attrib
+.. _nose.plugins.testid: plugins.testid
 
 More Examples
 =============
 
 See any builtin plugin or example plugin in the examples_ directory in
-the nose source distribution.
+the nose source distribution. There is a list of third-party plugins
+`on jottit`_.
 
 .. _examples/html_plugin/htmlplug.py: http://python-nose.googlecode.com/svn/trunk/examples/html_plugin/htmlplug.py
 .. _examples: http://python-nose.googlecode.com/svn/trunk/examples
-
-
-Testing Plugins
-===============
-
-The plugin interface is well-tested enough so that you can safely unit
-test your use of its hooks with some level of confidence. However,
-there is a mixin for unittest.TestCase called PluginTester that's
-designed to test plugins in their native runtime environment.
-
-Here's a simple example with a do-nothing plugin and a composed suite.
-
-    >>> import unittest
-    >>> from nose.plugins import Plugin, PluginTester
-    >>> class FooPlugin(Plugin):
-    ...     pass
-    >>> class TestPluginFoo(PluginTester, unittest.TestCase):
-    ...     activate = '--with-foo'
-    ...     plugins = [FooPlugin()]
-    ...     def test_foo(self):
-    ...         for line in self.output:
-    ...             # i.e. check for patterns
-    ...             pass
-    ... 
-    ...         # or check for a line containing ...
-    ...         assert "ValueError" in self.output
-    ...     def makeSuite(self):
-    ...         class TC(unittest.TestCase):
-    ...             def runTest(self):
-    ...                 raise ValueError("I hate foo")
-    ...         return unittest.TestSuite([TC()])
-    ...
-    >>> res = unittest.TestResult()
-    >>> case = TestPluginFoo('test_foo')
-    >>> case(res)
-    >>> res.errors
-    []
-    >>> res.failures
-    []
-    >>> res.wasSuccessful()
-    True
-    >>> res.testsRun
-    1
-
-And here is a more complex example of testing a plugin that has extra
-arguments and reads environment variables.
-    
-    >>> import unittest, os
-    >>> from nose.plugins import Plugin, PluginTester
-    >>> class FancyOutputter(Plugin):
-    ...     name = "fancy"
-    ...     def configure(self, options, conf):
-    ...         Plugin.configure(self, options, conf)
-    ...         if not self.enabled:
-    ...             return
-    ...         self.fanciness = 1
-    ...         if options.more_fancy:
-    ...             self.fanciness = 2
-    ...         if 'EVEN_FANCIER' in self.env:
-    ...             self.fanciness = 3
-    ... 
-    ...     def options(self, parser, env=os.environ):
-    ...         self.env = env
-    ...         parser.add_option('--more-fancy', action='store_true')
-    ...         Plugin.options(self, parser, env=env)
-    ... 
-    ...     def report(self, stream):
-    ...         stream.write("FANCY " * self.fanciness)
-    ... 
-    >>> class TestFancyOutputter(PluginTester, unittest.TestCase):
-    ...     activate = '--with-fancy' # enables the plugin
-    ...     plugins = [FancyOutputter()]
-    ...     args = ['--more-fancy']
-    ...     env = {'EVEN_FANCIER': '1'}
-    ... 
-    ...     def test_fancy_output(self):
-    ...         assert "FANCY FANCY FANCY" in self.output, (
-    ...                                         "got: %s" % self.output)
-    ...     def makeSuite(self):
-    ...         class TC(unittest.TestCase):
-    ...             def runTest(self):
-    ...                 raise ValueError("I hate fancy stuff")
-    ...         return unittest.TestSuite([TC()])
-    ... 
-    >>> res = unittest.TestResult()
-    >>> case = TestFancyOutputter('test_fancy_output')
-    >>> case(res)
-    >>> res.errors
-    []
-    >>> res.failures
-    []
-    >>> res.wasSuccessful()
-    True
-    >>> res.testsRun
-    1
-    
+.. _on jottit: http://nose-plugins.jottit.com/
+   
 """
 from nose.plugins.base import Plugin
 from nose.plugins.manager import *

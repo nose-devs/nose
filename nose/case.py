@@ -37,6 +37,7 @@ class Test(unittest.TestCase):
         self.capturedOutput = None
         self.resultProxy = resultProxy
         self.plugins = config.plugins
+        self.passed = None
         unittest.TestCase.__init__(self)
         
     def __call__(self, *arg, **kwarg):

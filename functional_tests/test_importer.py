@@ -12,7 +12,11 @@ class TestImporter(unittest.TestCase):
         self.imp = Importer()
         self._mods = sys.modules.copy()
         self._path = sys.path[:]
-
+        sys.modules.pop('mod', None)
+        sys.modules.pop('pak', None)
+        sys.modules.pop('pak.mod', None)
+        sys.modules.pop('pak.sub', None)
+        
     def tearDown(self):
         to_del = [ m for m in sys.modules.keys() if
                    m not in self._mods ]
@@ -128,6 +132,35 @@ class TestImporter(unittest.TestCase):
         mod_nose_imported2 = imp.importFromDir(d2, 'mod')
         assert mod_nose_imported2 != mod_sys_imported, \
                "nose failed to reimport same name, different dir"
+
+    def test_import_pkg_from_path_fpw(self):
+        imp = self.imp
+        imp.config.firstPackageWins = True
+        jn = os.path.join
+        d1 = jn(self.dir, 'dir1')
+        d2 = jn(self.dir, 'dir2')
+        
+        # dotted name
+        p1 = imp.importFromPath(jn(d1, 'pak', 'mod.py'), 'pak.mod')
+        p2 = imp.importFromPath(jn(d2, 'pak', 'mod.py'), 'pak.mod')
+        self.assertEqual(p1, p2)
+        self.assertEqual(p1.__file__, p2.__file__)
+
+        # simple name -- package
+        sp1 = imp.importFromPath(jn(d1, 'pak'), 'pak')
+        sp2 = imp.importFromPath(jn(d2, 'pak'), 'pak')
+        self.assertEqual(sp1, sp2)
+        assert sp1.__path__
+        assert sp2.__path__
+        self.assertEqual(sp1.__path__, sp2.__path__)
+
+        # dotted name -- package
+        dp1 = imp.importFromPath(jn(d1, 'pak', 'sub'), 'pak.sub')
+        dp2 = imp.importFromPath(jn(d2, 'pak', 'sub'), 'pak.sub')
+        self.assertEqual(dp1, dp2)
+        assert dp1.__path__
+        assert dp2.__path__
+        self.assertEqual(dp1.__path__, dp2.__path__)
         
 if __name__ == '__main__':
     import logging

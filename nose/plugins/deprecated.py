@@ -1,12 +1,11 @@
 """
-This plugin installs a DEPRECATED error class for the DeprecatedTest
-exception. It is enabled by default. When DeprecatedTest is raised, the
-exception will be logged in the deprecated attribute of the result,
-'D' or 'DEPRECATED' (verbose) will be output, and the exception will
-not be counted as an error or failure.
+This plugin installs a DEPRECATED error class for the :class:`DeprecatedTest`
+exception. It is enabled by default. When :class:`DeprecatedTest` is raised,
+the exception will be logged in the deprecated attribute of the result, ``D``
+or ``DEPRECATED`` (verbose) will be output, and the exception will not be
+counted as an error or failure.
 """
 
-import os
 from nose.plugins.errorclass import ErrorClass, ErrorClassPlugin
 
 
@@ -20,8 +19,8 @@ class Deprecated(ErrorClassPlugin):
     """
     Plugin that installs a DEPRECATED error class for the DeprecatedTest
     exception. Enabled by default. When DeprecatedTest is raised, the
-    exception will be logged in the deprecated attribute of the result, 'D' or
-    'DEPRECATED' (verbose) will be output, and the exception will not be
+    exception will be logged in the deprecated attribute of the result, ``D``
+    or ``DEPRECATED`` (verbose) will be output, and the exception will not be
     counted as an error or failure.
     """
     enabled = True
@@ -29,7 +28,9 @@ class Deprecated(ErrorClassPlugin):
                             label='DEPRECATED',
                             isfailure=False)
 
-    def options(self, parser, env=os.environ):
+    def options(self, parser, env):
+        """Register commandline options.
+        """
         env_opt = 'NOSE_WITHOUT_DEPRECATED'
         parser.add_option('--no-deprecated', action='store_true',
                           dest='noDeprecated', default=env.get(env_opt, False),
@@ -37,6 +38,8 @@ class Deprecated(ErrorClassPlugin):
                           "exceptions.")
 
     def configure(self, options, conf):
+        """Configure plugin.
+        """
         if not self.can_configure:
             return
         self.conf = conf

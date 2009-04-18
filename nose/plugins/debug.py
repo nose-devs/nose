@@ -4,7 +4,6 @@ test runner to drop into pdb if it encounters an error or failure,
 respectively.
 """
 
-import os
 import pdb
 from nose.plugins.base import Plugin
 
@@ -17,7 +16,9 @@ class Pdb(Plugin):
     enabled_for_failures = False
     score = 5 # run last, among builtins
     
-    def options(self, parser, env=os.environ):
+    def options(self, parser, env):
+        """Register commandline options.
+        """
         parser.add_option(
             "--pdb", action="store_true", dest="debugErrors",
             default=env.get('NOSE_PDB', False),
@@ -29,23 +30,29 @@ class Pdb(Plugin):
             help="Drop into debugger on failures")
 
     def configure(self, options, conf):
+        """Configure which kinds of exceptions trigger plugin.
+        """
         self.conf = conf
         self.enabled = options.debugErrors or options.debugFailures
         self.enabled_for_errors = options.debugErrors
         self.enabled_for_failures = options.debugFailures
 
     def addError(self, test, err):
+        """Enter pdb if configured to debug errors.
+        """
         if not self.enabled_for_errors:
             return
         self.debug(err)
 
     def addFailure(self, test, err):
+        """Enter pdb if configured to debug failures.
+        """
         if not self.enabled_for_failures:
             return
         self.debug(err)
 
     def debug(self, err):
-        import sys
+        import sys # FIXME why is this import here?
         ec, ev, tb = err
         stdout = sys.stdout
         sys.stdout = sys.__stdout__

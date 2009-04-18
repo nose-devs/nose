@@ -8,14 +8,29 @@ import re
 import sys
 import types
 import unittest
-from compiler.consts import CO_GENERATOR
 from types import ClassType, TypeType
 
+try:
+    from compiler.consts import CO_GENERATOR
+except ImportError:
+    # IronPython doesn't have a complier module
+    CO_GENERATOR=0x20
+    
 log = logging.getLogger('nose')
 
 ident_re = re.compile(r'^[A-Za-z_][A-Za-z0-9_.]*$')
 class_types = (ClassType, TypeType)
 skip_pattern = r"(?:\.svn)|(?:[^.]+\.py[co])|(?:.*~)|(?:.*\$py\.class)"
+
+try:
+    set()
+    set = set # make from nose.util import set happy
+except NameError:
+    try:
+        from sets import Set as set
+    except ImportError:
+        pass
+
 
 def ls_tree(dir_path="",
             skip_pattern=skip_pattern,
@@ -134,7 +149,7 @@ def file_like(name):
 
 def cmp_lineno(a, b):
     """Compare functions by their line numbers.
-    
+
     >>> cmp_lineno(isgenerator, ispackage)
     -1
     >>> cmp_lineno(ispackage, isgenerator)
@@ -235,13 +250,13 @@ def getfilename(package, relativeTo=None):
         if os.path.exists(filename):
             return filename
     return None
-    
+
 
 def getpackage(filename):
     """
     Find the full dotted package name for a given python source file
     name. Returns None if the file is not a python source file.
-    
+
     >>> getpackage('foo.py')
     'foo'
     >>> getpackage('biff/baf.py')
@@ -392,7 +407,7 @@ def split_test_name(test):
         return (None, None, fn)
 split_test_name.__test__ = False # do not collect
 
-    
+
 def test_address(test):
     """Find the test address for a test, which may be a module, filename,
     class, method or function.
@@ -464,9 +479,9 @@ def try_run(obj, names):
                         raise TypeError("Attribute %s of %r is not a python "
                                         "function. Only functions or callables"
                                         " may be used as fixtures." %
-                                        (name, obj))                    
+                                        (name, obj))
                 if len(args):
-                    log.debug("call fixture %s.%s(%s)", obj, name, obj)    
+                    log.debug("call fixture %s.%s(%s)", obj, name, obj)
                     return func(obj)
             log.debug("call fixture %s.%s", obj, name)
             return func()
@@ -505,7 +520,7 @@ def match_last(a, b, regex):
         return -1
     return cmp(a, b)
 
-        
+
 def tolist(val):
     """Convert a value that may be a list or a (possibly comma-separated)
     string into a list. The exception: None is returned as None, not [None].
@@ -529,7 +544,7 @@ def tolist(val):
     try:
         return re.split(r'\s*,\s*', val)
     except TypeError:
-        # who knows... 
+        # who knows...
         return list(val)
 
 
@@ -613,7 +628,7 @@ def transplant_func(func, module):
     from nose.tools import make_decorator
     def newfunc(*arg, **kw):
         return func(*arg, **kw)
-    
+
     newfunc = make_decorator(func)(newfunc)
     newfunc.__module__ = module
     return newfunc
@@ -632,7 +647,7 @@ def transplant_class(cls, module):
     'nose.util'
     >>> Nf.__name__
     'Failure'
-    
+
     """
     class C(cls):
         pass
@@ -641,6 +656,16 @@ def transplant_class(cls, module):
     return C
 
 
+def safe_str(val, encoding='utf-8'):
+    try:
+        return str(val)
+    except UnicodeEncodeError:
+        if isinstance(val, Exception):
+            return ' '.join([safe_str(arg, encoding)
+                             for arg in val])
+        return unicode(val).encode(encoding)
+
+    
 if __name__ == '__main__':
     import doctest
     doctest.testmod()

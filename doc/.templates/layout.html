@@ -1,0 +1,5 @@
+{% extends "!layout.html" %}
+
+{%- block relbar1 %}
+{% if pagename != 'index' %}{{ super() }}{% endif %}
+{% endblock %}

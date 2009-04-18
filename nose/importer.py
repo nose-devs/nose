@@ -75,7 +75,9 @@ class Importer(object):
                     # we get a fresh copy of anything we are trying to load
                     # from a new path
                     log.debug("sys.modules has %s as %s", part_fqname, old)
-                    if self.sameModule(old, filename):
+                    if (self.sameModule(old, filename)
+                        or (self.config.firstPackageWins and
+                            getattr(old, '__path__', None))):
                         mod = old
                     else:
                         del sys.modules[part_fqname]

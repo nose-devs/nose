@@ -7,7 +7,6 @@ import os
 import sys
 import time
 import unittest
-from warnings import warn
 
 from nose.config import Config, all_config_files
 from nose.loader import defaultTestLoader
@@ -68,149 +67,44 @@ class TextTestRunner(unittest.TextTestRunner):
 
     
 class TestProgram(unittest.TestProgram):
-    r"""usage: %prog [options] [names]
-    
-    nose provides extended test discovery and running features for
-    unittest.
-    
-    nose collects tests automatically from python source files,
-    directories and packages found in its working directory (which
-    defaults to the current working directory). Any python source file,
-    directory or package that matches the testMatch regular expression
-    (by default: (?:^|[\b_\.-])[Tt]est) will be collected as a test (or
-    source for collection of tests). In addition, all other packages
-    found in the working directory will be examined for python source files
-    or directories that match testMatch. Package discovery descends all
-    the way down the tree, so package.tests and package.sub.tests and
-    package.sub.sub2.tests will all be collected.
-    
-    Within a test directory or package, any python source file matching
-    testMatch will be examined for test cases. Within a test module,
-    functions and classes whose names match testMatch and TestCase
-    subclasses with any name will be loaded and executed as tests. Tests
-    may use the assert keyword or raise AssertionErrors to indicate test
-    failure. TestCase subclasses may do the same or use the various
-    TestCase methods available.
-        
-    Selecting Tests
-    ---------------
+    """Collect and run tests, returning success or failure.
 
-    To specify which tests to run, pass test names on the command line:
+    The arguments to TestProgram() are the same as to
+    :func:`main()` and :func:`run()`:
 
-      %prog only_test_this.py
-
-    Test names specified may be file or module names, and may optionally
-    indicate the test case to run by separating the module or file name
-    from the test case name with a colon. Filenames may be relative or
-    absolute. Examples:
-
-      %prog test.module
-      %prog another.test:TestCase.test_method
-      %prog a.test:TestCase
-      %prog /path/to/test/file.py:test_function
-      
-    You may also change the working directory where nose looks for tests,
-    use the -w switch:
-
-      %prog -w /path/to/tests
-
-    Note however that support for multiple -w arguments is deprecated
-    in this version and will be removed in a future release, since as
-    of nose 0.10 you can get the same behavior by specifying the
-    target directories *without* the -w switch:
-
-      %prog /path/to/tests /another/path/to/tests
-
-    Further customization of test selection and loading is possible
-    through the use of plugins.
-
-    Test result output is identical to that of unittest, except for
-    the additional features (error classes, and plugin-supplied
-    features such as output capture and assert introspection) detailed
-    in the options below.
-
-    Configuration
-    -------------
-
-    In addition to passing command-line options, you may also put
-    configuration options in a .noserc or nose.cfg file in your home
-    directory. These are standard .ini-style config files. Put your
-    nosetests configuration in a [nosetests] section. Options are the
-    same as on the command line, with the -- prefix removed. For
-    options that are simple switches, you must supply a value:
-
-      [nosetests]
-      verbosity=3
-      with-doctest=1
-
-    All configuration files that are found will be loaded and their options
-    combined.
-
-    Using Plugins
-    -------------
-
-    There are numerous nose plugins available via easy_install and
-    elsewhere. To use a plugin, just install it. The plugin will add
-    command line options to nosetests. To verify that the plugin is installed,
-    run:
- 
-      nosetests --plugins
-
-    You can add -v or -vv to that command to show more information
-    about each plugin.
-
-    If you are running nose.main() or nose.run() from a script, you
-    can specify a list of plugins to use by passing a list of plugins
-    with the plugins keyword argument.
-
-    0.9 plugins
-    -----------
-
-    nose 0.10 can use SOME plugins that were written for nose 0.9. The
-    default plugin manager inserts a compatibility wrapper around 0.9
-    plugins that adapts the changed plugin api calls. However, plugins
-    that access nose internals are likely to fail, especially if they
-    attempt to access test case or test suite classes. For example,
-    plugins that try to determine if a test passed to startTest is an
-    individual test or a suite will fail, partly because suites are no
-    longer passed to startTest and partly because it's likely that the
-    plugin is trying to find out if the test is an instance of a class
-    that no longer exists.
+    * module: All tests are in this module (default: None)
+    * defaultTest: Tests to load (default: '.')
+    * argv: Command line arguments (default: None; sys.argv is read)
+    * testRunner: Test runner instance (default: None)
+    * testLoader: Test loader instance (default: None)
+    * env: Environment; ignored if config is provided (default: None;
+      os.environ is read)
+    * config: :class:`nose.config.Config` instance (default: None)
+    * suite: Suite or list of tests to run (default: None). Passing a
+      suite or lists of tests will bypass all test discovery and
+      loading. *ALSO NOTE* that if you pass a unittest.TestSuite
+      instance as the suite, context fixtures at the class, module and
+      package level will not be used, and many plugin hooks will not
+      be called. If you want normal nose behavior, either pass a list
+      of tests, or a fully-configured :class:`nose.suite.ContextSuite`.
+    * exit: Exit after running tests and printing report (default: True)
+    * plugins: List of plugins to use; ignored if config is provided
+      (default: load plugins with DefaultPluginManager)
+    * addplugins: List of **extra** plugins to use. Pass a list of plugin
+      instances in this argument to make custom plugins available while
+      still using the DefaultPluginManager.
     """
     verbosity = 1
 
     def __init__(self, module=None, defaultTest='.', argv=None,
                  testRunner=None, testLoader=None, env=None, config=None,
-                 suite=None, exit=True, plugins=None):
-        """
-        Collect and run tests, returning success or failure.
-
-        The arguments to __init__ are the same as to `main()` and `run()`:
-
-        * module: All tests are in this module (default: None)
-        * defaultTest: Tests to load (default: '.')
-        * argv: Command line arguments (default: None; sys.argv is read)
-        * testRunner: Test runner instance (default: None)
-        * testLoader: Test loader instance (default: None)
-        * env: Environment; ignored if config is provided (default: None;
-          os.environ is read)
-        * config: `nose.config.Config`_ instance (default: None)
-        * suite: Suite or list of tests to run (default: None). Passing a
-          suite or lists of tests will bypass all test discovery and
-          loading. *ALSO NOTE* that if you pass a unittest.TestSuite
-          instance as the suite, context fixtures at the class, module and
-          package level will not be used, and many plugin hooks will not
-          be called. If you want normal nose behavior, either pass a list
-          of tests, or a fully-configured `nose.suite.ContextSuite`_.
-        * exit: Exit after running tests and printing report (default: True)
-        * plugins: List of plugins to use; ignored if config is provided
-          (default: load plugins with DefaultPluginManager)
-
-        """
+                 suite=None, exit=True, plugins=None, addplugins=None):
         if env is None:
             env = os.environ
         if config is None:
             config = self.makeConfig(env, plugins)
+        if addplugins:
+            config.plugins.addPlugins(addplugins)
         self.config = config
         self.suite = suite
         self.exit = exit
@@ -233,7 +127,7 @@ class TestProgram(unittest.TestProgram):
     def parseArgs(self, argv):
         """Parse argv and env and configure running environment.
         """
-        self.config.configure(argv, doc=TestProgram.__doc__)
+        self.config.configure(argv, doc=self.usage())
         log.debug("configured %s", self.config)
 
         # quick outs: version, plugins (optparse would have already
@@ -334,6 +228,12 @@ class TestProgram(unittest.TestProgram):
                                               initial_indent='    ',
                                               subsequent_indent='    '))
                 print
+            
+    def usage(cls):
+        return open(os.path.join(
+                os.path.dirname(__file__), 'usage.txt'), 'r').read()
+    usage = classmethod(usage)
+
 # backwards compatibility
 run_exit = main = TestProgram
 
@@ -350,17 +250,20 @@ def run(*arg, **kw):
     * testLoader: Test loader instance (default: None)
     * env: Environment; ignored if config is provided (default: None;
       os.environ is read)
-    * config: `nose.config.Config`_ instance (default: None)
+    * config: :class:`nose.config.Config` instance (default: None)
     * suite: Suite or list of tests to run (default: None). Passing a
       suite or lists of tests will bypass all test discovery and
       loading. *ALSO NOTE* that if you pass a unittest.TestSuite
       instance as the suite, context fixtures at the class, module and
       package level will not be used, and many plugin hooks will not
       be called. If you want normal nose behavior, either pass a list
-      of tests, or a fully-configured `nose.suite.ContextSuite`_.      
+      of tests, or a fully-configured :class:`nose.suite.ContextSuite`.
     * plugins: List of plugins to use; ignored if config is provided
       (default: load plugins with DefaultPluginManager)
-    
+    * addplugins: List of **extra** plugins to use. Pass a list of plugin
+      instances in this argument to make custom plugins available while
+      still using the DefaultPluginManager.
+      
     With the exception that the ``exit`` argument is always set
     to False.    
     """
@@ -381,13 +284,7 @@ def collector():
     unittest.TestSuite. The collector will, by default, load options from
     all config files and execute loader.loadTestsFromNames() on the
     configured testNames, or '.' if no testNames are configured.
-    """
-
-    warn("Support for `python setup.py test` is deprecated and will be "
-         "removed in the next release of nose. "
-         "Use `python setup.py nosetests` instead",
-         DeprecationWarning)
-    
+    """    
     # plugins that implement any of these methods are disabled, since
     # we don't control the test runner and won't be able to run them
     # finalize() is also not called, but plugins that use it aren't disabled,

@@ -45,7 +45,7 @@ the tests fail.
 
 .. Note ::
 
-   The run() function in `nose.plugins.plugintest`_ reformats test result
+   The function :func:`nose.plugins.plugintest.run` reformats test result
    output to remove timings, which will vary from run to run, and
    redirects the output to stdout.
 

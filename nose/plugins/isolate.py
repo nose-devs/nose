@@ -53,6 +53,8 @@ class IsolationPlugin(Plugin):
     name = 'isolation'
 
     def configure(self, options, conf):
+        """Configure plugin.
+        """        
         Plugin.configure(self, options, conf)
         self._mod_stack = []
 

@@ -18,12 +18,11 @@ will ensure that only statements logged via sqlalchemy.engine or myapp
 or myapp.foo.bar logger will be logged.
 """
 
-import os
 import logging
 from logging.handlers import BufferingHandler
 
 from nose.plugins.base import Plugin
-from nose.util import ln
+from nose.util import ln, safe_str
 
 try:
     from cStringIO import StringIO
@@ -34,9 +33,9 @@ log = logging.getLogger(__name__)
 
 
 class MyMemoryHandler(BufferingHandler):
-    def __init__(self, capacity, logformat, filters):
+    def __init__(self, capacity, logformat, logdatefmt, filters):
         BufferingHandler.__init__(self, capacity)
-        fmt = logging.Formatter(logformat)
+        fmt = logging.Formatter(logformat, logdatefmt)
         self.setFormatter(fmt)
         self.filters = filters
     def flush(self):
@@ -70,24 +69,33 @@ class LogCapture(Plugin):
     name = 'logcapture'
     score = 500
     logformat = '%(name)s: %(levelname)s: %(message)s'
+    logdatefmt = None
     clear = False
     filters = []
     
-    def options(self, parser, env=os.environ):
+    def options(self, parser, env):
+        """Register commandline options.
+        """
         parser.add_option(
-            "", "--nologcapture", action="store_false",
+            "--nologcapture", action="store_false",
             default=not env.get(self.env_opt), dest="logcapture",
             help="Disable logging capture plugin. "
                  "Logging configurtion will be left intact."
                  " [NOSE_NOLOGCAPTURE]")
         parser.add_option(
-            "", "--logging-format", action="store", dest="logcapture_format",
+            "--logging-format", action="store", dest="logcapture_format",
             default=env.get('NOSE_LOGFORMAT') or self.logformat,
             help="Specify custom format to print statements. "
                  "Uses the same format as used by standard logging handlers."
                  " [NOSE_LOGFORMAT]")
         parser.add_option(
-            "", "--logging-filter", action="store", dest="logcapture_filters",
+            "--logging-datefmt", action="store", dest="logcapture_datefmt",
+            default=env.get('NOSE_LOGDATEFMT') or self.logdatefmt,
+            help="Specify custom date/time format to print statements. "
+                 "Uses the same format as used by standard logging handlers."
+                 " [NOSE_LOGDATEFMT]")
+        parser.add_option(
+            "--logging-filter", action="store", dest="logcapture_filters",
             default=env.get('NOSE_LOGFILTER'),
             help="Specify which statements to filter in/out. "
                  "By default everything is captured. If the output is too"
@@ -97,17 +105,20 @@ class LogCapture(Plugin):
                  "Specify multiple loggers with comma: filter=foo,bar,baz."
                  " [NOSE_LOGFILTER]\n")
         parser.add_option(
-            "", "--logging-clear-handlers", action="store_true",
+            "--logging-clear-handlers", action="store_true",
             default=False, dest="logcapture_clear",
             help="Clear all other logging handlers")
 
     def configure(self, options, conf):
+        """Configure plugin.
+        """
         self.conf = conf
         # Disable if explicitly disabled, or if logging is
         # configured via logging config file
         if not options.logcapture or conf.loggingConfig:
             self.enabled = False        
         self.logformat = options.logcapture_format
+        self.logdatefmt = options.logcapture_datefmt
         self.clear = options.logcapture_clear
         if options.logcapture_filters:
             self.filters = options.logcapture_filters.split(',')
@@ -116,8 +127,10 @@ class LogCapture(Plugin):
         # setup our handler with root logger
         root_logger = logging.getLogger()
         if self.clear:
-            for handler in root_logger.handlers:
-                root_logger.removeHandler(handler)
+            for logger in logging.Logger.manager.loggerDict.values():
+                if hasattr(logger, "handlers"):
+                    for handler in logger.handlers:
+                        logger.removeHandler(handler)
         # make sure there isn't one already
         # you can't simply use "if self.handler not in root_logger.handlers"
         # since at least in unit tests this doesn't work --
@@ -132,25 +145,36 @@ class LogCapture(Plugin):
         root_logger.setLevel(logging.NOTSET)
 
     def begin(self):
+        """Set up logging handler before test run begins.
+        """
         self.start()
 
     def start(self):
-        self.handler = MyMemoryHandler(1000, self.logformat, self.filters)
+        self.handler = MyMemoryHandler(1000, self.logformat, self.logdatefmt,
+                                       self.filters)
         self.setupLoghandler()
 
     def end(self):
         pass
 
     def beforeTest(self, test):
+        """Clear buffers and handlers before test.
+        """
         self.setupLoghandler()
 
     def afterTest(self, test):
+        """Clear buffers after test.
+        """
         self.handler.truncate()
 
     def formatFailure(self, test, err):
+        """Add captured log messages to failure output.
+        """
         return self.formatError(test, err)
 
     def formatError(self, test, err):
+        """Add captured log messages to error output.
+        """
         # logic flow copied from Capture.formatError
         test.capturedLogging = records = self.formatLogRecords()
         if not records:
@@ -160,9 +184,9 @@ class LogCapture(Plugin):
 
     def formatLogRecords(self):
         format = self.handler.format
-        return [format(r) for r in self.handler.buffer]
+        return [safe_str(format(r)) for r in self.handler.buffer]
 
     def addCaptureToErr(self, ev, records):
-        return '\n'.join([str(ev), ln('>> begin captured logging <<')] + \
+        return '\n'.join([safe_str(ev), ln('>> begin captured logging <<')] + \
                           records + \
                           [ln('>> end captured logging <<')])

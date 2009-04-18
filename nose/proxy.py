@@ -114,6 +114,7 @@ class ResultProxy(object):
         plugin_handled = plugins.handleError(self.test, err)
         if plugin_handled:
             return
+        # test.passed is set in result, to account for error classes
         formatted = plugins.formatError(self.test, err)
         if formatted is not None:
             err = formatted
@@ -128,6 +129,7 @@ class ResultProxy(object):
         plugin_handled = plugins.handleFailure(self.test, err)
         if plugin_handled:
             return
+        self.test.passed = False
         formatted = plugins.formatFailure(self.test, err)
         if formatted is not None:
             err = formatted

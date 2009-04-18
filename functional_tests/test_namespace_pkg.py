@@ -30,25 +30,25 @@ class TestNamespacePackages(unittest.TestCase):
                            testRunner=runner,
                            exit=False)
         res = runner.result
-        self.assertEqual(res.testsRun, 2,
-                         "Expected to run 2 tests, ran %s" % res.testsRun)
+        self.assertEqual(res.testsRun, 1,
+                         "Expected to run 1 test, ran %s" % res.testsRun)
         assert res.wasSuccessful()
         assert not res.errors
         assert not res.failures
 
-    def test_no_traverse_namespace(self):
-        """Ensure the --no-traverse-namespace option only tests the specified
-        module, not its other namespace package sibling.
+    def test_traverse_namespace(self):
+        """Ensure the --traverse-namespace option tests the other
+        namespace package sibling also.
         """
         stream = StringIO()
         runner = TestRunner(stream=stream)
         runner.verbosity = 2
-        prog = TestProgram(argv=['', '--no-traverse-namespace'],
+        prog = TestProgram(argv=['', '--traverse-namespace'],
                            testRunner=runner,
                            exit=False)
         res = runner.result
-        self.assertEqual(res.testsRun, 1,
-                         "Expected to run 1 tests, ran %s" % res.testsRun)
+        self.assertEqual(res.testsRun, 2,
+                         "Expected to run 2 tests, ran %s" % res.testsRun)
         assert res.wasSuccessful()
         assert not res.errors
         assert not res.failures

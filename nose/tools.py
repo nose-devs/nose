@@ -65,7 +65,7 @@ def raises(*exceptions):
       def test_raises_type_error():
           raise TypeError("This test passes")
 
-      @raises(Exception):
+      @raises(Exception)
       def test_that_fails_by_passing():
           pass
 
@@ -128,7 +128,7 @@ def with_setup(setup=None, teardown=None):
 
       @with_setup(setup, teardown)
       def test_something():
-          # ...
+          " ... "
 
     Note that `with_setup` is useful *only* for test functions, not for test
     methods or inside of TestCase subclasses.

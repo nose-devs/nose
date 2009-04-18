@@ -8,6 +8,24 @@ restrict the coverage report to modules from a particular package or packages,
 use the --cover-packages switch or the NOSE_COVER_PACKAGES environment
 variable.
 
+:Options:
+  ``--with-coverage``:
+    Activate code coverage report
+  ``--cover-package=PACKAGE``:
+    Restrict coverage output to selected packages
+  ``--cover-erase``:
+    Erase previously collected coverage statistics before run
+  ``--cover-tests``:
+    Include test modules in coverage report
+  ``--cover-inclusive``:
+    Include all python files under working directory in coverage report.
+    Useful for discovering holes in test coverage if not all
+    files are imported by the test suite
+  ``--cover-html``:
+    Produce HTML coverage information
+  ``--cover-html-dir=DIR``:
+    Produce HTML coverage informaion in dir
+
 .. _coverage: http://www.nedbatchelder.com/code/modules/coverage.html
 """
 import logging
@@ -25,10 +43,11 @@ COVERAGE_TEMPLATE = '''<html>
 <body>
 %(header)s
 <style>
-pre {float: left; margin: 0px 1em }
+.coverage pre {float: left; margin: 0px 1em; border: none;
+               padding: 0px; line-height: 95%% }
 .num pre { margin: 0px }
-.nocov {background-color: #faa}
-.cov {background-color: #cfc}
+.nocov, .nocov pre {background-color: #faa}
+.cov, .cov pre {background-color: #cfc}
 div.coverage div { clear: both; height: 1em}
 </style>
 <div class="stats">
@@ -64,7 +83,10 @@ class Coverage(Plugin):
     score = 200
     status = {}
 
-    def options(self, parser, env=os.environ):
+    def options(self, parser, env):
+        """
+        Add options to command line.
+        """
         Plugin.options(self, parser, env)
         parser.add_option("--cover-package", action="append",
                           default=env.get('NOSE_COVER_PACKAGE'),
@@ -99,6 +121,9 @@ class Coverage(Plugin):
                           help='Produce HTML coverage informaion in dir')
 
     def configure(self, options, config):
+        """
+        Configure plugin.
+        """
         try:
             self.status.pop('active')
         except KeyError:
@@ -131,6 +156,9 @@ class Coverage(Plugin):
             self.status['active'] = True
 
     def begin(self):
+        """
+        Begin recording coverage information.
+        """
         log.debug("Coverage begin")
         import coverage
         self.skipModules = sys.modules.keys()[:]
@@ -141,6 +169,9 @@ class Coverage(Plugin):
         coverage.start()
 
     def report(self, stream):
+        """
+        Output code coverage report.
+        """
         log.debug("Coverage report")
         import coverage
         coverage.stop()
@@ -221,7 +252,7 @@ class Coverage(Plugin):
                 stats['skipped'] += 1
         stats['percent'] = self.computePercent(stats['covered'],
                                                stats['missed'])
-        html = COVERAGE_TEMPLATE % {'title': '<title>%s</title>' % (name, ),
+        html = COVERAGE_TEMPLATE % {'title': '<title>%s</title>' % name,
                                     'header': name,
                                     'body': '\n'.join(rows),
                                     'stats': COVERAGE_STATS_TEMPLATE % stats,

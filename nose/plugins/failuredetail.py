@@ -6,7 +6,6 @@ exception was raised. Simple variable substitution is also performed
 in the context output to provide more debugging information.
 """
     
-import os
 from nose.plugins import Plugin
 from nose.inspector import inspect_traceback
 
@@ -18,7 +17,9 @@ class FailureDetail(Plugin):
     """
     score = 600 # before capture
     
-    def options(self, parser, env=os.environ):
+    def options(self, parser, env):
+        """Register commmandline options.
+        """
         parser.add_option(
             "-d", "--detailed-errors", "--failure-detail",
             action="store_true",
@@ -28,6 +29,8 @@ class FailureDetail(Plugin):
             " asserts [NOSE_DETAILED_ERRORS]")
 
     def configure(self, options, conf):
+        """Configure plugin.
+        """
         if not self.can_configure:
             return
         self.enabled = options.detailedErrors

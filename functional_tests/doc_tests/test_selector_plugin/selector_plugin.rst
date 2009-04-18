@@ -41,7 +41,7 @@ nose's default selector is unable to discover this project's tests.
 
 .. Note ::
 
-   The run() function in `nose.plugins.plugintest`_ reformats test result
+   The run() function in :mod:`nose.plugins.plugintest` reformats test result
    output to remove timings, which will vary from run to run, and
    redirects the output to stdout.
 

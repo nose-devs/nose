@@ -2,7 +2,12 @@
 This plugin captures stdout during test execution, appending any
 output captured to the error or failure output, should the test fail
 or raise an error. It is enabled by default but may be disabled with
-the options -s or --nocapture.
+the options ``-s`` or ``--nocapture``.
+
+:Options:
+  ``--nocapture``
+    Don't capture stdout (any stdout output will be printed immediately)
+
 """
 import logging
 import os
@@ -16,8 +21,8 @@ log = logging.getLogger(__name__)
 
 class Capture(Plugin):
     """
-    Output capture plugin. Enabled by default. Disable with -s or
-    --nocapture. This plugin captures stdout during test execution,
+    Output capture plugin. Enabled by default. Disable with ``-s`` or
+    ``--nocapture``. This plugin captures stdout during test execution,
     appending any output captured to the error or failure output,
     should the test fail or raise an error.
     """
@@ -30,7 +35,9 @@ class Capture(Plugin):
         self.stdout = []
         self._buf = None
 
-    def options(self, parser, env=os.environ):
+    def options(self, parser, env):
+        """Register commandline options
+        """
         parser.add_option(
             "-s", "--nocapture", action="store_false",
             default=not env.get(self.env_opt), dest="capture",
@@ -38,21 +45,31 @@ class Capture(Plugin):
             "will be printed immediately) [NOSE_NOCAPTURE]")
 
     def configure(self, options, conf):
+        """Configure plugin. Plugin is enabled by default.
+        """
         self.conf = conf
         if not options.capture:
             self.enabled = False
 
     def afterTest(self, test):
+        """Clear capture buffer.
+        """
         self.end()
         self._buf = None
         
     def begin(self):
+        """Replace sys.stdout with capture buffer.
+        """
         self.start() # get an early handle on sys.stdout
 
     def beforeTest(self, test):
+        """Flush capture buffer.
+        """
         self.start()
         
     def formatError(self, test, err):
+        """Add captured output to error report.
+        """
         test.capturedOutput = output = self.buffer
         self._buf = None
         if not output:
@@ -64,6 +81,8 @@ class Capture(Plugin):
         return (ec, self.addCaptureToErr(ev, output), tb)
 
     def formatFailure(self, test, err):
+        """Add captured output to failure report.
+        """
         return self.formatError(test, err)
 
     def addCaptureToErr(self, ev, output):
@@ -80,6 +99,8 @@ class Capture(Plugin):
             sys.stdout = self.stdout.pop()
 
     def finalize(self, result):
+        """Restore stdout.
+        """
         while self.stdout:
             self.end()
 

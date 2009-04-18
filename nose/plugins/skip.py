@@ -6,7 +6,6 @@ the exception will not be counted as an error or failure. This plugin
 is enabled by default but may be disabled with the --no-skip option.
 """
     
-import os
 from nose.plugins.errorclass import ErrorClass, ErrorClassPlugin
 
 
@@ -29,7 +28,10 @@ class Skip(ErrorClassPlugin):
                          label='SKIP',
                          isfailure=False)
 
-    def options(self, parser, env=os.environ):
+    def options(self, parser, env):
+        """
+        Add my options to command line.
+        """
         env_opt = 'NOSE_WITHOUT_SKIP'
         parser.add_option('--no-skip', action='store_true',
                           dest='noSkip', default=env.get(env_opt, False),
@@ -37,6 +39,9 @@ class Skip(ErrorClassPlugin):
                           "exceptions.")
 
     def configure(self, options, conf):
+        """
+        Configure plugin. Skip plugin is enabled by default.
+        """
         if not self.can_configure:
             return
         self.conf = conf

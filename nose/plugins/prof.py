@@ -1,7 +1,7 @@
-"""Use the profile plugin with --with-profile or NOSE_WITH_PROFILE to
+"""Use the profile plugin with ``--with-profile`` or NOSE_WITH_PROFILE to
 enable profiling using the hotshot profiler. Profiler output can be
-controlled with the --profile-sort and --profile-restrict, and the
-profiler output file may be changed with --profile-stats-file.
+controlled with the ``--profile-sort`` and ``--profile-restrict``, and the
+profiler output file may be changed with ``--profile-stats-file``.
 
 See the hotshot documentation in the standard library documentation for
 more details on the various output options.
@@ -27,7 +27,9 @@ class Profile(Plugin):
     """
     pfile = None
     clean_stats_file = False
-    def options(self, parser, env=os.environ):
+    def options(self, parser, env):
+        """Register commandline options.
+        """
         if not self.available():
             return
         Plugin.options(self, parser, env)                
@@ -50,12 +52,16 @@ class Profile(Plugin):
     available = classmethod(available)
         
     def begin(self):
+        """Create profile stats file and load profiler.
+        """
         if not self.available():
             return
         self._create_pfile()
         self.prof = hotshot.Profile(self.pfile)
 
     def configure(self, options, conf):
+        """Configure plugin.
+        """
         if not self.available():
             self.enabled = False
             return
@@ -72,6 +78,8 @@ class Profile(Plugin):
         self.restrict = tolist(options.profile_restrict)
             
     def prepareTest(self, test):
+        """Wrap entire test run in :func:`prof.runcall`.
+        """
         if not self.available():
             return
         log.debug('preparing test %s' % test)
@@ -81,6 +89,8 @@ class Profile(Plugin):
         return run_and_profile
         
     def report(self, stream):
+        """Output profiler report.
+        """
         log.debug('printing profiler report')
         self.prof.close()
         prof_stats = stats.load(self.pfile)
@@ -109,6 +119,8 @@ class Profile(Plugin):
                 sys.stdout = tmp
 
     def finalize(self, result):
+        """Clean up stats file, if configured to do so.
+        """
         if not self.available():
             return
         try:

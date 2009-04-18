@@ -1,9 +1,18 @@
 syntax: glob
 *~
 *.pyc
+*.pyo
+.DS_Store
 *.egg-info
 *.bak
 *.rej
 *$py.class
 *.orig
+example.cfg
 .coverage
+nosetests.xml
+xunit.xml
+support/cover/index.html
+_env
+doc/.build
+dist

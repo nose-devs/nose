@@ -3,7 +3,7 @@ When Plugins Fail
 
 Plugin methods should not fail silently. When a plugin method raises
 an exception before or during the execution of a test, the exception
-will be wrapped in a `nose.failure.Failure`_ instance and appear as a
+will be wrapped in a :class:`nose.failure.Failure` instance and appear as a
 failing test. Exceptions raised at other times, such as in the
 preparation phase with ``prepareTestLoader`` or ``prepareTestResult``,
 or after a test executes, in ``afterTest`` will stop the entire test

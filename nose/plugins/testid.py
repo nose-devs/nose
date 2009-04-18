@@ -31,13 +31,75 @@ Then you can rerun individual tests by supplying just the id numbers::
   
 Since most shells consider '#' a special character, you can leave it out when
 specifying a test id.
+
+Note that when run without the -v switch, no special output is displayed, but
+the ids file is still written.
+
+Looping over failed tests
+-------------------------
+
+This plugin also adds a mode where it will direct the test run to record
+failed tests, and on subsequent runs, include only the tests that failed the
+last time. Activate this mode with the --failed switch::
+
+ % nosetests -v --failed
+ #1 test.test_a ... ok
+ #2 test.test_b ... ERROR
+ #3 test.test_c ... FAILED
+ #4 test.test_d ... ok
+ 
+And on the 2nd run, only tests #2 and #3 will run::
+
+ % nosetests -v --failed
+ #2 test.test_b ... ERROR
+ #3 test.test_c ... FAILED
+
+Then as you correct errors and tests pass, they'll drop out of subsequent
+runs.
+
+First::
+
+ % nosetests -v --failed
+ #2 test.test_b ... ok
+ #3 test.test_c ... FAILED
+
+Second::
+
+ % nosetests -v --failed
+ #3 test.test_c ... FAILED
+
+Until finally when all tests pass, the full set will run again on the next
+invocation.
+
+First::
+
+ % nosetests -v --failed
+ #3 test.test_c ... ok
+
+Second::
+ 
+ % nosetests -v --failed
+ #1 test.test_a ... ok
+ #2 test.test_b ... ok
+ #3 test.test_c ... ok
+ #4 test.test_d ... ok
+
+.. note ::
+
+  If you expect to want to use --failed often, a good practice is to always
+  run with the --with-id option active, so that an ids file is always recorded
+  and you can then add --failed to the command line as soon as you have
+  failing tests. If --with-id is not active, your first invocation with
+  --failed will (perhaps surprisingly) run all tests, because there will be
+  no ids file recording the failed tests from the previous run, during which
+  this plugin was not active.
 """
 __test__ = False
 
 import logging
 import os
 from nose.plugins import Plugin
-from nose.util import src
+from nose.util import src, set
 
 try:
     from cPickle import dump, load
@@ -46,27 +108,42 @@ except ImportError:
 
 log = logging.getLogger(__name__)
 
+
 class TestId(Plugin):
     """
     Activate to add a test id (like #1) to each test name output. After
     you've run once to generate test ids, you can re-run individual
     tests by activating the plugin and passing the ids (with or
-    without the # prefix) instead of test names.
+    without the # prefix) instead of test names. Activate with --failed
+    to rerun failing tests only.
     """
     name = 'id'
     idfile = None
-    shouldSave = True
+    collecting = True
+    loopOnFailed = False
     
     def options(self, parser, env):
+        """Register commandline options.
+        """
         Plugin.options(self, parser, env)
         parser.add_option('--id-file', action='store', dest='testIdFile',
                           default='.noseids',
                           help="Store test ids found in test runs in this "
                           "file. Default is the file .noseids in the "
                           "working directory.")
+        parser.add_option('--failed', action='store_true',
+                          dest='failed', default=False,
+                          help="Run the tests that failed in the last "
+                          "test run.")
 
     def configure(self, options, conf):
+        """Configure plugin.
+        """
         Plugin.configure(self, options, conf)
+        if options.failed:
+            self.enabled = True
+            self.loopOnFailed = True
+            log.debug("Looping on failed tests")
         self.idfile = os.path.expanduser(options.testIdFile)
         if not os.path.isabs(self.idfile):
             self.idfile = os.path.join(conf.workingDir, self.idfile)
@@ -75,41 +152,103 @@ class TestId(Plugin):
         # tests are {test address: id}
         self.ids = {}
         self.tests = {}
+        self.failed = []
+        self.source_names = []
         # used to track ids seen when tests is filled from
         # loaded ids file
         self._seen = {}
+        self._write_hashes = options.verbosity >= 2
 
     def finalize(self, result):
-        if self.shouldSave:
-            fh = open(self.idfile, 'w')
-            # save as {id: test address}
-            ids = dict(zip(self.tests.values(), self.tests.keys()))            
-            dump(ids, fh)
-            fh.close()
-            log.debug('Saved test ids: %s to %s', ids, self.idfile)
+        """Save new ids file, if needed.
+        """
+        if result.wasSuccessful():
+            self.failed = []
+        if self.collecting:
+            ids = dict(zip(self.tests.values(), self.tests.keys()))
+        else:
+            ids = self.ids
+        fh = open(self.idfile, 'w')
+        dump({'ids': ids,
+              'failed': self.failed,
+              'source_names': self.source_names}, fh)
+        fh.close()
+        log.debug('Saved test ids: %s, failed %s to %s',
+                  ids, self.failed, self.idfile)
 
     def loadTestsFromNames(self, names, module=None):
         """Translate ids in the list of requested names into their
         test addresses, if they are found in my dict of tests.
-        """
+        """        
         log.debug('ltfn %s %s', names, module)
         try:
             fh = open(self.idfile, 'r')
-            self.ids = load(fh)
-            log.debug('Loaded test ids %s from %s', self.ids, self.idfile)
+            data = load(fh)
+            if 'ids' in data:
+                self.ids = data['ids']
+                self.failed = data['failed']
+                self.source_names = data['source_names']
+                self.id = max(self.ids) + 1
+                # got some ids in names, so make sure that the ids line
+                # up in output with what I said they were last time
+                self.tests = dict(zip(self.ids.values(), self.ids.keys()))
+            else:
+                # old ids field
+                self.ids = data
+                self.failed = []
+                self.source_names = names
+            log.debug('Loaded test ids %s/failed %s sources %s from %s',
+                      self.ids, self.failed, self.source_names, self.idfile)
             fh.close()
         except IOError:
             log.debug('IO error reading %s', self.idfile)
-            return
             
+        if self.loopOnFailed and self.failed:
+            self.collecting = False
+            names = self.failed
+            self.failed = []
         # I don't load any tests myself, only translate names like '#2'
         # into the associated test addresses
-        result = (None, map(self.tr, names))
-        if not self.shouldSave:
-            # got some ids in names, so make sure that the ids line
-            # up in output with what I said they were last time
-            self.tests = dict(zip(self.ids.values(), self.ids.keys()))
-        return result
+        translated = []
+        new_source = []
+        really_new = []
+        for name in names:
+            trans = self.tr(name)
+            if trans != name:
+                translated.append(trans)
+            else:
+                new_source.append(name)
+        # names that are not ids and that are not in the current
+        # list of source names go into the list for next time
+        if new_source:
+            new_set = set(new_source)
+            old_set = set(self.source_names)
+            log.debug("old: %s new: %s", old_set, new_set)
+            really_new = [s for s in new_source
+                          if not s in old_set]
+            missing = old_set - new_set
+            if translated:
+                # add any new names, don't worry about missing in this case
+                self.source_names.extend(really_new)
+            else:
+                if missing:
+                    # some sources from old set are not present in new set
+                    # reset the ids file to avoid confusion
+                    log.debug("resetting source names to %s", new_source)
+                    self.source_names = new_source
+                    self.tests = {}
+                    self.ids = {}
+                    self.id = 1
+                else:
+                    # just some new
+                    log.debug("appending new sources %s", really_new)
+                    self.source_names.extend(really_new)
+        else:
+            # no new names to translate and add to id set
+            self.collecting = False
+        log.debug("translated: %s new sources %s names %s",
+                  translated, really_new, names)
+        return (None, translated + really_new or names)
 
     def makeName(self, addr):
         log.debug("Make name %s", addr)
@@ -123,22 +262,39 @@ class TestId(Plugin):
         return head
         
     def setOutputStream(self, stream):
+        """Get handle on output stream so the plugin can print id #s
+        """
         self.stream = stream
 
     def startTest(self, test):
+        """Maybe output an id # before the test name.
+
+        Example output::
+
+          #1 test.test ... ok
+          #2 test.test_two ... ok
+
+        """
         adr = test.address()
         log.debug('start test %s (%s)', adr, adr in self.tests)
         if adr in self.tests:
-            if self.shouldSave or adr in self._seen:
-                self.stream.write('   ')
+            if adr in self._seen:
+                self.write('   ')
             else:
-                self.stream.write('#%s ' % self.tests[adr])
+                self.write('#%s ' % self.tests[adr])
                 self._seen[adr] = 1
             return
         self.tests[adr] = self.id
-        self.stream.write('#%s ' % self.id)
+        self.write('#%s ' % self.id)
         self.id += 1
 
+    def afterTest(self, test):
+        # None means test never ran, False means failed/err
+        if test.passed is False:
+            key = str(self.tests[test.address()])
+            if key not in self.failed:
+                self.failed.append(key)
+        
     def tr(self, name):
         log.debug("tr '%s'", name)
         try:
@@ -146,8 +302,12 @@ class TestId(Plugin):
         except ValueError:
             return name
         log.debug("Got key %s", key)
-        self.shouldSave = False
+        # I'm running tests mapped from the ids file,
+        # not collecting new ones
         if key in self.ids:
             return self.makeName(self.ids[key])
         return name
-        
+
+    def write(self, output):
+        if self._write_hashes:
+            self.stream.write(output)

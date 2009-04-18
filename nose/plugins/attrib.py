@@ -2,34 +2,33 @@
 
 Simple syntax (-a, --attr) examples:
 
-* `nosetests -a status=stable`:
+* ``nosetests -a status=stable``
    Only test cases with attribute "status" having value "stable"
 
-* `nosetests -a priority=2,status=stable`:
+* ``nosetests -a priority=2,status=stable``
    Both attributes must match
 
-* `nosetests -a priority=2 -a slow`:
+* ``nosetests -a priority=2 -a slow``
    Either attribute must match
     
-* `nosetests -a tags=http`:
+* ``nosetests -a tags=http``
    Attribute list "tags" must contain value "http" (see test_foobar()
    below for definition)
 
-* `nosetests -a slow`:
+* ``nosetests -a slow``
    Attribute "slow" must be defined and its value cannot equal to False
    (False, [], "", etc...)
 
-* `nosetests -a '!slow'`:
+* ``nosetests -a '!slow'``
    Attribute "slow" must NOT be defined or its value must be equal to False.  
    Note the quotes around the value -- this may be necessary if your shell 
-   interprets `!' as a special character.
+   interprets '!' as a special character.
 
 Eval expression syntax (-A, --eval-attr) examples:
 
-* `nosetests -A "not slow"`
+* ``nosetests -A "not slow"``
 
-* `nosetests -A "(priority > 5) and not slow"`
-
+* ``nosetests -A "(priority > 5) and not slow"``
 """
 import logging
 import os
@@ -80,9 +79,8 @@ class AttributeSelector(Plugin):
         Plugin.__init__(self)
         self.attribs = []
     
-    def options(self, parser, env=os.environ):
-        """Add command-line options for this plugin."""
-
+    def options(self, parser, env):
+        """Register command line options"""
         parser.add_option("-a", "--attr",
                           dest="attr", action="append",
                           default=env.get('NOSE_ATTR'),
@@ -207,8 +205,12 @@ class AttributeSelector(Plugin):
         return False
         
     def wantFunction(self, function):
+        """Accept the function if its attributes match.
+        """
         return self.validateAttrib(function.__dict__)
         
     def wantMethod(self, method):
+        """Accept the method if its attributes match.
+        """
         attribs = AttributeGetter(method.im_class, method)
         return self.validateAttrib(attribs)

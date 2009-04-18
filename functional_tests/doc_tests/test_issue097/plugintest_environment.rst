@@ -1,8 +1,8 @@
 nose.plugins.plugintest, os.environ and sys.argv
 ------------------------------------------------
 
-`nose.plugins.plugintest.PluginTester`_ and
-`nose.plugins.plugintest.run()`_ are utilities for testing nose
+:class:`nose.plugins.plugintest.PluginTester` and
+:func:`nose.plugins.plugintest.run` are utilities for testing nose
 plugins.  When testing plugins, it should be possible to control the
 environment seen plugins under test, and that environment should never
 be affected by ``os.environ`` or ``sys.argv``.

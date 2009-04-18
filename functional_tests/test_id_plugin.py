@@ -46,7 +46,7 @@ class TestDiscoveryMode(PluginTester, unittest.TestCase):
     def test_id_file_contains_ids_seen(self):
         assert os.path.exists(idfile)
         fh = open(idfile, 'r')
-        ids = load(fh)
+        ids = load(fh)['ids']
         fh.close()
         assert ids
         assert ids.keys()
@@ -82,6 +82,7 @@ class TestLoadNamesMode(PluginTester, unittest.TestCase):
         fh.close()
         assert ids
         assert ids.keys()
+        ids = ids['ids']
         self.assertEqual(filter(lambda i: int(i), ids.keys()), ids.keys())
         assert len(ids.keys()) > 2
 
@@ -138,7 +139,7 @@ class TestWithDoctest_1(PluginTester, unittest.TestCase):
             last = name
             
         fh = open(idfile, 'r')
-        ids = load(fh)
+        ids = load(fh)['ids']
         fh.close()
         for key, (file, mod, call) in ids.items():
             assert mod != 'doctest', \
@@ -204,7 +205,7 @@ class TestWithDoctestFileTests_1(PluginTester, unittest.TestCase):
             
             last = name
         fh = open(idfile, 'r')
-        ids = load(fh)
+        ids = load(fh)['ids']
         fh.close()
         for key, (file, mod, call) in ids.items():
             assert mod != 'doctest', \

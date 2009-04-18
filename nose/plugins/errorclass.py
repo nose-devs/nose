@@ -122,6 +122,10 @@ class ErrorClass(object):
 
 
 class ErrorClassPlugin(Plugin):
+    """
+    Base class for ErrorClass plugins. Subclass this class and declare the
+    exceptions that you wish to handle as attributes of the subclass.
+    """
     __metaclass__ = MetaErrorClass
     score = 1000
     errorClasses = ()

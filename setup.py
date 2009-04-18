@@ -1,15 +1,20 @@
 from nose import __version__ as VERSION
+import sys
+
+py_vers_tag = '-%s.%s' % sys.version_info[:2]
 
 try:
     from setuptools import setup, find_packages
     addl_args = dict(
+        zip_safe = False,
         packages = find_packages(),
         entry_points = {        
         'console_scripts': [
-            'nosetests = nose:run_exit'
+            'nosetests = nose:run_exit',
+            'nosetests%s = nose:run_exit' % py_vers_tag,
             ],
         'distutils.commands': [
-            ' nosetests = nose.commands:nosetests'
+            ' nosetests = nose.commands:nosetests',
             ],
         },
         test_suite = 'nose.collector',
@@ -18,7 +23,7 @@ except ImportError:
     from distutils.core import setup
     addl_args = dict(
         packages = ['nose', 'nose.ext', 'nose.plugins'],
-        scripts = ['bin/nosetests']
+        scripts = ['bin/nosetests'],
         )
     
 setup(

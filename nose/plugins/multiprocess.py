@@ -1,6 +1,6 @@
 """
-Mutltiprocess: parallel testing
--------------------------------
+Overview
+========
 
 The multiprocess plugin enables you to distribute your test run among a set of
 worker processes that run tests in parallel. This can speed up CPU-bound test
@@ -8,6 +8,11 @@ runs (as long as the number of work processeses is around the number of
 processors or cores available), but is mainly useful for IO-bound tests which
 can benefit from massive parallelization, since most of the tests spend most
 of their time waiting for data to arrive from someplace else.
+
+.. note ::
+
+   See :doc:`../doc_tests/test_multiprocess/multiprocess` for additional
+   documentation and examples.
 
 How tests are distributed
 =========================
@@ -88,46 +93,26 @@ from nose.suite import ContextSuite
 from nose.util import test_address
 from Queue import Empty
 from warnings import warn
-
-log = logging.getLogger(__name__)
-
-Process = Queue = Pool = Event = None
-is_set = lambda e: None
-
-def do_processing_imports():
-    global Process, Queue, Pool, Event, is_set
-    try:
-        # 2.6
-        from multiprocessing import Process as Process_, \
-             Queue as Queue_, Pool as Pool_, Event as Event_
-        class Process26(Process_):
-            def setDaemon(self, daemon):
-                self.daemon = daemon
-            def isAlive(self):
-                return self.is_alive()
-        def is_set_26(event):
-            return event.is_set()
-        Process, Queue, Pool, Event = Process26, Queue_, Pool_, Event_
-        is_set = is_set_26
-    except ImportError:
-        # Earlier
-        try:
-            from processing import Process as Process_, \
-            Queue as Queue_, Pool as Pool_, Event as Event_
-            def is_set_(event):
-                return event.isSet()
-            Process, Queue, Pool, Event = Process_, Queue_, Pool_, Event_
-            is_set = is_set_
-        except ImportError:
-            warn("processing module is not available, multiprocess plugin "
-                 "cannot be used", RuntimeWarning)
-
 try:
     from cStringIO import StringIO
 except ImportError:
     import StringIO
 
+log = logging.getLogger(__name__)
 
+Process = Queue = Pool = Event = None
+
+def _import_mp():
+    global Process, Queue, Pool, Event
+    try:
+        from multiprocessing import Process as Process_, \
+            Queue as Queue_, Pool as Pool_, Event as Event_
+        Process, Queue, Pool, Event = Process_, Queue_, Pool_, Event_
+    except ImportError:
+        warn("multiprocessing module is not available, multiprocess plugin "
+             "cannot be used", RuntimeWarning)
+
+        
 class TestLet:
     def __init__(self, case):
         try:
@@ -154,7 +139,10 @@ class MultiProcess(Plugin):
     score = 1000
     status = {}
     
-    def options(self, parser, env=os.environ):
+    def options(self, parser, env):
+        """
+        Register command-line options.
+        """
         parser.add_option("--processes", action="store",
                           default=env.get('NOSE_PROCESSES', 0),
                           dest="multiprocess_workers",
@@ -169,6 +157,9 @@ class MultiProcess(Plugin):
                           "test runner process. [NOSE_PROCESS_TIMEOUT]")
 
     def configure(self, options, config):
+        """
+        Configure plugin.
+        """
         try:
             self.status.pop('active')
         except KeyError:
@@ -182,7 +173,7 @@ class MultiProcess(Plugin):
         except (TypeError, ValueError):
             workers = 0
         if workers:
-            do_processing_imports()
+            _import_mp()
             if Process is None:
                 self.enabled = False
                 return
@@ -192,9 +183,14 @@ class MultiProcess(Plugin):
             self.status['active'] = True
             
     def prepareTestLoader(self, loader):
+        """Remember loader class so MultiProcessTestRunner can instantiate
+        the right loader.
+        """
         self.loaderClass = loader.__class__
 
     def prepareTestRunner(self, runner):
+        """Replace test runner with MultiProcessTestRunner.
+        """
         # replace with our runner class
         return MultiProcessTestRunner(stream=runner.stream,
                                       verbosity=self.config.verbosity,
@@ -238,7 +234,7 @@ class MultiProcessTestRunner(TextTestRunner):
 
         # dispatch and collect results
         # put indexes only on queue because tests aren't picklable
-        for case in self.next_batch(test):
+        for case in self.nextBatch(test):
             log.debug("Next batch %s (%s)", case, type(case))
             if (isinstance(case, nose.case.Test) and
                 isinstance(case.test, failure.Failure)):
@@ -309,7 +305,7 @@ class MultiProcessTestRunner(TextTestRunner):
                 log.debug("Timed out with %s tasks pending", len(tasks))
                 any_alive = False
                 for w in workers:
-                    if w.isAlive():
+                    if w.is_alive():
                         any_alive = True
                         break
                 if not any_alive:
@@ -335,22 +331,14 @@ class MultiProcessTestRunner(TextTestRunner):
 
         # Tell all workers to stop
         for w in workers:
-            if w.isAlive():
+            if w.is_alive():
                 testQueue.put('STOP', block=False)
 
         return result
 
     def address(self, case):
         if hasattr(case, 'address'):
-            try:
-                file, mod, call = case.address()
-            except:
-                import sys
-                import pdb
-                ec, ev, tb = sys.exc_info()
-                sys.stdout = sys.__stdout__
-                pdb.post_mortem(tb)
-                raise
+            file, mod, call = case.address()
         elif hasattr(case, 'context'):
             file, mod, call = test_address(case.context)
         else:
@@ -367,8 +355,7 @@ class MultiProcessTestRunner(TextTestRunner):
             parts.append(call)
         return ':'.join(map(str, parts))
 
-    # FIXME camel for consistency
-    def next_batch(self, test):
+    def nextBatch(self, test):
         # allows tests or suites to mark themselves as not safe
         # for multiprocess execution
         if hasattr(test, 'context'):
@@ -376,7 +363,7 @@ class MultiProcessTestRunner(TextTestRunner):
                 return
 
         if ((isinstance(test, ContextSuite)
-             and test.hasFixtures(self.check_can_split))
+             and test.hasFixtures(self.checkCanSplit))
             or not getattr(test, 'can_split', True)
             or not isinstance(test, unittest.TestSuite)):
             # regular test case, or a suite with context fixtures
@@ -396,11 +383,10 @@ class MultiProcessTestRunner(TextTestRunner):
             # fixtures at any deeper level, so we need to examine it all
             # the way down to the case level
             for case in test:
-                for batch in self.next_batch(case):
+                for batch in self.nextBatch(case):
                     yield batch
 
-    # FIXME camel for consistency
-    def check_can_split(self, context, fixt):
+    def checkCanSplit(self, context, fixt):
         """
         Callback that we use to check whether the fixtures found in a
         context or ancestor are ones we care about.
@@ -443,8 +429,7 @@ class MultiProcessTestRunner(TextTestRunner):
             mystorage.extend(storage)
         log.debug("Ran %s tests (%s)", testsRun, result.testsRun)
 
-# FIXME it looks like the error classes that should be on the
-# result disappear after the first test batch
+
 def runner(ix, testQueue, resultQueue, shouldStop,
            loaderClass, resultClass, config):
     log.debug("Worker %s executing", ix)
@@ -481,8 +466,7 @@ def runner(ix, testQueue, resultQueue, shouldStop,
     try:
         try:
             for test_addr in iter(get, 'STOP'):
-                # 2.6 names changed
-                if is_set(shouldStop):
+                if shouldStop.is_set():
                     break
                 result = makeResult()
                 test = loader.loadTestsFromNames([test_addr])
@@ -502,7 +486,6 @@ def runner(ix, testQueue, resultQueue, shouldStop,
     finally:
         testQueue.close()
         resultQueue.close()
-        testQueue.close()
     log.debug("Worker %s ending", ix)
 
 

@@ -137,7 +137,9 @@ class Doctest(Plugin):
     extension = None
     suiteClass = DoctestSuite
     
-    def options(self, parser, env=os.environ):
+    def options(self, parser, env):
+        """Register commmandline options.
+        """
         Plugin.options(self, parser, env)
         parser.add_option('--doctest-tests', action='store_true',
                           dest='doctest_tests',
@@ -171,6 +173,8 @@ class Doctest(Plugin):
             parser.set_defaults(doctestExtension=tolist(env_setting))
 
     def configure(self, options, config):
+        """Configure plugin.
+        """
         Plugin.configure(self, options, config)
         self.doctest_result_var = options.doctest_result_var
         self.doctest_tests = options.doctest_tests
@@ -179,9 +183,16 @@ class Doctest(Plugin):
         self.finder = doctest.DocTestFinder()
 
     def prepareTestLoader(self, loader):
+        """Capture loader's suiteClass.
+
+        This is used to create test suites from doctest files.
+        
+        """
         self.suiteClass = loader.suiteClass
 
     def loadTestsFromModule(self, module):
+        """Load doctests from the module.
+        """
         log.debug("loading from %s", module)
         if not self.matches(module.__name__):
             log.debug("Doctest doesn't want module %s", module)
@@ -211,6 +222,12 @@ class Doctest(Plugin):
             yield self.suiteClass(cases, context=module, can_split=False)
             
     def loadTestsFromFile(self, filename):
+        """Load doctests from the file.
+
+        Tests are loaded only if filename's extension matches
+        configured doctest extension.
+
+        """
         if self.extension and anyp(filename.endswith, self.extension):
             name = os.path.basename(filename)
             dh = open(filename)
@@ -267,8 +284,6 @@ class Doctest(Plugin):
                                   result_var=self.doctest_result_var)
     
     def matches(self, name):
-        """Doctest wants only non-test modules in general.
-        """
         # FIXME this seems wrong -- nothing is ever going to
         # fail this test, since we're given a module NAME not FILE
         if name == '__init__.py':
@@ -285,6 +300,9 @@ class Doctest(Plugin):
                                     for exc in self.conf.exclude])))
     
     def wantFile(self, file):
+        """Override to select all modules and any file ending with
+        configured doctest extension.
+        """
         # always want .py files
         if file.endswith('.py'):
             return True
@@ -403,14 +421,3 @@ class DocFileCase(doctest.DocFileCase):
         if self._result_var is not None:
             sys.displayhook = self._old_displayhook
             delattr(__builtin__, self._result_var)
-
-
-def run(*arg, **kw):
-    """DEPRECATED: moved to nose.plugins.plugintest.
-    """
-    import warnings
-    warnings.warn("run() has been moved to nose.plugins.plugintest. Please "
-                  "update your imports.", category=DeprecationWarning,
-                  stacklevel=2)
-    from nose.plugins.plugintest import run
-    run(*arg, **kw)

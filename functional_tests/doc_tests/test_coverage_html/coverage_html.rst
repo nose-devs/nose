@@ -4,8 +4,10 @@ Generating HTML Coverage with nose
 .. Note ::
 
     HTML coverage requires Ned Batchelder's coverage.py module.
-
 ..
+
+FIXME explain this.
+
     >>> from nose.plugins.plugintest import run_buffered as run
     >>> import os
     >>> support = os.path.join(os.path.dirname(__file__), 'support')
@@ -13,7 +15,7 @@ Generating HTML Coverage with nose
     >>> from nose.plugins.cover import Coverage
     >>> run(argv=[__file__, '-v', '--with-coverage', '--cover-package=blah', 
     ...           '--cover-html', '--cover-html-dir=' + cover_html_dir, support, ], 
-    ...     plugins=[Coverage()])
+    ...     plugins=[Coverage()]) # doctest: +REPORT_NDIFF
     test_covered.test_blah ... hi
     ok
     <BLANKLINE>
@@ -24,13 +26,13 @@ Generating HTML Coverage with nose
     Ran 1 test in ...s
     <BLANKLINE>
     OK
-    >>> print open(os.path.join(cover_html_dir, 'index.html')).read()
+    >>> print open(os.path.join(cover_html_dir, 'index.html')).read() # doctest: +REPORT_NDIFF
     <html><head><title>Coverage Index</title></head><body><p>Covered: 3 lines<br/>
     Missed: 1 lines<br/>
     Skipped 3 lines<br/>
     Percent: 75 %<br/>
     <table><tr><td>File</td><td>Covered</td><td>Missed</td><td>Skipped</td><td>Percent</td></tr><tr><td><a href="blah.html">blah</a></td><td>3</td><td>1</td><td>3</td><td>75 %</td></tr></table></p></html
-    >>> print open(os.path.join(cover_html_dir, 'blah.html')).read()
+    >>> print open(os.path.join(cover_html_dir, 'blah.html')).read() # doctest: +REPORT_NDIFF
     <html>
     <head>
     <title>blah</title>
@@ -38,10 +40,11 @@ Generating HTML Coverage with nose
     <body>
     blah
     <style>
-    pre {float: left; margin: 0px 1em }
+    .coverage pre {float: left; margin: 0px 1em; border: none;
+                   padding: 0px; line-height: 95% }
     .num pre { margin: 0px }
-    .nocov {background-color: #faa}
-    .cov {background-color: #cfc}
+    .nocov, .nocov pre {background-color: #faa}
+    .cov, .cov pre {background-color: #cfc}
     div.coverage div { clear: both; height: 1em}
     </style>
     <div class="stats">
@@ -63,3 +66,8 @@ Generating HTML Coverage with nose
     </body>
     </html>
     <BLANKLINE>
+
+The html coverage output for a module looks like:
+
+.. raw :: html
+   :file: support/cover/blah.html

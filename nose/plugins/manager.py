@@ -7,35 +7,35 @@ loaded plugins, and proxy calls to those plugins.
 
 The plugin managers provided with nose are:
 
-``PluginManager``
+:class:`PluginManager`
     This manager doesn't implement loadPlugins, so it can only work
     with a static list of plugins.
 
-``BuiltinPluginManager``
+:class:`BuiltinPluginManager`
     This manager loads plugins referenced in ``nose.plugins.builtin``.
 
-``EntryPointPluginManager``
+:class:`EntryPointPluginManager`
     This manager uses setuptools entrypoints to load plugins.
 
-``DefaultPluginMananger``
+:class:`DefaultPluginMananger`
     This is the manager class that will be used by default. If
     setuptools is installed, it is a subclass of
-    ``EntryPointPluginManager`` and ``BuiltinPluginManager``; otherwise, an
-    alias to ``BuiltinPluginManager``.
+    :class:`EntryPointPluginManager` and :class:`BuiltinPluginManager`;
+    otherwise, an alias to :class:`BuiltinPluginManager`.
 
-``RestrictedPluginManager``
+:class:`RestrictedPluginManager`
     This manager is for use in test runs where some plugin calls are
-    not available, such as runs started with `python setup.py test`,
-    where the test runner is the default unittest ``TextTestRunner``. It
-    is a subclass of ``DefaultPluginManager``.
+    not available, such as runs started with ``python setup.py test``,
+    where the test runner is the default unittest :class:`TextTestRunner`. It
+    is a subclass of :class:`DefaultPluginManager`.
 
 Writing a plugin manager
 ========================
 
 If you want to load plugins via some other means, you can write a
 plugin manager and pass an instance of your plugin manager class when
-instantiating the `nose.config.Config`_ instance that you pass to
-``TestProgram`` (or ``main`` or ``run``).
+instantiating the :class:`nose.config.Config` instance that you pass to
+:class:`TestProgram` (or :func:`main` or :func:`run`).
 
 To implement your plugin loading scheme, implement ``loadPlugins()``,
 and in that method, call ``addPlugin()`` with an instance each plugin

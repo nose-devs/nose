@@ -203,7 +203,9 @@ class Config(object):
         self.verbosity = int(env.get('NOSE_VERBOSE', 1))
         self.where = ()
         self.workingDir = os.getcwd()
-        self.traverseNamespace = True
+        self.traverseNamespace = False
+        self.firstPackageWins = False
+        self.parserClass = OptionParser
         
         self._default = self.__dict__.copy()
         self.update(kw)
@@ -275,6 +277,7 @@ class Config(object):
         self.debug = options.debug
         self.debugLog = options.debugLog
         self.loggingConfig = options.loggingConfig
+        self.firstPackageWins = options.firstPackageWins
         self.configureLogging()
 
         if options.where is not None:
@@ -384,7 +387,7 @@ class Config(object):
         if self.parser:
             return self.parser
         env = self.env
-        parser = OptionParser(doc)
+        parser = self.parserClass(doc)
         parser.add_option(
             "-V","--version", action="store_true",
             dest="version", default=False,
@@ -404,7 +407,8 @@ class Config(object):
             type="int", help="Set verbosity; --verbosity=2 is "
             "the same as -v")
         parser.add_option(
-            "-q", "--quiet", action="store_const", const=0, dest="verbosity")
+            "-q", "--quiet", action="store_const", const=0, dest="verbosity",
+            help="Be less verbose")
         parser.add_option(
             "-c", "--config", action="append", dest="files",
             help="Load configuration from config file(s). May be specified "
@@ -418,12 +422,13 @@ class Config(object):
             "working directory, which is the default. Others will be added "
             "to the list of tests to execute. [NOSE_WHERE]"
             )
-        parser.add_option("-m", "--match", "--testmatch", action="store",
-                          dest="testMatch",
-                          help="Files, directories, function names, and class names "
-                          "that match this regular expression are considered tests.  "
-                          "Default: %s [NOSE_TESTMATCH]" % self.testMatchPat,
-                          default=self.testMatchPat)
+        parser.add_option(
+            "-m", "--match", "--testmatch", action="store",
+            dest="testMatch",
+            help="Files, directories, function names, and class names "
+            "that match this regular expression are considered tests.  "
+            "Default: %s [NOSE_TESTMATCH]" % self.testMatchPat,
+            default=self.testMatchPat)
         parser.add_option(
             "--tests", action="store", dest="testNames", default=None,
             help="Run these tests (comma-separated list). This argument is "
@@ -482,10 +487,15 @@ class Config(object):
             "executable. (The default on the windows platform is to "
             "do so.)")
         parser.add_option(
-            "--no-traverse-namespace", action="store_false",
+            "--traverse-namespace", action="store_true",
             default=self.traverseNamespace, dest="traverseNamespace",
-            help="DO NOT traverse through all path entries of a "
-            "namespace package")
+            help="Traverse through all path entries of a namespace package")
+        parser.add_option(
+            "--first-package-wins", "--first-pkg-wins", "--1st-pkg-wins",
+            default=False, dest="firstPackageWins",
+            help="nose's importer will normally evict a package from sys."
+            "modules if it sees a package with the same name in a different "
+            "location. Set this option to disable that behavior.")
 
         self.plugins.loadPlugins()
         self.pluginOpts(parser)

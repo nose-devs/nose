@@ -1,8 +1,97 @@
 """
-Plugin tester
--------------
+Testing Plugins
+===============
 
-Utilities for testing plugins.
+The plugin interface is well-tested enough to safely unit test your
+use of its hooks with some level of confidence. However, there is also 
+a mixin for unittest.TestCase called PluginTester that's designed to 
+test plugins in their native runtime environment.
+
+Here's a simple example with a do-nothing plugin and a composed suite.
+
+    >>> import unittest
+    >>> from nose.plugins import Plugin, PluginTester
+    >>> class FooPlugin(Plugin):
+    ...     pass
+    >>> class TestPluginFoo(PluginTester, unittest.TestCase):
+    ...     activate = '--with-foo'
+    ...     plugins = [FooPlugin()]
+    ...     def test_foo(self):
+    ...         for line in self.output:
+    ...             # i.e. check for patterns
+    ...             pass
+    ... 
+    ...         # or check for a line containing ...
+    ...         assert "ValueError" in self.output
+    ...     def makeSuite(self):
+    ...         class TC(unittest.TestCase):
+    ...             def runTest(self):
+    ...                 raise ValueError("I hate foo")
+    ...         return unittest.TestSuite([TC()])
+    ...
+    >>> res = unittest.TestResult()
+    >>> case = TestPluginFoo('test_foo')
+    >>> case(res)
+    >>> res.errors
+    []
+    >>> res.failures
+    []
+    >>> res.wasSuccessful()
+    True
+    >>> res.testsRun
+    1
+
+And here is a more complex example of testing a plugin that has extra
+arguments and reads environment variables.
+    
+    >>> import unittest, os
+    >>> from nose.plugins import Plugin, PluginTester
+    >>> class FancyOutputter(Plugin):
+    ...     name = "fancy"
+    ...     def configure(self, options, conf):
+    ...         Plugin.configure(self, options, conf)
+    ...         if not self.enabled:
+    ...             return
+    ...         self.fanciness = 1
+    ...         if options.more_fancy:
+    ...             self.fanciness = 2
+    ...         if 'EVEN_FANCIER' in self.env:
+    ...             self.fanciness = 3
+    ... 
+    ...     def options(self, parser, env=os.environ):
+    ...         self.env = env
+    ...         parser.add_option('--more-fancy', action='store_true')
+    ...         Plugin.options(self, parser, env=env)
+    ... 
+    ...     def report(self, stream):
+    ...         stream.write("FANCY " * self.fanciness)
+    ... 
+    >>> class TestFancyOutputter(PluginTester, unittest.TestCase):
+    ...     activate = '--with-fancy' # enables the plugin
+    ...     plugins = [FancyOutputter()]
+    ...     args = ['--more-fancy']
+    ...     env = {'EVEN_FANCIER': '1'}
+    ... 
+    ...     def test_fancy_output(self):
+    ...         assert "FANCY FANCY FANCY" in self.output, (
+    ...                                         "got: %s" % self.output)
+    ...     def makeSuite(self):
+    ...         class TC(unittest.TestCase):
+    ...             def runTest(self):
+    ...                 raise ValueError("I hate fancy stuff")
+    ...         return unittest.TestSuite([TC()])
+    ... 
+    >>> res = unittest.TestResult()
+    >>> case = TestFancyOutputter('test_fancy_output')
+    >>> case(res)
+    >>> res.errors
+    []
+    >>> res.failures
+    []
+    >>> res.wasSuccessful()
+    True
+    >>> res.testsRun
+    1
 
 """
 
@@ -26,8 +115,6 @@ class PluginTester(object):
     executed with your plugin so that during an actual test you can inspect the 
     artifacts of how your plugin interacted with the stub test suite.
     
-    Class Variables
-    ---------------
     - activate
     
       - the argument to send nosetests to activate the plugin

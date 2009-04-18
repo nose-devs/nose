@@ -28,7 +28,7 @@ class TestMultiProcessTestRunner(unittest.TestCase):
     def test_next_batch_with_classes(self):
         r = multiprocess.MultiProcessTestRunner()
         l = TestLoader()
-        tests = list(r.next_batch(ContextSuite(
+        tests = list(r.nextBatch(ContextSuite(
                     tests=[l.makeTest(T_fixt), l.makeTest(T)])))
         print tests
         self.assertEqual(len(tests), 3)
@@ -49,7 +49,7 @@ class TestMultiProcessTestRunner(unittest.TestCase):
 
         r = multiprocess.MultiProcessTestRunner()
         l = TestLoader()
-        tests = list(r.next_batch(l.loadTestsFromModule(mod_with_fixt)))
+        tests = list(r.nextBatch(l.loadTestsFromModule(mod_with_fixt)))
         print tests
         self.assertEqual(len(tests), 1)
 
@@ -70,7 +70,7 @@ class TestMultiProcessTestRunner(unittest.TestCase):
 
         r = multiprocess.MultiProcessTestRunner()
         l = TestLoader()
-        tests = list(r.next_batch(l.loadTestsFromModule(mod_no_fixt)))
+        tests = list(r.nextBatch(l.loadTestsFromModule(mod_no_fixt)))
         print tests
         self.assertEqual(len(tests), 3)
 
@@ -83,7 +83,7 @@ class TestMultiProcessTestRunner(unittest.TestCase):
                 pass
         r = multiprocess.MultiProcessTestRunner()
         l = TestLoader()
-        tests = list(r.next_batch(l.makeTest(Tg)))
+        tests = list(r.nextBatch(l.makeTest(Tg)))
         print tests
         print [r.address(t) for t in tests]
         self.assertEqual(len(tests), 1)
@@ -111,7 +111,7 @@ class TestMultiProcessTestRunner(unittest.TestCase):
 
         r = multiprocess.MultiProcessTestRunner()
         l = TestLoader()
-        tests = list(r.next_batch(l.loadTestsFromModule(mod_with_fixt2)))
+        tests = list(r.nextBatch(l.loadTestsFromModule(mod_with_fixt2)))
         print tests
         self.assertEqual(len(tests), 3)
         
