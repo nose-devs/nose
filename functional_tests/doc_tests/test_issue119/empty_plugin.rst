@@ -16,10 +16,8 @@ nose.plugins.Plugin .
     ...
     ...     def configure(self, options, conf):
     ...         pass
-
     >>> import unittest
     >>> from nose.plugins.plugintest import run_buffered as run
-
     >>> run(suite=unittest.TestSuite(tests=[]),
     ...     plugins=[NullPlugin()]) # doctest: +REPORT_NDIFF
     ----------------------------------------------------------------------
@@ -32,7 +30,6 @@ name.
 
     >>> import os
     >>> from nose.plugins import Plugin
-
     >>> class DerivedNullPlugin(Plugin):
     ...
     ...     name = "derived-null"
@@ -51,7 +48,6 @@ Enabled plugin that's otherwise empty
     ...         if not self.can_configure:
     ...             return
     ...         self.conf = conf
-
     >>> run(suite=unittest.TestSuite(tests=[]),
     ...     plugins=[DerivedNullPlugin(), EnabledDerivedNullPlugin()])
     ...     # doctest: +REPORT_NDIFF

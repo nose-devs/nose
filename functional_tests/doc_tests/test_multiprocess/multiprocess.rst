@@ -117,17 +117,22 @@ all tests pass.
 
 .. Note ::
 
-   FIXME: note about run()
+   The run() function in :mod:`nose.plugins.plugintest` reformats test result
+   output to remove timings, which will vary from run to run, and
+   redirects the output to stdout.
+
+    >>> from nose.plugins.plugintest import run_buffered as run
 
 ..
 
     >>> import os
-    >>> from nose.plugins.plugintest import run_buffered as run
     >>> support = os.path.join(os.path.dirname(__file__), 'support')
     >>> test_not_shared = os.path.join(support, 'test_not_shared.py')
     >>> test_shared = os.path.join(support, 'test_shared.py')
     >>> test_can_split = os.path.join(support, 'test_can_split.py')
 
+The module with shared fixtures passes.
+    
     >>> run(argv=['nosetests', '-v', test_shared]) #doctest: +REPORT_NDIFF
     setup called
     test_shared.TestMe.test_one ... ok
@@ -140,6 +145,8 @@ all tests pass.
     <BLANKLINE>
     OK
 
+As does the module with no fixture annotations.
+    
     >>> run(argv=['nosetests', '-v', test_not_shared]) #doctest: +REPORT_NDIFF
     setup called
     test_not_shared.TestMe.test_one ... ok
@@ -152,6 +159,8 @@ all tests pass.
     <BLANKLINE>
     OK
 
+And the module that marks its fixtures as re-entrant.
+    
     >>> run(argv=['nosetests', '-v', test_can_split]) #doctest: +REPORT_NDIFF
     setup called
     test_can_split.TestMe.test_one ... ok
@@ -173,12 +182,15 @@ The module marked `_multiprocess_shared_` executes correctly, although as with
 any use of the multiprocess plugin, the order in which the tests execute is
 indeterminate.
 
-    # First we have to reset all of the test modules
+First we have to reset all of the test modules.
+
     >>> import sys
     >>> sys.modules['test_shared'].called[:] = []
     >>> sys.modules['test_not_shared'].called[:] = []
     >>> sys.modules['test_can_split'].called[:] = []
 
+Then we can run the tests again with the multiprocess plugin active.
+    
     >>> run(argv=['nosetests', '-v', '--processes=2', test_shared],
     ...     plugins=[MultiProcess()]) #doctest: +ELLIPSIS
     setup called
@@ -199,6 +211,15 @@ However, the module marked `_multiprocess_can_split_` will fail, since
 the fixtures *are not reentrant*. A module such as this *must not* be
 marked `_multiprocess_can_split_`, or tests will fail in one or more
 runner processes as fixtures are re-executed.
+
+We have to reset all of the test modules again.
+
+    >>> import sys
+    >>> sys.modules['test_shared'].called[:] = []
+    >>> sys.modules['test_not_shared'].called[:] = []
+    >>> sys.modules['test_can_split'].called[:] = []
+
+Then we can run again and see the failures.
 
     >>> run(argv=['nosetests', '-v', '--processes=2', test_can_split],
     ...     plugins=[MultiProcess()]) #doctest: +ELLIPSIS

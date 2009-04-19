@@ -67,8 +67,7 @@ packages are executed.
     ----------------------------------------------------------------------
     Ran 1 test in ...s
     <BLANKLINE>
-    OK
-    
+    OK    
     >>> argv = [__file__, '-v', os.path.join(support, 'package2c')]
     >>> run(argv=argv) # doctest: +REPORT_NDIFF
     package2c setup

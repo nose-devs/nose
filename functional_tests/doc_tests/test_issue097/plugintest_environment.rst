@@ -36,13 +36,11 @@ given by nose.  We need to monkeypatch nose.config.Config, so that we
 can test the cases where that is used as the default.
 
     >>> old_config = nose.config.Config
-
     >>> class PrintArgvConfig(old_config):
     ...
     ...     def configure(self, argv=None, doc=None):
     ...         print "argv:", argv
     ...         old_config.configure(self, argv, doc)
-
     >>> nose.config.Config = PrintArgvConfig
 
 The class under test, PluginTester, is designed to be used by
@@ -57,7 +55,6 @@ subclassing.
     ...
     ...    def makeSuite(self):
     ...        return unittest.TestSuite(tests=[])
-
 
 For the purposes of this test, we need a known ``os.environ`` and
 ``sys.argv``.
@@ -79,7 +76,6 @@ An empty ``env`` is respected...
 
     >>> class EmptyEnvTester(Tester):
     ...    env = {}
-
     >>> tester = EmptyEnvTester()
     >>> tester.setUp()
     argv: ['nosetests', '-v']
@@ -89,7 +85,6 @@ An empty ``env`` is respected...
 
     >>> class NonEmptyEnvTester(Tester):
     ...    env = {"foo": "bar"}
-
     >>> tester = NonEmptyEnvTester()
     >>> tester.setUp()
     argv: ['nosetests', '-v']
@@ -99,7 +94,6 @@ An empty ``env`` is respected...
 ``nose.plugins.plugintest.run()`` should work analogously.
 
     >>> from nose.plugins.plugintest import run_buffered as run
-
     >>> run(suite=unittest.TestSuite(tests=[]),
     ...     plugins=[PrintEnvPlugin()]) # doctest: +REPORT_NDIFF
     argv: ['nosetests', '-v']
@@ -109,7 +103,6 @@ An empty ``env`` is respected...
     Ran 0 tests in ...s
     <BLANKLINE>
     OK
-
     >>> run(env={},
     ...     suite=unittest.TestSuite(tests=[]),
     ...     plugins=[PrintEnvPlugin()]) # doctest: +REPORT_NDIFF
@@ -120,7 +113,6 @@ An empty ``env`` is respected...
     Ran 0 tests in ...s
     <BLANKLINE>
     OK
-
     >>> run(env={"foo": "bar"},
     ...     suite=unittest.TestSuite(tests=[]),
     ...     plugins=[PrintEnvPlugin()]) # doctest: +REPORT_NDIFF
@@ -148,7 +140,6 @@ An explicit argv parameter is honoured:
 An explicit config parameter with an env is honoured:
 
     >>> from nose.plugins.manager import PluginManager
-
     >>> manager = PluginManager(plugins=[PrintEnvPlugin()])
     >>> config = PrintArgvConfig(env={"foo": "bar"}, plugins=manager)
     >>> run(config=config,

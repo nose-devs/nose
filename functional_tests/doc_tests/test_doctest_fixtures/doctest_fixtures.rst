@@ -1,6 +1,29 @@
 Doctest Fixtures
 ----------------
 
+FIXME blah blah FIXME
+
+.. include :: doctest_fixtures_fixtures.py
+   :literal:
+
+FIXME examples
+   
+    >>> something
+    'Something?'
+    
+    >>> 1
+    1
+    >>> count
+    1
+
+This whole file is one doctest test. setup_test doesn't do what you think!
+It exists to give you access to the test case and examples, but it runs
+*once*, before all of them, not before each.
+
+    >>> count
+    1
+
+   
 Fixtures for a doctest file may define any or all of the following methods:
 
 setup/setup_module/setupModule/setUpModule (module)
@@ -33,18 +56,12 @@ Example::
       test.globs['count'] = len(called)
   setup_test.__test__ = False
       
-    >>> 1
-    1
 
 This is another example.
 
-    >>> count
-    1
 
 And this is yet another example.
 
-    >>> count
-    1
 
 teardown_test(test)
 ===================
@@ -64,8 +81,6 @@ while setup, setup_module, etc have access to the *fixture* module.
 globs(globs)
 ============
 
-    >>> something
-    'Something?'
 
 
 

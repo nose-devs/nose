@@ -30,7 +30,7 @@ method.
 
 ..
 
-    When run with a normal plugin manager, the plugin executes.
+When run with a normal plugin manager, the plugin executes.
 
     >>> argv = ['plugintest', '-v', '--with-startplugin', support]
     >>> run(argv=argv, plugins=[StartPlugin()]) # doctest: +REPORT_NDIFF

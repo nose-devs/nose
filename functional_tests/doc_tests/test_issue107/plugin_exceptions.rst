@@ -25,14 +25,12 @@ AttributeError in beforeTest and afterTest.
     ...     def configure(self, options, conf):
     ...         pass
     ...     def options(self, parser, env={}):
-    ...         pass
-
+    ...         pass    
     >>> class FailBeforePlugin(EnabledPlugin):
     ...     name = "fail-before"
     ...	    
     ...     def beforeTest(self, test):
-    ...         raise AttributeError()
-
+    ...         raise AttributeError()    
     >>> class FailAfterPlugin(EnabledPlugin):
     ...     name = "fail-after"
     ...	    
@@ -44,7 +42,6 @@ tests failing.
 
     >>> support = os.path.join(os.path.dirname(__file__), 'support')
     >>> suitepath = os.path.join(support, 'test_spam.py')
-
     >>> run(argv=['nosetests', suitepath],
     ...     plugins=[FailBeforePlugin()])
     EE
@@ -83,7 +80,6 @@ of test execution, the entire test run fails when the plugin is used.
     ...     
     ...     def prepareTestLoader(self, loader):
     ...         raise TypeError("That loader is not my type")
-
     >>> run(argv=['nosetests', suitepath],
     ...     plugins=[FailPreparationPlugin()])
     Traceback (most recent call last):
@@ -110,7 +106,6 @@ caught, but logged as a Failure.
     ...         if False:
     ...             yield None
     ...         raise TypeError("bug in plugin")
-
     >>> run(argv=['nosetests', suitepath],
     ...     plugins=[FailLoadPlugin()])
     ..E
@@ -138,7 +133,6 @@ following test would crash nose:
     ...         if False:
     ...             yield None
     ...         raise TypeError("bug in plugin")
-
     >>> run(argv=['nosetests', suitepath],
     ...     plugins=[FailLoadFromNamePlugin()])
     E

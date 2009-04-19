@@ -17,7 +17,6 @@ Further reading
    doc_tests/test_multiprocess/multiprocess.rst
    doc_tests/test_restricted_plugin_options/restricted_plugin_options.rst
    doc_tests/test_selector_plugin/selector_plugin.rst
-   doc_tests/test_xunit_plugin/test_skips.rst
    doc_tests/test_allmodules/test_allmodules.rst
    more_info
 
