@@ -53,7 +53,7 @@ class Test(unittest.TestCase):
         return "Test(%r)" % self.test
 
     def afterTest(self, result):
-        """Called before test is run (before result.startTest)
+        """Called after test is complete (after result.stopTest)
         """
         try:
             afterTest = result.afterTest
@@ -63,7 +63,7 @@ class Test(unittest.TestCase):
             afterTest(self.test)
 
     def beforeTest(self, result):
-        """Called after test is complete (after result.stopTest)
+        """Called before test is run (before result.startTest)
         """
         try:
             beforeTest = result.beforeTest
