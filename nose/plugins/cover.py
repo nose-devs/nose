@@ -8,24 +8,6 @@ restrict the coverage report to modules from a particular package or packages,
 use the --cover-packages switch or the NOSE_COVER_PACKAGES environment
 variable.
 
-:Options:
-  ``--with-coverage``:
-    Activate code coverage report
-  ``--cover-package=PACKAGE``:
-    Restrict coverage output to selected packages
-  ``--cover-erase``:
-    Erase previously collected coverage statistics before run
-  ``--cover-tests``:
-    Include test modules in coverage report
-  ``--cover-inclusive``:
-    Include all python files under working directory in coverage report.
-    Useful for discovering holes in test coverage if not all
-    files are imported by the test suite
-  ``--cover-html``:
-    Produce HTML coverage information
-  ``--cover-html-dir=DIR``:
-    Produce HTML coverage informaion in dir
-
 .. _coverage: http://www.nedbatchelder.com/code/modules/coverage.html
 """
 import logging
@@ -118,6 +100,7 @@ class Coverage(Plugin):
         parser.add_option('--cover-html-dir', action='store',
                           default=env.get('NOSE_COVER_HTML_DIR', 'cover'),
                           dest='cover_html_dir',
+                          metavar='DIR',
                           help='Produce HTML coverage informaion in dir')
 
     def configure(self, options, config):
