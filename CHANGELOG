@@ -8,6 +8,9 @@
   Fackler for the patch.
 - Added plugin that enables collection of tests in all modules. Thanks to
   Peter Fein for the patch (#137).
+- Added --failed option to testid plugin. When this option is in effect, if
+  any tests failed in the previous test run (so long as testid was active for
+  that test run) only the failed tests will run. 
 - Made it possible to 'yield test' in addition to 'yield test,' from test
   generators. Thanks to Chad Whitacre for the patch (#230).
 - Fixed bug that caused traceback inspector to fail when source code file
@@ -15,6 +18,24 @@
   (#236).
 - Fixed some issues limiting compatibility with IronPython. Thanks to Kevin
   Mitchell for the patch.
+- Added support for module and test case fixtures in doctest files (#60).
+- Added --traverse-namespace commandline option that restores old default
+  behavior of following all package __path__ entries when loading tests from
+  packages. Thanks to Philip Jenvey for the patch (#167).
+- Added --first-package-wins commandline option to better support testing
+  parts of namespace packages. Thanks to Jason Coombs for the bug report
+  (#197).
+- Added versioned nosetests scripts (#123).
+- Fixed bug that would cause context teardown to fail to run in some
+  cases. Thanks to John Shaw for the bug report and patch (#234).
+- Enabled doctest plugin to use variable other than "_" as the default result
+  variable. Thanks to Matt Good for the patch (#163).
+- Fixed bug that would cause unicode output to crash output capture. Thanks to
+  schickb for the bug report (#227).
+- Added setUp and tearDown as valid names for module-level fixtures. Thanks to
+  AgilityNerd for the patch (#211).
+- Fixed bug in list of valid names for package-level fixtures. Thanks to
+  Philip Jenvey for the patch (#237).
   
 0.10.4
 
