@@ -120,9 +120,10 @@ class ContextSuite(LazySuite):
                      'setUpClass', 'setUpAll')
     classTeardown = ('teardown_class', 'teardown_all', 'teardownClass',
                      'teardownAll', 'tearDownClass', 'tearDownAll')
-    moduleSetup = ('setup_module', 'setupModule', 'setUpModule', 'setup')
+    moduleSetup = ('setup_module', 'setupModule', 'setUpModule', 'setup',
+                   'setUp')
     moduleTeardown = ('teardown_module', 'teardownModule', 'tearDownModule',
-                      'teardown')
+                      'teardown', 'tearDown')
     packageSetup = ('setup_package', 'setupPackage', 'setUpPackage')
     packageTeardown = ('teardown_package', 'teardownPackage',
                        'tearDownPackage')
