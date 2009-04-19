@@ -164,7 +164,9 @@ In the latter case the setup and teardown functions will execute once for each
 yielded test.
 
 For generator methods, the setUp and tearDown methods of the class (if any)
-will be run before and after each generated test case.
+will be run before and after each generated test case. The setUp and tearDown
+methods *do not* run before the generator method itself, as this would cause
+setUp to run twice before the first test without an intervening tearDown.
 
 Please note that method generators *are not* supported in `unittest.TestCase`
 subclasses.
