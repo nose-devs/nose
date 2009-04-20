@@ -111,6 +111,7 @@ class TestLoadNamesMode_2(PluginTester, unittest.TestCase):
             if line.startswith('#'):
                 count += 1
         self.assertEqual(count, 1)
+        teardown()
 
 
 class TestWithDoctest_1(PluginTester, unittest.TestCase):
@@ -176,7 +177,8 @@ class TestWithDoctest_2(PluginTester, unittest.TestCase):
             if line.startswith('#'):
                 count += 1
         self.assertEqual(count, 1)
-
+        teardown()
+        
 
 class TestWithDoctestFileTests_1(PluginTester, unittest.TestCase):
     activate = '--with-id'
@@ -243,7 +245,8 @@ class TestWithDoctestFileTests_2(PluginTester, unittest.TestCase):
             if line.startswith('#'):
                 count += 1
         assert count == 1
-
+        teardown()
+        
         
 if __name__ == '__main__':
     import logging

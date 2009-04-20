@@ -154,7 +154,7 @@ class TestNoseTestWrapper(unittest.TestCase):
                                  'stopTest', 'afterTest'])
 
     def test_address(self):
-        from nose.util import absfile
+        from nose.util import absfile, src
         class TC(unittest.TestCase):
             def runTest(self):
                 raise Exception("error")
@@ -178,7 +178,7 @@ class TestNoseTestWrapper(unittest.TestCase):
             def try_something(self, a, b):
                 pass
 
-        fl = absfile(__file__)
+        fl = src(absfile(__file__))
         case = nose.case.Test(TC())
         self.assertEqual(case.address(), (fl, __name__, 'TC.runTest'))
 

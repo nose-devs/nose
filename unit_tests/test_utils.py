@@ -88,7 +88,7 @@ class TestUtils(unittest.TestCase):
 
         foo_mtc = case.MethodTestCase(Foo.bar)
 
-        me = absfile(__file__)
+        me = util.src(absfile(__file__))
         self.assertEqual(test_address(baz),
                          (me, __name__, 'baz'))
         assert test_address(Foo) == (me, __name__, 'Foo')
@@ -96,7 +96,8 @@ class TestUtils(unittest.TestCase):
                                               'Foo.bar')
         assert test_address(f) == (me, __name__, 'Foo')
         assert test_address(f.bar) == (me, __name__, 'Foo.bar')
-        assert test_address(nose) == (absfile(nose.__file__), 'nose', None)
+        assert test_address(nose) == (
+            util.src(absfile(nose.__file__)), 'nose', None)
 
         # test passing the actual test callable, as the
         # missed test plugin must do

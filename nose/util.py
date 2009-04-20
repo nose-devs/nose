@@ -421,7 +421,7 @@ def test_address(test):
     if t == types.ModuleType:
         file = getattr(test, '__file__', None)
         module = getattr(test, '__name__', None)
-        return (file, module, call)
+        return (src(file), module, call)
     if t == types.FunctionType or issubclass(t, type) or t == types.ClassType:
         module = getattr(test, '__module__', None)
         if module is not None:
@@ -430,12 +430,12 @@ def test_address(test):
             if file is not None:
                 file = os.path.abspath(file)
         call = getattr(test, '__name__', None)
-        return (file, module, call)
+        return (src(file), module, call)
     if t == types.InstanceType:
         return test_address(test.__class__)
     if t == types.MethodType:
         cls_adr = test_address(test.im_class)
-        return (cls_adr[0], cls_adr[1],
+        return (src(cls_adr[0]), cls_adr[1],
                 "%s.%s" % (cls_adr[2], test.__name__))
     # handle unittest.TestCase instances
     if isinstance(test, unittest.TestCase):
@@ -449,7 +449,7 @@ def test_address(test):
             method_name = test._TestCase__testMethodName
         except AttributeError:
             method_name = test._testMethodName
-        return (cls_adr[0], cls_adr[1],
+        return (src(cls_adr[0]), cls_adr[1],
                 "%s.%s" % (cls_adr[2], method_name))
     raise TypeError("I don't know what %s is (%s)" % (test, t))
 test_address.__test__ = False # do not collect

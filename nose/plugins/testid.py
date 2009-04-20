@@ -188,17 +188,20 @@ class TestId(Plugin):
                 self.ids = data['ids']
                 self.failed = data['failed']
                 self.source_names = data['source_names']
-                self.id = max(self.ids) + 1
-                # got some ids in names, so make sure that the ids line
-                # up in output with what I said they were last time
-                self.tests = dict(zip(self.ids.values(), self.ids.keys()))
             else:
                 # old ids field
                 self.ids = data
                 self.failed = []
                 self.source_names = names
-            log.debug('Loaded test ids %s/failed %s sources %s from %s',
-                      self.ids, self.failed, self.source_names, self.idfile)
+            if self.ids:
+                self.id = max(self.ids) + 1
+                self.tests = dict(zip(self.ids.values(), self.ids.keys()))
+            else:
+                self.id = 1
+            log.debug(
+                'Loaded test ids %s tests %s failed %s sources %s from %s',
+                self.ids, self.tests, self.failed, self.source_names,
+                self.idfile)
             fh.close()
         except IOError:
             log.debug('IO error reading %s', self.idfile)
@@ -226,23 +229,13 @@ class TestId(Plugin):
             log.debug("old: %s new: %s", old_set, new_set)
             really_new = [s for s in new_source
                           if not s in old_set]
-            missing = old_set - new_set
-            if translated:
-                # add any new names, don't worry about missing in this case
+            if really_new:
+                # remember new sources
                 self.source_names.extend(really_new)
-            else:
-                if missing:
-                    # some sources from old set are not present in new set
-                    # reset the ids file to avoid confusion
-                    log.debug("resetting source names to %s", new_source)
-                    self.source_names = new_source
-                    self.tests = {}
-                    self.ids = {}
-                    self.id = 1
-                else:
-                    # just some new
-                    log.debug("appending new sources %s", really_new)
-                    self.source_names.extend(really_new)
+            if not translated:
+                # new set of source names, no translations
+                # means "run the requested tests"
+                names = new_source                
         else:
             # no new names to translate and add to id set
             self.collecting = False
