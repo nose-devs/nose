@@ -19,7 +19,7 @@ from nose.config import Config
 from nose.importer import Importer, add_path, remove_path
 from nose.selector import defaultSelector, TestAddress
 from nose.util import cmp_lineno, getpackage, isclass, isgenerator, ispackage, \
-    match_last, resolve_name, transplant_func, transplant_class
+    match_last, resolve_name, transplant_func, transplant_class, test_address
 from nose.suite import ContextSuiteFactory, ContextList, LazySuite
 
 
@@ -208,7 +208,9 @@ class TestLoader(unittest.TestLoader):
             raise
         except:
             exc = sys.exc_info()
-            return self.suiteClass([Failure(*exc)])
+            return self.suiteClass(
+                [Failure(exc[0], exc[1], exc[2],
+                         address=(filename, None, None))])
 
     def loadTestsFromGenerator(self, generator, module):
         """Lazy-load tests from a generator function. The generator function
@@ -228,7 +230,8 @@ class TestLoader(unittest.TestLoader):
                 raise
             except:
                 exc = sys.exc_info()
-                yield Failure(*exc)
+                yield Failure(exc[0], exc[1], exc[2],
+                              address=test_address(generator))
         return self.suiteClass(generate, context=generator, can_split=False)
 
     def loadTestsFromGeneratorMethod(self, generator, cls):
@@ -270,7 +273,8 @@ class TestLoader(unittest.TestLoader):
                 raise
             except:
                 exc = sys.exc_info()
-                yield Failure(*exc)
+                yield Failure(exc[0], exc[1], exc[2],
+                              address=test_address(generator))
         return self.suiteClass(generate, context=generator, can_split=False)
 
     def loadTestsFromModule(self, module, path=None, discovered=False):
@@ -380,7 +384,8 @@ class TestLoader(unittest.TestLoader):
                     raise
                 except:
                     exc = sys.exc_info()
-                    return suite([Failure(*exc)])
+                    return suite([Failure(exc[0], exc[1], exc[2],
+                                          address=addr.totuple())])
                 if addr.call:
                     return self.loadTestsFromName(addr.call, module)
                 else:
@@ -396,7 +401,8 @@ class TestLoader(unittest.TestLoader):
                             Failure(ValueError,
                                     "Can't find callable %s in file %s: "
                                     "file is not a python module" %
-                                    (addr.call, path))])
+                                    (addr.call, path),
+                                    address=addr.totuple())])
                     return self.loadTestsFromName(addr.call, module=package)
                 else:
                     if op_isdir(path):
@@ -412,12 +418,14 @@ class TestLoader(unittest.TestLoader):
                         return self.loadTestsFromFile(path)
                     else:
                         return suite([
-                                Failure(OSError, "No such file %s" % path)])
+                                Failure(OSError, "No such file %s" % path,
+                                        address=addr.totuple())])
             else:
                 # just a function? what to do? I think it can only be
                 # handled when module is not None
                 return suite([
-                    Failure(ValueError, "Unresolvable test name %s" % name)])
+                    Failure(ValueError, "Unresolvable test name %s" % name,
+                            address=addr.totuple())])
 
     def loadTestsFromNames(self, names, module=None):
         """Load tests from all names, returning a suite containing all
@@ -474,6 +482,12 @@ class TestLoader(unittest.TestLoader):
         or test suite.
         """
         plug_tests = []
+        try:
+            addr = test_address(obj)
+        except KeyboardInterrupt:
+            raise
+        except:
+            addr = None
         for test in self.config.plugins.makeTest(obj, parent):
             plug_tests.append(test)
         # TODO: is this try/except needed?
@@ -483,7 +497,8 @@ class TestLoader(unittest.TestLoader):
         except (KeyboardInterrupt, SystemExit):
             raise
         except:
-            return Failure(*sys.exc_info())
+            exc = sys.exc_info()
+            return Failure(exc[0], exc[1], exc[2], address=addr)
         
         if isinstance(obj, unittest.TestCase):
             return obj
@@ -513,7 +528,8 @@ class TestLoader(unittest.TestLoader):
                 return FunctionTestCase(obj)
         else:
             return Failure(TypeError,
-                           "Can't make a test from %s" % obj)
+                           "Can't make a test from %s" % obj,
+                           address=addr)
 
     def resolve(self, name, module):
         """Resolve name within module

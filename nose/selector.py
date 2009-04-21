@@ -240,6 +240,9 @@ class TestAddress(object):
             'Final resolution of test name %s: file %s module %s call %s',
             name, self.filename, self.module, self.call)
 
+    def totuple(self):
+        return (self.filename, self.module, self.call)
+        
     def __str__(self):
         return self.name
 
