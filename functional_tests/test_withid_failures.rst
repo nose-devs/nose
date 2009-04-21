@@ -1,8 +1,10 @@
     >>> import os
     >>> from nose.plugins.plugintest import run_buffered as run
     >>> from nose.plugins.testid import TestId
+    >>> import tempfile
+    >>> idfile = tempfile.mktemp()
     >>> support = os.path.join(os.path.dirname(__file__), 'support', 'id_fails')
-    >>> argv = [__file__, '-v', '--with-id', support]
+    >>> argv = [__file__, '-v', '--with-id', '--id-file', idfile, support]
     >>> run(argv=argv, plugins=[TestId()])
     #1 Failure: ImportError (No module named apackagethatdoesntexist) ... ERROR
     #2 test_b.test ... ok
