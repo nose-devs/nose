@@ -174,7 +174,9 @@ class AttributeSelector(Plugin):
                         break
                 elif type(obj_value) in (list, tuple):
                     # value must be found in the list attribute
-                    if not value in [str(x).lower() for x in obj_value]:
+                    
+                    if not str(value).lower() in [str(x).lower()
+                                                  for x in obj_value]:
                         match = False
                         break
                 else:
