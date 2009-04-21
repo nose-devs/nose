@@ -59,6 +59,7 @@ Writing plugins
    plugins/writing
    plugins/interface
    plugins/errorclasses
+   plugins/documenting
    
 Testing plugins
 ---------------
