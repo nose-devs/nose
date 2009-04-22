@@ -21,27 +21,31 @@ A fixtures module may define any or all of the following functions:
 
 * setup([module]) or setup_module([module])
    
-  Called before any tests are run. You may raise SkipTest to skip all tests.
+  Called before the test runs. You may raise SkipTest to skip all tests.
   
 * teardown([module]) or teardown_module([module])
 
-  Called after all tests are run, if setup/setup_module did not raise an
+  Called after the test runs, if setup/setup_module did not raise an
   unhandled exception.
 
 * setup_test(test)
 
-  Called before each test in the file. NOTE: the argument passed is a
+  Called before the test. NOTE: the argument passed is a
   doctest.DocTest instance, *not* a unittest.TestCase.
   
 * teardown_test(test)
  
-  Called after each test in the file whose setup_test call did not raise an
-  unhandled exception. NOTE: the argument passed is a doctest.DocTest
-  instance, *not* a unittest.TestCase
+  Called after the test, if setup_test did not raise an exception. NOTE: the
+  argument passed is a doctest.DocTest instance, *not* a unittest.TestCase
   
 Doctest tests are run like any other test, with the exception that output
 capture does not work, because doctest does its own output capture in the
 course of running a test.
+
+.. note ::
+
+   See :doc:`../doc_tests/test_doctest_fixtures/doctest_fixtures` for
+   additional documentation and examples.
 
 .. _doctest: http://docs.python.org/lib/module-doctest.html
 """
