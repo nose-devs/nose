@@ -26,11 +26,11 @@ COVERAGE_TEMPLATE = '''<html>
 %(header)s
 <style>
 .coverage pre {float: left; margin: 0px 1em; border: none;
-               padding: 0px; line-height: 95%% }
+               padding: 0px; }
 .num pre { margin: 0px }
 .nocov, .nocov pre {background-color: #faa}
 .cov, .cov pre {background-color: #cfc}
-div.coverage div { clear: both; height: 1em}
+div.coverage div { clear: both; height: 1.1em}
 </style>
 <div class="stats">
 %(stats)s
