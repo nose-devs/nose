@@ -19,10 +19,11 @@ import sys, os
 # If your extensions are in another directory, add it here. If the directory
 # is relative to the documentation root, use os.path.abspath to make it
 # absolute, like shown here.
-sys.path.extend([
-        os.path.abspath('.'),
-        os.path.abspath(
-            os.path.join(os.path.dirname(__file__), '..'))])
+
+# need to be brutal because of easy_install's pth hacks:
+sys.path.insert(0, 
+    os.path.join(os.path.dirname(__file__), '..'))
+sys.path.insert(0, os.path.abspath('.'))
 
 # General configuration
 # ---------------------
