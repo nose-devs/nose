@@ -20,20 +20,20 @@ There is also a decorator available for you that will set attributes.
 Here's how to set ``slow=1`` like above with the decorator:
 
     >>> from nose.plugins.attrib import attr
-    >>> @attr('slow')
+    >>> # @attr('slow')
     ... def test_big_download():
     ...     import urllib
     ...     # commence slowness...
-    ... 
+    >>> test_big_download = attr('slow')(test_big_download)
 
 And here's how to set an attribute with a specific value :
 
     >>> from nose.plugins.attrib import attr
-    >>> @attr(speed='slow')
+    >>> # @attr(speed='slow')
     ... def test_big_download():
     ...     import urllib
     ...     # commence slowness...
-    ... 
+    >>> test_big_download = attr(speed='slow')(test_big_download)
 
 
 Simple syntax 

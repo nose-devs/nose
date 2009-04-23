@@ -1,4 +1,5 @@
     >>> import os
+    >>> import sys
     >>> from nose.plugins.plugintest import run_buffered as run
     >>> from nose.plugins.testid import TestId
     >>> import tempfile
@@ -32,6 +33,7 @@
 Addressing failures works (sometimes).
 
     >>> argv.append('1')
+    >>> _junk = sys.modules.pop('test_a', None) # 2.3 requires
     >>> run(argv=argv, plugins=[TestId()])
     #1 Failure: ImportError (No module named apackagethatdoesntexist) ... ERROR
     <BLANKLINE>
