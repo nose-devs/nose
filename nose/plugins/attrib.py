@@ -1,34 +1,81 @@
 """Attribute selector plugin.
 
-Simple syntax (-a, --attr) examples:
+Oftentimes when testing you will want to select tests based on criteria 
+rather then simply by filename.  For example, you might want to run 
+all tests except for the slow ones.  You can do this with the Attribute selector 
+plugin by setting attributes on your test methods.  Here is an example:
+
+    >>> def test_big_download():
+    ...     import urllib
+    ...     # commence slowness...
+    ... 
+    >>> test_big_download.slow = 1
+
+Once you've assigned an attribute ``slow = 1`` you can exclude that 
+test and all other tests having the slow attribute by running ::
+    
+    $ nosetests -a '!slow'
+
+There is also a decorator available for you that will set attributes.  
+Here's how to set ``slow=1`` like above with the decorator:
+
+    >>> from nose.plugins.attrib import attr
+    >>> @attr('slow')
+    ... def test_big_download():
+    ...     import urllib
+    ...     # commence slowness...
+    ... 
+
+And here's how to set an attribute with a specific value :
+
+    >>> from nose.plugins.attrib import attr
+    >>> @attr(speed='slow')
+    ... def test_big_download():
+    ...     import urllib
+    ...     # commence slowness...
+    ... 
+
+
+Simple syntax 
+-------------
+
+Examples of using the ``-a`` and ``--attr`` options:
 
 * ``nosetests -a status=stable``
-   Only test cases with attribute "status" having value "stable"
+   Only runs tests with attribute "status" having value "stable"
 
 * ``nosetests -a priority=2,status=stable``
-   Both attributes must match
+   Runs tests having both attributes and values
 
 * ``nosetests -a priority=2 -a slow``
-   Either attribute must match
+   Runs tests that match either attribute
     
 * ``nosetests -a tags=http``
-   Attribute list "tags" must contain value "http" (see test_foobar()
-   below for definition)
+   If a test's ``tags`` attribute was a list and it contained the value 
+   ``http`` then it would be run
 
 * ``nosetests -a slow``
-   Attribute "slow" must be defined and its value cannot equal to False
+   Runs tests with the attribute ``slow`` if its value does not equal False
    (False, [], "", etc...)
 
 * ``nosetests -a '!slow'``
-   Attribute "slow" must NOT be defined or its value must be equal to False.  
-   Note the quotes around the value -- this may be necessary if your shell 
-   interprets '!' as a special character.
+   Runs tests that do NOT have the attribute ``slow`` or have a ``slow`` attribute 
+   that is equal to False
+   **NOTE**: 
+   if your shell (like bash) interprets '!' as a special character make sure to 
+   put single quotes around it.
 
-Eval expression syntax (-A, --eval-attr) examples:
+Expression Evaluation
+---------------------
+
+Examples using the ``-A`` and ``--eval-attr`` options:
 
 * ``nosetests -A "not slow"``
+  Evaluates the Python expression "not slow" and runs the test if True
 
 * ``nosetests -A "(priority > 5) and not slow"``
+  Evaluates a complex Python expression and runs the test if True
+
 """
 import logging
 import os
@@ -39,6 +86,18 @@ from nose.util import tolist
 
 log = logging.getLogger('nose.plugins.attrib')
 compat_24 = sys.version_info >= (2, 4)
+
+def attr(*args, **kwargs):
+    """Decorator that adds attributes to objects 
+    for use with the Attribute (-a) plugin.
+    """
+    def wrap(func):
+        for name in args:
+            # these are just True flags:
+            setattr(func, name, 1)
+        func.__dict__.update(kwargs)
+        return func
+    return wrap
 
 class ContextHelper:
     """Returns default values for dictionary lookups."""
