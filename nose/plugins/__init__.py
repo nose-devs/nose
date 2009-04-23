@@ -24,22 +24,38 @@ Registering
 
 For nose to find a plugin, it must be part of a package that uses
 setuptools_, and the plugin must be included in the entry points defined
-in the setup.py for the package::
+in the setup.py for the package:
 
-  setup(name='Some plugin',
-        ...
+.. code-block:: python
+
+    setup(name='Some plugin',
+        # ...
         entry_points = {
             'nose.plugins.0.10': [
                 'someplugin = someplugin:SomePlugin'
                 ]
             },
-        ...
+        # ...
         )
 
 Once the package is installed with install or develop, nose will be able
 to load the plugin.
 
 .. _setuptools: http://peak.telecommunity.com/DevCenter/setuptools
+
+Registering a plugin without setuptools
+=======================================
+
+It is currently possible to register a plugin programmatically by 
+creating a custom nose runner like this :
+
+.. code-block:: python
+    
+    import nose
+    from yourplugin import YourPlugin
+    
+    if __name__ == '__main__':
+        nose.main(addplugins=[YourPlugin()])
 
 Defining options
 ================
