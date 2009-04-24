@@ -5,11 +5,13 @@ rather then simply by filename.  For example, you might want to run
 all tests except for the slow ones.  You can do this with the Attribute selector 
 plugin by setting attributes on your test methods.  Here is an example:
 
-    >>> def test_big_download():
-    ...     import urllib
-    ...     # commence slowness...
-    ... 
-    >>> test_big_download.slow = 1
+.. code-block:: python
+
+    def test_big_download():
+        import urllib
+        # commence slowness...
+    
+    test_big_download.slow = 1
 
 Once you've assigned an attribute ``slow = 1`` you can exclude that 
 test and all other tests having the slow attribute by running ::
@@ -19,22 +21,29 @@ test and all other tests having the slow attribute by running ::
 There is also a decorator available for you that will set attributes.  
 Here's how to set ``slow=1`` like above with the decorator:
 
-    >>> from nose.plugins.attrib import attr
-    >>> # @attr('slow')
-    ... def test_big_download():
-    ...     import urllib
-    ...     # commence slowness...
-    >>> test_big_download = attr('slow')(test_big_download)
+.. code-block:: python
+
+    from nose.plugins.attrib import attr
+    @attr('slow')
+    def test_big_download():
+        import urllib
+        # commence slowness...
 
 And here's how to set an attribute with a specific value :
 
-    >>> from nose.plugins.attrib import attr
-    >>> # @attr(speed='slow')
-    ... def test_big_download():
-    ...     import urllib
-    ...     # commence slowness...
-    >>> test_big_download = attr(speed='slow')(test_big_download)
+.. code-block:: python
 
+    from nose.plugins.attrib import attr
+    @attr(speed='slow')
+    def test_big_download():
+        import urllib
+        # commence slowness...
+
+This test could be run with ::
+    
+    $ nosetests -a speed=slow
+
+Below is a reference to the different syntaxes available.
 
 Simple syntax 
 -------------
