@@ -36,34 +36,15 @@ def cd(dir):
 
     
 def main():
-    tag = 'nose_rel_%s' % version
-    svn_tag_url = "%s/%s" % (svn_tags_url, tag)
+    tag = 'release_%s' % version
 
     # create tag
-    runcmd("svn copy %s %s -m 'Tagged release %s'" %
-           (svn_trunk_url, svn_tag_url, version))
+    runcmd("hg tag -m 'Tagged release %s' %s" %
+           (version, tag))
     
-    # check out tag
-    cd('/tmp')
-    runcmd('svn co %s' % svn_tag_url)
-    cd(tag)
-
     # remove dev tag from setup
     runcmd('cp setup.cfg.release setup.cfg')
-    runcmd('svn rm setup.cfg.release --force')
-    runcmd("svn ci -m 'Updated setup.cfg to release status'")
-    runcmd("rm -rf /tmp/%s" % tag)
-    
-    # need to build dist from an *export* to limit files included
-    # (setuptools includes too many files when run under a checkout)
 
-    # export tag
-    cd('/tmp')
-    runcmd('svn export %s %s' % (svn_tag_url, tag))
-    cd(tag)
-
-    # make docs
-    #runcmd('./scripts/mkindex.py')
     cd('doc')
     runcmd('make html')
     cd('..')
@@ -79,27 +60,20 @@ def main():
             'path': up[up.index(':')+1:-1],
             'version':version,
             'upload': up,
-            'upload_docs': "%s/%s" % (up, version) }
-        cv['versionpath'] = "%(path)s/%(version)s" % cv
-        cv['docpath'] = "%(versionpath)s/doc" % cv
+            'upload_docs': os.path.join(up, version) }
+        cv['versionpath'] = os.path.join(cv['path'], cv['version'])
 
         cmd = 'scp -C dist/nose-%(version)s.tar.gz %(upload)s' % cv
         runcmd(cmd)
 
-        cmd = 'ssh %(host)s "mkdir -p %(docpath)s"' % cv
+        cmd = 'ssh %(host)s "mkdir -p %(versionpath)s"' % cv
         runcmd(cmd)
         
-        #cmd = 'scp -C index.html %(upload_docs)s' % cv
-        #runcmd(cmd)
-
-        cmd = ('scp -C doc/*.html doc/*.css doc/*.png '
-               '%(upload_docs)s/doc' % cv)
+        cmd = ('scp -Cr doc/.build/html/* '
+               '%(upload_docs)s/' % cv)
         runcmd(cmd)
 
-        cmd = ('ssh %(host)s '
-               'ln -nfs %(docpath)s %(path)s/doc"; '
-               '"ln -nfs %(path)s/doc/main_index.html %(path)s/index.html'
-                % cv)
+        cmd = ('scp -C doc/index.html %(upload)s' % cv)
         runcmd(cmd)
 
 if __name__ == '__main__':
