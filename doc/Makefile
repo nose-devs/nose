@@ -11,7 +11,7 @@ PAPEROPT_a4     = -D latex_paper_size=a4
 PAPEROPT_letter = -D latex_paper_size=letter
 ALLSPHINXOPTS   = -d .build/doctrees $(PAPEROPT_$(PAPER)) $(SPHINXOPTS) .
 
-.PHONY: help clean html web pickle htmlhelp latex changes linkcheck
+.PHONY: help clean html web pickle htmlhelp latex changes linkcheck man
 
 help:
 	@echo "Please use \`make <target>' where <target> is one of"
@@ -73,3 +73,9 @@ linkcheck:
 	@echo
 	@echo "Link check complete; look for any errors in the above output " \
 	      "or in .build/linkcheck/output.txt."
+
+man:
+	mkdir -p .build/man ./build/doctrees
+	$(SPHINXBUILD) -b manpage $(ALLSPHINXOPTS) .build/man man.rst
+	@echo
+	@echo "Generated man page is in .build/man"

@@ -411,11 +411,13 @@ class Config(object):
             help="Be less verbose")
         parser.add_option(
             "-c", "--config", action="append", dest="files",
+            metavar="FILES",
             help="Load configuration from config file(s). May be specified "
             "multiple times; in that case, all config files will be "
             "loaded and combined")
         parser.add_option(
             "-w", "--where", action="append", dest="where",
+            metavar="WHERE",
             help="Look for tests in this directory. "
             "May be specified multiple times. The first directory passed "
             "will be used as the working directory, in place of the current "
@@ -424,7 +426,7 @@ class Config(object):
             )
         parser.add_option(
             "-m", "--match", "--testmatch", action="store",
-            dest="testMatch",
+            dest="testMatch", metavar="REGEX",
             help="Files, directories, function names, and class names "
             "that match this regular expression are considered tests.  "
             "Default: %s [NOSE_TESTMATCH]" % self.testMatchPat,

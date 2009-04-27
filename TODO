@@ -1,31 +1,5 @@
-FEATURES
-
-* rename Failure and split into subclasses for Import and other, and
-  make it optionally include the name of the file being considered so
-  that Failure test logs can be more informative
-
-* loader
-  - support module.callable in addition to module:callable names
-
-
-BUGS
-
-     
-CHORES
-
-* clean up all scripts
-
-TESTS NEEDED
-
- plugin examples
-   - more!
-
- deprecated at module/module setup
- error at module/module setup
- plugin api -- comprehensive integration test that runs a suite with a plugin 
-   that tracks calls and ensures that all calls are called with proper 
-   arguments
- 
- coverage/doctest -- need tests for coverage/doctest interaction
-
+* man builder using rst2man manpage write
+* register w/sphinx via extension
+* add man section to makefile, makes man.rst, copies from .build/man 
+  to ../nosetests.1
 
