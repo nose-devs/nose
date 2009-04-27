@@ -6,7 +6,7 @@ Get the code
 
 .. code-block:: none
 
-   svn co http://python-nose.googlecode.com/svn/trunk/ nose
+   hg clone FIXME FIXME FIXME
 
 Read
 ----
@@ -16,3 +16,4 @@ Read
 
    plugins
    api
+   contributing
