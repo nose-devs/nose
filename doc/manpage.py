@@ -298,12 +298,10 @@ class Translator(nodes.NodeVisitor):
         self._list_char.pop()
 
     def header(self):
-        print "adding header", self._docinfo
         tmpl = (".TH %(title)s %(manual_section)s"
                 " \"%(date)s\" \"%(version)s\" \"%(manual_group)s\"\n"
                 ".SH NAME\n"
                 "%(title)s \- %(subtitle)s\n")
-        print tmpl % self._docinfo
         return tmpl % self._docinfo
 
     def append_header(self):
@@ -487,7 +485,6 @@ class Translator(nodes.NodeVisitor):
         self.body.append(self.defs['description'][1])
 
     def visit_docinfo(self, node):
-        print "In docinfo!"
         self._in_docinfo = 1
 
     def depart_docinfo(self, node):
@@ -579,7 +576,6 @@ class Translator(nodes.NodeVisitor):
 
     def visit_field_body(self, node):
         #self.body.append(self.comment('visit_field_body'))
-        print "field body", node
         if self._in_docinfo:
             self._docinfo[
                     self._field_name.lower().replace(" ","_")] = node.astext()
@@ -918,11 +914,9 @@ class Translator(nodes.NodeVisitor):
 
     def visit_section(self, node):
         self.section_level += 1
-        print ">", self.section_level
 
     def depart_section(self, node):
-        self.section_level -= 1
-        print "<", self.section_level
+        self.section_level -= 1    
 
     def visit_status(self, node):
         raise NotImplementedError, node.astext()
@@ -945,7 +939,6 @@ class Translator(nodes.NodeVisitor):
         self.unimplemented_visit(node)
 
     def visit_subtitle(self, node):
-        print "subtitle", node
         self._docinfo["subtitle"] = node.astext()
         raise nodes.SkipNode
 
@@ -1022,7 +1015,6 @@ class Translator(nodes.NodeVisitor):
         self.depart_admonition()
 
     def visit_title(self, node):
-        print "title", node, self.section_level
         if isinstance(node.parent, nodes.topic):
             self.body.append(self.comment('topic-title'))
         elif isinstance(node.parent, nodes.sidebar):
