@@ -11,7 +11,7 @@ PAPEROPT_a4     = -D latex_paper_size=a4
 PAPEROPT_letter = -D latex_paper_size=letter
 ALLSPHINXOPTS   = -d .build/doctrees $(PAPEROPT_$(PAPER)) $(SPHINXOPTS) .
 
-.PHONY: help clean html web pickle htmlhelp latex changes linkcheck man
+.PHONY: help clean html web pickle htmlhelp latex changes linkcheck man readme
 
 help:
 	@echo "Please use \`make <target>' where <target> is one of"
@@ -80,3 +80,10 @@ man:
 	cp .build/man/man.man ../nosetests.1
 	@echo
 	@echo "Generated man page copied to ../nosetests.1"
+
+readme:
+	mkdir -p .build/text .build/doctrees$
+	$(SPHINXBUILD) -b text $(ALLSPHINXOPTS) .build/text usage.rst
+	cp .build/text/usage.txt ../README.txt
+	@echo
+	@echo "Updated ../README.txt"

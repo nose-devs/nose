@@ -1,391 +1,460 @@
-nose: a discovery-based unittest extension.
-
-nose provides extended test discovery and running features for
-unittest.
 
 Basic usage
------------
+***********
 
-Use the nosetests script (after installation by setuptools)::
+Use the nosetests script (after installation by setuptools):
 
-  nosetests [options] [(optional) test files or directories]
+   nosetests [options] [(optional) test files or directories]
 
-In addition to passing command-line options, you may also put configuration
-options in a .noserc or nose.cfg file in your home directory. These are
-standard .ini-style config files. Put your nosetests configuration in a
-[nosetests] section, with the -- prefix removed::
+In addition to passing command-line options, you may also put
+configuration options in a .noserc or nose.cfg file in your home
+directory. These are standard .ini-style config files. Put your
+nosetests configuration in a [nosetests] section, with the -- prefix
+removed:
 
-  [nosetests]
-  verbosity=3
-  with-doctest=1
-  
+   [nosetests]
+   verbosity=3
+   with-doctest=1
+
 There are several other ways to use the nose test runner besides the
-`nosetests` script. You may use nose in a test script::
+*nosetests* script. You may use nose in a test script:
 
-  import nose
-  nose.main()
+   import nose
+   nose.main()
 
-If you don't want the test script to exit with 0 on success and 1 on failure
-(like unittest.main), use nose.run() instead::
+If you don't want the test script to exit with 0 on success and 1 on
+failure (like unittest.main), use nose.run() instead:
 
-  import nose
-  result = nose.run()
-  
-`result` will be true if the test run succeeded, or false if any test failed
-or raised an uncaught exception. Lastly, you can run nose.core directly, which
-will run nose.main()::
+   import nose
+   result = nose.run()
 
-  python /path/to/nose/core.py
-  
+*result* will be true if the test run succeeded, or false if any test
+failed or raised an uncaught exception. Lastly, you can run nose.core
+directly, which will run nose.main():
+
+   python /path/to/nose/core.py
+
 Please see the usage message for the nosetests script for information
 about how to control which tests nose runs, which plugins are loaded,
 and the test output.
- 
-Features
---------
 
-Writing tests is easier
-=======================
 
-nose collects tests from `unittest.TestCase` subclasses, of course. But you can
-also write simple test functions, and test classes that are not subclasses of
-`unittest.TestCase`. nose also supplies a number of helpful functions for
-writing timed tests, testing for exceptions, and other common use cases. See
-`Writing tests`_ and `Testing tools`_ for more.
-
-Running tests is easier
-=======================
-
-nose collects tests automatically, as long as you follow some simple
-guidelines for organizing your library and test code. There's no need
-to manually collect test cases into test suites. Running tests is
-responsive, since nose begins running tests as soon as the first test
-module is loaded. See `Finding and running tests`_ for more.
-
-Setting up your test environment is easier
-==========================================
-
-nose supports fixtures at the package, module, class, and test case
-level, so expensive initialization can be done as infrequently as
-possible. See Fixtures_ for more.
-
-Doing what you want to do is easier
-===================================
-
-nose has plugin hooks for loading, running, watching and reporting on
-tests and test runs. If you don't like the default collection scheme,
-or it doesn't suit the layout of your project, or you need reports in
-a format different from the unittest standard, or you need to collect
-some additional information about tests (like code coverage or
-profiling data), you can write a plugin to do so. See `Writing plugins`_
-for more. nose comes with a number of builtin plugins, for
-instance:
-
-* Output capture
-
-  Unless called with the -s (--nocapture) switch, nose will capture stdout
-  during each test run, and print the captured output only for tests that
-  fail or have errors. The captured output is printed immediately
-  following the error or failure output for the test. (Note that output in
-  teardown methods is captured, but can't be output with failing tests,
-  because teardown has not yet run at the time of the failure.)
-
-* Assert introspection
-
-  When run with the -d (--detailed-errors) switch, nose will try to output
-  additional information about the assert expression that failed with each
-  failing test. Currently, this means that names in the assert expression
-  will be expanded into any values found for them in the locals or globals
-  in the frame in which the expression executed.
-  
-  In other words if you have a test like::
-    
-    def test_integers():
-        a = 2
-        assert a == 4, "assert 2 is 4"
-  
-  You will get output like::
-  
-    File "/path/to/file.py", line XX, in test_integers:
-          assert a == 4, "assert 2 is 4"
-    AssertionError: assert 2 is 4
-      >>  assert 2 == 4, "assert 2 is 4"
-  
-  Please note that dotted names are not expanded, and callables are not called
-  in the expansion.
-    
-Setuptools integration
-======================
-
-nose may be used with the setuptools_ test command. Simply specify
-nose.collector as the test suite in your setup file::
-
-  setup (
-      # ...
-      test_suite = 'nose.collector'
-  )
-
-Then to find and run tests, you can run::
-
-  python setup.py test
-
-When running under setuptools, you can configure nose settings via the
-environment variables detailed in the nosetests script usage message,
-or the setup.cfg or ~/.noserc or ~/.nose.cfg config files.
-
-Please note that when run under the setuptools test command, some plugins will
-not be available, including the builtin coverage, and profiler plugins.
- 
-nose also includes its own setuptools command, ``nosetests``, that
-provides support for all plugins and command line options. See
-nose.commands_ for more information about the ``nosetests`` command.
-
-.. _setuptools: http://peak.telecommunity.com/DevCenter/setuptools
-.. _nose.commands: #commands
-
-Writing tests
--------------
-
-As with py.test_, nose tests need not be subclasses of
-`unittest.TestCase`. Any function or class that matches the configured
-testMatch regular expression (`(?:^|[\b_\.-])[Tt]est)` by default --
-that is, has test or Test at a word boundary or following a - or _)
-and lives in a module that also matches that expression will be run as
-a test. For the sake of compatibility with legacy unittest test cases,
-nose will also load tests from `unittest.TestCase` subclasses just
-like unittest does. Like py.test, functional tests will be run in the
-order in which they appear in the module file. TestCase derived tests
-and other test classes are run in alphabetical order.
-
-.. _py.test: http://codespeak.net/py/current/doc/test.html
-
-Fixtures
-========
-
-nose supports fixtures (setup and teardown methods) at the package,
-module, class, and test level. As with py.test or unittest fixtures,
-setup always runs before any test (or collection of tests for test
-packages and modules); teardown runs if setup has completed
-successfully, whether or not the test or tests pass. For more detail
-on fixtures at each level, see below.
-
-Test packages
-=============
-
-nose allows tests to be grouped into test packages. This allows
-package-level setup; for instance, if you need to create a test database
-or other data fixture for your tests, you may create it in package setup
-and remove it in package teardown once per test run, rather than having to
-create and tear it down once per test module or test case.
-
-To create package-level setup and teardown methods, define setup and/or
-teardown functions in the `__init__.py` of a test package. Setup methods may
-be named `setup`, `setup_package`, `setUp`, or `setUpPackage`; teardown may
-be named `teardown`, `teardown_package`, `tearDown` or `tearDownPackage`.
-Execution of tests in a test package begins as soon as the first test
-module is loaded from the test package.
-
-Test modules
-============
-
-A test module is a python module that matches the testMatch regular
-expression. Test modules offer module-level setup and teardown; define the
-method `setup`, `setup_module`, `setUp` or `setUpModule` for setup,
-`teardown`, `teardown_module`, or `tearDownModule` for teardown. Execution
-of tests in a test module begins after all tests are collected.
-
-Test classes
-============
-
-A test class is a class defined in a test module that is either a subclass of
-`unittest.TestCase`, or matches testMatch. Test classes that don't descend
-from `unittest.TestCase` are run in the same way as those that do: methods in
-the class that match testMatch are discovered, and a test case constructed to
-run each with a fresh instance of the test class. Like `unittest.TestCase`
-subclasses, other test classes may define setUp and tearDown methods that will
-be run before and after each test method. Test classes that do not descend
-from `unittest.TestCase` may also include generator methods, and class-level
-fixtures. Class level fixtures may be named `setup_class`, `setupClass`,
-`setUpClass`, `setupAll` or `setUpAll` for set up and `teardown_class`,
-`teardownClass`, `tearDownClass`, `teardownAll` or `tearDownAll` for teardown
-and must be class methods.
-
-Test functions
+Extended usage
 ==============
 
-Any function in a test module that matches testMatch will be wrapped in a
-`FunctionTestCase` and run as a test. The simplest possible failing test is
-therefore::
+nose collects tests automatically from python source files,
+directories and packages found in its working directory (which
+defaults to the current working directory). Any python source file,
+directory or package that matches the testMatch regular expression (by
+default: *(?:^|[b_.-])[Tt]est)* will be collected as a test (or source
+for collection of tests). In addition, all other packages found in the
+working directory will be examined for python source files or
+directories that match testMatch. Package discovery descends all the
+way down the tree, so package.tests and package.sub.tests and
+package.sub.sub2.tests will all be collected.
 
-  def test():
-      assert False
+Within a test directory or package, any python source file matching
+testMatch will be examined for test cases. Within a test module,
+functions and classes whose names match testMatch and TestCase
+subclasses with any name will be loaded and executed as tests. Tests
+may use the assert keyword or raise AssertionErrors to indicate test
+failure. TestCase subclasses may do the same or use the various
+TestCase methods available.
 
-And the simplest passing test::
 
-  def test():
-      pass
+Selecting Tests
+---------------
 
-Test functions may define setup and/or teardown attributes, which will be
-run before and after the test function, respectively. A convenient way to
-do this, especially when several test functions in the same module need
-the same setup, is to use the provided with_setup decorator::
+To specify which tests to run, pass test names on the command line:
 
-  def setup_func():
-      # ...
+   nosetests only_test_this.py
 
-  def teardown_func():
-      # ...
+Test names specified may be file or module names, and may optionally
+indicate the test case to run by separating the module or file name
+from the test case name with a colon. Filenames may be relative or
+absolute. Examples:
 
-  @with_setup(setup_func, teardown_func)
-  def test():
-      # ...
+   nosetests test.module
+   nosetests another.test:TestCase.test_method
+   nosetests a.test:TestCase
+   nosetests /path/to/test/file.py:test_function
 
-For python 2.3 or earlier, add the attributes by calling the decorator
-function like so::
+You may also change the working directory where nose looks for tests,
+use the -w switch:
 
-  def test():
-      # ...
-  test = with_setup(setup_func, teardown_func)(test)
+   nosetests -w /path/to/tests
 
-or by direct assignment::
+Note however that support for multiple -w arguments is deprecated in
+this version and will be removed in a future release, since as of nose
+0.10 you can get the same behavior by specifying the target
+directories *without* the -w switch:
 
-  test.setup = setup_func
-  test.teardown = teardown_func
-  
-Please note that `with_setup` is useful *only* for test functions, not
-for test methods in `unittest.TestCase` subclasses or other test
-classes. For those cases, define `setUp` and `tearDown` methods in the
-class.
-  
-Test generators
-===============
+   nosetests /path/to/tests /another/path/to/tests
 
-nose supports test functions and methods that are generators. A simple
-example from nose's selftest suite is probably the best explanation::
+Further customization of test selection and loading is possible
+through the use of plugins.
 
-  def test_evens():
-      for i in range(0, 5):
-          yield check_even, i, i*3
+Test result output is identical to that of unittest, except for the
+additional features (error classes, and plugin-supplied features such
+as output capture and assert introspection) detailed in the options
+below.
 
-  def check_even(n, nn):
-      assert n % 2 == 0 or nn % 2 == 0
 
-This will result in 4 tests. nose will iterate the generator, creating a
-function test case wrapper for each tuple it yields. As in the example, test
-generators must yield tuples, the first element of which must be a callable
-and the remaining elements the arguments to be passed to the callable.
-
-By default, the test name output for a generated test in verbose mode
-will be the name of the generator function or method, followed by the
-args passed to the yielded callable. If you want to show a different test
-name, set the ``description`` attribute of the yielded callable.
-
-Setup and teardown functions may be used with test generators. The setup and
-teardown attributes must be attached to the generator function::
-
-  @with_setup(setup_func, teardown_func)
-  def test_generator():
-      ...
-      yield func, arg, arg ...
-
-The setup and teardown functions will be executed for each test that the
-generator returns.
-
-For generator methods, the setUp and tearDown methods of the class (if any)
-will be run before and after each generated test case.
-
-Please note that method generators *are not* supported in `unittest.TestCase`
-subclasses.
-
-Finding and running tests
--------------------------
-
-nose, by default, follows a few simple rules for test discovery.
-
-* If it looks like a test, it's a test. Names of directories, modules,
-  classes and functions are compared against the testMatch regular
-  expression, and those that match are considered tests. Any class that is a
-  `unittest.TestCase` subclass is also collected, so long as it is inside of a
-  module that looks like a test.
-   
-* Directories that don't look like tests and aren't packages are not
-  inspected.
-
-* Packages are always inspected, but they are only collected if they look
-  like tests. This means that you can include your tests inside of your
-  packages (somepackage/tests) and nose will collect the tests without
-  running package code inappropriately.
-
-* When a project appears to have library and test code organized into
-  separate directories, library directories are examined first.
-
-* When nose imports a module, it adds that module's directory to sys.path;
-  when the module is inside of a package, like package.module, it will be
-  loaded as package.module and the directory of *package* will be added to
-  sys.path.
-
-* If an object defines a __test__ attribute that does not evaluate to
-  True, that object will not be collected, nor will any objects it
-  contains.
-
-Be aware that plugins and command line options can change any of those rules.
-   
-Testing tools
+Configuration
 -------------
 
-The nose.tools module provides a number of testing aids that you may
-find useful, including decorators for restricting test execution time
-and testing for exceptions, and all of the same assertX methods found
-in `unittest.TestCase` (only spelled in pep08 fashion, so `assert_equal`
-rather than `assertEqual`). See `nose.tools`_ for a complete list.
+In addition to passing command-line options, you may also put
+configuration options in a .noserc or nose.cfg file in your home
+directory. These are standard .ini-style config files. Put your
+nosetests configuration in a [nosetests] section. Options are the same
+as on the command line, with the -- prefix removed. For options that
+are simple switches, you must supply a value:
 
-.. _nose.tools: http://code.google.com/p/python-nose/wiki/TestingTools
+   [nosetests]
+   verbosity=3
+   with-doctest=1
 
-About the name
---------------
+All configuration files that are found will be loaded and their
+options combined.
 
-* nose is the least silly short synonym for discover in the dictionary.com
-  thesaurus that does not contain the word 'spy'.
-* Pythons have noses
-* The nose knows where to find your tests
-* Nose Obviates Suite Employment
 
-Contact the author
-------------------
+Using Plugins
+-------------
 
-You can email me at jpellerin+nose at gmail dot com.
+There are numerous nose plugins available via easy_install and
+elsewhere. To use a plugin, just install it. The plugin will add
+command line options to nosetests. To verify that the plugin is
+installed, run:
 
-To report bugs, ask questions, or request features, please use the *issues*
-tab at the Google code site: http://code.google.com/p/python-nose/issues/list.
-Patches are welcome!
+   nosetests --plugins
 
-Similar test runners
---------------------
+You can add -v or -vv to that command to show more information about
+each plugin.
 
-nose was inspired mainly by py.test_, which is a great test runner, but
-formerly was not all that easy to install, and is not based on unittest.
+If you are running nose.main() or nose.run() from a script, you can
+specify a list of plugins to use by passing a list of plugins with the
+plugins keyword argument.
 
-Test suites written for use with nose should work equally well with py.test,
-and vice versa, except for the differences in output capture and command line
-arguments for the respective tools.
 
-.. _py.test: http://codespeak.net/py/current/doc/test.html
+0.9 plugins
+-----------
 
-License and copyright
----------------------
+nose 0.10 can use SOME plugins that were written for nose 0.9. The
+default plugin manager inserts a compatibility wrapper around 0.9
+plugins that adapts the changed plugin api calls. However, plugins
+that access nose internals are likely to fail, especially if they
+attempt to access test case or test suite classes. For example,
+plugins that try to determine if a test passed to startTest is an
+individual test or a suite will fail, partly because suites are no
+longer passed to startTest and partly because it's likely that the
+plugin is trying to find out if the test is an instance of a class
+that no longer exists.
 
-nose is copyright Jason Pellerin 2005-2008
 
-This program is free software; you can redistribute it and/or modify it
-under the terms of the GNU Lesser General Public License as published by
-the Free Software Foundation; either version 2 of the License, or (at your
-option) any later version.
+Options
+-------
 
-This program is distributed in the hope that it will be useful, but
-WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
-or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
-License for more details.
+-V, --version
 
-You should have received a copy of the GNU Lesser General Public License
-along with this program; if not, write to the Free Software Foundation,
-Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
+   Output nose version and exit
+
+-p, --plugins
+
+   Output list of available plugins and exit. Combine with higher
+   verbosity for greater detail
+
+-v=DEFAULT, --verbose=DEFAULT
+
+   Be more verbose. [NOSE_VERBOSE]
+
+--verbosity=VERBOSITY
+
+   Set verbosity; --verbosity=2 is the same as -v
+
+-q=DEFAULT, --quiet=DEFAULT
+
+   Be less verbose
+
+-c=FILES, --config=FILES
+
+   Load configuration from config file(s). May be specified multiple
+   times; in that case, all config files will be loaded and combined
+
+-w=WHERE, --where=WHERE
+
+   Look for tests in this directory. May be specified multiple times.
+   The first directory passed will be used as the working directory,
+   in place of the current working directory, which is the default.
+   Others will be added to the list of tests to execute. [NOSE_WHERE]
+
+-m=REGEX, --match=REGEX, --testmatch=REGEX
+
+   Files, directories, function names, and class names that match this
+   regular expression are considered tests.  Default:
+   (?:^|[b_./-])[Tt]est [NOSE_TESTMATCH]
+
+--tests=NAMES
+
+   Run these tests (comma-separated list). This argument is useful
+   mainly from configuration files; on the command line, just pass the
+   tests to run as additional arguments with no switch.
+
+-l=DEFAULT, --debug=DEFAULT
+
+   Activate debug logging for one or more systems. Available debug
+   loggers: nose, nose.importer, nose.inspector, nose.plugins,
+   nose.result and nose.selector. Separate multiple names with a
+   comma.
+
+--debug-log=FILE
+
+   Log debug messages to this file (default: sys.stderr)
+
+--logging-config=FILE, --log-config=FILE
+
+   Load logging config from this file -- bypasses all other logging
+   config settings.
+
+-e=REGEX, --exclude=REGEX
+
+   Don't run tests that match regular expression [NOSE_EXCLUDE]
+
+-i=REGEX, --include=REGEX
+
+   This regular expression will be applied to files, directories,
+   function names, and class names for a chance to include additional
+   tests that do not match TESTMATCH.  Specify this option multiple
+   times to add more regular expressions [NOSE_INCLUDE]
+
+-x, --stop
+
+   Stop running tests after the first error or failure
+
+-P, --no-path-adjustment
+
+   Don't make any changes to sys.path when loading tests [NOSE_NOPATH]
+
+--exe
+
+   Look for tests in python modules that are executable. Normal
+   behavior is to exclude executable modules, since they may not be
+   import-safe [NOSE_INCLUDE_EXE]
+
+--noexe
+
+   DO NOT look for tests in python modules that are executable. (The
+   default on the windows platform is to do so.)
+
+--traverse-namespace
+
+   Traverse through all path entries of a namespace package
+
+--first-package-wins=DEFAULT, --first-pkg-wins=DEFAULT, --1st-pkg-wins=DEFAULT
+
+   nose's importer will normally evict a package from sys.modules if
+   it sees a package with the same name in a different location. Set
+   this option to disable that behavior.
+
+-a=ATTR, --attr=ATTR
+
+   Run only tests that have attributes specified by ATTR [NOSE_ATTR]
+
+-A=EXPR, --eval-attr=EXPR
+
+   Run only tests for whose attributes the Python expression EXPR
+   evaluates to True [NOSE_EVAL_ATTR]
+
+-s, --nocapture
+
+   Don't capture stdout (any stdout output will be printed
+   immediately) [NOSE_NOCAPTURE]
+
+--nologcapture
+
+   Disable logging capture plugin. Logging configurtion will be left
+   intact. [NOSE_NOLOGCAPTURE]
+
+--logging-format=FORMAT
+
+   Specify custom format to print statements. Uses the same format as
+   used by standard logging handlers. [NOSE_LOGFORMAT]
+
+--logging-datefmt=FORMAT
+
+   Specify custom date/time format to print statements. Uses the same
+   format as used by standard logging handlers. [NOSE_LOGDATEFMT]
+
+--logging-filter=FILTER
+
+   Specify which statements to filter in/out. By default everything is
+   captured. If the output is too verbose, use this option to filter
+   out needless output Example: filter=foo will capture statements
+   issued ONLY to  foo or foo.what.ever.sub but not foobar or other
+   logger. Specify multiple loggers with comma: filter=foo,bar,baz.
+   [NOSE_LOGFILTER]
+
+--logging-clear-handlers
+
+   Clear all other logging handlers
+
+--with-coverage
+
+   Enable plugin Coverage:  If you have Ned Batchelder's coverage
+   module installed, you may activate a coverage report. The coverage
+   report will cover any python source module imported after the start
+   of the test run, excluding modules that match testMatch. If you
+   want to include those modules too, use the --cover-tests switch, or
+   set the NOSE_COVER_TESTS environment variable to a true value. To
+   restrict the coverage report to modules from a particular package
+   or packages, use the --cover-packages switch or the
+   NOSE_COVER_PACKAGES environment variable.  [NOSE_WITH_COVERAGE]
+
+--cover-package=PACKAGE
+
+   Restrict coverage output to selected packages [NOSE_COVER_PACKAGE]
+
+--cover-erase
+
+   Erase previously collected coverage statistics before run
+
+--cover-tests
+
+   Include test modules in coverage report [NOSE_COVER_TESTS]
+
+--cover-inclusive
+
+   Include all python files under working directory in coverage
+   report.  Useful for discovering holes in test coverage if not all
+   files are imported by the test suite. [NOSE_COVER_INCLUSIVE]
+
+--cover-html
+
+   Produce HTML coverage information
+
+--cover-html-dir=DIR
+
+   Produce HTML coverage informaion in dir
+
+--pdb
+
+   Drop into debugger on errors
+
+--pdb-failures
+
+   Drop into debugger on failures
+
+--no-deprecated
+
+   Disable special handling of DeprecatedTest exceptions.
+
+--with-doctest
+
+   Enable plugin Doctest:  Activate doctest plugin to find and run
+   doctests in non-test modules.  [NOSE_WITH_DOCTEST]
+
+--doctest-tests
+
+   Also look for doctests in test modules. Note that classes, methods
+   and functions should have either doctests or non-doctest tests, not
+   both. [NOSE_DOCTEST_TESTS]
+
+--doctest-extension=EXT
+
+   Also look for doctests in files with this extension
+   [NOSE_DOCTEST_EXTENSION]
+
+--doctest-result-variable=VAR
+
+   Change the variable name set to the result of the last interpreter
+   command from the default '_'. Can be used to avoid conflicts with
+   the _() function used for text translation.
+   [NOSE_DOCTEST_RESULT_VAR]
+
+--doctest-fixtures=SUFFIX
+
+   Find fixtures for a doctest file in module with this name appended
+   to the base name of the doctest file
+
+--with-isolation
+
+   Enable plugin IsolationPlugin:  Activate the isolation plugin to
+   isolate changes to external modules to a single test module or
+   package. The isolation plugin resets the contents of sys.modules
+   after each test module or package runs to its state before the
+   test. PLEASE NOTE that this plugin should not be used with the
+   coverage plugin in any other case where module reloading may
+   produce undesirable side-effects.  [NOSE_WITH_ISOLATION]
+
+-d, --detailed-errors, --failure-detail
+
+   Add detail to error output by attempting to evaluate failed asserts
+   [NOSE_DETAILED_ERRORS]
+
+--with-profile
+
+   Enable plugin Profile:  Use this plugin to run tests using the
+   hotshot profiler.   [NOSE_WITH_PROFILE]
+
+--profile-sort=SORT
+
+   Set sort order for profiler output
+
+--profile-stats-file=FILE
+
+   Profiler stats file; default is a new temp file on each run
+
+--profile-restrict=RESTRICT
+
+   Restrict profiler output. See help for pstats.Stats for details
+
+--no-skip
+
+   Disable special handling of SkipTest exceptions.
+
+--with-id
+
+   Enable plugin TestId:  Activate to add a test id (like #1) to each
+   test name output. After you've run once to generate test ids, you
+   can re-run individual tests by activating the plugin and passing
+   the ids (with or without the # prefix) instead of test names.
+   Activate with --failed to rerun failing tests only.  [NOSE_WITH_ID]
+
+--id-file=FILE
+
+   Store test ids found in test runs in this file. Default is the file
+   .noseids in the working directory.
+
+--failed
+
+   Run the tests that failed in the last test run.
+
+--processes=NUM
+
+   Spread test run among this many processes. Set a number equal to
+   the number of processors or cores in your machine for best results.
+   [NOSE_PROCESSES]
+
+--process-timeout=SECONDS
+
+   Set timeout for return of results from each test runner process.
+   [NOSE_PROCESS_TIMEOUT]
+
+--with-xunit
+
+   Enable plugin Xunit: This plugin provides test results in the
+   standard XUnit XML format. [NOSE_WITH_XUNIT]
+
+--xunit-file=FILE
+
+   Path to xml file to store the xunit report in. Default is
+   nosetests.xml in the working directory [NOSE_XUNIT_FILE]
+
+--all-modules
+
+   Enable plugin AllModules: Collect tests from all python modules.
+   [NOSE_ALL_MODULES]
+
+--collect-only
+
+   Enable collect-only:  Collect and output test names only, don't run
+   any tests.  [COLLECT_ONLY]
