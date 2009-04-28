@@ -214,6 +214,7 @@ class TestAttribPlugin(unittest.TestCase):
 
         expect = [(('-a', '--attr'),
                    {'dest': 'attr', 'action': 'append', 'default': None,
+                    'metavar': 'ATTR',
                     'help': 'Run only tests that have attributes '
                     'specified by ATTR [NOSE_ATTR]'})]
 
