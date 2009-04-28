@@ -35,7 +35,7 @@ class Plugin(object):
             self.name = self.__class__.__name__.lower()
         if self.enableOpt is None:
             self.enableOpt = "enable_plugin_%s" % self.name.replace('-', '_')
-            
+
     def addOptions(self, parser, env=None):
         """Add command-line options for this plugin.
 
@@ -43,7 +43,7 @@ class Plugin(object):
         plugin.
         """
         self.add_options(parser, env)
-        
+
     def add_options(self, parser, env=None):
         """Non-camel-case version of func name for backwards compatibility.
         """
@@ -58,7 +58,7 @@ class Plugin(object):
                  "be disabled" % (self, e), RuntimeWarning)
             self.enabled = False
             self.can_configure = False
-            
+
     def options(self, parser, env):
         """New plugin API: override to just set options. Implement
         this method instead of addOptions or add_options for normal
@@ -148,7 +148,7 @@ class IPluginInterface(object):
             sys.exc_info() tuple
           capt : string
             Captured output, if any
-            
+
             .. Note:: DEPRECATED: this parameter will not be passed
         """
         pass
@@ -169,7 +169,7 @@ class IPluginInterface(object):
             .. Note:: DEPRECATED: this parameter will not be passed
           tb_info : string
             Introspected traceback info, if any
-           
+
             .. Note:: DEPRECATED: this parameter will not be passed
         """
         pass
@@ -198,7 +198,7 @@ class IPluginInterface(object):
           capt : string
             Captured output, if any.
 
-            .. Note:: DEPRECATED: this parameter will not be passed            
+            .. Note:: DEPRECATED: this parameter will not be passed
         """
         pass
     addSuccess.changed = True
@@ -233,7 +233,7 @@ class IPluginInterface(object):
             The name of the module
         """
         pass
-    afterImport._new = True        
+    afterImport._new = True
 
     def afterTest(self, test):
         """Called after the test has been run and the result recorded
@@ -284,17 +284,17 @@ class IPluginInterface(object):
             The name of the module found in file
         """
     beforeImport._new = True
-    
+
     def beforeTest(self, test):
         """Called before the test is run (before startTest).
-        
+
         :Parameters:
           test : :class:`nose.case.Test`
             the test case
-        """        
+        """
         pass
     beforeTest._new = True
-            
+ 
     def begin(self):
         """Called before any tests are collected or run. Use this to
         perform any setup needed before testing begins.
@@ -340,7 +340,7 @@ class IPluginInterface(object):
     def formatError(self, test, err):
         """Called in result.addError, before plugin.addError. If you
         want to replace or modify the error tuple, return a new error
-        tuple. 
+        tuple.
 
         :Parameters:
           test : :class:`nose.case.Test`
@@ -430,7 +430,7 @@ class IPluginInterface(object):
         """
         pass
     loadTestsFromModule.generative = True
-    
+
     def loadTestsFromName(self, name, module=None, importPath=None):
         """Return tests in this file or module. Return None if you are not able
         to load any tests, or an iterable if you are. May be a
@@ -446,7 +446,7 @@ class IPluginInterface(object):
             Module from which the name is to be loaded
           importPath :
             Path from which file (must be a python module) was found
-            
+
             .. Note:: DEPRECATED: this argument will NOT be passed.
         """
         pass
@@ -477,7 +477,7 @@ class IPluginInterface(object):
 
         .. Note:: This method replaces loadTestsFromPath from the 0.9
                   API.
-        
+
         :Parameters:
            filename : string
              The full path to the file or directory.
@@ -492,7 +492,7 @@ class IPluginInterface(object):
         """
         pass
     loadTestsFromPath.deprecated = True
-    
+
     def loadTestsFromTestCase(self, cls):
         """Return tests in this test case class. Return None if you are
         not able to load any tests, or an iterable if you are. May be a
@@ -545,7 +545,7 @@ class IPluginInterface(object):
         :Parameters:
           parser : :class:`ConfigParser`
             options parserinstance
-            
+
           env : dict
             environment, defaults to os.environ
         """

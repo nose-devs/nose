@@ -85,18 +85,21 @@ class LogCapture(Plugin):
         parser.add_option(
             "--logging-format", action="store", dest="logcapture_format",
             default=env.get('NOSE_LOGFORMAT') or self.logformat,
+            metavar="FORMAT",
             help="Specify custom format to print statements. "
                  "Uses the same format as used by standard logging handlers."
                  " [NOSE_LOGFORMAT]")
         parser.add_option(
             "--logging-datefmt", action="store", dest="logcapture_datefmt",
             default=env.get('NOSE_LOGDATEFMT') or self.logdatefmt,
+            metavar="FORMAT",
             help="Specify custom date/time format to print statements. "
                  "Uses the same format as used by standard logging handlers."
                  " [NOSE_LOGDATEFMT]")
         parser.add_option(
             "--logging-filter", action="store", dest="logcapture_filters",
             default=env.get('NOSE_LOGFILTER'),
+            metavar="FILTER",
             help="Specify which statements to filter in/out. "
                  "By default everything is captured. If the output is too"
                  " verbose,\nuse this option to filter out needless output\n"

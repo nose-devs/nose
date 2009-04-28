@@ -146,6 +146,7 @@ class MultiProcess(Plugin):
         parser.add_option("--processes", action="store",
                           default=env.get('NOSE_PROCESSES', 0),
                           dest="multiprocess_workers",
+                          metavar="NUM",
                           help="Spread test run among this many processes. "
                           "Set a number equal to the number of processors "
                           "or cores in your machine for best results. "
@@ -153,6 +154,7 @@ class MultiProcess(Plugin):
         parser.add_option("--process-timeout", action="store",
                           default=env.get('NOSE_PROCESS_TIMEOUT', 10),
                           dest="multiprocess_timeout",
+                          metavar="SECONDS",
                           help="Set timeout for return of results from each "
                           "test runner process. [NOSE_PROCESS_TIMEOUT]")
 

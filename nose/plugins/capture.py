@@ -30,7 +30,7 @@ class Capture(Plugin):
     env_opt = 'NOSE_NOCAPTURE'
     name = 'capture'
     score = 500
-    
+
     def __init__(self):
         self.stdout = []
         self._buf = None
@@ -56,7 +56,7 @@ class Capture(Plugin):
         """
         self.end()
         self._buf = None
-        
+
     def begin(self):
         """Replace sys.stdout with capture buffer.
         """
@@ -66,7 +66,7 @@ class Capture(Plugin):
         """Flush capture buffer.
         """
         self.start()
-        
+
     def formatError(self, test, err):
         """Add captured output to error report.
         """
@@ -76,7 +76,7 @@ class Capture(Plugin):
             # Don't return None as that will prevent other
             # formatters from formatting and remove earlier formatters
             # formats, instead return the err we got
-            return err 
+            return err
         ec, ev, tb = err
         return (ec, self.addCaptureToErr(ev, output), tb)
 

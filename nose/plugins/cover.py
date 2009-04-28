@@ -72,6 +72,7 @@ class Coverage(Plugin):
         Plugin.options(self, parser, env)
         parser.add_option("--cover-package", action="append",
                           default=env.get('NOSE_COVER_PACKAGE'),
+                          metavar="PACKAGE",
                           dest="cover_packages",
                           help="Restrict coverage output to selected packages "
                           "[NOSE_COVER_PACKAGE]")

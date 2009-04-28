@@ -19,11 +19,11 @@ log = logging.getLogger(__name__)
 
 class CollectOnly(Plugin):
     """
-    Collect and output test names only, don't run any tests. 
+    Collect and output test names only, don't run any tests.
     """
     name = "collect-only"
     enableOpt = 'collect_only'
-    
+
     def options(self, parser, env):
         """Register commandline options.
         """
@@ -40,7 +40,7 @@ class CollectOnly(Plugin):
         # Disable context awareness
         log.debug("Preparing test loader")
         loader.suiteClass = TestSuiteFactory(self.conf)
-        
+
     def prepareTestCase(self, test):
         """Replace actual test with dummy that always passes.
         """

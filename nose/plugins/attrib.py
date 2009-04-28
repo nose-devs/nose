@@ -1,24 +1,25 @@
 """Attribute selector plugin.
 
-Oftentimes when testing you will want to select tests based on criteria 
-rather then simply by filename.  For example, you might want to run 
-all tests except for the slow ones.  You can do this with the Attribute selector 
-plugin by setting attributes on your test methods.  Here is an example:
+Oftentimes when testing you will want to select tests based on
+criteria rather then simply by filename.  For example, you might want
+to run all tests except for the slow ones.  You can do this with the
+Attribute selector plugin by setting attributes on your test methods.
+Here is an example:
 
 .. code-block:: python
 
     def test_big_download():
         import urllib
         # commence slowness...
-    
+
     test_big_download.slow = 1
 
-Once you've assigned an attribute ``slow = 1`` you can exclude that 
+Once you've assigned an attribute ``slow = 1`` you can exclude that
 test and all other tests having the slow attribute by running ::
-    
+
     $ nosetests -a '!slow'
 
-There is also a decorator available for you that will set attributes.  
+There is also a decorator available for you that will set attributes.
 Here's how to set ``slow=1`` like above with the decorator:
 
 .. code-block:: python
@@ -40,12 +41,12 @@ And here's how to set an attribute with a specific value :
         # commence slowness...
 
 This test could be run with ::
-    
+
     $ nosetests -a speed=slow
 
 Below is a reference to the different syntaxes available.
 
-Simple syntax 
+Simple syntax
 -------------
 
 Examples of using the ``-a`` and ``--attr`` options:
@@ -58,9 +59,9 @@ Examples of using the ``-a`` and ``--attr`` options:
 
 * ``nosetests -a priority=2 -a slow``
    Runs tests that match either attribute
-    
+
 * ``nosetests -a tags=http``
-   If a test's ``tags`` attribute was a list and it contained the value 
+   If a test's ``tags`` attribute was a list and it contained the value
    ``http`` then it would be run
 
 * ``nosetests -a slow``
@@ -68,10 +69,10 @@ Examples of using the ``-a`` and ``--attr`` options:
    (False, [], "", etc...)
 
 * ``nosetests -a '!slow'``
-   Runs tests that do NOT have the attribute ``slow`` or have a ``slow`` attribute 
-   that is equal to False
-   **NOTE**: 
-   if your shell (like bash) interprets '!' as a special character make sure to 
+   Runs tests that do NOT have the attribute ``slow`` or have a ``slow``
+   attribute that is equal to False
+   **NOTE**:
+   if your shell (like bash) interprets '!' as a special character make sure to
    put single quotes around it.
 
 Expression Evaluation
@@ -97,7 +98,7 @@ log = logging.getLogger('nose.plugins.attrib')
 compat_24 = sys.version_info >= (2, 4)
 
 def attr(*args, **kwargs):
-    """Decorator that adds attributes to objects 
+    """Decorator that adds attributes to objects
     for use with the Attribute (-a) plugin.
     """
     def wrap(func):
@@ -112,14 +113,14 @@ class ContextHelper:
     """Returns default values for dictionary lookups."""
     def __init__(self, obj):
         self.obj = obj
-        
+
     def __getitem__(self, name):
         return self.obj.get(name, False)
 
 
 class AttributeGetter:
     """Helper for looking up attributes
-    
+
     First we check the method, and if the attribute is not present,
     we check the method's class.
     """
@@ -146,12 +147,13 @@ class AttributeSelector(Plugin):
     def __init__(self):
         Plugin.__init__(self)
         self.attribs = []
-    
+
     def options(self, parser, env):
         """Register command line options"""
         parser.add_option("-a", "--attr",
                           dest="attr", action="append",
                           default=env.get('NOSE_ATTR'),
+                          metavar="ATTR",
                           help="Run only tests that have attributes "
                           "specified by ATTR [NOSE_ATTR]")
         # disable in < 2.4: eval can't take needed args
@@ -173,7 +175,7 @@ class AttributeSelector(Plugin):
         match.
         """
         self.attribs = []
-        
+
         # handle python eval-expression parameter
         if compat_24 and options.eval_attr:
             eval_attr = tolist(options.eval_attr)
@@ -215,7 +217,7 @@ class AttributeSelector(Plugin):
                 self.attribs.append(attr_group)
         if self.attribs:
             self.enabled = True
-            
+
     def validateAttrib(self, attribs):
         # TODO: is there a need for case-sensitive value comparison?
         # within each group, all must match for the group to match
@@ -242,7 +244,7 @@ class AttributeSelector(Plugin):
                         break
                 elif type(obj_value) in (list, tuple):
                     # value must be found in the list attribute
-                    
+
                     if not str(value).lower() in [str(x).lower()
                                                   for x in obj_value]:
                         match = False
@@ -273,12 +275,12 @@ class AttributeSelector(Plugin):
         if wanted:
             return None
         return False
-        
+
     def wantFunction(self, function):
         """Accept the function if its attributes match.
         """
         return self.validateAttrib(function.__dict__)
-        
+
     def wantMethod(self, method):
         """Accept the method if its attributes match.
         """

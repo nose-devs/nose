@@ -6,7 +6,7 @@ modules that match testMatch.
 See also: :doc:`../doc_tests/test_allmodules/test_allmodules`
 
 .. warning ::
-  
+
    This plugin can have surprising interactions with plugins that load tests
    from what nose normally considers non-test modules, such as
    the :doc:`doctest plugin <doctests>`. This is because any given
@@ -14,7 +14,7 @@ See also: :doc:`../doc_tests/test_allmodules/test_allmodules`
    :class:`test loader <nose.loader.TestLoader>`. Also, if you have test-like
    functions or classes in non-test modules that are not tests, you will
    likely see errors as nose attempts to run them as tests.
-   
+
 """
 
 import os
@@ -33,13 +33,13 @@ class AllModules(Plugin):
                           default=env.get(env_opt),
                           help="Enable plugin %s: %s [%s]" %
                           (self.__class__.__name__, self.help(), env_opt))
-    
+
     def wantFile(self, file):
         """Override to return True for all files ending with .py"""
         # always want .py files
         if file.endswith('.py'):
             return True
-    
+
     def wantModule(self, module):
         """Override return True for all modules"""
         return True

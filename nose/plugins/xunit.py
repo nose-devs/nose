@@ -94,7 +94,7 @@ class Xunit(Plugin):
         Plugin.options(self, parser, env)
         parser.add_option(
             '--xunit-file', action='store',
-            dest='xunit_file',
+            dest='xunit_file', metavar="FILE",
             default=env.get('NOSE_XUNIT_FILE', 'nosetests.xml'),
             help=("Path to xml file to store the xunit report in. "
                   "Default is nosetests.xml in the working directory "

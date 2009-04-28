@@ -32,17 +32,20 @@ class Profile(Plugin):
         """
         if not self.available():
             return
-        Plugin.options(self, parser, env)                
+        Plugin.options(self, parser, env)
         parser.add_option('--profile-sort', action='store', dest='profile_sort',
                           default=env.get('NOSE_PROFILE_SORT', 'cumulative'),
+                          metavar="SORT",
                           help="Set sort order for profiler output")
         parser.add_option('--profile-stats-file', action='store',
                           dest='profile_stats_file',
+                          metavar="FILE",
                           default=env.get('NOSE_PROFILE_STATS_FILE'),
                           help='Profiler stats file; default is a new '
                           'temp file on each run')
         parser.add_option('--profile-restrict', action='append',
                           dest='profile_restrict',
+                          metavar="RESTRICT",
                           default=env.get('NOSE_PROFILE_RESTRICT'),
                           help="Restrict profiler output. See help for "
                           "pstats.Stats for details")

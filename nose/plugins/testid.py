@@ -127,7 +127,7 @@ class TestId(Plugin):
         """
         Plugin.options(self, parser, env)
         parser.add_option('--id-file', action='store', dest='testIdFile',
-                          default='.noseids',
+                          default='.noseids', metavar="FILE",
                           help="Store test ids found in test runs in this "
                           "file. Default is the file .noseids in the "
                           "working directory.")

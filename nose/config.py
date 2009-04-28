@@ -404,6 +404,7 @@ class Config(object):
             help="Be more verbose. [NOSE_VERBOSE]")
         parser.add_option(
             "--verbosity", action="store", dest="verbosity",
+            metavar='VERBOSITY',
             type="int", help="Set verbosity; --verbosity=2 is "
             "the same as -v")
         parser.add_option(
@@ -433,6 +434,7 @@ class Config(object):
             default=self.testMatchPat)
         parser.add_option(
             "--tests", action="store", dest="testNames", default=None,
+            metavar='NAMES',
             help="Run these tests (comma-separated list). This argument is "
             "useful mainly from configuration files; on the command line, "
             "just pass the tests to run as additional arguments with no "
@@ -446,21 +448,23 @@ class Config(object):
             "nose.selector. Separate multiple names with a comma.")
         parser.add_option(
             "--debug-log", dest="debugLog", action="store",
-            default=self.debugLog,
+            default=self.debugLog, metavar="FILE",
             help="Log debug messages to this file "
             "(default: sys.stderr)")
         parser.add_option(
             "--logging-config", "--log-config",
             dest="loggingConfig", action="store",
-            default=self.loggingConfig,
+            default=self.loggingConfig, metavar="FILE",
             help="Load logging config from this file -- bypasses all other"
             " logging config settings.")
         parser.add_option(
             "-e", "--exclude", action="append", dest="exclude",
+            metavar="REGEX",
             help="Don't run tests that match regular "
             "expression [NOSE_EXCLUDE]")
         parser.add_option(
             "-i", "--include", action="append", dest="include",
+            metavar="REGEX",
             help="This regular expression will be applied to files, "
             "directories, function names, and class names for a chance "
             "to include additional tests that do not match TESTMATCH.  "

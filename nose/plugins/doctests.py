@@ -154,11 +154,13 @@ class Doctest(Plugin):
                           "not both. [NOSE_DOCTEST_TESTS]")
         parser.add_option('--doctest-extension', action="append",
                           dest="doctestExtension",
+                          metavar="EXT",
                           help="Also look for doctests in files with "
                           "this extension [NOSE_DOCTEST_EXTENSION]")
         parser.add_option('--doctest-result-variable',
                           dest='doctest_result_var',
                           default=env.get('NOSE_DOCTEST_RESULT_VAR'),
+                          metavar="VAR",
                           help="Change the variable name set to the result of "
                           "the last interpreter command from the default '_'. "
                           "Can be used to avoid conflicts with the _() "
@@ -166,6 +168,7 @@ class Doctest(Plugin):
                           "[NOSE_DOCTEST_RESULT_VAR]")
         parser.add_option('--doctest-fixtures', action="store",
                           dest="doctestFixtures",
+                          metavar="SUFFIX",
                           help="Find fixtures for a doctest file in module "
                           "with this name appended to the base name "
                           "of the doctest file")
@@ -220,7 +223,7 @@ class Doctest(Plugin):
             if not test.examples:
                 continue
             if not test.filename:
-                test.filename = module_file            
+                test.filename = module_file
             cases.append(DocTestCase(test, result_var=self.doctest_result_var))
         if cases:
             yield self.suiteClass(cases, context=module, can_split=False)
@@ -326,7 +329,7 @@ class DocTestCase(doctest.DocTestCase):
     provide an address() method that returns the correct address for
     the doctest case. To provide hints for address(), an obj may also
     be passed -- this will be used as the test object for purposes of
-    determining the test address, if it is provided.    
+    determining the test address, if it is provided.
     """
     def __init__(self, test, optionflags=0, setUp=None, tearDown=None,
                  checker=None, obj=None, result_var='_'):
@@ -371,7 +374,7 @@ class DocTestCase(doctest.DocTestCase):
         name = name.split('.')
         return "%s (%s)" % (name[-1], '.'.join(name[:-1]))
     __str__ = __repr__
-                           
+
     def shortDescription(self):
         return 'Doctest: %s' % self.id()
 

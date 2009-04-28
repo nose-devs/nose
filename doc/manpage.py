@@ -1093,15 +1093,16 @@ class Translator(nodes.NodeVisitor):
         pass
 
     def visit_desc_name(self, node):
-        pass # option string
+        self.body.append(r'\fB') # option name
 
     def depart_desc_name(self, node):
-        pass
+        self.body.append(r'\fR')
 
     def visit_desc_addname(self, node):
-        pass # option default value
+        self.body.append(r'\fR')
 
     def depart_desc_addname(self, node):
+        # self.body.append(r'\fR')
         pass
 
     def visit_desc_content(self, node):
