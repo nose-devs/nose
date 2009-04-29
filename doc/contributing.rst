@@ -7,18 +7,21 @@ You'd like to contribute to nose? Great! Now that nose is hosted under
 Get the code!
 -------------
 
-Start by getting a local working copy of nose.
+Start by getting a local working copy of nose, either stable, from google code::
 
-.. code-block:: none
+  hg clone http://python-nose.googlecode.com/hg/ nose-stable
 
-   hg clone FIXME FIXME FIXME
+or unstable, from bitbucket::
 
-Next, if you plan to push changes back to the core repository, you
-should set up a public repository of your own somewhere. `Bitbucket
-<http://bitbucket.org>`__ is one good place to do that. Once you've
-set up your bitbucket nose repository, pull from your working copy of
-nose core, and push to bitbucket. That (with occasional merging) will
-be your normal practice for keeping your repository up to date.
+  hg clone http://bitbucket.org/jpellerin/nose/ nose-unstable
+
+If you plan to submit changes back to the core repository, you should set up a
+public repository of your own somewhere. `Bitbucket <http://bitbucket.org>`__
+is a good place to do that. Once you've set up your bitbucket nose repository,
+if working from **stable**, pull from your working copy of nose-stable, and push
+to bitbucket. That (with occasional merging) will be your normal practice for
+keeping your repository up to date. If you're on bitbucket and working from
+**unstable**, just **fork** http://bitbucket.org/jpellerin/nose/.
 
 Discuss
 -------
@@ -50,7 +53,7 @@ on bitbucket.
 Issues affecting nose3 should likewise be reported at the bitbucket
 site, not at google code.
 
-nose3 hosting may move to google code at some future date, when or if google
+nose3 hosting may move to google code at some future date, when google
 code supports bitbucket-style forking.
 
 I have a great idea for a plugin...
