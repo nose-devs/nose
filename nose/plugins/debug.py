@@ -1,7 +1,7 @@
 """
-This plugin provides --pdb and --pdb-failures options that cause the
-test runner to drop into pdb if it encounters an error or failure,
-respectively.
+This plugin provides ``--pdb`` and ``--pdb-failures`` options. The ``--pdb``
+option will drop the test runner into pdb when it encounters an error. To
+drop into pdb on failure, use ``--pdb-failures``.
 """
 
 import pdb

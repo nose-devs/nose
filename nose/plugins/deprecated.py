@@ -1,9 +1,9 @@
 """
 This plugin installs a DEPRECATED error class for the :class:`DeprecatedTest`
-exception. It is enabled by default. When :class:`DeprecatedTest` is raised,
-the exception will be logged in the deprecated attribute of the result, ``D``
-or ``DEPRECATED`` (verbose) will be output, and the exception will not be
-counted as an error or failure.
+exception. When :class:`DeprecatedTest` is raised, the exception will be logged
+in the deprecated attribute of the result, ``D`` or ``DEPRECATED`` (verbose)
+will be output, and the exception will not be counted as an error or failure.
+It is enabled by default, but can be turned off by using ``--no-deprecated``.
 """
 
 from nose.plugins.errorclass import ErrorClass, ErrorClassPlugin
@@ -17,11 +17,8 @@ class DeprecatedTest(Exception):
 
 class Deprecated(ErrorClassPlugin):
     """
-    Plugin that installs a DEPRECATED error class for the DeprecatedTest
-    exception. Enabled by default. When DeprecatedTest is raised, the
-    exception will be logged in the deprecated attribute of the result, ``D``
-    or ``DEPRECATED`` (verbose) will be output, and the exception will not be
-    counted as an error or failure.
+    Installs a DEPRECATED error class for the DeprecatedTest exception. Enabled
+    by default.
     """
     enabled = True
     deprecated = ErrorClass(DeprecatedTest,

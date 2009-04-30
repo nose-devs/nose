@@ -1,7 +1,7 @@
 """
-This plugin captures stdout during test execution, appending any
-output captured to the error or failure output, should the test fail
-or raise an error. It is enabled by default but may be disabled with
+This plugin captures stdout during test execution. If the test fails
+or raises an error, the captured output will be appended to the error
+or failure output. It is enabled by default but can be disabled with
 the options ``-s`` or ``--nocapture``.
 
 :Options:

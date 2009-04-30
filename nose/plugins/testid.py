@@ -11,19 +11,19 @@ For example, if your normal test run looks like::
   tests.test_b ... ok
   tests.test_c ... ok
 
-When adding --with-id you'll see::
+When adding ``--with-id`` you'll see::
 
   % nosetests -v --with-id
   #1 tests.test_a ... ok
   #2 tests.test_b ... ok
   #2 tests.test_c ... ok
 
-Then you can rerun individual tests by supplying just the id numbers::
+Then you can re-run individual tests by supplying just an id number::
 
   % nosetests -v --with-id 2
   #2 tests.test_b ... ok
 
-Then you can rerun individual tests by supplying just the id numbers::
+You can also pass multiple id numbers::
 
   % nosetests -v --with-id 2 3
   #2 tests.test_b ... ok
@@ -38,9 +38,9 @@ the ids file is still written.
 Looping over failed tests
 -------------------------
 
-This plugin also adds a mode where it will direct the test run to record
-failed tests, and on subsequent runs, include only the tests that failed the
-last time. Activate this mode with the --failed switch::
+This plugin also adds a mode that will direct the test runner to record
+failed tests. Subsequent test runs will then run only the tests that failed
+last time. Activate this mode with the ``--failed`` switch::
 
  % nosetests -v --failed
  #1 test.test_a ... ok
@@ -48,14 +48,13 @@ last time. Activate this mode with the --failed switch::
  #3 test.test_c ... FAILED
  #4 test.test_d ... ok
  
-And on the 2nd run, only tests #2 and #3 will run::
+On the second run, only tests #2 and #3 will run::
 
  % nosetests -v --failed
  #2 test.test_b ... ERROR
  #3 test.test_c ... FAILED
 
-Then as you correct errors and tests pass, they'll drop out of subsequent
-runs.
+As you correct errors and tests pass, they'll drop out of subsequent runs.
 
 First::
 
@@ -68,8 +67,7 @@ Second::
  % nosetests -v --failed
  #3 test.test_c ... FAILED
 
-Until finally when all tests pass, the full set will run again on the next
-invocation.
+When all tests pass, the full set will run on the next invocation.
 
 First::
 
@@ -86,13 +84,13 @@ Second::
 
 .. note ::
 
-  If you expect to want to use --failed often, a good practice is to always
-  run with the --with-id option active, so that an ids file is always recorded
-  and you can then add --failed to the command line as soon as you have
-  failing tests. If --with-id is not active, your first invocation with
-  --failed will (perhaps surprisingly) run all tests, because there will be
-  no ids file recording the failed tests from the previous run, during which
-  this plugin was not active.
+  If you expect to use ``--failed`` regularly, it's a good idea to always run
+  run using the ``--with-id`` option. This will ensure that an id file is
+  always created, allowing you to add ``--failed`` to the command line as soon
+  as you have failing tests. Otherwise, your first run using ``--failed`` will
+  (perhaps surprisingly) run *all* tests, because there won't be an id file
+  containing the record of failed tests from your previous run.
+  
 """
 __test__ = False
 
@@ -111,11 +109,8 @@ log = logging.getLogger(__name__)
 
 class TestId(Plugin):
     """
-    Activate to add a test id (like #1) to each test name output. After
-    you've run once to generate test ids, you can re-run individual
-    tests by activating the plugin and passing the ids (with or
-    without the # prefix) instead of test names. Activate with --failed
-    to rerun failing tests only.
+    Activate to add a test id (like #1) to each test name output. Activate
+    with --failed to rerun failing tests only.
     """
     name = 'id'
     idfile = None

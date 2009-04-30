@@ -1,11 +1,11 @@
 """
-This plugin bypasses the actual execution of tests, instead just collecting
+This plugin bypasses the actual execution of tests, and instead just collects
 test names. Fixtures are also bypassed, so running nosetests with the 
 collection plugin enabled should be very quick.
 
-This plugin is useful in combination with the testid plugin (--with-id). Run
-both together to get an indexed list of all tests that will enable you to run
-individual tests by index number.
+This plugin is useful in combination with the testid plugin (``--with-id``).
+Run both together to get an indexed list of all tests, which will enable you to
+run individual tests by index number.
 
 This plugin is also useful for counting tests in a test suite, and making
 people watching your demo think all of your tests pass.
