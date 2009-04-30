@@ -46,6 +46,13 @@ class Plugin(object):
 
     def add_options(self, parser, env=None):
         """Non-camel-case version of func name for backwards compatibility.
+
+        .. warning ::
+
+           DEPRECATED: Do not use this method,
+           use :meth:`options <nose.plugins.base.IPluginInterface.options>`
+           instead.
+
         """
         # FIXME raise deprecation warning if wasn't called by wrapper
         if env is None:
@@ -116,7 +123,10 @@ class IPluginInterface(object):
         Do *not* return a value from this method unless you want to stop
         all other plugins from setting their options.
 
-        .. Note:: DEPRECATED -- implement `options` instead.
+        .. warning ::
+
+           DEPRECATED -- implement
+           :meth:`options <nose.plugins.base.IPluginInterface.options>` instead.
         """
         pass
     add_options = addOptions
@@ -127,7 +137,7 @@ class IPluginInterface(object):
         unless you want to stop other plugins from seeing the deprecated
         test.
 
-        .. Note:: DEPRECATED -- check error class in addError instead
+        .. warning :: DEPRECATED -- check error class in addError instead
 
         :Parameters:
           test : :class:`nose.case.Test`
@@ -149,7 +159,7 @@ class IPluginInterface(object):
           capt : string
             Captured output, if any
 
-            .. Note:: DEPRECATED: this parameter will not be passed
+            .. warning :: DEPRECATED: this parameter will not be passed
         """
         pass
     addError.changed = True
@@ -166,11 +176,11 @@ class IPluginInterface(object):
           capt : string
             Captured output, if any.
 
-            .. Note:: DEPRECATED: this parameter will not be passed
+            .. warning:: DEPRECATED: this parameter will not be passed
           tb_info : string
             Introspected traceback info, if any
 
-            .. Note:: DEPRECATED: this parameter will not be passed
+            .. warning:: DEPRECATED: this parameter will not be passed
         """
         pass
     addFailure.changed = True
@@ -179,7 +189,7 @@ class IPluginInterface(object):
         """Called when a test is skipped. DO NOT return a value unless
         you want to stop other plugins from seeing the skipped test.
 
-        .. Note:: DEPRECATED -- check error class in addError instead
+        .. warning:: DEPRECATED -- check error class in addError instead
 
         :Parameters:
           test : :class:`nose.case.Test`
@@ -198,7 +208,7 @@ class IPluginInterface(object):
           capt : string
             Captured output, if any.
 
-            .. Note:: DEPRECATED: this parameter will not be passed
+            .. warning:: DEPRECATED: this parameter will not be passed
         """
         pass
     addSuccess.changed = True
@@ -328,7 +338,7 @@ class IPluginInterface(object):
 
     def describeTest(self, test):
         """Return a test description. Called by
-        `nose.case.Test.shortDescription`.
+        :meth:`nose.case.Test.shortDescription`.
 
         :Parameters:
           test : :class:`nose.case.Test`
@@ -427,6 +437,11 @@ class IPluginInterface(object):
             The module object
           path : the path of the module to search, to
             distinguish from namespace package modules
+
+            .. note::
+
+               NEW. The ``path`` parameter will only be passed by nose 0.11
+               or above.
         """
         pass
     loadTestsFromModule.generative = True
@@ -447,7 +462,7 @@ class IPluginInterface(object):
           importPath :
             Path from which file (must be a python module) was found
 
-            .. Note:: DEPRECATED: this argument will NOT be passed.
+            .. warning:: DEPRECATED: this argument will NOT be passed.
         """
         pass
     loadTestsFromName.generative = True
@@ -488,7 +503,7 @@ class IPluginInterface(object):
 
     def loadTestsFromPath(self, path):
         """
-        .. Note:: DEPRECATED -- use loadTestsFromFile instead
+        .. warning:: DEPRECATED -- use loadTestsFromFile instead
         """
         pass
     loadTestsFromPath.deprecated = True
@@ -544,7 +559,7 @@ class IPluginInterface(object):
 
         :Parameters:
           parser : :class:`ConfigParser`
-            options parserinstance
+            options parser instance
 
           env : dict
             environment, defaults to os.environ
@@ -777,8 +792,8 @@ class IPluginInterface(object):
     
     def wantModuleTests(self, module):
         """
-        .. Note:: DEPRECATED -- this method will not be called, it has
-                  been folded into wantModule.
+        .. warning:: DEPRECATED -- this method will not be called, it has
+             been folded into wantModule.
         """
         pass
     wantModuleTests.deprecated = True
