@@ -8,8 +8,8 @@ is, has test or Test at a word boundary or following a - or _) and lives in a
 module that also matches that expression will be run as a test. For the sake
 of compatibility with legacy unittest test cases, nose will also load tests
 from :class:`unittest.TestCase` subclasses just like unittest does. Like
-py.test, functional tests will be run in the order in which they appear in the
-module file. TestCase derived tests and other test classes are run in
+py.test, nose runs functional tests in the order in which they appear in the
+module file. TestCase-derived tests and other test classes are run in
 alphabetical order.
 
 .. _py.test: http://codespeak.net/py/current/doc/test.html
@@ -23,7 +23,7 @@ nose supports fixtures (setup and teardown methods) at the package,
 module, class, and test level. As with py.test or unittest fixtures,
 setup always runs before any test (or collection of tests for test
 packages and modules); teardown runs if setup has completed
-successfully, whether or not the test or tests pass. For more detail
+successfully, regardless of the status of the test run. For more detail
 on fixtures at each level, see below.
 
 Test packages
@@ -54,18 +54,18 @@ of tests in a test module begins after all tests are collected.
 Test classes
 ============
 
-A test class is a class defined in a test module that is either a subclass of
-:class:`unittest.TestCase`, or matches testMatch. Test classes that don't descend
-from `unittest.TestCase` are run in the same way as those that do: methods in
-the class that match testMatch are discovered, and a test case constructed to
-run each with a fresh instance of the test class. Like :class:`unittest.TestCase`
-subclasses, other test classes may define setUp and tearDown methods that will
-be run before and after each test method. Test classes that do not descend
-from `unittest.TestCase` may also include generator methods, and class-level
-fixtures. Class level fixtures may be named `setup_class`, `setupClass`,
-`setUpClass`, `setupAll` or `setUpAll` for set up and `teardown_class`,
-`teardownClass`, `tearDownClass`, `teardownAll` or `tearDownAll` for teardown
-and must be class methods.
+A test class is a class defined in a test module that matches testMatch or is
+a subclass of :class:`unittest.TestCase`. All test classes are run the same
+way: Methods in the class that match testMatch are discovered, and a test
+case is constructed to run each method with a fresh instance of the test
+class. Like :class:`unittest.TestCase` subclasses, other test classes can
+define setUp and tearDown methods that will be run before and after each test
+method. Test classes that do not descend from `unittest.TestCase` may also
+include generator methods and class-level fixtures. Class-level setup fixtures
+may be named `setup_class`, `setupClass`, `setUpClass`, `setupAll` or 
+`setUpAll`; teardown fixtures may be named `teardown_class`, `teardownClass`, 
+`tearDownClass`, `teardownAll` or `tearDownAll`. Class-level setup and teardown
+fixtures must be class methods.
 
 Test functions
 ==============
@@ -85,7 +85,7 @@ And the simplest passing test::
 Test functions may define setup and/or teardown attributes, which will be
 run before and after the test function, respectively. A convenient way to
 do this, especially when several test functions in the same module need
-the same setup, is to use the provided with_setup decorator::
+the same setup, is to use the provided `with_setup` decorator::
 
   def setup_func():
       "set up test fixtures"
@@ -127,7 +127,7 @@ example from nose's selftest suite is probably the best explanation::
   def check_even(n, nn):
       assert n % 2 == 0 or nn % 2 == 0
 
-This will result in 4 tests. nose will iterate the generator, creating a
+This will result in four tests. nose will iterate the generator, creating a
 function test case wrapper for each tuple it yields. As in the example, test
 generators must yield tuples, the first element of which must be a callable
 and the remaining elements the arguments to be passed to the callable.
