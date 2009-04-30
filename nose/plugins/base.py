@@ -138,10 +138,6 @@ class IPluginInterface(object):
         test.
 
         .. warning :: DEPRECATED -- check error class in addError instead
-
-        :Parameters:
-          test : :class:`nose.case.Test`
-            the test case 
         """
         pass
     addDeprecated.deprecated = True
@@ -151,15 +147,10 @@ class IPluginInterface(object):
         value unless you want to stop other plugins from seeing that the
         test has raised an error.
 
-        :Parameters:
-          test : :class:`nose.case.Test`
-            the test case
-          err : 3-tuple
-            sys.exc_info() tuple
-          capt : string
-            Captured output, if any
-
-            .. warning :: DEPRECATED: this parameter will not be passed
+        :param test: the test case
+        :type test: :class:`nose.case.Test`            
+        :param err: sys.exc_info() tuple
+        :type err: 3-tuple
         """
         pass
     addError.changed = True
@@ -168,19 +159,10 @@ class IPluginInterface(object):
         """Called when a test fails. DO NOT return a value unless you
         want to stop other plugins from seeing that the test has failed.
 
-        :Parameters:
-          test : :class:`nose.case.Test`
-            the test case
-          err : 3-tuple
-            sys.exc_info() tuple
-          capt : string
-            Captured output, if any.
-
-            .. warning:: DEPRECATED: this parameter will not be passed
-          tb_info : string
-            Introspected traceback info, if any
-
-            .. warning:: DEPRECATED: this parameter will not be passed
+        :param test: the test case
+        :type test: :class:`nose.case.Test`
+        :param err: 3-tuple
+        :type err: sys.exc_info() tuple
         """
         pass
     addFailure.changed = True
@@ -190,10 +172,6 @@ class IPluginInterface(object):
         you want to stop other plugins from seeing the skipped test.
 
         .. warning:: DEPRECATED -- check error class in addError instead
-
-        :Parameters:
-          test : :class:`nose.case.Test`
-            the test case
         """
         pass
     addSkip.deprecated = True
@@ -202,13 +180,8 @@ class IPluginInterface(object):
         """Called when a test passes. DO NOT return a value unless you
         want to stop other plugins from seeing the passing test.
 
-        :Parameters:
-          test : :class:`nose.case.Test`
-            the test case
-          capt : string
-            Captured output, if any.
-
-            .. warning:: DEPRECATED: this parameter will not be passed
+        :param test: the test case
+        :type test: :class:`nose.case.Test`
         """
         pass
     addSuccess.changed = True
@@ -225,9 +198,8 @@ class IPluginInterface(object):
         """Called after all tests have been loaded from directory at path
         and run.
 
-        :Parameters:
-          path : string
-            the directory that has finished processing
+        :param path: the directory that has finished processing
+        :type path: string
         """
         pass
     afterDirectory._new = True
@@ -236,11 +208,10 @@ class IPluginInterface(object):
         """Called after module is imported from filename. afterImport
         is called even if the import failed.
 
-        :Parameters:
-          filename : string
-            The file that was loaded
-          module : string
-            The name of the module
+        :param filename: The file that was loaded
+        :type filename: string
+        :param filename: The name of the module
+        :type module: string
         """
         pass
     afterImport._new = True
@@ -249,9 +220,8 @@ class IPluginInterface(object):
         """Called after the test has been run and the result recorded
         (after stopTest).
 
-        :Parameters:
-          test :  :class:`nose.case.Test`
-            the test case
+        :param test: the test case
+        :type test: :class:`nose.case.Test`
         """
         pass
     afterTest._new = True
@@ -277,9 +247,7 @@ class IPluginInterface(object):
     def beforeDirectory(self, path):
         """Called before tests are loaded from directory at path.
 
-        :Parameters:
-          path : string
-            the directory that is about to be processed
+        :param path: the directory that is about to be processed
         """
         pass
     beforeDirectory._new = True
@@ -287,20 +255,17 @@ class IPluginInterface(object):
     def beforeImport(self, filename, module):
         """Called before module is imported from filename.
 
-        :Parameters:
-          filename : string
-            The file that will be loaded
-          module : string
-            The name of the module found in file
+        :param filename: The file that will be loaded
+        :param module: The name of the module found in file
+        :type module: string
         """
     beforeImport._new = True
 
     def beforeTest(self, test):
         """Called before the test is run (before startTest).
 
-        :Parameters:
-          test : :class:`nose.case.Test`
-            the test case
+        :param test: the test case
+        :type test: :class:`nose.case.Test`
         """
         pass
     beforeTest._new = True
@@ -329,6 +294,8 @@ class IPluginInterface(object):
         other plugins to continue printing, any other value to stop
         them.
 
+        :param result: test result object
+        
         .. Note:: When tests are run under a test runner other than
            :class:`nose.core.TextTestRunner`, for example when tests are run
            via ``python setup.py test``, this method may be called
@@ -337,12 +304,12 @@ class IPluginInterface(object):
         pass
 
     def describeTest(self, test):
-        """Return a test description. Called by
-        :meth:`nose.case.Test.shortDescription`.
+        """Return a test description.
 
-        :Parameters:
-          test : :class:`nose.case.Test`
-            the test case
+        Called by :meth:`nose.case.Test.shortDescription`.
+
+        :param test: the test case
+        :type test: :class:`nose.case.Test`
         """
         pass
     describeTest._new = True
@@ -352,11 +319,10 @@ class IPluginInterface(object):
         want to replace or modify the error tuple, return a new error
         tuple.
 
-        :Parameters:
-          test : :class:`nose.case.Test`
-            the test case
-          err : 3-tuple
-            sys.exc_info() tuple
+        :param test: the test case
+        :type test: :class:`nose.case.Test`
+        :param err: sys.exc_info() tuple
+        :type err: 3-tuple
         """
         pass
     formatError._new = True
@@ -372,11 +338,10 @@ class IPluginInterface(object):
 
           return (test, err)
 
-        :Parameters:
-          test : :class:`nose.case.Test`
-            the test case
-          err : 3-tuple
-            sys.exc_info() tuple
+        :param test: the test case
+        :type test: :class:`nose.case.Test`
+        :param err: sys.exc_info() tuple
+        :type err: 3-tuple
         """
         pass
     formatFailure._new = True
@@ -388,11 +353,10 @@ class IPluginInterface(object):
         """Called on addError. To handle the error yourself and prevent normal
         error processing, return a true value.
 
-        :Parameters:
-          test : :class:`nose.case.Test`
-            the test case
-          err : 3-tuple
-            sys.exc_info() tuple
+        :param test: the test case
+        :type test: :class:`nose.case.Test`
+        :param err: sys.exc_info() tuple
+        :type err: 3-tuple
         """
         pass
     handleError._new = True
@@ -401,11 +365,10 @@ class IPluginInterface(object):
         """Called on addFailure. To handle the failure yourself and
         prevent normal failure processing, return a true value.
 
-        :Parameters:
-          test : :class:`nose.case.Test`
-            the test case
-          err : 3-tuple
-            sys.exc_info() tuple
+        :param test: the test case
+        :type test: :class:`nose.case.Test`
+        :param err: sys.exc_info() tuple
+        :type err: 3-tuple
         """
         pass
     handleFailure._new = True
@@ -417,9 +380,7 @@ class IPluginInterface(object):
         Return None if your plugin cannot collect any tests from
         directory.
 
-        :Parameters:
-          path : string
-            The path to the directory.
+        :param  path: The path to the directory.
         """
         pass
     loadTestsFromDir.generative = True
@@ -432,11 +393,10 @@ class IPluginInterface(object):
         Return None if your plugin cannot
         collect any tests from module.
 
-        :Parameters:
-          module : python module 
-            The module object
-          path : the path of the module to search, to
-            distinguish from namespace package modules
+        :param module: The module object
+        :type module: python module
+        :param path: the path of the module to search, to distinguish from
+            namespace package modules
 
             .. note::
 
@@ -451,16 +411,13 @@ class IPluginInterface(object):
         to load any tests, or an iterable if you are. May be a
         generator.
 
-        :Parameters:
-          name : string
-            The test name. May be a file or module name plus a test
+        :param name: The test name. May be a file or module name plus a test
             callable. Use split_test_name to split into parts. Or it might
             be some crazy name of your own devising, in which case, do
             whatever you want.
-          module : python module
-            Module from which the name is to be loaded
-          importPath :
-            Path from which file (must be a python module) was found
+        :param module: Module from which the name is to be loaded
+        :param importPath: Path from which file (must be a python module) was
+            found
 
             .. warning:: DEPRECATED: this argument will NOT be passed.
         """
@@ -473,11 +430,9 @@ class IPluginInterface(object):
         may implement loadTestsFromNames; the remaining name list from
         each will be passed to the next as input.
 
-        :Parameters:
-          names : iterable
-            List of test names.
-          module : python module
-            Module from which the names are to be loaded
+        :param names: List of test names.
+        :type names: iterable
+        :param module: Module from which the names are to be loaded
         """
         pass
     loadTestsFromNames._new = True
@@ -493,9 +448,7 @@ class IPluginInterface(object):
         .. Note:: This method replaces loadTestsFromPath from the 0.9
                   API.
 
-        :Parameters:
-           filename : string
-             The full path to the file or directory.
+        :param filename: The full path to the file or directory.
         """
         pass
     loadTestsFromFile.generative = True
@@ -513,9 +466,8 @@ class IPluginInterface(object):
         not able to load any tests, or an iterable if you are. May be a
         generator.
 
-        :Parameters:
-          cls : class
-            The test case class. Must be subclass of unittest.TestCase.
+        :param cls: The test case class. Must be subclass of
+           :class:`unittest.TestCase`.
         """
         pass
     loadTestsFromTestCase.generative = True
@@ -525,9 +477,8 @@ class IPluginInterface(object):
         unittest.TestCase subclass. Return None if you are not able to
         load any tests, an iterable if you are. May be a generator.
 
-        :Parameters:
-          cls : class
-            The test class. Must NOT be subclass of unittest.TestCase.
+        :param cls: The test case class. Must be **not** be subclass of
+           :class:`unittest.TestCase`.
         """
         pass
     loadTestsFromTestClass._new = True
@@ -540,11 +491,8 @@ class IPluginInterface(object):
         plugins to load an alternate test case or cases for an
         object. May be a generator.
 
-        :Parameters:
-          obj : any object
-            The object to be made into a test
-          parent : class, module or other object
-            The parent of obj (eg, for a method, the class)
+        :param obj: The object to be made into a test
+        :param parent: The parent of obj (eg, for a method, the class)
         """
         pass
     makeTest._new = True
@@ -557,12 +505,9 @@ class IPluginInterface(object):
         Do *not* return a value from this method unless you want to stop
         all other plugins from setting their options.
 
-        :Parameters:
-          parser : :class:`ConfigParser`
-            options parser instance
-
-          env : dict
-            environment, defaults to os.environ
+        :param parser: options parser instance
+        :type parser: :class:`ConfigParser.ConfigParser`
+        :param env: environment, default is os.environ
         """
         pass
     options._new = True
@@ -578,9 +523,8 @@ class IPluginInterface(object):
         to modify or wrap individual test cases, use `prepareTestCase`
         instead.
 
-        :Parameters:
-          test : :class:`nose.case.Test`
-            the test case
+        :param test: the test case
+        :type test: :class:`nose.case.Test`
         """
         pass
 
@@ -597,9 +541,8 @@ class IPluginInterface(object):
         replacing the run() method of the test case -- including the
         exception handling and result calls, etc.
 
-        :Parameters:
-           test : :class:`nose.case.Test`
-             the test case
+        :param test: the test case
+        :type test: :class:`nose.case.Test`
         """
         pass
     prepareTestCase._new = True
@@ -610,9 +553,8 @@ class IPluginInterface(object):
         test loader, return None. Only one plugin may replace the test
         loader. Only valid when using nose.TestProgram.
 
-        :Parameters:
-           loader : :class:`nose.loader.TestLoader` 
-             (or other loader instance) the test loader
+        :param loader: :class:`nose.loader.TestLoader` 
+             (or other loader) instance
         """
         pass
     prepareTestLoader._new = True
@@ -631,9 +573,8 @@ class IPluginInterface(object):
         monkeypatch and stop other plugins from doing so, monkeypatch
         and return the patched result.
 
-        :Parameters:
-           result : :class:`nose.result.TextTestResult` 
-             (or other result instance) the test result
+        :param result: :class:`nose.result.TextTestResult` 
+             (or other result) instance
         """
         pass
     prepareTestResult._new = True
@@ -643,9 +584,8 @@ class IPluginInterface(object):
         return a test runner. To allow other plugins to process the
         test runner, return None. Only valid when using nose.TestProgram.
 
-        :Parameters:
-           runner : :class:`nose.core.TextTestRunner` 
-             (or other runner instance) the test runner
+        :param runner: :class:`nose.core.TextTestRunner` 
+             (or other runner) instance
         """
         pass
     prepareTestRunner._new = True
@@ -655,9 +595,8 @@ class IPluginInterface(object):
         plugin's report to the provided stream. Return None to allow
         other plugins to print reports, any other value to stop them.
 
-        :Parameters:
-           stream : file-like object
-             stream object; send your output here
+        :param stream: stream object; send your output here
+        :type stream: file-like object
         """
         pass
 
@@ -667,9 +606,8 @@ class IPluginInterface(object):
         `write(msg)` method. If you only want to note the stream, not
         capture or redirect it, then return None.
 
-        :Parameters:
-           stream : file-like object
-             the original output stream
+        :param stream: stream object; send your output here
+        :type stream: file-like object
         """
 
     def startContext(self, context):
@@ -677,10 +615,8 @@ class IPluginInterface(object):
         context. Note that tests have already been *loaded* from the
         context before this call.
 
-        :Parameters:
-           context : module, class or other object
-             the context about to be setup. May be a module or class, or any
-             other object that contains tests.
+        :param context: the context about to be setup. May be a module or
+             class, or any other object that contains tests.
         """
         pass
     startContext._new = True
@@ -689,9 +625,8 @@ class IPluginInterface(object):
         """Called before each test is run. DO NOT return a value unless
         you want to stop other plugins from seeing the test start.
 
-        :Parameters:
-           test : :class:`nose.case.Test`
-             the test case
+        :param err: sys.exc_info() tuple
+        :type err: 3-tuple
         """
         pass
 
@@ -699,9 +634,8 @@ class IPluginInterface(object):
         """Called after the tests in a context have run and the
         context has been torn down.
 
-        :Parameters:
-           context : module, class or other object
-             the context that has just been torn down.
+        :param context: the context about to be setup. May be a module or
+             class, or any other object that contains tests.
         """
         pass
     stopContext._new = True
@@ -710,18 +644,16 @@ class IPluginInterface(object):
         """Called after each test is run. DO NOT return a value unless
         you want to stop other plugins from seeing that the test has stopped.
 
-        :Parameters:
-          test : :class:`nose.case.Test`
-            the test case
+        :param err: sys.exc_info() tuple
+        :type err: 3-tuple
         """
         pass
 
     def testName(self, test):
         """Return a short test name. Called by `nose.case.Test.__str__`.
 
-        :Parameters:
-           test : :class:`nose.case.Test`
-             the test case
+        :param err: sys.exc_info() tuple
+        :type err: 3-tuple
         """
         pass
     testName._new = True
@@ -731,9 +663,7 @@ class IPluginInterface(object):
         tests from this class, false if you don't, and None if you don't
         care.
 
-        :Parameters:
-           cls : class
-             The class being examined by the selector
+        :param cls: The class being examined by the selector
         """
         pass
     
@@ -741,9 +671,7 @@ class IPluginInterface(object):
         """Return true if you want test collection to descend into this
         directory, false if you do not, and None if you don't care.
 
-        :Parameters:
-           dirname : string
-             Full path to directory being examined by the selector
+        :param dirname: Full path to directory being examined by the selector
         """
         pass
     
@@ -753,9 +681,7 @@ class IPluginInterface(object):
 
         Change from 0.9: The optional package parameter is no longer passed.
 
-        :Parameters:
-          file : string
-            Full path to file being examined by the selector
+        :param file: Full path to file being examined by the selector
         """
         pass
     
@@ -763,19 +689,16 @@ class IPluginInterface(object):
         """Return true to collect this function as a test, false to
         prevent it from being collected, and None if you don't care.
 
-        :Parameters:
-          function : function
-            The function object being examined by the selector
+        :param function: The function object being examined by the selector
         """
         pass
     
     def wantMethod(self, method):
         """Return true to collect this method as a test, false to
         prevent it from being collected, and None if you don't care.
-
-        :Parameters:
-          method : unbound method
-            The method object being examined by the selector
+        
+        :param method: The method object being examined by the selector
+        :type method: unbound method
         """    
         pass
     
@@ -784,9 +707,8 @@ class IPluginInterface(object):
         module, false to prevent the collector from descending into the
         module, and None if you don't care.
 
-        :Parameters:
-          module : python module
-            The module object being examined by the selector
+        :param module: The module object being examined by the selector
+        :type module: python module
         """
         pass
     
