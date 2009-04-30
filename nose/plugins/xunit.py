@@ -13,7 +13,7 @@ And by default a file named nosetests.xml will be written to the
 working directory.  
 
 In a Hudson builder, tick the box named "Publish JUnit test result report"
-under the Post-build Actions and enter this value for Test report XMLs ::
+under the Post-build Actions and enter this value for Test report XMLs::
     
     **/nosetests.xml
 
