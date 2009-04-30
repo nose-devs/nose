@@ -1,6 +1,7 @@
 """
 This plugin bypasses the actual execution of tests, instead just collecting
-test names. Fixtures are also bypassed, so execution should be very quick.
+test names. Fixtures are also bypassed, so running nosetests with the 
+collection plugin enabled should be very quick.
 
 This plugin is useful in combination with the testid plugin (--with-id). Run
 both together to get an indexed list of all tests that will enable you to run

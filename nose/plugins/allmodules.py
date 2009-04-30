@@ -3,7 +3,7 @@ NOSE_ALL_MODULES environment variable to enable collection and execution of
 tests in all python modules. Normal nose behavior is to look for tests only in
 modules that match testMatch.
 
-See also: :doc:`../doc_tests/test_allmodules/test_allmodules`
+More information: :doc:`../doc_tests/test_allmodules/test_allmodules`
 
 .. warning ::
 
