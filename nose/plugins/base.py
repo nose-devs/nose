@@ -545,7 +545,7 @@ class IPluginInterface(object):
             The object to be made into a test
           parent : class, module or other object
             The parent of obj (eg, for a method, the class)
-         """
+        """
         pass
     makeTest._new = True
     makeTest.generative = True
