@@ -12,7 +12,7 @@ import unittest
 
 
 __all__ = ['ok_', 'eq_', 'make_decorator', 'raises', 'set_trace', 'timed',
-            'with_setup', 'TimeExpired']
+            'with_setup', 'TimeExpired', 'istest', 'nottest']
 
 
 class TimeExpired(AssertionError):
