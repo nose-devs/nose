@@ -38,7 +38,7 @@ a format different from the unittest standard, or you need to collect some
 additional information about tests (like code coverage or profiling data), you
 can write a plugin to make nose do what you want. See the section on
 :doc:`plugins/writing` for more.  There are also many 
-`third party nose plugins <http://nose-plugins.jottit.com/>`_ available.
+`third-party nose plugins <http://nose-plugins.jottit.com/>`_ available.
 
 Details
 -------
@@ -51,5 +51,5 @@ Details
    finding_tests
    testing_tools
    plugins/builtin
-   Third party nose plugins <http://nose-plugins.jottit.com/>
+   Third-party nose plugins <http://nose-plugins.jottit.com/>
    setuptools_integration

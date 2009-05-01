@@ -15,7 +15,7 @@ Then to find and run tests, you can run::
 
 When running under setuptools, you can configure nose settings via the
 environment variables detailed in the nosetests script usage message,
-or the setup.cfg or ~/.noserc or ~/.nose.cfg config files.
+or the setup.cfg, ~/.noserc or ~/.nose.cfg config files.
 
 Please note that when run under the setuptools test command, some plugins will
 not be available, including the builtin coverage, and profiler plugins.
