@@ -6,7 +6,7 @@ can't or don't want to register that plugin as a setuptools entrypoint, you
 can use the ``addplugins`` keyword argument to :func:`nose.core.main` or
 :func:`nose.core.run` to make the plugins available.
 
-To do this you would constuct a launcher script for nose, something like::
+To do this you would construct a launcher script for nose, something like::
 
   from nose import main
   from yourpackage import YourPlugin, YourOtherPlugin
@@ -14,12 +14,12 @@ To do this you would constuct a launcher script for nose, something like::
   if __name__ == '__main__':
       nose.main(addplugins=[YourPlugin(), YourOtherPlugin()])
 
-Here's an example. Say that you don't like the fact that the collect only
+Here's an example. Say that you don't like the fact that the collect-only
 plugin outputs 'ok' for each test it finds; instead you want it to output
-'maybe'. You could modify the plugin itself, or instead, create a Maybe plugin
+'maybe.' You could modify the plugin itself, or instead, create a Maybe plugin
 that transforms the output into your desired shape.
 
-Without the plugin, we get 'ok'.
+Without the plugin, we get 'ok.'
 
 >>> import os
 >>> support = os.path.join(os.path.dirname(__file__), 'support')

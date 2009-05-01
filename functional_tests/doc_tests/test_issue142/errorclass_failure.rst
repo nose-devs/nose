@@ -16,7 +16,7 @@ represent test failures.
     >>> todo_test = os.path.join(support, 'errorclass_failing_test.py')
     >>> misc_test = os.path.join(support, 'errorclass_tests.py')
 
-nose.plugins.errorclass.ErrorClass has an argument isfailure .  With a
+nose.plugins.errorclass.ErrorClass has an argument ``isfailure``. With a
 true isfailure, when the errorclass' exception is raised by a test,
 tracebacks are printed.
 
@@ -38,7 +38,7 @@ tracebacks are printed.
     FAILED (TODO=1)
 
 
-Also, --stop stops the test run.
+Also, ``--stop`` stops the test run.
 
     >>> run(argv=["nosetests", "-v", "--with-todo", "--stop", todo_test],
     ...     plugins=[TodoPlugin()])  # doctest: +REPORT_NDIFF
@@ -57,8 +57,8 @@ Also, --stop stops the test run.
     FAILED (TODO=1)
 
 
-With a false .isfailure , errorclass exceptions raised by tests are
-treated as "ignored errors".  For ignored errors, tracebacks are not
+With a false .isfailure, errorclass exceptions raised by tests are
+treated as "ignored errors."  For ignored errors, tracebacks are not
 printed, and the test run does not stop.
 
     >>> run(argv=["nosetests", "-v", "--with-non-failure-todo", "--stop",
@@ -103,7 +103,7 @@ that exception detail strings may have more than one line.
     FAILED (DEPRECATED=2, SKIP=2, TODO=1)
 
 Without -v, the exception detail strings are only displayed if the
-error is not ignored (otherwise, there's no traceback)
+error is not ignored (otherwise, there's no traceback).
 
     >>> run(argv=["nosetests", "--with-todo", misc_test],
     ...     plugins=[TodoPlugin(), Skip(), Deprecated()])

@@ -38,7 +38,7 @@ instantiating the :class:`nose.config.Config` instance that you pass to
 :class:`TestProgram` (or :func:`main` or :func:`run`).
 
 To implement your plugin loading scheme, implement ``loadPlugins()``,
-and in that method, call ``addPlugin()`` with an instance each plugin
+and in that method, call ``addPlugin()`` with an instance of each plugin
 you wish to make available. Make sure to call
 ``super(self).loadPlugins()`` as well if have subclassed a manager
 other than ``PluginManager``.

@@ -3,7 +3,7 @@ Twisted integration
 -------------------
 
 This module provides a very simple way to integrate your tests with the
-Twisted event loop.
+Twisted_ event loop.
 
 You must import this module *before* importing anything from Twisted itself!
 
@@ -24,6 +24,8 @@ Or, more realistically::
           assert ip == "67.15.36.43"
       d.addCallback(check_ip)
       return d
+
+.. _Twisted: http://twistedmatrix.com/trac/
 """
 
 import sys

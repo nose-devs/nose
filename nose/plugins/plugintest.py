@@ -121,7 +121,7 @@ class PluginTester(object):
      
     - suitepath
     
-      - if set, this is the path of the suite to test.  otherwise, you
+      - if set, this is the path of the suite to test. Otherwise, you
         will need to use the hook, makeSuite()
       
     - plugins

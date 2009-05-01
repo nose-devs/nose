@@ -174,7 +174,7 @@ def func_lineno(func):
 
 
 def isclass(obj):
-    """Is obj a class? inspect's isclass is too liberal and returns True
+    """Is obj a class? Inspect's isclass is too liberal and returns True
     for objects that can't be subclasses of anything.
     """
     obj_type = type(obj)
@@ -612,7 +612,7 @@ def transplant_func(func, module):
     >>> pp.__module__
     'nose.util'
 
-    The original function is not modified
+    The original function is not modified.
 
     >>> pprint.__module__
     'pprint'

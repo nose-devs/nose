@@ -72,7 +72,7 @@ But with the fail-after plugin, the entire test run will fail.
     ...
     AttributeError
 
-Likewise since the next plugin fails in a preparatory method, outside
+Likewise, since the next plugin fails in a preparatory method, outside
 of test execution, the entire test run fails when the plugin is used.
 
     >>> class FailPreparationPlugin(EnabledPlugin):
@@ -88,7 +88,7 @@ of test execution, the entire test run fails when the plugin is used.
 
 
 Even AttributeErrors and TypeErrors are not silently suppressed as
-they used to be for some generative plugin methods (issueXXX).
+they used to be for some generative plugin methods (issue152).
 
 These methods caught TypeError and AttributeError and did not record
 the exception, before issue152 was fixed: .loadTestsFromDir(),

@@ -2,8 +2,8 @@ Minimal plugin
 --------------
 
 Plugins work as long as they implement the minimal interface required
-by nose.plugins.base .  They do not have to derive from
-nose.plugins.Plugin .
+by nose.plugins.base. They do not have to derive from
+nose.plugins.Plugin.
 
     >>> class NullPlugin(object):
     ...
