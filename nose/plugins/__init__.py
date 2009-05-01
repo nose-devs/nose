@@ -8,11 +8,11 @@ reporting. There are two basic rules for plugins:
 * Plugin classes should subclass `nose.plugins.Plugin`_.
 
 * Plugins may implement any of the methods described in the class
-  `IPluginInterface`_ in nose.plugins.base. Please note that this class is for
-  documentary purposes only; plugins may not subclass IPluginInterface.
+  :doc:`IPluginInterface <interface>` in nose.plugins.base. Please note that
+  this class is for documentary purposes only; plugins may not subclass
+  IPluginInterface.
 
 .. _nose.plugins.Plugin: http://python-nose.googlecode.com/svn/trunk/nose/plugins/base.py
-.. _IPluginInterface: plugins.interface
 
 Registering
 ===========
@@ -99,9 +99,10 @@ Recipes
 
 * Writing a plugin that handles exceptions
 
-  Subclass `ErrorClassPlugin`_.
+  Subclass :doc:`ErrorClassPlugin <errorclasses>`.
 
-  Examples: `nose.plugins.deprecated`_, `nose.plugins.skip`_
+  Examples: :doc:`nose.plugins.deprecated <deprecated>`,
+  :doc:`nose.plugins.skip <skip>`
 
 * Writing a plugin that adds detail to error reports
 
@@ -109,7 +110,8 @@ Recipes
   you return (error class, error message, traceback) will replace the
   original error tuple.
 
-  Examples: `nose.plugins.capture`_, `nose.plugins.failuredetail`_
+  Examples: :doc:`nose.plugins.capture <capture>`, 
+  :doc:`nose.plugins.failuredetail <failuredetail>`
 
 * Writing a plugin that loads tests from files other than python modules
 
@@ -119,14 +121,14 @@ Recipes
   containing TestCases (or yield them as you find them;
   ``loadTestsFromFile`` may also be a generator).
  
-  Example: `nose.plugins.doctests`_
+  Example: :doc:`nose.plugins.doctests <doctests>`
 
 * Writing a plugin that prints a report
 
-  Implement begin if you need to perform setup before testing
+  Implement ``begin`` if you need to perform setup before testing
   begins. Implement ``report`` and output your report to the provided stream.
  
-  Examples: `nose.plugins.cover`_, `nose.plugins.prof`_
+  Examples: :doc:`nose.plugins.cover <cover>`, :doc:`nose.plugins.prof <prof>`
 
 * Writing a plugin that selects or rejects tests
 
@@ -136,19 +138,9 @@ Recipes
   load tests from it if tests can't be loaded by the core loader or
   another plugin -- and None if you don't care.
  
-  Examples: `nose.plugins.attrib`_, `nose.plugins.doctests`_,
-  `nose.plugins.testid`_
+  Examples: :doc:`nose.plugins.attrib <attrib>`, 
+  :doc:`nose.plugins.doctests <doctests>`, :doc:`nose.plugins.testid <testid>`
   
-.. _ErrorClassPlugin: plugins.errorclasses
-.. _nose.plugins.deprecated: plugins.deprecated
-.. _nose.plugins.skip: plugins.skip
-.. _nose.plugins.capture: plugins.capture
-.. _nose.plugins.failuredetail: plugins.failuredetail
-.. _nose.plugins.doctests: plugins.doctests
-.. _nose.plugins.cover: plugins.cover
-.. _nose.plugins.prof: plugins.prof
-.. _nose.plugins.attrib: plugins.attrib
-.. _nose.plugins.testid: plugins.testid
 
 More Examples
 =============
