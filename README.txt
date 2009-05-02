@@ -79,15 +79,15 @@ absolute. Examples:
    nosetests a.test:TestCase
    nosetests /path/to/test/file.py:test_function
 
-You may also change the working directory where nose looks for tests,
-use the -w switch:
+You may also change the working directory where nose looks for tests
+by using the -w switch:
 
    nosetests -w /path/to/tests
 
-Note however that support for multiple -w arguments is deprecated in
-this version and will be removed in a future release, since as of nose
-0.10 you can get the same behavior by specifying the target
-directories *without* the -w switch:
+Note, however, that support for multiple -w arguments is now
+deprecated and will be removed in a future release. As of nose 0.10,
+you can get the same behavior by specifying the target directories
+*without* the -w switch:
 
    nosetests /path/to/tests /another/path/to/tests
 
@@ -139,7 +139,7 @@ plugins keyword argument.
 0.9 plugins
 -----------
 
-nose 0.10 can use SOME plugins that were written for nose 0.9. The
+nose 0.11 can use SOME plugins that were written for nose 0.9. The
 default plugin manager inserts a compatibility wrapper around 0.9
 plugins that adapts the changed plugin api calls. However, plugins
 that access nose internals are likely to fail, especially if they
@@ -149,6 +149,12 @@ individual test or a suite will fail, partly because suites are no
 longer passed to startTest and partly because it's likely that the
 plugin is trying to find out if the test is an instance of a class
 that no longer exists.
+
+
+0.10 plugins
+------------
+
+All plugins written for nose 0.10 should work with nose 0.11.
 
 
 Options
@@ -286,12 +292,12 @@ Options
 
 --logging-filter=FILTER
 
-   Specify which statements to filter in/out. By default everything is
-   captured. If the output is too verbose, use this option to filter
-   out needless output Example: filter=foo will capture statements
-   issued ONLY to  foo or foo.what.ever.sub but not foobar or other
-   logger. Specify multiple loggers with comma: filter=foo,bar,baz.
-   [NOSE_LOGFILTER]
+   Specify which statements to filter in/out. By default, everything
+   is captured. If the output is too verbose, use this option to
+   filter out needless output. Example: filter=foo will capture
+   statements issued ONLY to  foo or foo.what.ever.sub but not foobar
+   or other logger. Specify multiple loggers with comma:
+   filter=foo,bar,baz. [NOSE_LOGFILTER]
 
 --logging-clear-handlers
 
@@ -299,15 +305,8 @@ Options
 
 --with-coverage
 
-   Enable plugin Coverage:  If you have Ned Batchelder's coverage
-   module installed, you may activate a coverage report. The coverage
-   report will cover any python source module imported after the start
-   of the test run, excluding modules that match testMatch. If you
-   want to include those modules too, use the --cover-tests switch, or
-   set the NOSE_COVER_TESTS environment variable to a true value. To
-   restrict the coverage report to modules from a particular package
-   or packages, use the --cover-packages switch or the
-   NOSE_COVER_PACKAGES environment variable.  [NOSE_WITH_COVERAGE]
+   Enable plugin Coverage:  Activate a coverage report using Ned
+   Batchelder's coverage module.  [NOSE_WITH_COVERAGE]
 
 --cover-package=PACKAGE
 
@@ -333,7 +332,7 @@ Options
 
 --cover-html-dir=DIR
 
-   Produce HTML coverage informaion in dir
+   Produce HTML coverage information in dir
 
 --pdb
 
@@ -382,7 +381,7 @@ Options
    package. The isolation plugin resets the contents of sys.modules
    after each test module or package runs to its state before the
    test. PLEASE NOTE that this plugin should not be used with the
-   coverage plugin in any other case where module reloading may
+   coverage plugin, or in any other case where module reloading may
    produce undesirable side-effects.  [NOSE_WITH_ISOLATION]
 
 -d, --detailed-errors, --failure-detail
@@ -414,10 +413,8 @@ Options
 --with-id
 
    Enable plugin TestId:  Activate to add a test id (like #1) to each
-   test name output. After you've run once to generate test ids, you
-   can re-run individual tests by activating the plugin and passing
-   the ids (with or without the # prefix) instead of test names.
-   Activate with --failed to rerun failing tests only.  [NOSE_WITH_ID]
+   test name output. Activate with --failed to rerun failing tests
+   only.  [NOSE_WITH_ID]
 
 --id-file=FILE
 

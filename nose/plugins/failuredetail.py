@@ -1,6 +1,6 @@
 """
 This plugin provides assert introspection. When the plugin is enabled
-and a test failure occurs, the traceback displayed with extra context
+and a test failure occurs, the traceback is displayed with extra context
 around the line in which the exception was raised. Simple variable 
 substitution is also performed in the context output to provide more
 debugging information.
@@ -11,7 +11,7 @@ from nose.inspector import inspect_traceback
 
 class FailureDetail(Plugin):
     """
-    Plugin that provides assert introspection.
+    Plugin that provides extra information in tracebacks of test failures.
     """
     score = 600 # before capture
     

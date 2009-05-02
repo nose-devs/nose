@@ -1,8 +1,8 @@
 """Use the Doctest plugin with ``--with-doctest`` or the NOSE_WITH_DOCTEST
-environment variable to enable collection and execution of doctests_. 
-Because doctests are usually included in the tested package (instead of
-being grouped into packages or modules of their own), nose only looks for
-them in the non-test packages it discovers in the working directory.
+environment variable to enable collection and execution of :mod:`doctests
+<doctest>`.  Because doctests are usually included in the tested package
+(instead of being grouped into packages or modules of their own), nose only
+looks for them in the non-test packages it discovers in the working directory.
 
 Doctests may also be placed into files other than python modules, in which
 case they can be collected and executed by using the ``--doctest-extension``
@@ -46,7 +46,6 @@ test.
    See :doc:`../doc_tests/test_doctest_fixtures/doctest_fixtures` for
    additional documentation and examples.
 
-.. _doctests: http://docs.python.org/lib/module-doctest.html
 """
 from __future__ import generators
 

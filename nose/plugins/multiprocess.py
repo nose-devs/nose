@@ -6,8 +6,7 @@ The multiprocess plugin enables you to distribute your test run among a set of
 worker processes that run tests in parallel. This can speed up CPU-bound test
 runs (as long as the number of work processeses is around the number of
 processors or cores available), but is mainly useful for IO-bound tests that
-spend most of their time waiting for data to arrive from someplace else and
-would benefit from massive parallelization.
+spend most of their time waiting for data to arrive from someplace else.
 
 .. note ::
 

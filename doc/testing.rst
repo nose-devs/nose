@@ -51,5 +51,5 @@ Details
    finding_tests
    testing_tools
    plugins/builtin
-   Third-party nose plugins <http://nose-plugins.jottit.com/>
+   plugins/other
    setuptools_integration
