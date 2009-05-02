@@ -42,16 +42,28 @@ def main():
     runcmd("hg tag -m 'Tagged release %s' %s" %
            (version, tag))
     
+    # clone a fresh copy
+    runcmd('hg clone -r %s . /tmp/nose_%s' % (tag, tag))
+
+    # build release in clone
+    cd('/tmp/nose_%s' % tag)
+    
     # remove dev tag from setup
     runcmd('cp setup.cfg.release setup.cfg')
 
+    # build included docs
+    cd('doc')
+    runcmd('make man readme')
+    cd('..')
+    
+    # make the distribution
+    runcmd('python setup.py sdist')
+
+    # make the docs (don't want these included in sdist)
     cd('doc')
     runcmd('make html')
     cd('..')
-
-    # make sdist
-    runcmd('python setup.py sdist')
-
+    
     # upload docs and distribution
     if 'NOSE_UPLOAD' in os.environ:
         up = os.environ['NOSE_UPLOAD']
