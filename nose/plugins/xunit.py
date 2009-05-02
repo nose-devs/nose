@@ -76,7 +76,11 @@ def nice_classname(obj):
         cls_name = obj.__class__.__name__
     mod = inspect.getmodule(obj)
     if mod:
-        return "%s.%s" % (mod.__name__, cls_name)
+        name = mod.__name__
+        # jython
+        if name.startswith('org.python.core.'):
+            name = name[len('org.python.core.'):]
+        return "%s.%s" % (name, cls_name)
     else:
         return cls_name
 
