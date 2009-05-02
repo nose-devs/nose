@@ -7,17 +7,17 @@ command::
 
   python setup.py nosetests
 
-This command has one benefit over the standard `test` command: all nose
-plugins are supported.
+This command has one *major* benefit over the standard `test` command: *all
+nose plugins are supported*.
 
 To configure the `nosetests` command, add a [nosetests] section to your
 setup.cfg. The [nosetests] section can contain any command line arguments that
 nosetests supports. The differences between issuing an option on the command
 line and adding it to setup.cfg are:
 
- * In setup.cfg, the -- prefix must be excluded
- * In setup.cfg, command line flags that take no arguments must be given an
-   argument flag (1, T or TRUE for active, 0, F or FALSE for inactive)
+* In setup.cfg, the -- prefix must be excluded
+* In setup.cfg, command line flags that take no arguments must be given an
+  argument flag (1, T or TRUE for active, 0, F or FALSE for inactive)
 
 Here's an example [nosetests] setup.cfg section::
 
@@ -42,6 +42,22 @@ complete build of your package before running tests. For packages with
 dependencies or that build C extensions, using the setuptools command
 can be more convenient than building by hand and running the nosetests
 script.
+
+Bootstrapping
+-------------
+
+If you are distributing your project and want users to be able to run tests
+without having to install nose themselves, add nose to the setup_requires
+section of your setup()::
+
+  setup(
+      # ...
+      setup_requires=['nose>=0.11']
+      )
+
+This will direct setuptools to download and activate nose during the setup
+process, making the ``nosetests`` command available.
+
 """
 try:
     from setuptools import Command

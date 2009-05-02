@@ -5,14 +5,12 @@ Writing Plugins
 nose supports plugins for test collection, selection, observation and
 reporting. There are two basic rules for plugins:
 
-* Plugin classes should subclass `nose.plugins.Plugin`_.
+* Plugin classes should subclass :class:`nose.plugins.Plugin`.
 
 * Plugins may implement any of the methods described in the class
   :doc:`IPluginInterface <interface>` in nose.plugins.base. Please note that
   this class is for documentary purposes only; plugins may not subclass
   IPluginInterface.
-
-.. _nose.plugins.Plugin: http://python-nose.googlecode.com/svn/trunk/nose/plugins/base.py
 
 Registering
 ===========
