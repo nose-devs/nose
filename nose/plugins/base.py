@@ -17,12 +17,12 @@ class Plugin(object):
     __init__, configure, and options, if you override them) will give
     your plugin some friendly default behavior:
 
-      * A --with-$name option will be added to the command line interface
-        to enable the plugin, and a corresponding environment variable
-        will be used as the default value. The plugin class's docstring
-        will be used as the help for this option.
-      * The plugin will not be enabled unless this option is selected by
-        the user.
+    * A --with-$name option will be added to the command line interface
+      to enable the plugin, and a corresponding environment variable
+      will be used as the default value. The plugin class's docstring
+      will be used as the help for this option.
+    * The plugin will not be enabled unless this option is selected by
+      the user.
     """
     can_configure = False
     enabled = False
@@ -41,6 +41,13 @@ class Plugin(object):
 
         The base plugin class adds --with-$name by default, used to enable the
         plugin.
+
+        .. warning :: Don't implement addOptions unless you want to override
+                      all default option handling behavior, including
+                      warnings for conflicting options. Implement
+                      :meth:`options
+                      <nose.plugins.base.IPluginInterface.options>`
+                      instead.
         """
         self.add_options(parser, env)
 
@@ -67,9 +74,11 @@ class Plugin(object):
             self.can_configure = False
 
     def options(self, parser, env):
-        """New plugin API: override to just set options. Implement
-        this method instead of addOptions or add_options for normal
-        options behavior with protection from OptionConflictErrors.
+        """Register commandline options.
+        
+        Implement this method for normal options behavior with protection from
+        OptionConflictErrors. If you override this method and want the default
+        --with-$name option to be registered, be sure to call super().
         """
         env_opt = 'NOSE_WITH_%s' % self.name.upper()
         env_opt = env_opt.replace('-', '_')
