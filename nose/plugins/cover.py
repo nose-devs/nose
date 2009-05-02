@@ -1,11 +1,11 @@
 """If you have Ned Batchelder's coverage_ module installed, you may activate a
-coverage report with the --with-coverage switch or NOSE_WITH_COVERAGE
+coverage report with the ``--with-coverage`` switch or NOSE_WITH_COVERAGE
 environment variable. The coverage report will cover any python source module
 imported after the start of the test run, excluding modules that match
-testMatch. If you want to include those modules too, use the --cover-tests
+testMatch. If you want to include those modules too, use the ``--cover-tests``
 switch, or set the NOSE_COVER_TESTS environment variable to a true value. To
 restrict the coverage report to modules from a particular package or packages,
-use the --cover-packages switch or the NOSE_COVER_PACKAGES environment
+use the ``--cover-packages`` switch or the NOSE_COVER_PACKAGES environment
 variable.
 
 .. _coverage: http://www.nedbatchelder.com/code/modules/coverage.html
@@ -51,14 +51,7 @@ Percent: %(percent)s %%<br/>
 
 class Coverage(Plugin):
     """
-    If you have Ned Batchelder's coverage module installed, you may
-    activate a coverage report. The coverage report will cover any
-    python source module imported after the start of the test run, excluding
-    modules that match testMatch. If you want to include those modules too,
-    use the --cover-tests switch, or set the NOSE_COVER_TESTS environment
-    variable to a true value. To restrict the coverage report to modules from
-    a particular package or packages, use the --cover-packages switch or the
-    NOSE_COVER_PACKAGES environment variable.
+    Activate a coverage report using Ned Batchelder's coverage module.
     """
     coverTests = False
     coverPackages = None
@@ -102,7 +95,7 @@ class Coverage(Plugin):
                           default=env.get('NOSE_COVER_HTML_DIR', 'cover'),
                           dest='cover_html_dir',
                           metavar='DIR',
-                          help='Produce HTML coverage informaion in dir')
+                          help='Produce HTML coverage information in dir')
 
     def configure(self, options, config):
         """

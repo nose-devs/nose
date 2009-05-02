@@ -20,7 +20,7 @@ untar the source package, cd to the new directory, and::
   python setup.py install
 
 However, **please note** that without setuptools installed, you will not be
-able to use 3rd-party nose plugins.
+able to use third-party nose plugins.
 
 This will install the nose libraries, as well as the :doc:`nosetests <usage>`
 script, which you can use to automatically discover and run tests.

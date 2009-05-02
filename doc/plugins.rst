@@ -12,20 +12,20 @@ nose also comes with a number of built-in plugins, such as:
 
 * Output capture
   
-  Unless called with the -s (--nocapture) switch, nose will capture stdout
-  during each test run, and print the captured output only for tests that fail
-  or have errors. The captured output is printed immediately following the
-  error or failure output for the test. (Note that output in teardown methods
-  is captured, but can't be output with failing tests, because teardown has not 
-  yet run at the time of the failure.)
+  Unless called with the ``-s`` (``--nocapture``) switch, nose will capture
+  stdout during each test run, and print the captured output only for tests
+  that fail or have errors. The captured output is printed immediately
+  following the error or failure output for the test. (Note that output in
+  teardown methods is captured, but can't be output with failing tests, because
+  teardown has not yet run at the time of the failure.)
 
 * Assert introspection
 
-  When run with the -d (--detailed-errors) switch, nose will try to output
-  additional information about the assert expression that failed with each
-  failing test. Currently, this means that names in the assert expression will
-  be expanded into any values found for them in the locals or globals in the
-  frame in which the expression executed.
+  When run with the ``-d`` (``--detailed-errors``) switch, nose will try to
+  output additional information about the assert expression that failed with
+  each failing test. Currently, this means that names in the assert expression
+  will be expanded into any values found for them in the locals or globals in
+  the frame in which the expression executed.
   
   In other words, if you have a test like::
   

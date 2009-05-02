@@ -34,15 +34,15 @@ absolute. Examples:
   %prog a.test:TestCase
   %prog /path/to/test/file.py:test_function
   
-You may also change the working directory where nose looks for tests,
-use the -w switch:
+You may also change the working directory where nose looks for tests
+by using the -w switch:
 
   %prog -w /path/to/tests
 
-Note however that support for multiple -w arguments is deprecated
-in this version and will be removed in a future release, since as
-of nose 0.10 you can get the same behavior by specifying the
-target directories *without* the -w switch:
+Note, however, that support for multiple -w arguments is now deprecated
+and will be removed in a future release. As of nose 0.10, you can get
+the same behavior by specifying the target directories *without*
+the -w switch:
 
   %prog /path/to/tests /another/path/to/tests
 

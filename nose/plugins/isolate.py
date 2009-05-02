@@ -1,9 +1,9 @@
-"""Use the isolation plugin with --with-isolation or the
-NOSE_WITH_ISOLATION environment variable to clean sys.modules after
-each test module is loaded and executed.
+"""The isolation plugin resets the contents of sys.modules after running
+each test module or package. Use it by setting ``--with-isolation`` or the
+NOSE_WITH_ISOLATION environment variable.
 
-The isolation module is in effect similar to wrapping the following
-functions around the import and execution of each test module::
+The effects are similar to wrapping the following functions around the
+import and execution of each test module::
 
     def setup(module):
         module._mods = sys.modules.copy()
@@ -26,10 +26,13 @@ setup and teardown to run for each name, defeating the grouping that
 is normally used to ensure that context setup and teardown are run the
 fewest possible times for a given set of names.
 
-PLEASE NOTE that this plugin should not be used in conjunction with
-other plugins that assume that modules once imported will stay
-imported; for instance, it may cause very odd results when used with
-the coverage plugin.
+.. warning ::
+
+    This plugin should not be used in conjunction with other plugins
+    that assume that modules, once imported, will stay imported; for
+    instance, it may cause very odd results when used with the coverage
+    plugin.
+
 """
 
 import logging
@@ -46,7 +49,7 @@ class IsolationPlugin(Plugin):
     modules to a single test module or package. The isolation plugin
     resets the contents of sys.modules after each test module or
     package runs to its state before the test. PLEASE NOTE that this
-    plugin should not be used with the coverage plugin in any other case
+    plugin should not be used with the coverage plugin, or in any other case
     where module reloading may produce undesirable side-effects.
     """
     score = 10 # I want to be last

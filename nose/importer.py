@@ -122,7 +122,7 @@ class Importer(object):
 
 def add_path(path, config=None):
     """Ensure that the path, or the root of the current package (if
-    path is in a package) is in sys.path.
+    path is in a package), is in sys.path.
     """
 
     # FIXME add any src-looking dirs seen too... need to get config for that

@@ -1,10 +1,13 @@
-"""Use the profile plugin with ``--with-profile`` or NOSE_WITH_PROFILE to
-enable profiling using the hotshot profiler. Profiler output can be
-controlled with the ``--profile-sort`` and ``--profile-restrict``, and the
-profiler output file may be changed with ``--profile-stats-file``.
+"""This plugin will run tests using the hotshot profiler, which is part
+of the standard library. To turn it on, use the ``--with-profile`` option
+or set the NOSE_WITH_PROFILE environment variable. Profiler output can be
+controlled with the ``--profile-sort`` and ``--profile-restrict`` options,
+and the profiler output file may be changed with ``--profile-stats-file``.
 
-See the hotshot documentation in the standard library documentation for
+See the `hotshot documentation`_ in the standard library documentation for
 more details on the various output options.
+
+.. _hotshot documentation: http://docs.python.org/library/hotshot.html
 """
 
 try:

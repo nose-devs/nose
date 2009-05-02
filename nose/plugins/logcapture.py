@@ -1,21 +1,18 @@
 """
-This plugin captures logging statements issued during test
-execution, appending any output captured to the error or failure
-output, should the test fail or raise an error. It is enabled by
-default but may be disabled with the options --nologcapture.
+This plugin captures logging statements issued during test execution. When an
+error or failure occurs, the captured log messages are attached to the running
+test in the test.capturedLogging attribute, and displayed with the error failure
+output. It is enabled by default but can be turned off with the option
+``--nologcapture``.
 
-To remove any other installed logging handlers, use the
---logging-clear-handlers option.
-
-When an error or failure occurs, captures log messages are attached to
-the running test in the test.capturedLogging attribute, and added to
-the error failure output.
-
-You can filter logging statements captured with the --logging-filter option. 
+You can filter captured logging statements with the ``--logging-filter`` option. 
 If set, it specifies which logger(s) will be captured; loggers that do not match
-will be passed. Example: specifying --logging-filter=sqlalchemy,myapp 
-will ensure that only statements logged via sqlalchemy.engine or myapp
+will be passed. Example: specifying ``--logging-filter=sqlalchemy,myapp``
+will ensure that only statements logged via sqlalchemy.engine, myapp
 or myapp.foo.bar logger will be logged.
+
+You can remove other installed logging handlers with the
+``--logging-clear-handlers`` option.
 """
 
 import logging
@@ -60,7 +57,7 @@ class MyMemoryHandler(BufferingHandler):
 class LogCapture(Plugin):
     """
     Log capture plugin. Enabled by default. Disable with --nologcapture.
-    This plugin captures logging statement issued during test execution,
+    This plugin captures logging statements issued during test execution,
     appending any output captured to the error or failure output,
     should the test fail or raise an error.    
     """
@@ -101,8 +98,8 @@ class LogCapture(Plugin):
             default=env.get('NOSE_LOGFILTER'),
             metavar="FILTER",
             help="Specify which statements to filter in/out. "
-                 "By default everything is captured. If the output is too"
-                 " verbose,\nuse this option to filter out needless output\n"
+                 "By default, everything is captured. If the output is too"
+                 " verbose,\nuse this option to filter out needless output.\n"
                  "Example: filter=foo will capture statements issued ONLY to\n"
                  " foo or foo.what.ever.sub but not foobar or other logger.\n"
                  "Specify multiple loggers with comma: filter=foo,bar,baz."

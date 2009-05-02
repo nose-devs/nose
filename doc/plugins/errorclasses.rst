@@ -1,2 +1,7 @@
 .. automodule :: nose.plugins.errorclass
-   :members: ErrorClassPlugin
+
+Error class methods
+-------------------
+
+.. autoclass :: nose.plugins.errorclass.ErrorClassPlugin
+   :members:

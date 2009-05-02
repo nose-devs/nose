@@ -131,7 +131,7 @@ class TextTestResult(_TextTestResult):
 
     def wasSuccessful(self):
         """Overrides to check that there are no errors in errorClasses
-        lists that are marked as errors that should cause a run to
+        lists that are marked as errors and should cause a run to
         fail.
         """
         if self.errors or self.failures:

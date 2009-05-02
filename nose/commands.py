@@ -2,7 +2,8 @@
 nosetests setuptools command
 ----------------------------
 
-You can run tests using the `nosetests` setuptools command::
+The easiest way to run tests with nose is to use the `nosetests` setuptools
+command::
 
   python setup.py nosetests
 

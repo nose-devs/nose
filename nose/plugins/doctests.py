@@ -1,21 +1,20 @@
-"""Use the Doctest plugin with --with-doctest or the NOSE_WITH_DOCTEST
-environment variable to enable collection and execution of doctests. doctest_
-tests are usually included in the tested package, not grouped into packages or
-modules of their own. For this reason, nose will try to detect and run doctest
-tests only in the non-test packages it discovers in the working
-directory.
+"""Use the Doctest plugin with ``--with-doctest`` or the NOSE_WITH_DOCTEST
+environment variable to enable collection and execution of doctests_. 
+Because doctests are usually included in the tested package (instead of
+being grouped into packages or modules of their own), nose only looks for
+them in the non-test packages it discovers in the working directory.
 
 Doctests may also be placed into files other than python modules, in which
-case they can be collected and executed by using the --doctest-extension
+case they can be collected and executed by using the ``--doctest-extension``
 switch or NOSE_DOCTEST_EXTENSION environment variable to indicate which file
 extension(s) to load.
 
-When loading doctests from non-module files, you may specify how to find
-modules that contains fixtures for the tests using the --doctest-fixtures
-switch. The value of that switch will be appended to the base name of each
-doctest file loaded to produce a module name. For instance, for a doctest file
-"widgets.rst" with the switch ``--doctest_fixtures=_fixt``, fixtures will be
-loaded from the module ``widgets_fixt.py`` if it exists.
+When loading doctests from non-module files, use the ``--doctest-fixtures``
+switch to specify how to find modules containing fixtures for the tests. A
+module name will be produced by appending the value of that switch to the base
+name of each doctest file loaded. For example, a doctest file "widgets.rst"
+with the switch ``--doctest_fixtures=_fixt`` will load fixtures from the module
+``widgets_fixt.py``.
 
 A fixtures module may define any or all of the following functions:
 
@@ -36,18 +35,18 @@ A fixtures module may define any or all of the following functions:
 * teardown_test(test)
  
   Called after the test, if setup_test did not raise an exception. NOTE: the
-  argument passed is a doctest.DocTest instance, *not* a unittest.TestCase
+  argument passed is a doctest.DocTest instance, *not* a unittest.TestCase.
   
-Doctest tests are run like any other test, with the exception that output
-capture does not work, because doctest does its own output capture in the
-course of running a test.
+Doctests are run like any other test, with the exception that output
+capture does not work; doctest does its own output capture while running a
+test.
 
 .. note ::
 
    See :doc:`../doc_tests/test_doctest_fixtures/doctest_fixtures` for
    additional documentation and examples.
 
-.. _doctest: http://docs.python.org/lib/module-doctest.html
+.. _doctests: http://docs.python.org/lib/module-doctest.html
 """
 from __future__ import generators
 

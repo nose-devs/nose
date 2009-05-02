@@ -3,9 +3,8 @@ Test Suites
 -----------
 
 Provides a LazySuite, which is a suite whose test list is a generator
-function, and ContextSuite, a suite that can run fixtures
-(setup/teardown functions or methods) for the context that contains
-its tests.
+function, and ContextSuite,which can run fixtures (setup/teardown
+functions or methods) for the context that contains its tests.
 
 """
 from __future__ import generators
@@ -358,7 +357,7 @@ class ContextSuite(LazySuite):
 class ContextSuiteFactory(object):
     """Factory for ContextSuites. Called with a collection of tests,
     the factory decides on a hierarchy of contexts by introspecting
-    the collection or the tests them selves to find the objects
+    the collection or the tests themselves to find the objects
     containing the test objects. It always returns one suite, but that
     suite may consist of a hierarchy of nested suites.
     """

@@ -69,11 +69,10 @@ def tbsource(tb, context=6):
     The optional second argument specifies the number of lines of context
     to return, which are centered around the current line.
 
-    NOTE:
-    
-    This is adapted from inspect.py in the python 2.4 standard library, since
-    a bug in the 2.3 version of inspect prevents it from correctly locating
-    source lines in a traceback frame.
+    .. Note ::
+       This is adapted from inspect.py in the python 2.4 standard library, 
+       since a bug in the 2.3 version of inspect prevents it from correctly
+       locating source lines in a traceback frame.
     """
     
     lineno = tb.tb_lineno

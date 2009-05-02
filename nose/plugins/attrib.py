@@ -1,8 +1,8 @@
 """Attribute selector plugin.
 
 Oftentimes when testing you will want to select tests based on
-criteria rather then simply by filename.  For example, you might want
-to run all tests except for the slow ones.  You can do this with the
+criteria rather then simply by filename. For example, you might want
+to run all tests except for the slow ones. You can do this with the
 Attribute selector plugin by setting attributes on your test methods.
 Here is an example:
 
@@ -30,7 +30,7 @@ Here's how to set ``slow=1`` like above with the decorator:
         import urllib
         # commence slowness...
 
-And here's how to set an attribute with a specific value :
+And here's how to set an attribute with a specific value:
 
 .. code-block:: python
 
