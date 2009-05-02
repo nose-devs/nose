@@ -5,8 +5,8 @@ from warnings import warn
 from nose.util import tolist
 
 class Plugin(object):
-    """Base class for nose plugins. It's not *necessary* to subclass this
-    class to create a plugin; however, all plugins must implement
+    """Base class for nose plugins. It's recommended but not *necessary* to
+    subclass this class to create a plugin, but all plugins *must* implement
     `options(self, parser, env)` and `configure(self, options, conf)`, and
     must have the attributes `enabled`, `name` and `score`.  The `name`
     attribute may contain hyphens ('-').
@@ -126,10 +126,8 @@ class IPluginInterface(object):
         raise TypeError("IPluginInterface class is for documentation only")
 
     def addOptions(self, parser, env):
-        """Called to allow plugin to register command line
-        options with the parser.
-
-        Do *not* return a value from this method unless you want to stop
+        """Called to allow plugin to register command-line options with the
+        parser. DO NOT return a value from this method unless you want to stop
         all other plugins from setting their options.
 
         .. warning ::
@@ -237,18 +235,17 @@ class IPluginInterface(object):
 
     def beforeContext(self):
         """Called before a context (generally a module) is
-        examined. Since the context is not yet loaded, plugins don't
+        examined. Because the context is not yet loaded, plugins don't
         get to know what the context is; so any context operations
         should use a stack that is pushed in `beforeContext` and popped
         in `afterContext` to ensure they operate symmetrically.
 
-        `beforeContext` and `afterContext` are mainly
-        useful for tracking and restoring global state around possible
-        changes from within a context, whatever the context may be. If
-        you need to operate on contexts themselves, see `startContext`
-        and `stopContext`, which are passed the context in question, but
-        are called after it has been loaded (imported in the module
-        case).
+        `beforeContext` and `afterContext` are mainly useful for tracking
+        and restoring global state around possible changes from within a
+        context, whatever the context may be. If you need to operate on
+        contexts themselves, see `startContext` and `stopContext`, which
+        are passed the context in question, but are called after
+        it has been loaded (imported in the module case).
         """
         pass
     beforeContext._new = True
@@ -291,7 +288,7 @@ class IPluginInterface(object):
         config storage or changes to state or operation that are set
         by command line options.
 
-        Do *not* return a value from this method unless you want to
+        DO NOT return a value from this method unless you want to
         stop all other plugins from being configured.
         """
         pass
@@ -300,13 +297,13 @@ class IPluginInterface(object):
         """Called after all report output, including output from all
         plugins, has been sent to the stream. Use this to print final
         test results or perform final cleanup. Return None to allow
-        other plugins to continue printing, any other value to stop
+        other plugins to continue printing, or any other value to stop
         them.
 
         :param result: test result object
         
         .. Note:: When tests are run under a test runner other than
-           :class:`nose.core.TextTestRunner`, for example when tests are run
+           :class:`nose.core.TextTestRunner`, such as
            via ``python setup.py test``, this method may be called
            **before** the default report output is sent.
         """
@@ -342,7 +339,7 @@ class IPluginInterface(object):
     def formatFailure(self, test, err):
         """Called in result.addFailure, before plugin.addFailure. If you
         want to replace or modify the error tuple, return a new error
-        tuple. Since this method is chainable, you must return the
+        tuple. Because this method is chainable, you must return the
         test as well, so you you'll return something like::
 
           return (test, err)
@@ -511,7 +508,7 @@ class IPluginInterface(object):
         """Called to allow plugin to register command line
         options with the parser.
 
-        Do *not* return a value from this method unless you want to stop
+        DO NOT return a value from this method unless you want to stop
         all other plugins from setting their options.
 
         :param parser: options parser instance
@@ -724,7 +721,7 @@ class IPluginInterface(object):
     def wantModuleTests(self, module):
         """
         .. warning:: DEPRECATED -- this method will not be called, it has
-             been folded into wantModule.
+                     been folded into wantModule.
         """
         pass
     wantModuleTests.deprecated = True
