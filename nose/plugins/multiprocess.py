@@ -214,6 +214,7 @@ class MultiProcessTestRunner(TextTestRunner):
         suite or any sub-suites.
 
         """
+        log.debug("%s.run(%s) (%s)", self, test, os.getpid())
         wrapper = self.config.plugins.prepareTest(test)
         if wrapper is not None:
             test = wrapper
