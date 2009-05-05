@@ -16,3 +16,4 @@ support/cover/index.html
 _env
 doc/.build
 dist
+build
