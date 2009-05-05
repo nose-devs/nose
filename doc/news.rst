@@ -14,6 +14,10 @@ New plugins
   processes. For some test suites, this can shorten run time tremendously.
   See also: :doc:`doc_tests/test_multiprocess/multiprocess`.
 
+  .. warning ::
+
+     The multiprocess plugin is not available on Windows.
+  
 * :doc:`Log capture <plugins/logcapture>`
 
   The log capture plugin does for logging what the

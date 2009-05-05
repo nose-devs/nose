@@ -14,6 +14,10 @@ speed up CPU-bound test runs, it is mainly useful for IO-bound tests
 that spend most of their time waiting for data to arrive from someplace
 else and can benefit from parallelization.
 
+.. warning ::
+
+   The multiprocess plugin is not available on Windows.
+
 .. _multiprocessing : http://code.google.com/p/python-multiprocessing/
 
 How tests are distributed

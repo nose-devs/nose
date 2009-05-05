@@ -2,6 +2,10 @@
 Overview
 ========
 
+.. warning ::
+
+   The multiprocess plugin is not available on Windows.
+
 The multiprocess plugin enables you to distribute your test run among a set of
 worker processes that run tests in parallel. This can speed up CPU-bound test
 runs (as long as the number of work processeses is around the number of
@@ -104,6 +108,10 @@ Process = Queue = Pool = Event = None
 
 def _import_mp():
     global Process, Queue, Pool, Event
+    if sys.platform == 'win32':
+        warn("multiprocess plugin is not available on windows",
+             RuntimeWarning)
+        return
     try:
         from multiprocessing import Process as Process_, \
             Queue as Queue_, Pool as Pool_, Event as Event_
@@ -143,6 +151,8 @@ class MultiProcess(Plugin):
         """
         Register command-line options.
         """
+        if sys.platform == 'win32':
+            return
         parser.add_option("--processes", action="store",
                           default=env.get('NOSE_PROCESSES', 0),
                           dest="multiprocess_workers",
@@ -162,6 +172,8 @@ class MultiProcess(Plugin):
         """
         Configure plugin.
         """
+        if sys.platform == 'win32':
+            return
         try:
             self.status.pop('active')
         except KeyError:
