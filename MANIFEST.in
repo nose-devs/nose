@@ -7,6 +7,7 @@ include nosetests.1
 include install-rpm.sh
 include bin/nosetests
 include selftest.py
+include nose/usage.txt
 graft doc
 graft examples
 graft unit_tests
