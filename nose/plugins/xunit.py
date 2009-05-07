@@ -90,6 +90,16 @@ class Xunit(Plugin):
     score = 2000
     encoding = 'UTF-8'
     
+    def _timeTaken(self):
+        if hasattr(self, '_timer'):
+            taken = time() - self._timer
+        else:
+            # test died before it ran (probably error in setup())
+            # or success/failure added before test started probably 
+            # due to custom TestResult munging
+            taken = 0.0
+        return taken
+    
     def _xmlsafe(self, s):
         return xmlsafe(s, encoding=self.encoding)
     
@@ -145,11 +155,7 @@ class Xunit(Plugin):
     def addError(self, test, err, capt=None):
         """Add error output to Xunit report.
         """
-        if hasattr(self, '_timer'):
-            taken = time() - self._timer
-        else:
-            # test died before it ran (probably error in setup())
-            taken = 0.0
+        taken = self._timeTaken()
             
         if issubclass(err[0], SkipTest):
             self.stats['skipped'] +=1
@@ -170,7 +176,7 @@ class Xunit(Plugin):
     def addFailure(self, test, err, capt=None, tb_info=None):
         """Add failure output to Xunit report.
         """
-        taken = time() - self._timer
+        taken = self._timeTaken()
         tb = ''.join(traceback.format_exception(*err))
         self.stats['failures'] += 1
         id = test.id()
@@ -187,7 +193,8 @@ class Xunit(Plugin):
     def addSuccess(self, test, capt=None):
         """Add success output to Xunit report.
         """
-        taken = time() - self._timer
+        taken = self._timeTaken()
+            
         self.stats['passes'] += 1
         id = test.id()
         self.errorlist.append(
