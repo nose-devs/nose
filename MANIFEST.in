@@ -6,6 +6,7 @@ include lgpl.txt
 include nosetests.1
 include install-rpm.sh
 include bin/nosetests
+include selftest.py
 graft doc
 graft examples
 graft unit_tests
