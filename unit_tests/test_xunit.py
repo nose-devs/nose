@@ -135,6 +135,29 @@ class TestXMLOutputWithXML(unittest.TestCase):
             assert '<failure type="exceptions.AssertionError">' in result
             assert 'AssertionError: one is not equal to two' in result
             assert '</failure></testcase></testsuite>' in result
+            
+    def test_addFailure_early(self):
+        test = mktest()
+        try:
+            raise AssertionError("one is not equal to two")
+        except AssertionError:
+            some_err = sys.exc_info()
+        
+        # add failure without startTest, due to custom TestResult munging?
+        self.x.addFailure(test, some_err)
+        
+        result = self.get_xml_report()
+        print result
+        
+        if self.ET:
+            tree = self.ET.fromstring(result)
+            tc = tree.find("testcase")
+            eq_(tc.attrib['time'], "0")
+        else:
+            # this is a dumb test for 2.4-
+            assert '<?xml version="1.0" encoding="UTF-8"?>' in result
+            assert ('<testcase classname="test_xunit.TC" '
+                    'name="test_xunit.TC.runTest" time="0">') in result
     
     def test_addError(self):
         test = mktest()
@@ -227,4 +250,23 @@ class TestXMLOutputWithXML(unittest.TestCase):
             assert '<testsuite name="nosetests" tests="1" errors="0" failures="0" skip="0">' in result
             assert '<testcase classname="test_xunit.TC" name="test_xunit.TC.runTest"' in result
             assert '</testsuite>' in result
+    
+    def test_addSuccess_early(self):
+        test = mktest()
+        # call addSuccess without startTest
+        # which can happen (?) -- did happen with JsLint plugin
+        self.x.addSuccess(test, (None,None,None))
+        
+        result = self.get_xml_report()
+        print result
+        
+        if self.ET:
+            tree = self.ET.fromstring(result)
+            tc = tree.find("testcase")
+            eq_(tc.attrib['time'], "0")
+        else:
+            # this is a dumb test for 2.4-
+            assert '<?xml version="1.0" encoding="UTF-8"?>' in result
+            assert ('<testcase classname="test_xunit.TC" '
+                    'name="test_xunit.TC.runTest" time="0" />') in result
         
