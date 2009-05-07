@@ -279,9 +279,14 @@ class TestId(Plugin):
     def afterTest(self, test):
         # None means test never ran, False means failed/err
         if test.passed is False:
-            key = str(self.tests[test.address()])
-            if key not in self.failed:
-                self.failed.append(key)
+            try:
+                key = str(self.tests[test.address()])
+            except KeyError:
+                # an early error was called (before startTest)
+                pass
+            else:
+                if key not in self.failed:
+                    self.failed.append(key)
         
     def tr(self, name):
         log.debug("tr '%s'", name)
