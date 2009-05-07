@@ -116,7 +116,7 @@ class TestId(Plugin):
     idfile = None
     collecting = True
     loopOnFailed = False
-    
+
     def options(self, parser, env):
         """Register commandline options.
         """
@@ -174,7 +174,7 @@ class TestId(Plugin):
     def loadTestsFromNames(self, names, module=None):
         """Translate ids in the list of requested names into their
         test addresses, if they are found in my dict of tests.
-        """        
+        """
         log.debug('ltfn %s %s', names, module)
         try:
             fh = open(self.idfile, 'r')
@@ -200,7 +200,7 @@ class TestId(Plugin):
             fh.close()
         except IOError:
             log.debug('IO error reading %s', self.idfile)
-            
+
         if self.loopOnFailed and self.failed:
             self.collecting = False
             names = self.failed
@@ -230,7 +230,7 @@ class TestId(Plugin):
             if not translated:
                 # new set of source names, no translations
                 # means "run the requested tests"
-                names = new_source                
+                names = new_source
         else:
             # no new names to translate and add to id set
             self.collecting = False
@@ -248,7 +248,7 @@ class TestId(Plugin):
         if call is not None:
             return "%s:%s" % (head, call)
         return head
-        
+
     def setOutputStream(self, stream):
         """Get handle on output stream so the plugin can print id #s
         """
@@ -282,7 +282,7 @@ class TestId(Plugin):
             key = str(self.tests[test.address()])
             if key not in self.failed:
                 self.failed.append(key)
-        
+
     def tr(self, name):
         log.debug("tr '%s'", name)
         try:
