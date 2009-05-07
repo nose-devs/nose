@@ -39,7 +39,7 @@ def main():
     tag = 'release_%s' % version
 
     # create tag
-    runcmd("hg tag -m 'Tagged release %s' %s" %
+    runcmd("hg tag -fm 'Tagged release %s' %s" %
            (version, tag))
     
     # clone a fresh copy
@@ -53,16 +53,11 @@ def main():
 
     # build included docs
     cd('doc')
-    runcmd('make man readme')
+    runcmd('make man readme html')
     cd('..')
     
     # make the distribution
     runcmd('python setup.py sdist')
-
-    # make the docs (don't want these included in sdist)
-    cd('doc')
-    runcmd('make html')
-    cd('..')
     
     # upload docs and distribution
     if 'NOSE_UPLOAD' in os.environ:

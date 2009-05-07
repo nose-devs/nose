@@ -10,3 +10,4 @@ graft doc
 graft examples
 graft unit_tests
 graft functional_tests
+prune doc/.build
