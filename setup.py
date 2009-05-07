@@ -8,7 +8,7 @@ try:
     addl_args = dict(
         zip_safe = False,
         packages = find_packages(),
-        entry_points = {        
+        entry_points = {
         'console_scripts': [
             'nosetests = nose:run_exit',
             'nosetests%s = nose:run_exit' % py_vers_tag,
@@ -25,7 +25,7 @@ except ImportError:
         packages = ['nose', 'nose.ext', 'nose.plugins'],
         scripts = ['bin/nosetests'],
         )
-    
+
 setup(
     name = 'nose',
     version = VERSION,
@@ -45,7 +45,7 @@ setup(
     These features, and many more, are customizable through the use of
     plugins. Plugins included with nose provide support for doctest, code
     coverage and profiling, flexible attribute-based test selection,
-    output capture and more. More information about writing plugins may be 
+    output capture and more. More information about writing plugins may be
     found on in the nose API documentation, here:
     http://somethingaboutorange.com/mrl/projects/nose/
 
