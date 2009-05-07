@@ -145,7 +145,12 @@ class Xunit(Plugin):
     def addError(self, test, err, capt=None):
         """Add error output to Xunit report.
         """
-        taken = time() - self._timer
+        if hasattr(self, '_timer'):
+            taken = time() - self._timer
+        else:
+            # test died before it ran (probably error in setup())
+            taken = 0.0
+            
         if issubclass(err[0], SkipTest):
             self.stats['skipped'] +=1
             return

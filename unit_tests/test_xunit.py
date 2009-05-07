@@ -176,6 +176,30 @@ class TestXMLOutputWithXML(unittest.TestCase):
             assert '<error type="exceptions.RuntimeError">' in result
             assert 'RuntimeError: some error happened' in result
             assert '</error></testcase></testsuite>' in result
+    
+    def test_addError_early(self):
+        test = mktest()
+        try:
+            raise RuntimeError("some error happened")
+        except RuntimeError:
+            some_err = sys.exc_info()
+        
+        # call addError without startTest
+        # which can happen if setup() raises an error
+        self.x.addError(test, some_err)
+        
+        result = self.get_xml_report()
+        print result
+        
+        if self.ET:
+            tree = self.ET.fromstring(result)
+            tc = tree.find("testcase")
+            eq_(tc.attrib['time'], "0")
+        else:
+            # this is a dumb test for 2.4-
+            assert '<?xml version="1.0" encoding="UTF-8"?>' in result
+            assert ('<testcase classname="test_xunit.TC" '
+                    'name="test_xunit.TC.runTest" time="0">') in result
         
     def test_addSuccess(self):
         test = mktest()
@@ -203,3 +227,4 @@ class TestXMLOutputWithXML(unittest.TestCase):
             assert '<testsuite name="nosetests" tests="1" errors="0" failures="0" skip="0">' in result
             assert '<testcase classname="test_xunit.TC" name="test_xunit.TC.runTest"' in result
             assert '</testsuite>' in result
+        
