@@ -68,10 +68,10 @@ class TestSuiteFactory:
     def __init__(self, conf):
         self.conf = conf
 
-    def __call__(self, tests=()):
+    def __call__(self, tests=(), **kw):
         return TestSuite(tests, conf=self.conf)
-                         
-                          
+
+
 class TestSuite(unittest.TestSuite):
     """
     Basic test suite that bypasses most proxy and plugin calls, but does
@@ -84,11 +84,11 @@ class TestSuite(unittest.TestSuite):
             tests = tests()
         log.debug("TestSuite(%r)", tests)
         unittest.TestSuite.__init__(self, tests)
-    
+
     def addTest(self, test):
         log.debug("Add test %s", test)
         if isinstance(test, unittest.TestSuite):
             self._tests.append(test)
         else:
             self._tests.append(Test(test, config=self.conf))
-        
+
