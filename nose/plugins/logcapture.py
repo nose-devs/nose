@@ -17,6 +17,7 @@ You can remove other installed logging handlers with the
 
 import logging
 from logging.handlers import BufferingHandler
+import threading
 
 from nose.plugins.base import Plugin
 from nose.util import ln, safe_str
@@ -52,8 +53,13 @@ class MyMemoryHandler(BufferingHandler):
             if rname == name or rname.startswith(name+'.'):
                 matched = True
         return matched
-
-
+    def __getstate__(self):
+        state = self.__dict__.copy()
+        del state['lock']
+    def __setstate__(self, state):
+        self.__dict__.update(state)
+        self.lock = threading.RLock()
+        
 class LogCapture(Plugin):
     """
     Log capture plugin. Enabled by default. Disable with --nologcapture.

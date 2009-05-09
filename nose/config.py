@@ -211,6 +211,15 @@ class Config(object):
         self.update(kw)
         self._orig = self.__dict__.copy()
 
+    def __getstate__(self):
+        state = self.__dict__.copy()
+        del state['stream']
+        del state['_orig']
+        del state['_default']
+        del state['env']
+        del state['logStream']
+        return state
+        
     def __repr__(self):
         d = self.__dict__.copy()
         # don't expose env, could include sensitive info
@@ -530,6 +539,9 @@ class Config(object):
 class NoOptions(object):
     """Options container that returns None for all options.
     """
+    def __getstate__(self):
+        return {}
+    
     def __getattr__(self, attr):
         return None
 
