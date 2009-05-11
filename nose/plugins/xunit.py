@@ -56,7 +56,7 @@ def xmlsafe(s, encoding="utf-8"):
                      ('<', '&lt;', ),
                      ('>', '&gt;', ),
                      ('"', '&quot;', ),
-                     ("'", '&quot;', ),
+                     ("'", '&#39;', ),
                      ]:
         s = s.replace(src, rep)
     return s

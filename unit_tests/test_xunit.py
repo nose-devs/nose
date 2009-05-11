@@ -23,8 +23,10 @@ class TestEscaping(unittest.TestCase):
         self.x = Xunit()
     
     def test_all(self):
-        eq_(self.x._xmlsafe('<baz src="http://foo?f=1&b=2" />'),
-            '&lt;baz src=&quot;http://foo?f=1&amp;b=2&quot; /&gt;')
+        eq_(self.x._xmlsafe(
+            '''<baz src="http://foo?f=1&b=2" quote="inix hubris 'maximus'?" />'''),
+            ('&lt;baz src=&quot;http://foo?f=1&amp;b=2&quot; '
+                'quote=&quot;inix hubris &#39;maximus&#39;?&quot; /&gt;'))
 
     
     def test_unicode_is_utf8_by_default(self):
@@ -99,7 +101,7 @@ class TestXMLOutputWithXML(unittest.TestCase):
         test = mktest()
         self.x.startTest(test)
         try:
-            raise AssertionError("one is not equal to two")
+            raise AssertionError("one is not 'equal' to two")
         except AssertionError:
             some_err = sys.exc_info()
             
@@ -125,15 +127,16 @@ class TestXMLOutputWithXML(unittest.TestCase):
             eq_(err.attrib['type'], "exceptions.AssertionError")
             err_lines = err.text.strip().split("\n")
             eq_(err_lines[0], 'Traceback (most recent call last):')
-            eq_(err_lines[-1], 'AssertionError: one is not equal to two')
-            eq_(err_lines[-2], '    raise AssertionError("one is not equal to two")')
+            eq_(err_lines[-1], 'AssertionError: one is not \'equal\' to two')
+            eq_(err_lines[-2], '    raise AssertionError("one is not \'equal\' to two")')
         else:            
             # this is a dumb test for 2.4-
             assert '<?xml version="1.0" encoding="UTF-8"?>' in result
             assert '<testsuite name="nosetests" tests="1" errors="0" failures="1" skip="0">' in result
             assert '<testcase classname="test_xunit.TC" name="test_xunit.TC.runTest"' in result
             assert '<failure type="exceptions.AssertionError">' in result
-            assert 'AssertionError: one is not equal to two' in result
+            assert 'AssertionError: one is not &#39;equal&#39; to two' in result
+            assert 'AssertionError(&quot;one is not &#39;equal&#39; to two&quot;)' in result
             assert '</failure></testcase></testsuite>' in result
             
     def test_addFailure_early(self):
