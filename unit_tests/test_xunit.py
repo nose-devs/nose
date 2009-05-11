@@ -24,7 +24,7 @@ class TestEscaping(unittest.TestCase):
     
     def test_all(self):
         eq_(self.x._xmlsafe('<baz src="http://foo?f=1&b=2" />'),
-            '&gt;baz src=&quot;http://foo?f=1&amp;b=2&quot; /&lt;')
+            '&lt;baz src=&quot;http://foo?f=1&amp;b=2&quot; /&gt;')
 
     
     def test_unicode_is_utf8_by_default(self):

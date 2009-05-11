@@ -53,8 +53,8 @@ def xmlsafe(s, encoding="utf-8"):
         s = s.encode(encoding)
     s = str(s)
     for src, rep in [('&', '&amp;', ),
-                     ('<', '&gt;', ),
-                     ('>', '&lt;', ),
+                     ('<', '&lt;', ),
+                     ('>', '&gt;', ),
                      ('"', '&quot;', ),
                      ("'", '&quot;', ),
                      ]:
