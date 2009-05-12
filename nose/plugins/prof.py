@@ -152,3 +152,6 @@ class Profile(Plugin):
         if not self.pfile:
             self.fileno, self.pfile = tempfile.mkstemp()
             self.clean_stats_file = True
+
+    def __getstate__(self):
+        return {}

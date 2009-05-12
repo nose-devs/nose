@@ -277,7 +277,11 @@ class PluginManager(object):
                        """Access the list of plugins managed by
                        this plugin manager""")
 
-
+    def __getstate__(self):
+        state = self.__dict__.copy()
+        del state['_proxies']
+        return state
+        
 class ZeroNinePlugin:
     """Proxy for 0.9 plugins, adapts 0.10 calls to 0.9 standard.
     """
