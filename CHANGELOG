@@ -1,3 +1,12 @@
+0.11.1
+
+- Fixed bug in xunit plugin xml escaping. Thanks to Nat Williams for the bug
+  report (#266).
+- Fixed bug in xunit plugin that could cause test run to crash after certain
+  types of errors or actions by other plugins.
+- Fixed bug in testid plugin that could cause test run to crash after certain
+  types of errors or actions by other plugins.
+
 0.11
 
 - Added multiprocess plugin that allows tests to be run in parallel
