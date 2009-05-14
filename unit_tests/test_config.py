@@ -2,9 +2,11 @@ import re
 import os
 import tempfile
 import unittest
-import nose.config
 import warnings
+import pickle
 
+import nose.config
+from nose.plugins.manager import DefaultPluginManager
 
 
 class TestNoseConfig(unittest.TestCase):
@@ -79,6 +81,17 @@ class TestNoseConfig(unittest.TestCase):
         # this matters eg. with python -c "import nose; nose.main()"
         c.configure(['-v', 'mytests'])
         self.assertEqual(c.verbosity, 1)
+
+    def test_pickle_empty(self):
+        c = nose.config.Config()
+        cp = pickle.dumps(c)
+
+    def test_pickle_configured(self):
+        c = nose.config.Config(plugins=DefaultPluginManager())
+        c.configure(['--with-doctest', '--with-coverage', '--with-profile',
+                     '--with-id', '--attr=A', '--collect', '--all'])
+        cp = pickle.dumps(c)
+
 
 if __name__ == '__main__':
     unittest.main()
