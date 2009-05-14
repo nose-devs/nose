@@ -6,7 +6,10 @@
   types of errors or actions by other plugins.
 - Fixed bug in testid plugin that could cause test run to crash after certain
   types of errors or actions by other plugins.
-
+- Fixed bug in collect only plugin that caused it to fail when collecting from
+  test generators.
+- Fixed some broken html in docs.
+  
 0.11
 
 - Added multiprocess plugin that allows tests to be run in parallel
