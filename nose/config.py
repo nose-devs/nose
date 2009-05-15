@@ -206,7 +206,7 @@ class Config(object):
         self.traverseNamespace = False
         self.firstPackageWins = False
         self.parserClass = OptionParser
-        
+
         self._default = self.__dict__.copy()
         self.update(kw)
         self._orig = self.__dict__.copy()
@@ -219,11 +219,11 @@ class Config(object):
         del state['env']
         del state['logStream']
         return state
-        
+
     def __repr__(self):
         d = self.__dict__.copy()
         # don't expose env, could include sensitive info
-        d['env'] = {} 
+        d['env'] = {}
         keys = [ k for k in d.keys()
                  if not k.startswith('_') ]
         keys.sort()

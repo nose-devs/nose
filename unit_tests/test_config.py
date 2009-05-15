@@ -89,7 +89,9 @@ class TestNoseConfig(unittest.TestCase):
     def test_pickle_configured(self):
         c = nose.config.Config(plugins=DefaultPluginManager())
         c.configure(['--with-doctest', '--with-coverage', '--with-profile',
-                     '--with-id', '--attr=A', '--collect', '--all'])
+                     '--with-id', '--attr=A', '--collect', '--all',
+                     '--with-isolation', '-d', '--with-xunit', '--processes=2',
+                     '--pdb'])
         cp = pickle.dumps(c)
 
 

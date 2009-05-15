@@ -1,34 +1,34 @@
 
 """This plugin provides test results in the standard XUnit XML format.
 
-It was designed for the `Hudson`_ continuous build system but will 
+It was designed for the `Hudson`_ continuous build system but will
 probably work for anything else that understands an XUnit-formatted XML
 representation of test results.
 
 Add this shell command to your builder ::
-    
+
     nosetests --with-xunit
 
-And by default a file named nosetests.xml will be written to the 
-working directory.  
+And by default a file named nosetests.xml will be written to the
+working directory.
 
 In a Hudson builder, tick the box named "Publish JUnit test result report"
 under the Post-build Actions and enter this value for Test report XMLs::
-    
+
     **/nosetests.xml
 
-If you need to change the name or location of the file, you can set the 
+If you need to change the name or location of the file, you can set the
 ``--xunit-file`` option.
 
 Here is an abbreviated version of what an XML test report might look like::
-    
+
     <?xml version="1.0" encoding="UTF-8"?>
     <testsuite name="nosetests" tests="1" errors="1" failures="0" skip="0">
-        <testcase classname="path_to_test_suite.TestSomething" 
+        <testcase classname="path_to_test_suite.TestSomething"
                   name="path_to_test_suite.TestSomething.test_it" time="0">
             <error type="exceptions.TypeError">
             Traceback (most recent call last):
-            ...            
+            ...
             TypeError: oops, wrong type
             </error>
         </testcase>
@@ -63,12 +63,12 @@ def xmlsafe(s, encoding="utf-8"):
 
 def nice_classname(obj):
     """Returns a nice name for class object or class instance.
-    
+
         >>> nice_classname(Exception()) # doctest: +ELLIPSIS
         '...Exception'
         >>> nice_classname(Exception)
         'exceptions.Exception'
-    
+
     """
     if inspect.isclass(obj):
         cls_name = obj.__name__
@@ -89,7 +89,8 @@ class Xunit(Plugin):
     name = 'xunit'
     score = 2000
     encoding = 'UTF-8'
-    
+    error_report_file = None
+
     def _timeTaken(self):
         if hasattr(self, '_timer'):
             taken = time() - self._timer
@@ -99,10 +100,10 @@ class Xunit(Plugin):
             # due to custom TestResult munging
             taken = 0.0
         return taken
-    
+
     def _xmlsafe(self, s):
         return xmlsafe(s, encoding=self.encoding)
-    
+
     def options(self, parser, env):
         """Sets additional command line options."""
         Plugin.options(self, parser, env)
@@ -156,7 +157,7 @@ class Xunit(Plugin):
         """Add error output to Xunit report.
         """
         taken = self._timeTaken()
-            
+
         if issubclass(err[0], SkipTest):
             self.stats['skipped'] +=1
             return
@@ -189,12 +190,11 @@ class Xunit(Plugin):
              'tb': self._xmlsafe(tb),
              'taken': taken,
              })
-        
+
     def addSuccess(self, test, capt=None):
         """Add success output to Xunit report.
         """
         taken = self._timeTaken()
-            
         self.stats['passes'] += 1
         id = test.id()
         self.errorlist.append(
@@ -204,5 +204,3 @@ class Xunit(Plugin):
              'name': self._xmlsafe(id),
              'taken': taken,
              })
-
-    

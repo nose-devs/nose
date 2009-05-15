@@ -75,7 +75,7 @@ class Plugin(object):
 
     def options(self, parser, env):
         """Register commandline options.
-        
+
         Implement this method for normal options behavior with protection from
         OptionConflictErrors. If you override this method and want the default
         --with-$name option to be registered, be sure to call super().
