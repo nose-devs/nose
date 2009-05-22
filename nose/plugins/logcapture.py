@@ -56,6 +56,7 @@ class MyMemoryHandler(BufferingHandler):
     def __getstate__(self):
         state = self.__dict__.copy()
         del state['lock']
+        return state
     def __setstate__(self, state):
         self.__dict__.update(state)
         self.lock = threading.RLock()

@@ -315,6 +315,9 @@ class PluginManager(object):
         state['_plugins'] = allow
         return state
 
+    def __setstate__(self, state):
+        self.__dict__.update(state)
+    
 
 class ZeroNinePlugin:
     """Proxy for 0.9 plugins, adapts 0.10 calls to 0.9 standard.

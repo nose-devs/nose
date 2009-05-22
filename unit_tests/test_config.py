@@ -85,6 +85,7 @@ class TestNoseConfig(unittest.TestCase):
     def test_pickle_empty(self):
         c = nose.config.Config()
         cp = pickle.dumps(c)
+        cc = pickle.loads(cp)
 
     def test_pickle_configured(self):
         c = nose.config.Config(plugins=DefaultPluginManager())
@@ -93,6 +94,8 @@ class TestNoseConfig(unittest.TestCase):
                      '--with-isolation', '-d', '--with-xunit', '--processes=2',
                      '--pdb'])
         cp = pickle.dumps(c)
+        cc = pickle.loads(cp)
+        assert cc.plugins._plugins
 
 
 if __name__ == '__main__':
