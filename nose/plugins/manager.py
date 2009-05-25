@@ -288,46 +288,6 @@ class PluginManager(object):
                        """Access the list of plugins managed by
                        this plugin manager""")
 
-    def __getstate__(self):
-        state = self.__dict__.copy()
-        del state['_proxies']
-        allow = []
-        # preflight plugins, removing those that are unpickleable
-        notset = object()
-        for p in state['_plugins']:
-            c = notset
-            attr = notset
-            try:
-                try:
-                    # avoid loops in preflight by removing config obj
-                    for attr in dir(p):
-                        val = getattr(p, attr)
-                        if isinstance(val, nose.config.Config):
-                            c = val
-                            setattr(p, attr, None)
-                            break
-                except AttributeError:
-                    pass
-                try:
-                    pickle.dumps(p)
-                    # ??? doing this somehow avoids a getstate()
-                    # loop -- I don't understand why
-                    _dummy = StringIO()
-                    print >> _dummy, "ok", p
-                except (TypeError, pickle.PickleError):
-                    pass
-                else:
-                    allow.append(p)
-            finally:
-                if c is not notset:
-                    setattr(p, attr, c)
-        state['_plugins'] = allow
-        return state
-
-    def __setstate__(self, state):
-        self.__dict__.update(state)
-        self._proxies = {}
-
 
 class ZeroNinePlugin:
     """Proxy for 0.9 plugins, adapts 0.10 calls to 0.9 standard.

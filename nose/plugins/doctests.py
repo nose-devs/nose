@@ -186,7 +186,7 @@ class Doctest(Plugin):
         self.extension = tolist(options.doctestExtension)
         self.fixtures = options.doctestFixtures
         self.finder = doctest.DocTestFinder()
-
+        
     def prepareTestLoader(self, loader):
         """Capture loader's suiteClass.
 
@@ -257,7 +257,7 @@ class Doctest(Plugin):
                 log.debug("Fixture module %s resolved to %s",
                           fixt_mod, fixture_context)
                 if hasattr(fixture_context, 'globs'):
-                    globs = fixture_context.globs(globs)
+                    globs = fixture_context.globs(globs)                    
             parser = doctest.DocTestParser()
             test = parser.get_doctest(
                 doc, globs=globs, name=name,

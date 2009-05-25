@@ -206,7 +206,8 @@ class Config(object):
         self.traverseNamespace = False
         self.firstPackageWins = False
         self.parserClass = OptionParser
-
+        self.worker = False
+        
         self._default = self.__dict__.copy()
         self.update(kw)
         self._orig = self.__dict__.copy()
@@ -218,8 +219,22 @@ class Config(object):
         del state['_default']
         del state['env']
         del state['logStream']
+        # FIXME remove plugins, have only plugin manager class
+        state['plugins'] = self.plugins.__class__
         return state
 
+    def __setstate__(self, state):
+        plugincls = state.pop('plugins')
+        self.update(state)
+        self.worker = True
+        # FIXME won't work for static plugin lists
+        self.plugins = plugincls()
+        self.plugins.loadPlugins()
+        # needed so .can_configure gets set appropriately
+        dummy_parser = self.parserClass()
+        self.plugins.addOptions(dummy_parser, {})
+        self.plugins.configure(self.options, self)
+    
     def __repr__(self):
         d = self.__dict__.copy()
         # don't expose env, could include sensitive info

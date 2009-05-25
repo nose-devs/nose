@@ -174,6 +174,9 @@ class MultiProcess(Plugin):
         if not hasattr(options, 'multiprocess_workers'):
             self.enabled = False
             return
+        # don't start inside of a worker process
+        if config.worker:
+            return
         self.config = config
         try:
             workers = int(options.multiprocess_workers)
@@ -441,10 +444,12 @@ class MultiProcessTestRunner(TextTestRunner):
 def runner(ix, testQueue, resultQueue, shouldStop,
            loaderClass, resultClass, config):
     config = pickle.loads(config)
+    config.plugins.begin()
     log.debug("Worker %s executing", ix)
+    log.debug("Active plugins worker %s: %s", ix, config.plugins._plugins)
     loader = loaderClass(config=config)
     loader.suiteClass.suiteClass = NoSharedFixtureContextSuite
-
+    
     def get():
         case = testQueue.get(timeout=config.multiprocess_timeout)
         return case
