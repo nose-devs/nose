@@ -87,6 +87,7 @@ import sys
 import time
 import traceback
 import unittest
+import pickle
 import nose.case
 from nose.core import TextTestRunner
 from nose import failure
@@ -282,7 +283,7 @@ class MultiProcessTestRunner(TextTestRunner):
                                              shouldStop,
                                              self.loaderClass,
                                              result.__class__,
-                                             self.config))
+                                             pickle.dumps(self.config)))
             # p.setDaemon(True)
             p.start()
             workers.append(p)
@@ -439,6 +440,7 @@ class MultiProcessTestRunner(TextTestRunner):
 
 def runner(ix, testQueue, resultQueue, shouldStop,
            loaderClass, resultClass, config):
+    config = pickle.loads(config)
     log.debug("Worker %s executing", ix)
     loader = loaderClass(config=config)
     loader.suiteClass.suiteClass = NoSharedFixtureContextSuite

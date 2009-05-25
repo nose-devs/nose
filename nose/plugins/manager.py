@@ -57,7 +57,12 @@ try:
     import cPickle as pickle
 except:
     import pickle
+try:
+    from cStringIO import StringIO
+except:
+    from StringIO import StringIO
 
+    
 __all__ = ['DefaultPluginManager', 'PluginManager', 'EntryPointPluginManager',
            'BuiltinPluginManager', 'RestrictedPluginManager']
 
@@ -305,6 +310,10 @@ class PluginManager(object):
                     pass
                 try:
                     pickle.dumps(p)
+                    # ??? doing this somehow avoids a getstate()
+                    # loop -- I don't understand why
+                    _dummy = StringIO()
+                    print >> _dummy, "ok", p
                 except (TypeError, pickle.PickleError):
                     pass
                 else:
@@ -317,7 +326,8 @@ class PluginManager(object):
 
     def __setstate__(self, state):
         self.__dict__.update(state)
-    
+        self._proxies = {}
+
 
 class ZeroNinePlugin:
     """Proxy for 0.9 plugins, adapts 0.10 calls to 0.9 standard.
