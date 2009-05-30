@@ -1,8 +1,6 @@
 from nose.plugins.skip import SkipTest
 from nose.plugins.multiprocess import MultiProcess
 
-_multiprocess_can_split_ = True
-
 def setup_module():
     try:
         import multiprocessing
@@ -11,6 +9,3 @@ def setup_module():
                            "plugin itself.")
     except ImportError:
         raise SkipTest("multiprocessing module not available")
-
-
-

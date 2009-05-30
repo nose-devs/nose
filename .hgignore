@@ -3,6 +3,7 @@ syntax: glob
 *.pyc
 *.pyo
 .DS_Store
+.nose
 *.egg-info
 *.bak
 *.rej
