@@ -361,6 +361,11 @@ class MultiProcessTestRunner(TextTestRunner):
             else:
                 parts.append(mod)
         else:
+            # strip __init__.py(c) from end of file part
+            # if present, having it there confuses loader
+            dirname, basename = os.path.split(file)
+            if basename.startswith('__init__'):
+                file = dirname
             parts.append(file)
         if call is not None:
             parts.append(call)
