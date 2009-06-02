@@ -188,7 +188,6 @@ indeterminate.
 First we have to reset all of the test modules.
 
     >>> import sys
-    >>> sys.modules['test_shared'].called[:] = []
     >>> sys.modules['test_not_shared'].called[:] = []
     >>> sys.modules['test_can_split'].called[:] = []
 
@@ -218,7 +217,6 @@ runner processes as fixtures are re-executed.
 We have to reset all of the test modules again.
 
     >>> import sys
-    >>> sys.modules['test_shared'].called[:] = []
     >>> sys.modules['test_not_shared'].called[:] = []
     >>> sys.modules['test_can_split'].called[:] = []
 
@@ -270,4 +268,3 @@ are a few other differences that may impact your test suite:
   use subprocess to launch another copy of nose that also uses the
   multiprocess plugin. This is why this test is skipped under python 2.6 when
   run with the ``--processes`` switch.
-
