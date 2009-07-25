@@ -1,3 +1,8 @@
+0.11.2
+
+- Fixed bug in xunit plugin's interaction with suites and errors in
+  module-level setup. Thanks to Mark McCague for the bug report (#279).
+
 0.11.1
 
 - Fixed bug in xunit plugin xml escaping. Thanks to Nat Williams for the bug
