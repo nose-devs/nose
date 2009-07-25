@@ -162,8 +162,6 @@ class Xunit(Plugin):
             return
         tb = ''.join(traceback.format_exception(*err))
         self.stats['errors'] += 1
-        # from nose.tools import set_trace
-        # set_trace()
         id = test.id()
         self.errorlist.append(
             '<testcase classname="%(cls)s" name="%(name)s" time="%(taken)d">'
