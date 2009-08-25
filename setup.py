@@ -19,11 +19,32 @@ try:
         },
         test_suite = 'nose.collector',
         )
+
     # This is required by multiprocess plugin; on Windows, if
     # the launch script is not import-safe, spawned processes
     # will re-run it, resulting in an infinite loop.
     if sys.platform == 'win32':
-        patch_setuptools()
+        import re
+        from setuptools.command.easy_install import easy_install
+
+        def wrap_write_script(self, script_name, contents, *arg, **kwarg):
+            bad_text = re.compile(
+                "\n"
+                "sys.exit\(\n"
+                "   load_entry_point\(([^\)]+)\)\(\)\n"
+                "\)\n")
+            good_text = (
+                "\n"
+                "if __name__ == '__main__':\n"
+                "    sys.exit(\n"
+                r"        load_entry_point(\1)()\n"
+                "    )\n"
+                )
+            contents = bad_text.sub(good_text, contents)
+            return self._write_script(script_name, contents, *arg, **kwarg)
+        easy_install._write_script = easy_install.write_script
+        easy_install.write_script = wrap_write_script
+    
 except ImportError:
     from distutils.core import setup
     addl_args = dict(
@@ -80,25 +101,4 @@ setup(
     **addl_args
     )
 
-def patch_setuptools():
-    import re
-    from setuptools.command.easy_install import easy_install
-
-    def wrap_write_script(self, script_name, contents, **kwarg):
-        bad_text = re.compile(
-            "\n"
-            "sys.exit\(\n"
-            "   load_entry_point\(([^\)]+)\)\(\)\n"
-            "\)\n")
-        good_text = (
-            "\n"
-            "if __name__ == '__main__':\n"
-            "    sys.exit(\n"
-            r"        load_entry_point(\1)()\n"
-            "    )\n"
-            )
-        contents = bad_text.sub(good_text, cotnents)
-        return self._write_script(script_name, contents, **kwarg)
-    easy_install._write_script = easy_install.write_script
-    easy_install.write_script = wrap_write_script
             
