@@ -230,6 +230,13 @@ class TestProgram(unittest.TestProgram):
                 print
             
     def usage(cls):
+        import nose
+        if hasattr(nose, '__loader__'):
+            ld = nose.__loader__
+            if hasattr(ld, 'zipfile'):
+                # nose was imported from a zipfile
+                return ld.get_data(
+                        os.path.join(ld.prefix, 'nose', 'usage.txt'))
         return open(os.path.join(
                 os.path.dirname(__file__), 'usage.txt'), 'r').read()
     usage = classmethod(usage)
