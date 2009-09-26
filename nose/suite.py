@@ -138,6 +138,7 @@ class ContextSuite(LazySuite):
         self.resultProxy = resultProxy
         self.has_run = False
         self.can_split = can_split
+        self.error_context = None
         LazySuite.__init__(self, tests)
 
     def __repr__(self):
@@ -146,6 +147,12 @@ class ContextSuite(LazySuite):
             getattr(self.context, '__name__', self.context))
     __str__ = __repr__
 
+    def id(self):
+        if self.error_context:
+            return '%s:%s' % (repr(self), self.error_context)
+        else:
+            return repr(self)
+    
     def __hash__(self):
         return object.__hash__(self)
 
@@ -184,6 +191,7 @@ class ContextSuite(LazySuite):
         except KeyboardInterrupt:
             raise
         except:
+            self.error_context = 'setup'
             result.addError(self, self._exc_info())
             return
         try:
@@ -202,6 +210,7 @@ class ContextSuite(LazySuite):
             except KeyboardInterrupt:
                 raise
             except:
+                self.error_context = 'teardown'
                 result.addError(self, self._exc_info())
 
     def hasFixtures(self, ctx_callback=None):

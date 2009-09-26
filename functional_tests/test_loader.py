@@ -395,6 +395,20 @@ class TestNoseTestLoader(unittest.TestCase):
         assert not res.errors
         self.assertEqual(res.testsRun, 5)
 
+    def test_issue_269(self):
+        """Test classes that raise exceptions in __init__ do not stop test run
+        """
+        wdir = os.path.join(support, 'issue269')
+        l = loader.TestLoader(workingDir=wdir)
+        suite = l.loadTestsFromName('test_bad_class')
+        res = unittest._TextTestResult(
+            stream=unittest._WritelnDecorator(sys.stdout),
+            descriptions=0, verbosity=1)
+        suite(res)
+        print res.errors
+        self.assertEqual(len(res.errors), 1)
+        assert 'raise Exception("pow")' in res.errors[0][1]
+        
         
 # used for comparing lists
 def diff(a, b):
