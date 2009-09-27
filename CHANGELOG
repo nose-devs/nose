@@ -4,6 +4,11 @@
   module-level setup. Thanks to Mark McCague for the bug report (#279).
 - Fixed bug in nose.loader.TestLoader that allowed Test classes that raise
   exceptions in __init__ to crash the test run (#269).
+- Updated multiprocess plugin and nose's packaging to allow multiprocess
+  plugin to work on Windows.
+- Fixed bugs in nose's test suite that caused spurious failures on Windows.
+- Fixed bug in twisted tools: delayed calls were not shut down on
+  reactor stop. Thanks to abbeyj for the patch (#278).
 
 0.11.1
 
@@ -16,7 +21,7 @@
 - Fixed bug in collect only plugin that caused it to fail when collecting from
   test generators.
 - Fixed some broken html in docs.
-  
+
 0.11
 
 - Added multiprocess plugin that allows tests to be run in parallel
