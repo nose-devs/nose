@@ -1,3 +1,4 @@
+import os
 import sys
 import unittest
 from cStringIO import StringIO
@@ -57,7 +58,7 @@ class TestUsage(unittest.TestCase):
             nose.__loader__ = fake_zipimporter()
             usage_txt = nose.core.TestProgram.usage()
             self.assertEqual(usage_txt, '<usage>')
-            self.assertEqual(requested_data, ['nose/usage.txt'])
+            self.assertEqual(requested_data, ['nose%susage.txt' % os.sep])
         finally:
             if existing_loader is not Undefined:
                 nose.__loader__ = existing_loader
@@ -83,7 +84,8 @@ class TestUsage(unittest.TestCase):
             nose.__loader__ = fake_zipimporter()
             usage_txt = nose.core.TestProgram.usage()
             self.assertEqual(usage_txt, '<usage>')
-            self.assertEqual(requested_data, ['PREFIX/nose/usage.txt'])
+            self.assertEqual(requested_data, 
+                             ['PREFIX%snose%susage.txt' % (os.sep, os.sep)])
         finally:
             if existing_loader is not Undefined:
                 nose.__loader__ = existing_loader

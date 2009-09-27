@@ -30,7 +30,7 @@ Traceback (most recent call last):
 AssertionError: bye
 <BLANKLINE>
 ----------------------------------------------------------------------
-XML: .../support/nosetests.xml
+XML: ...nosetests.xml
 ----------------------------------------------------------------------
 Ran 4 tests in ...s
 <BLANKLINE>
