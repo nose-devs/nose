@@ -5,6 +5,8 @@ from nose.config import Config
 from nose.plugins.logcapture import LogCapture
 from nose.tools import eq_
 import logging
+from logging import StreamHandler
+import unittest
 
 class TestLogCapturePlugin(object):
 
@@ -71,6 +73,34 @@ class TestLogCapturePlugin(object):
         c.end()
         eq_(1, len(c.handler.buffer))
         eq_("Hello", c.handler.buffer[0].msg)
+
+    def test_clears_all_existing_log_handlers(self):
+        c = LogCapture()
+        parser = OptionParser()
+        c.addOptions(parser, {})
+        options, args = parser.parse_args(['--logging-clear-handlers'])
+        c.configure(options, Config())
+        eq_(c.clear, True)
+        
+        def mktest():    
+            class TC(unittest.TestCase):
+                def runTest(self):
+                    pass
+            test = TC()
+            return test
+        
+        logging.getLogger().addHandler(StreamHandler(sys.stdout))
+        log = logging.getLogger("dummy")
+        log.addHandler(StreamHandler(sys.stdout))
+            
+        c.start()
+        c.beforeTest(mktest())
+        c.end()
+        
+        eq_([str(c.__class__) for c in logging.getLogger().handlers], 
+            ['nose.plugins.logcapture.MyMemoryHandler'])
+        eq_([str(c.__class__) for c in logging.getLogger("dummy").handlers], 
+            [])
 
     def test_custom_formatter(self):
         c = LogCapture()

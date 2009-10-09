@@ -134,6 +134,9 @@ class LogCapture(Plugin):
         # setup our handler with root logger
         root_logger = logging.getLogger()
         if self.clear:
+            if hasattr(root_logger, "handlers"):
+                for handler in root_logger.handlers:
+                    root_logger.removeHandler(handler)
             for logger in logging.Logger.manager.loggerDict.values():
                 if hasattr(logger, "handlers"):
                     for handler in logger.handlers:
