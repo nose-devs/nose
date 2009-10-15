@@ -2,14 +2,18 @@
 Test Result
 -----------
 
-Provides a TextTestResult that extends unittest._TextTestResult to
+Provides a TextTestResult that extends unittest's _TextTestResult to
 provide support for error classes (such as the builtin skip and
 deprecated classes), and hooks for plugins to take over or extend
 reporting.
 """
 
 import logging
-from unittest import _TextTestResult
+try:
+    # 2.7+
+    from unittest.runner import _TextTestResult
+except ImportError:
+    from unittest import _TextTestResult
 from nose.config import Config
 from nose.util import isclass, ln as _ln # backwards compat
 

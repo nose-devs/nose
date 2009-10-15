@@ -37,7 +37,13 @@ Let's see the plugin in action. First some boilerplate.
 
     >>> import sys
     >>> import unittest
-    >>> buf = unittest._WritelnDecorator(sys.stdout)
+    >>> try:
+    ...     # 2.7+
+    ...     from unittest.runner import _WritelnDecorator
+    ... except ImportError:
+    ...     from unittest import _WritelnDecorator
+    ... 
+    >>> buf = _WritelnDecorator(sys.stdout)
 
 Now define a test case that raises a Todo.
 
@@ -53,8 +59,8 @@ through the internal process of nose so you can see what happens at
 each step.
 
     >>> plugin = TodoError()
-    >>> result = unittest._TextTestResult(stream=buf,
-    ...                                   descriptions=0, verbosity=2)
+    >>> from nose.result import _TextTestResult
+    >>> result = _TextTestResult(stream=buf, descriptions=0, verbosity=2)
     >>> plugin.prepareTestResult(result)
 
 Now run the test. TODO is printed.
