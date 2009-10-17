@@ -9,6 +9,8 @@
 - Fixed bugs in nose's test suite that caused spurious failures on Windows.
 - Fixed bug in twisted tools: delayed calls were not shut down on
   reactor stop. Thanks to abbeyj for the patch (#278).
+- Fixed bug where root log handlers were not cleared. For example, this was 
+  emitting unwanted messages when testing Google App Engine websites.
 
 0.11.1
 
