@@ -20,7 +20,7 @@ class Test(unittest.TestCase):
 
     When a plugin sees a test, it will always see an instance of this
     class. To access the actual test case that will be run, access the
-    test property of the nose.case.Test instance.    
+    test property of the nose.case.Test instance.
     """
     __test__ = False # do not collect
     def __init__(self, test, config=None, resultProxy=None):
@@ -148,27 +148,24 @@ class Test(unittest.TestCase):
         if plug_test is not None:
             test = plug_test
         test(result)
-        
+
     def shortDescription(self):
         desc = self.plugins.describeTest(self)
         if desc is not None:
             return desc
-        doc = self.test.shortDescription()
-        if doc is not None:
-            return doc
         # work around bug in unittest.TestCase.shortDescription
         # with multiline docstrings.
         test = self.test
         try:
-            doc = test._testMethodDoc # 2.5
+            test._testMethodDoc = test._testMethodDoc.strip()# 2.5
         except AttributeError:
             try:
-                doc = test._TestCase__testMethodDoc # 2.4 and earlier
+                # 2.4 and earlier
+                test._TestCase__testMethodDoc = \
+                    test._TestCase__testMethodDoc.strip()
             except AttributeError:
                 pass
-        if doc is not None:
-            doc = doc.strip().split("\n")[0].strip()
-        return doc
+        return self.test.shortDescription()
 
 
 class TestBase(unittest.TestCase):

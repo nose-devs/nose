@@ -51,7 +51,7 @@ class TestUtils(unittest.TestCase):
             pass
         else:
             self.fail("Nonsense test name should throw ValueError")
-        
+
     def test_test_address(self):
         # test addresses are specified as
         #     package.module:class.method
@@ -73,7 +73,7 @@ class TestUtils(unittest.TestCase):
                 pass
             def test_two(self):
                 pass
-        
+
         class CustomTestType(type):
             pass
         class CustomTC(unittest.TestCase):
@@ -82,7 +82,7 @@ class TestUtils(unittest.TestCase):
                 pass
             def test_two(self):
                 pass
-        
+
         foo_funct = case.FunctionTestCase(baz)
         foo_functu = unittest.FunctionTestCase(baz)
 
@@ -111,7 +111,7 @@ class TestUtils(unittest.TestCase):
                          (me, __name__, 'baz'))
         self.assertEqual(test_address(foo_mtc),
                          (me, __name__, 'Foo.bar'))
-    
+
     def test_isclass_detects_classes(self):
         class TC(unittest.TestCase):
             pass

@@ -439,9 +439,13 @@ def test_address(test):
                 "%s.%s" % (cls_adr[2], test.__name__))
     # handle unittest.TestCase instances
     if isinstance(test, unittest.TestCase):
-        if hasattr(test, '_FunctionTestCase__testFunc'):
+        if (hasattr(test, '_FunctionTestCase__testFunc') # pre 2.7
+            or hasattr(test, '_testFunc')):              # 2.7
             # unittest FunctionTestCase
-            return test_address(test._FunctionTestCase__testFunc)
+            try:
+                return test_address(test._FunctionTestCase__testFunc)
+            except AttributeError:
+                return test_address(test._testFunc)
         # regular unittest.TestCase
         cls_adr = test_address(test.__class__)
         # 2.5 compat: __testMethodName changed to _testMethodName
