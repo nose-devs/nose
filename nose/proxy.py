@@ -72,8 +72,8 @@ class ResultProxy(object):
     the wrapped test case) as each result call is made. Finally, the
     real result method is called, also with the nose.case.Test
     instance as the test parameter.
-    
-    """    
+
+    """
     def __init__(self, result, test, config=None):
         if config is None:
             config = Config()
@@ -90,12 +90,12 @@ class ResultProxy(object):
         # .test's .test. or my .test.test's .case
 
         case = getattr(self.test, 'test', None)
-        assert (test is self.test 
-                or test is case 
-                or test is getattr(case, '_nose_case', None)), ( 
-                "ResultProxy for %r (%s) was called with test %r (%s)" 
+        assert (test is self.test
+                or test is case
+                or test is getattr(case, '_nose_case', None)), (
+                "ResultProxy for %r (%s) was called with test %r (%s)"
                 % (self.test, id(self.test), test, id(test)))
-    
+
     def afterTest(self, test):
         self.assertMyTest(test)
         self.plugins.afterTest(self.test)
@@ -137,7 +137,15 @@ class ResultProxy(object):
         self.result.addFailure(self.test, err)
         if self.config.stopOnError:
             self.shouldStop = True
-    
+
+    def addSkip(self, test, reason):
+        # 2.7 compat shim
+        from nose.plugins.skip import SkipTest
+        self.assertMyTest(test)
+        plugins = self.plugins
+        plugins.addError(self.test, (SkipTest, reason, None))
+        self.result.addSkip(self.test, reason)
+
     def addSuccess(self, test):
         self.assertMyTest(test)
         self.plugins.addSuccess(self.test)
@@ -147,10 +155,10 @@ class ResultProxy(object):
         self.assertMyTest(test)
         self.plugins.startTest(self.test)
         self.result.startTest(self.test)
-    
+
     def stop(self):
         self.result.stop()
-    
+
     def stopTest(self, test):
         self.assertMyTest(test)
         self.plugins.stopTest(self.test)
