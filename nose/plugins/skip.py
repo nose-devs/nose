@@ -5,7 +5,7 @@ attribute of the result, 'S' or 'SKIP' (verbose) will be output, and
 the exception will not be counted as an error or failure. This plugin
 is enabled by default but may be disabled with the ``--no-skip`` option.
 """
-    
+
 from nose.plugins.errorclass import ErrorClass, ErrorClassPlugin
 
 
@@ -48,4 +48,4 @@ class Skip(ErrorClassPlugin):
         disable = getattr(options, 'noSkip', False)
         if disable:
             self.enabled = False
-            
+
