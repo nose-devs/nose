@@ -33,7 +33,11 @@ raising any exceptions.
     ...         """Widgets might like cheese"""
     ...         self.widget.likes_cheese()
     ...     def shortDescription(self): # 2.7 compat
-    ...         doc = self._testMethodDoc
+    ...         try:
+    ...             doc = self._testMethodDoc
+    ...         except AttributeError:
+    ...             # 2.4 compat
+    ...             doc = self._TestCase__testMethodDoc
     ...         return doc and doc.split("\n")[0].strip() or None
 
 The tests are bundled into a suite that we can pass to the test runner.
