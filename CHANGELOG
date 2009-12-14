@@ -11,6 +11,8 @@
   reactor stop. Thanks to abbeyj for the patch (#278).
 - Fixed bug where root log handlers were not cleared. For example, this was 
   emitting unwanted messages when testing Google App Engine websites.
+- Fixed bug in test names output by xunit plugin. Thanks to Philip
+  Jenvey for the bug report and patch (#280).
 
 0.11.1
 
