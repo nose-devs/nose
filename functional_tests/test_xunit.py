@@ -31,7 +31,7 @@ class TestXUnitPlugin(PluginTester, unittest.TestCase):
         
         assert '<?xml version="1.0" encoding="UTF-8"?>' in result
         assert '<testsuite name="nosetests" tests="5" errors="1" failures="1" skip="1">' in result
-        assert '<testcase classname="test_xunit_as_suite.TestForXunit" name="test_xunit_as_suite.TestForXunit.test_error" time="0">' in result
+        assert '<testcase classname="test_xunit_as_suite.TestForXunit" name="test_error" time="0">' in result
         assert '</testcase>' in result
         assert '</testsuite>' in result
 

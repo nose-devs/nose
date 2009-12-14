@@ -25,7 +25,7 @@ Here is an abbreviated version of what an XML test report might look like::
     <?xml version="1.0" encoding="UTF-8"?>
     <testsuite name="nosetests" tests="1" errors="1" failures="0" skip="0">
         <testcase classname="path_to_test_suite.TestSomething"
-                  name="path_to_test_suite.TestSomething.test_it" time="0">
+                  name="test_it" time="0">
             <error type="exceptions.TypeError">
             Traceback (most recent call last):
             ...
@@ -168,7 +168,7 @@ class Xunit(Plugin):
             '<testcase classname="%(cls)s" name="%(name)s" time="%(taken)d">'
             '<error type="%(errtype)s">%(tb)s</error></testcase>' %
             {'cls': self._xmlsafe('.'.join(id.split('.')[:-1])),
-             'name': self._xmlsafe(id),
+             'name': self._xmlsafe(id.split('.')[-1]),
              'errtype': self._xmlsafe(nice_classname(err[0])),
              'tb': self._xmlsafe(tb),
              'taken': taken,
@@ -185,7 +185,7 @@ class Xunit(Plugin):
             '<testcase classname="%(cls)s" name="%(name)s" time="%(taken)d">'
             '<failure type="%(errtype)s">%(tb)s</failure></testcase>' %
             {'cls': self._xmlsafe('.'.join(id.split('.')[:-1])),
-             'name': self._xmlsafe(id),
+             'name': self._xmlsafe(id.split('.')[-1]),
              'errtype': self._xmlsafe(nice_classname(err[0])),
              'tb': self._xmlsafe(tb),
              'taken': taken,
@@ -201,6 +201,6 @@ class Xunit(Plugin):
             '<testcase classname="%(cls)s" name="%(name)s" '
             'time="%(taken)d" />' %
             {'cls': self._xmlsafe('.'.join(id.split('.')[:-1])),
-             'name': self._xmlsafe(id),
+             'name': self._xmlsafe(id.split('.')[-1]),
              'taken': taken,
              })

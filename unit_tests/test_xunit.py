@@ -8,7 +8,7 @@ from nose.plugins.xunit import Xunit
 from nose.exc import SkipTest
 from nose.config import Config
 
-def mktest():    
+def mktest():
     class TC(unittest.TestCase):
         def runTest(self):
             pass
@@ -18,54 +18,54 @@ def mktest():
 mktest.__test__ = False
 
 class TestEscaping(unittest.TestCase):
-    
+
     def setUp(self):
         self.x = Xunit()
-    
+
     def test_all(self):
         eq_(self.x._xmlsafe(
             '''<baz src="http://foo?f=1&b=2" quote="inix hubris 'maximus'?" />'''),
             ('&lt;baz src=&quot;http://foo?f=1&amp;b=2&quot; '
                 'quote=&quot;inix hubris &#39;maximus&#39;?&quot; /&gt;'))
 
-    
+
     def test_unicode_is_utf8_by_default(self):
         eq_(self.x._xmlsafe(u'Ivan Krsti\u0107'),
             'Ivan Krsti\xc4\x87')
 
-    
+
     def test_unicode_custom_utf16_madness(self):
         self.x.encoding = 'utf-16'
         utf16 = self.x._xmlsafe(u'Ivan Krsti\u0107')
-        
+
         # to avoid big/little endian bytes, assert that we can put it back:
         eq_(utf16.decode('utf16'), u'Ivan Krsti\u0107')
 
 class TestOptions(unittest.TestCase):
-    
+
     def test_defaults(self):
         parser = optparse.OptionParser()
         x = Xunit()
         x.add_options(parser, env={})
         (options, args) = parser.parse_args([])
         eq_(options.xunit_file, "nosetests.xml")
-    
+
     def test_file_from_environ(self):
         parser = optparse.OptionParser()
         x = Xunit()
         x.add_options(parser, env={'NOSE_XUNIT_FILE': "kangaroo.xml"})
         (options, args) = parser.parse_args([])
         eq_(options.xunit_file, "kangaroo.xml")
-    
+
     def test_file_from_opt(self):
         parser = optparse.OptionParser()
         x = Xunit()
         x.add_options(parser, env={})
         (options, args) = parser.parse_args(["--xunit-file=blagojevich.xml"])
         eq_(options.xunit_file, "blagojevich.xml")
-    
+
 class TestXMLOutputWithXML(unittest.TestCase):
-    
+
     def setUp(self):
         self.xmlfile = os.path.abspath(
             os.path.join(os.path.dirname(__file__), 
@@ -78,17 +78,17 @@ class TestXMLOutputWithXML(unittest.TestCase):
             "--xunit-file=%s" % self.xmlfile
         ])
         self.x.configure(options, Config())
-        
+
         try:
             import xml.etree.ElementTree
         except ImportError:
             self.ET = False
         else:
             self.ET = xml.etree.ElementTree
-    
+
     def tearDown(self):
         os.unlink(self.xmlfile)
-    
+
     def get_xml_report(self):
         class DummyStream:
             pass
@@ -120,7 +120,7 @@ class TestXMLOutputWithXML(unittest.TestCase):
         
             tc = tree.find("testcase")
             eq_(tc.attrib['classname'], "test_xunit.TC")
-            eq_(tc.attrib['name'], "test_xunit.TC.runTest")
+            eq_(tc.attrib['name'], "runTest")
             assert int(tc.attrib['time']) >= 0
         
             err = tc.find("failure")
@@ -133,7 +133,7 @@ class TestXMLOutputWithXML(unittest.TestCase):
             # this is a dumb test for 2.4-
             assert '<?xml version="1.0" encoding="UTF-8"?>' in result
             assert '<testsuite name="nosetests" tests="1" errors="0" failures="1" skip="0">' in result
-            assert '<testcase classname="test_xunit.TC" name="test_xunit.TC.runTest"' in result
+            assert '<testcase classname="test_xunit.TC" name="runTest"' in result
             assert '<failure type="exceptions.AssertionError">' in result
             assert 'AssertionError: one is not &#39;equal&#39; to two' in result
             assert 'AssertionError(&quot;one is not &#39;equal&#39; to two&quot;)' in result
@@ -160,7 +160,7 @@ class TestXMLOutputWithXML(unittest.TestCase):
             # this is a dumb test for 2.4-
             assert '<?xml version="1.0" encoding="UTF-8"?>' in result
             assert ('<testcase classname="test_xunit.TC" '
-                    'name="test_xunit.TC.runTest" time="0">') in result
+                    'name="runTest" time="0">') in result
     
     def test_addError(self):
         test = mktest()
@@ -185,7 +185,7 @@ class TestXMLOutputWithXML(unittest.TestCase):
         
             tc = tree.find("testcase")
             eq_(tc.attrib['classname'], "test_xunit.TC")
-            eq_(tc.attrib['name'], "test_xunit.TC.runTest")
+            eq_(tc.attrib['name'], "runTest")
             assert int(tc.attrib['time']) >= 0
         
             err = tc.find("error")
@@ -198,7 +198,7 @@ class TestXMLOutputWithXML(unittest.TestCase):
             # this is a dumb test for 2.4-
             assert '<?xml version="1.0" encoding="UTF-8"?>' in result
             assert '<testsuite name="nosetests" tests="1" errors="1" failures="0" skip="0">' in result
-            assert '<testcase classname="test_xunit.TC" name="test_xunit.TC.runTest"' in result
+            assert '<testcase classname="test_xunit.TC" name="runTest"' in result
             assert '<error type="exceptions.RuntimeError">' in result
             assert 'RuntimeError: some error happened' in result
             assert '</error></testcase></testsuite>' in result
@@ -225,7 +225,7 @@ class TestXMLOutputWithXML(unittest.TestCase):
             # this is a dumb test for 2.4-
             assert '<?xml version="1.0" encoding="UTF-8"?>' in result
             assert ('<testcase classname="test_xunit.TC" '
-                    'name="test_xunit.TC.runTest" time="0">') in result
+                    'name="runTest" time="0">') in result
         
     def test_addSuccess(self):
         test = mktest()
@@ -245,13 +245,13 @@ class TestXMLOutputWithXML(unittest.TestCase):
         
             tc = tree.find("testcase")
             eq_(tc.attrib['classname'], "test_xunit.TC")
-            eq_(tc.attrib['name'], "test_xunit.TC.runTest")
+            eq_(tc.attrib['name'], "runTest")
             assert int(tc.attrib['time']) >= 0
         else:
             # this is a dumb test for 2.4-
             assert '<?xml version="1.0" encoding="UTF-8"?>' in result
             assert '<testsuite name="nosetests" tests="1" errors="0" failures="0" skip="0">' in result
-            assert '<testcase classname="test_xunit.TC" name="test_xunit.TC.runTest"' in result
+            assert '<testcase classname="test_xunit.TC" name="runTest"' in result
             assert '</testsuite>' in result
     
     def test_addSuccess_early(self):
@@ -271,5 +271,5 @@ class TestXMLOutputWithXML(unittest.TestCase):
             # this is a dumb test for 2.4-
             assert '<?xml version="1.0" encoding="UTF-8"?>' in result
             assert ('<testcase classname="test_xunit.TC" '
-                    'name="test_xunit.TC.runTest" time="0" />') in result
+                    'name="runTest" time="0" />') in result
         
