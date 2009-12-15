@@ -29,30 +29,57 @@ except ImportError:
 
 log = logging.getLogger(__name__)
 
+class FilterSet(object):
+    def __init__(self, filter_components):
+        self.inclusive, self.exclusive = self._partition(filter_components)
+    
+    @staticmethod
+    def _partition(components):
+        inclusive, exclusive = [], []
+        for component in components:
+            if component.startswith('-'):
+                exclusive.append(component[1:])
+            else:
+                inclusive.append(component)
+        return inclusive, exclusive
 
+    def allow(self, record):
+        """returns whether this record should be printed"""
+        if not self:
+            # nothing to filter
+            return True
+        return self._allow(record) and not self._deny(record)
+
+    @staticmethod
+    def _any_match(matchers, record):
+        """return the bool of whether `record` starts with
+        any item in `matchers`"""
+        def record_matches_key(key):
+            return record == key or record.startswith(key + '.')
+        return any(map(record_matches_key, matchers))
+    
+    def _allow(self, record):
+        if not self.inclusive:
+            return True
+        return self._any_match(self.inclusive, record)
+    
+    def _deny(self, record):
+        if not self.exclusive:
+            return False
+        return self._any_match(self.exclusive, record)
+    
 class MyMemoryHandler(BufferingHandler):
     def __init__(self, capacity, logformat, logdatefmt, filters):
         BufferingHandler.__init__(self, capacity)
         fmt = logging.Formatter(logformat, logdatefmt)
         self.setFormatter(fmt)
-        self.filters = filters
+        self.filterset = FilterSet(filters)
     def flush(self):
         pass # do nothing
     def truncate(self):
         self.buffer = []
     def filter(self, record):
-        """Our custom record filtering logic.
-
-        Built-in filtering logic (via logging.Filter) is too limiting.
-        """
-        if not self.filters:
-            return True
-        matched = False
-        rname = record.name # shortcut
-        for name in self.filters:
-            if rname == name or rname.startswith(name+'.'):
-                matched = True
-        return matched
+        return self.filterset.allow(record.name)
     def __getstate__(self):
         state = self.__dict__.copy()
         del state['lock']
@@ -109,7 +136,9 @@ class LogCapture(Plugin):
                  " verbose,\nuse this option to filter out needless output.\n"
                  "Example: filter=foo will capture statements issued ONLY to\n"
                  " foo or foo.what.ever.sub but not foobar or other logger.\n"
-                 "Specify multiple loggers with comma: filter=foo,bar,baz."
+                 "Specify multiple loggers with comma: filter=foo,bar,baz.\n"
+                 "If any logger name is prefixed with a minus, eg filter=-foo,\n"
+                 "it will be excluded rather than included."
                  " [NOSE_LOGFILTER]\n")
         parser.add_option(
             "--logging-clear-handlers", action="store_true",
