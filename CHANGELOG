@@ -15,6 +15,7 @@
   Jenvey for the bug report and patch (#280).
 - Fixed bug in profile plugin that caused stats to fail to print under Python
   2.5 and later. Thanks to djs at n-cube dot org for the bug report (#285).
+- The xunit plugin now tags skipped tests with a <skipped> testcase tag.
 
 0.11.1
 
