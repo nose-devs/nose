@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import os
 import unittest
 from nose.plugins.xunit import Xunit
@@ -30,8 +31,9 @@ class TestXUnitPlugin(PluginTester, unittest.TestCase):
         print result
         
         assert '<?xml version="1.0" encoding="UTF-8"?>' in result
-        assert '<testsuite name="nosetests" tests="5" errors="1" failures="1" skip="1">' in result
+        assert '<testsuite name="nosetests" tests="6" errors="2" failures="1" skip="1">' in result
         assert '<testcase classname="test_xunit_as_suite.TestForXunit" name="test_error" time="0">' in result
+        assert '<error type="exceptions.Exception" message="日本">' in result
         assert '</testcase>' in result
         assert '</testsuite>' in result
 

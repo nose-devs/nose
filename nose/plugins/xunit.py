@@ -26,7 +26,7 @@ Here is an abbreviated version of what an XML test report might look like::
     <testsuite name="nosetests" tests="1" errors="1" failures="0" skip="0">
         <testcase classname="path_to_test_suite.TestSomething"
                   name="test_it" time="0">
-            <error type="exceptions.TypeError">
+            <error type="exceptions.TypeError" message="oops, wrong type">
             Traceback (most recent call last):
             ...
             TypeError: oops, wrong type
@@ -38,6 +38,7 @@ Here is an abbreviated version of what an XML test report might look like::
 
 """
 
+import doctest
 import os
 import traceback
 import re
@@ -45,21 +46,11 @@ import inspect
 from nose.plugins.base import Plugin
 from nose.exc import SkipTest
 from time import time
-import doctest
+from xml.sax import saxutils
 
-def xmlsafe(s, encoding="utf-8"):
-    """Used internally to escape XML."""
-    if isinstance(s, unicode):
-        s = s.encode(encoding)
-    s = str(s)
-    for src, rep in [('&', '&amp;', ),
-                     ('<', '&lt;', ),
-                     ('>', '&gt;', ),
-                     ('"', '&quot;', ),
-                     ("'", '&#39;', ),
-                     ]:
-        s = s.replace(src, rep)
-    return s
+def escape_cdata(cdata):
+    """Escape a string for an XML CDATA section."""
+    return cdata.replace(']]>', ']]>]]&gt;<![CDATA[')
 
 def nice_classname(obj):
     """Returns a nice name for class object or class instance.
@@ -84,6 +75,23 @@ def nice_classname(obj):
     else:
         return cls_name
 
+def exc_message(exc_info):
+    """Return the exception's message."""
+    exc = exc_info[1]
+    if exc is None:
+        # str exception
+        return exc_info[0]
+
+    try:
+        return str(exc)
+    except UnicodeEncodeError:
+        try:
+            return unicode(exc)
+        except UnicodeError:
+            # Fallback to args as neither str nor
+            # unicode(Exception(u'\xe6')) work in Python < 2.6
+            return exc.args[0]
+
 class Xunit(Plugin):
     """This plugin provides test results in the standard XUnit XML format."""
     name = 'xunit'
@@ -101,8 +109,11 @@ class Xunit(Plugin):
             taken = 0.0
         return taken
 
-    def _xmlsafe(self, s):
-        return xmlsafe(s, encoding=self.encoding)
+    def _quoteattr(self, attr):
+        """Escape an XML attribute. Value can be unicode."""
+        if isinstance(attr, unicode):
+            attr = attr.encode(self.encoding)
+        return saxutils.quoteattr(str(attr))
 
     def options(self, parser, env):
         """Sets additional command line options."""
@@ -159,19 +170,24 @@ class Xunit(Plugin):
         taken = self._timeTaken()
 
         if issubclass(err[0], SkipTest):
-            self.stats['skipped'] +=1
-            return
+            type = 'skipped'
+            self.stats['skipped'] += 1
+        else:
+            type = 'error'
+            self.stats['errors'] += 1
         tb = ''.join(traceback.format_exception(*err))
-        self.stats['errors'] += 1
         id = test.id()
         self.errorlist.append(
-            '<testcase classname="%(cls)s" name="%(name)s" time="%(taken)d">'
-            '<error type="%(errtype)s">%(tb)s</error></testcase>' %
-            {'cls': self._xmlsafe('.'.join(id.split('.')[:-1])),
-             'name': self._xmlsafe(id.split('.')[-1]),
-             'errtype': self._xmlsafe(nice_classname(err[0])),
-             'tb': self._xmlsafe(tb),
+            '<testcase classname=%(cls)s name=%(name)s time="%(taken)d">'
+            '<%(type)s type=%(errtype)s message=%(message)s><![CDATA[%(tb)s]]>'
+            '</%(type)s></testcase>' %
+            {'cls': self._quoteattr('.'.join(id.split('.')[:-1])),
+             'name': self._quoteattr(id.split('.')[-1]),
              'taken': taken,
+             'type': type,
+             'errtype': self._quoteattr(nice_classname(err[0])),
+             'message': self._quoteattr(exc_message(err)),
+             'tb': escape_cdata(tb),
              })
 
     def addFailure(self, test, err, capt=None, tb_info=None):
@@ -182,13 +198,15 @@ class Xunit(Plugin):
         self.stats['failures'] += 1
         id = test.id()
         self.errorlist.append(
-            '<testcase classname="%(cls)s" name="%(name)s" time="%(taken)d">'
-            '<failure type="%(errtype)s">%(tb)s</failure></testcase>' %
-            {'cls': self._xmlsafe('.'.join(id.split('.')[:-1])),
-             'name': self._xmlsafe(id.split('.')[-1]),
-             'errtype': self._xmlsafe(nice_classname(err[0])),
-             'tb': self._xmlsafe(tb),
+            '<testcase classname=%(cls)s name=%(name)s time="%(taken)d">'
+            '<failure type=%(errtype)s message=%(message)s><![CDATA[%(tb)s]]>'
+            '</failure></testcase>' %
+            {'cls': self._quoteattr('.'.join(id.split('.')[:-1])),
+             'name': self._quoteattr(id.split('.')[-1]),
              'taken': taken,
+             'errtype': self._quoteattr(nice_classname(err[0])),
+             'message': self._quoteattr(exc_message(err)),
+             'tb': escape_cdata(tb),
              })
 
     def addSuccess(self, test, capt=None):
@@ -198,9 +216,9 @@ class Xunit(Plugin):
         self.stats['passes'] += 1
         id = test.id()
         self.errorlist.append(
-            '<testcase classname="%(cls)s" name="%(name)s" '
+            '<testcase classname=%(cls)s name=%(name)s '
             'time="%(taken)d" />' %
-            {'cls': self._xmlsafe('.'.join(id.split('.')[:-1])),
-             'name': self._xmlsafe(id.split('.')[-1]),
+            {'cls': self._quoteattr('.'.join(id.split('.')[:-1])),
+             'name': self._quoteattr(id.split('.')[-1]),
              'taken': taken,
              })

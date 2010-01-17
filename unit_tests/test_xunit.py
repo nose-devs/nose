@@ -23,20 +23,19 @@ class TestEscaping(unittest.TestCase):
         self.x = Xunit()
 
     def test_all(self):
-        eq_(self.x._xmlsafe(
+        eq_(self.x._quoteattr(
             '''<baz src="http://foo?f=1&b=2" quote="inix hubris 'maximus'?" />'''),
-            ('&lt;baz src=&quot;http://foo?f=1&amp;b=2&quot; '
-                'quote=&quot;inix hubris &#39;maximus&#39;?&quot; /&gt;'))
-
+            ('"&lt;baz src=&quot;http://foo?f=1&amp;b=2&quot; '
+                'quote=&quot;inix hubris \'maximus\'?&quot; /&gt;"'))
 
     def test_unicode_is_utf8_by_default(self):
-        eq_(self.x._xmlsafe(u'Ivan Krsti\u0107'),
-            'Ivan Krsti\xc4\x87')
+        eq_(self.x._quoteattr(u'Ivan Krsti\u0107'),
+            '"Ivan Krsti\xc4\x87"')
 
 
     def test_unicode_custom_utf16_madness(self):
         self.x.encoding = 'utf-16'
-        utf16 = self.x._xmlsafe(u'Ivan Krsti\u0107')
+        utf16 = self.x._quoteattr(u'Ivan Krsti\u0107')[1:-1]
 
         # to avoid big/little endian bytes, assert that we can put it back:
         eq_(utf16.decode('utf16'), u'Ivan Krsti\u0107')
