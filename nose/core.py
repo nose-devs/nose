@@ -108,9 +108,13 @@ class TestProgram(unittest.TestProgram):
         self.config = config
         self.suite = suite
         self.exit = exit
+        extra_args = {}
+        if sys.version_info[0:2] >= (2,7):
+            extra_args['exit'] = exit
         unittest.TestProgram.__init__(
             self, module=module, defaultTest=defaultTest,
-            argv=argv, testRunner=testRunner, testLoader=testLoader)
+            argv=argv, testRunner=testRunner, testLoader=testLoader,
+            **extra_args)
 
     def makeConfig(self, env, plugins=None):
         """Load a Config, pre-filled with user config files if any are

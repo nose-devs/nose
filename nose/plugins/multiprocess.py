@@ -96,6 +96,11 @@ from nose.plugins.base import Plugin
 from nose.result import TextTestResult
 from nose.suite import ContextSuite
 from nose.util import test_address
+try:
+    # 2.7+
+    from unittest.runner import _WritelnDecorator
+except ImportError:
+    from unittest import _WritelnDecorator
 from Queue import Empty
 from warnings import warn
 try:
@@ -460,7 +465,7 @@ def runner(ix, testQueue, resultQueue, shouldStop,
         return case
 
     def makeResult():
-        stream = unittest._WritelnDecorator(StringIO())
+        stream = _WritelnDecorator(StringIO())
         result = resultClass(stream, descriptions=1,
                              verbosity=config.verbosity,
                              config=config)

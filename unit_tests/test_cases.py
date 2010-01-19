@@ -243,9 +243,10 @@ class TestNoseTestWrapper(unittest.TestCase):
         case_b = nose.case.Test(TC('test_b'))
         case_c = nose.case.Test(TC('test_c'))
 
-        self.assertEqual(case_a.shortDescription(), "This is the description")
-        self.assertEqual(case_b.shortDescription(), "This is the description")
-        self.assertEqual(case_c.shortDescription(), None)
-        
+        assert case_a.shortDescription().endswith("This is the description")
+        assert case_b.shortDescription().endswith("This is the description")
+        assert case_c.shortDescription() in (None, # pre 2.7
+                                             'test_c (test_cases.TC)') # 2.7
+
 if __name__ == '__main__':
     unittest.main()

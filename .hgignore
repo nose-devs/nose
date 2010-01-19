@@ -18,3 +18,4 @@ _env
 doc/.build
 dist
 build
+.noseids

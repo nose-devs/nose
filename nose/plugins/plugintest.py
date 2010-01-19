@@ -164,7 +164,7 @@ class PluginTester(object):
             ...         raise ValueError("Now do something, plugin!")
             ... 
             >>> unittest.TestSuite([SomeTest()]) # doctest: +ELLIPSIS
-            <unittest.TestSuite tests=[<...SomeTest testMethod=runTest>]>
+            <unittest...TestSuite tests=[<...SomeTest testMethod=runTest>]>
         
         """
         raise NotImplementedError

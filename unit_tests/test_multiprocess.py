@@ -7,6 +7,11 @@ from nose.plugins import multiprocess
 from nose.plugins.skip import SkipTest
 from nose.config import Config
 from nose.loader import TestLoader
+try:
+    # 2.7+
+    from unittest.runner import _WritelnDecorator
+except ImportError:
+    from unittest import _WritelnDecorator
 
 
 class ArgChecker:
@@ -42,7 +47,7 @@ def test_mp_process_args_pickleable():
     config.multiprocess_workers = 2
     config.multiprocess_timeout = 0.1
     runner = multiprocess.MultiProcessTestRunner(
-        stream=unittest._WritelnDecorator(sys.stdout),
+        stream=_WritelnDecorator(sys.stdout),
         verbosity=2,
         loaderClass=TestLoader,
         config=config)

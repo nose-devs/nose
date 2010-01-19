@@ -29,6 +29,9 @@ log = logging.getLogger(__name__)
 _def = object()
 
 
+def _strclass(cls):
+    return "%s.%s" % (cls.__module__, cls.__name__)
+
 class MixedContextError(Exception):
     """Error raised when a context suite sees tests from more than
     one context.
@@ -49,7 +52,7 @@ class LazySuite(unittest.TestSuite):
         
     def __repr__(self):
         return "<%s tests=generator (%s)>" % (
-            unittest._strclass(self.__class__), id(self))
+            _strclass(self.__class__), id(self))
 
     def __hash__(self):
         return object.__hash__(self)
@@ -143,7 +146,7 @@ class ContextSuite(LazySuite):
 
     def __repr__(self):
         return "<%s context=%s>" % (
-            unittest._strclass(self.__class__),
+            _strclass(self.__class__),
             getattr(self.context, '__name__', self.context))
     __str__ = __repr__
 
