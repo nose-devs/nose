@@ -248,6 +248,11 @@ class PluginManager(object):
         return iter(self.plugins)
 
     def addPlugin(self, plug):
+        # allow, for instance, plugins loaded via entry points to
+        # supplant builtin plugins.
+        new_name = getattr(plug, 'name', object())
+        self._plugins[:] = [p for p in self._plugins
+                            if getattr(p, 'name', None) != new_name]
         self._plugins.append(plug)
 
     def addPlugins(self, plugins):
