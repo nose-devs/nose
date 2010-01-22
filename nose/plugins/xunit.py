@@ -48,9 +48,16 @@ from nose.exc import SkipTest
 from time import time
 from xml.sax import saxutils
 
+# Invalid XML characters, control characters 0-31 sans \t, \n and \r
+CONTROL_CHARACTERS = re.compile(r"[\000-\010\013\014\016-\037]")
+
+def xml_safe(value):
+    """Replaces invalid XML characters with '?'."""
+    return CONTROL_CHARACTERS.sub('?', value)
+
 def escape_cdata(cdata):
     """Escape a string for an XML CDATA section."""
-    return cdata.replace(']]>', ']]>]]&gt;<![CDATA[')
+    return xml_safe(cdata).replace(']]>', ']]>]]&gt;<![CDATA[')
 
 def nice_classname(obj):
     """Returns a nice name for class object or class instance.
@@ -80,17 +87,18 @@ def exc_message(exc_info):
     exc = exc_info[1]
     if exc is None:
         # str exception
-        return exc_info[0]
-
-    try:
-        return str(exc)
-    except UnicodeEncodeError:
+        result = exc_info[0]
+    else:
         try:
-            return unicode(exc)
-        except UnicodeError:
-            # Fallback to args as neither str nor
-            # unicode(Exception(u'\xe6')) work in Python < 2.6
-            return exc.args[0]
+            result = str(exc)
+        except UnicodeEncodeError:
+            try:
+                result = unicode(exc)
+            except UnicodeError:
+                # Fallback to args as neither str nor
+                # unicode(Exception(u'\xe6')) work in Python < 2.6
+                result = exc.args[0]
+    return xml_safe(result)
 
 class Xunit(Plugin):
     """This plugin provides test results in the standard XUnit XML format."""
@@ -111,9 +119,10 @@ class Xunit(Plugin):
 
     def _quoteattr(self, attr):
         """Escape an XML attribute. Value can be unicode."""
+        attr = xml_safe(attr)
         if isinstance(attr, unicode):
             attr = attr.encode(self.encoding)
-        return saxutils.quoteattr(str(attr))
+        return saxutils.quoteattr(attr)
 
     def options(self, parser, env):
         """Sets additional command line options."""

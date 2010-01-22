@@ -4,7 +4,7 @@ import os
 import optparse
 import unittest
 from nose.tools import eq_
-from nose.plugins.xunit import Xunit
+from nose.plugins.xunit import Xunit, escape_cdata
 from nose.exc import SkipTest
 from nose.config import Config
 
@@ -32,13 +32,16 @@ class TestEscaping(unittest.TestCase):
         eq_(self.x._quoteattr(u'Ivan Krsti\u0107'),
             '"Ivan Krsti\xc4\x87"')
 
-
     def test_unicode_custom_utf16_madness(self):
         self.x.encoding = 'utf-16'
         utf16 = self.x._quoteattr(u'Ivan Krsti\u0107')[1:-1]
 
         # to avoid big/little endian bytes, assert that we can put it back:
         eq_(utf16.decode('utf16'), u'Ivan Krsti\u0107')
+
+    def test_control_characters(self):
+        eq_(self.x._quoteattr('foo\n\b\f\r'), '"foo&#10;??&#13;"')
+        eq_(escape_cdata('foo\n\b\f\r'), 'foo\n??\r')
 
 class TestOptions(unittest.TestCase):
 
