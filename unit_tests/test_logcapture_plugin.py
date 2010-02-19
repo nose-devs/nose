@@ -131,6 +131,41 @@ class TestLogCapturePlugin(object):
         assert records[0].startswith('foo:'), records[0]
         assert records[1].startswith('foo.x:'), records[1]
         assert records[2].startswith('bar.quux:'), records[2]
+        
+    def test_logging_filter_exclude(self):
+        env = {'NOSE_LOGFILTER': '-foo,-bar'}
+        c = LogCapture()
+        parser = OptionParser()
+        c.addOptions(parser, env)
+        options, args = parser.parse_args(['foo'])
+        print options, args
+        c.configure(options, Config())
+        c.start()
+        for name in ['foobar.something', 'foo', 'foo.x', 'abara', 'bar.quux']:
+            log = logging.getLogger(name)
+            log.info("Hello %s" % name)
+        c.end()
+        records = c.formatLogRecords()
+        eq_(2, len(records))
+        assert records[0].startswith('foobar.something:'), records[0]
+        assert records[1].startswith('abara:'), records[1]
+        
+    def test_logging_filter_exclude_and_include(self):
+        env = {'NOSE_LOGFILTER': 'foo,-foo.bar'}
+        c = LogCapture()
+        parser = OptionParser()
+        c.addOptions(parser, env)
+        options, args = parser.parse_args(['foo'])
+        print options, args
+        c.configure(options, Config())
+        c.start()
+        for name in ['foo.yes', 'foo.bar', 'foo.bar.no', 'blah']:
+            log = logging.getLogger(name)
+            log.info("Hello %s" % name)
+        c.end()
+        records = c.formatLogRecords()
+        eq_(1, len(records))
+        assert records[0].startswith('foo.yes:'), records[0]
 
     def test_unicode_messages_handled(self):
         msg = u'Ivan Krsti\u0107'
