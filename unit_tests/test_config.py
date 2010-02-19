@@ -17,10 +17,10 @@ class TestNoseConfig(unittest.TestCase):
         c = nose.config.Config()
         assert c.addPaths == True
         # FIXME etc
-        
+
     def test_reset(self):
         c = nose.config.Config()
-        c.include = 'include'        
+        c.include = 'include'
         assert c.include == 'include'
         c.reset()
         assert c.include is None
