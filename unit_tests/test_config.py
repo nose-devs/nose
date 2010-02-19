@@ -4,9 +4,11 @@ import tempfile
 import unittest
 import warnings
 import pickle
+import sys
 
 import nose.config
 from nose.plugins.manager import DefaultPluginManager
+from nose.plugins.skip import SkipTest
 
 
 class TestNoseConfig(unittest.TestCase):
@@ -88,6 +90,8 @@ class TestNoseConfig(unittest.TestCase):
         cc = pickle.loads(cp)
 
     def test_pickle_configured(self):
+        if 'java' in sys.version.lower():
+            raise SkipTest("jython has no profiler plugin")
         c = nose.config.Config(plugins=DefaultPluginManager())
         c.configure(['--with-doctest', '--with-coverage', '--with-profile',
                      '--with-id', '--attr=A', '--collect', '--all',
