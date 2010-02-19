@@ -3,6 +3,8 @@ import sys
 import os
 import optparse
 import unittest
+from xml.sax import saxutils
+
 from nose.tools import eq_
 from nose.plugins.xunit import Xunit, escape_cdata
 from nose.exc import SkipTest
@@ -40,7 +42,10 @@ class TestEscaping(unittest.TestCase):
         eq_(utf16.decode('utf16'), u'Ivan Krsti\u0107')
 
     def test_control_characters(self):
-        eq_(self.x._quoteattr('foo\n\b\f\r'), '"foo&#10;??&#13;"')
+        # quoting of \n, \r varies in diff. python versions
+        n = saxutils.quoteattr('\n')[1:-1]
+        r = saxutils.quoteattr('\r')[1:-1]
+        eq_(self.x._quoteattr('foo\n\b\f\r'), '"foo%s??%s"' % (n, r))
         eq_(escape_cdata('foo\n\b\f\r'), 'foo\n??\r')
 
 class TestOptions(unittest.TestCase):
