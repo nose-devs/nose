@@ -18,9 +18,13 @@ from nose.proxy import ResultProxyFactory
 from nose.util import isclass, resolve_name, try_run
 
 if sys.platform == 'cli':
-    import clr
-    clr.AddReference("IronPython")
-    from IronPython.Runtime.Exceptions import StringException
+    if sys.version_info[:2] < (2, 6):
+        import clr
+        clr.AddReference("IronPython")
+        from IronPython.Runtime.Exceptions import StringException
+    else:
+        class StringException(Exception):
+            pass
 
 log = logging.getLogger(__name__)
 #log.setLevel(logging.DEBUG)
