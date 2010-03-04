@@ -9,18 +9,14 @@ from commands import getstatusoutput
 
 success = 0
 
-    
 version = nose.__version__
-svn_base_url = 'https://python-nose.googlecode.com/svn'
-svn_trunk_url = 'https://python-nose.googlecode.com/svn/trunk'
-svn_tags_url = 'https://python-nose.googlecode.com/svn/tags'
 
 SIMULATE = 'exec' not in sys.argv
 if SIMULATE:
     print("# simulated run: run as scripts/mkrelease.py exec "
           "to execute commands")
 
-    
+
 def runcmd(cmd):
     print cmd
     if not SIMULATE:
@@ -28,26 +24,26 @@ def runcmd(cmd):
         if status != success:
             raise Exception(output)
 
-        
+
 def cd(dir):
     print "cd %s" % dir
     if not SIMULATE:
         os.chdir(dir)
 
-    
+
 def main():
     tag = 'release_%s' % version
 
     # create tag
     runcmd("hg tag -fm 'Tagged release %s' %s" %
            (version, tag))
-    
+
     # clone a fresh copy
     runcmd('hg clone -r %s . /tmp/nose_%s' % (tag, tag))
 
     # build release in clone
     cd('/tmp/nose_%s' % tag)
-    
+
     # remove dev tag from setup
     runcmd('cp setup.cfg.release setup.cfg')
 
@@ -55,10 +51,10 @@ def main():
     cd('doc')
     runcmd('make man readme html')
     cd('..')
-    
+
     # make the distribution
     runcmd('python setup.py sdist')
-    
+
     # upload docs and distribution
     if 'NOSE_UPLOAD' in os.environ:
         up = os.environ['NOSE_UPLOAD']
@@ -75,7 +71,7 @@ def main():
 
         cmd = 'ssh %(host)s "mkdir -p %(versionpath)s"' % cv
         runcmd(cmd)
-        
+
         cmd = ('scp -Cr doc/.build/html/* '
                '%(upload_docs)s/' % cv)
         runcmd(cmd)
