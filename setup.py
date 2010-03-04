@@ -1,6 +1,6 @@
-from nose import __version__ as VERSION
 import sys
 
+VERSION = '0.11.2'
 py_vers_tag = '-%s.%s' % sys.version_info[:2]
 
 try:
@@ -44,7 +44,7 @@ try:
             return self._write_script(script_name, contents, *arg, **kwarg)
         easy_install._write_script = easy_install.write_script
         easy_install.write_script = wrap_write_script
-    
+
 except ImportError:
     from distutils.core import setup
     addl_args = dict(
