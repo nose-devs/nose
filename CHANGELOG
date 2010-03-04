@@ -5,7 +5,7 @@
 - Fixed bug in nose.loader.TestLoader that allowed Test classes that raise
   exceptions in __init__ to crash the test run (#269).
 - Updated multiprocess plugin and nose's packaging to allow multiprocess
-  plugin to work on Windows.
+  plugin to work on Windows (#265).
 - Fixed bugs in nose's test suite that caused spurious failures on Windows.
 - Fixed bug in twisted tools: delayed calls were not shut down on
   reactor stop. Thanks to abbeyj for the patch (#278).
@@ -19,6 +19,11 @@
   messages from nose itself. Thanks to gfxmonk for the patch (#277).
 - The xunit plugin now tags skipped tests with a <skipped> testcase tag, and
   prevents the XML from containing invalid control characters.
+- Updated nose to be compatible with python 2.7 (#305).
+- Updated loading of usage document to allow nose to run from within
+  an egg archive (#288).
+- Fixed IronPython checks to make nose compatible with more versions
+  of IronPython. Thanks to Kevin Mitchell for the patch (#316)
 
 0.11.1
 
