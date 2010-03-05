@@ -104,18 +104,20 @@ Configuration
 -------------
 
 In addition to passing command-line options, you may also put
-configuration options in a .noserc or nose.cfg file in your home
-directory. These are standard .ini-style config files. Put your
-nosetests configuration in a [nosetests] section. Options are the same
-as on the command line, with the -- prefix removed. For options that
-are simple switches, you must supply a value:
+configuration options in your project's *setup.cfg* file, or a .noserc
+or nose.cfg file in your home directory. In any of these standard
+.ini-style config files, you put your nosetests configuration in a
+``[nosetests]`` section. Options are the same as on the command line,
+with the -- prefix removed. For options that are simple switches, you
+must supply a value:
 
    [nosetests]
    verbosity=3
    with-doctest=1
 
 All configuration files that are found will be loaded and their
-options combined.
+options combined. You can override the standard config file loading
+with the ``-c`` option.
 
 
 Using Plugins
@@ -297,7 +299,9 @@ Options
    filter out needless output. Example: filter=foo will capture
    statements issued ONLY to  foo or foo.what.ever.sub but not foobar
    or other logger. Specify multiple loggers with comma:
-   filter=foo,bar,baz. [NOSE_LOGFILTER]
+   filter=foo,bar,baz. If any logger name is prefixed with a minus, eg
+   filter=-foo, it will be excluded rather than included. Default:
+   exclude logging messages from nose itself (-nose). [NOSE_LOGFILTER]
 
 --logging-clear-handlers
 

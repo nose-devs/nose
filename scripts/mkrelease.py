@@ -60,7 +60,7 @@ def main():
         up = os.environ['NOSE_UPLOAD']
         cv = {
             'host': up[:up.index(':')],
-            'path': up[up.index(':')+1:-1],
+            'path': up[up.index(':')+1:],
             'version':version,
             'upload': up,
             'upload_docs': os.path.join(up, version) }
