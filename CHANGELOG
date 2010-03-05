@@ -1,3 +1,8 @@
+0.11.3
+
+- Fixed default plugin manager's use of plugin overriding. Thanks to
+  rob.daylife for the bug report and patch. (#323).
+
 0.11.2
 
 - Changed plugin loading so that external plugins loaded via extension
