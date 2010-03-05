@@ -398,10 +398,10 @@ class BuiltinPluginManager(PluginManager):
     def loadPlugins(self):
         """Load plugins in nose.plugins.builtin
         """
-        super(BuiltinPluginManager, self).loadPlugins()
         from nose.plugins import builtin
         for plug in builtin.plugins:
             self.addPlugin(plug())
+        super(BuiltinPluginManager, self).loadPlugins()
 
 try:
     import pkg_resources
