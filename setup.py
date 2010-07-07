@@ -1,6 +1,6 @@
 import sys
 
-VERSION = '0.11.3'
+VERSION = '0.11.4'
 py_vers_tag = '-%s.%s' % sys.version_info[:2]
 
 try:
@@ -99,6 +99,4 @@ setup(
         'Topic :: Software Development :: Testing'
         ],
     **addl_args
-    )
 
-            
