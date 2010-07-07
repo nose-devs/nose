@@ -99,4 +99,5 @@ setup(
         'Topic :: Software Development :: Testing'
         ],
     **addl_args
+    )
 
