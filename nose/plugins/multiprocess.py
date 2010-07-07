@@ -459,7 +459,7 @@ def runner(ix, testQueue, resultQueue, shouldStop,
     log.debug("Active plugins worker %s: %s", ix, config.plugins._plugins)
     loader = loaderClass(config=config)
     loader.suiteClass.suiteClass = NoSharedFixtureContextSuite
-    
+
     def get():
         case = testQueue.get(timeout=config.multiprocess_timeout)
         return case

@@ -182,7 +182,7 @@ class NoPlugins(object):
     """Null Plugin manager that has no plugins."""
     interface = IPluginInterface
     def __init__(self):
-        self.plugins = ()
+        self._plugins = self.plugins = ()
 
     def __iter__(self):
         return ()

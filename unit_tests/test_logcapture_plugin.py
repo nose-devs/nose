@@ -1,4 +1,3 @@
-
 import sys
 from optparse import OptionParser
 from nose.config import Config
@@ -7,6 +6,11 @@ from nose.tools import eq_
 import logging
 from logging import StreamHandler
 import unittest
+
+if sys.version_info >= (2, 7):
+    py27 = True
+else:
+    py27 = False
 
 class TestLogCapturePlugin(object):
 
@@ -81,25 +85,30 @@ class TestLogCapturePlugin(object):
         options, args = parser.parse_args(['--logging-clear-handlers'])
         c.configure(options, Config())
         eq_(c.clear, True)
-        
-        def mktest():    
+
+        def mktest():
             class TC(unittest.TestCase):
                 def runTest(self):
                     pass
             test = TC()
             return test
-        
+
         logging.getLogger().addHandler(StreamHandler(sys.stdout))
         log = logging.getLogger("dummy")
         log.addHandler(StreamHandler(sys.stdout))
-            
+
         c.start()
         c.beforeTest(mktest())
         c.end()
-        
-        eq_([str(c.__class__) for c in logging.getLogger().handlers], 
-            ['nose.plugins.logcapture.MyMemoryHandler'])
-        eq_([str(c.__class__) for c in logging.getLogger("dummy").handlers], 
+
+
+        if py27:
+            expect = ["<class 'nose.plugins.logcapture.MyMemoryHandler'>"]
+        else:
+            expect = ['nose.plugins.logcapture.MyMemoryHandler']
+        eq_([str(c.__class__) for c in logging.getLogger().handlers],
+            expect)
+        eq_([str(c.__class__) for c in logging.getLogger("dummy").handlers],
             [])
 
     def test_custom_formatter(self):
@@ -112,7 +121,7 @@ class TestLogCapturePlugin(object):
         records = c.formatLogRecords()
         eq_(1, len(records))
         eq_("++Hello++", records[0])
-        
+
     def test_logging_filter(self):
         env = {'NOSE_LOGFILTER': 'foo,bar'}
         c = LogCapture()
