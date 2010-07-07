@@ -577,6 +577,10 @@ class FinalizingSuiteWrapper(unittest.TestSuite):
     def __call__(self, *arg, **kw):
         return self.run(*arg, **kw)
 
+    # 2.7 compat
+    def __iter__(self):
+        return iter(self.suite)
+
     def run(self, *arg, **kw):
         try:
             return self.suite(*arg, **kw)

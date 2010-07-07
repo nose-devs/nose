@@ -15,7 +15,11 @@ echo
 echo "python 2.6..."
 python2.6 selftest.py
 
-if [ "${JYTHON}x" != "x" ] 
+echo
+echo "python 2.7..."
+python2.7 selftest.py
+
+if [ "${JYTHON}x" != "x" ]
 then
     echo
     echo "jython..."

@@ -24,6 +24,7 @@ raising any exceptions.
 
     >>> import unittest
     >>> class TestConfigurableWidget(unittest.TestCase):
+    ...     longMessage = False
     ...     def setUp(self):
     ...         self.widget = ConfigurableWidget()
     ...     def test_can_frobnicate(self):
