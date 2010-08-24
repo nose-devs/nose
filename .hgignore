@@ -19,3 +19,4 @@ doc/.build
 dist
 build
 .noseids
+.tox
