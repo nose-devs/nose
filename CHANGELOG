@@ -1,11 +1,22 @@
+0.11.4
+
+- Made nose compatible with Python 2.7.
+
+0.11.3
+
+- Fixed default plugin manager's use of plugin overriding. Thanks to
+  rob.daylife for the bug report and patch. (#323).
+
 0.11.2
 
+- Changed plugin loading so that external plugins loaded via extension
+  points can override builtin plugins with the same name.
+- Updated multiprocess plugin and nose's packaging to allow multiprocess
+  plugin to work on Windows (#265).
 - Fixed bug in xunit plugin's interaction with suites and errors in
   module-level setup. Thanks to Mark McCague for the bug report (#279).
 - Fixed bug in nose.loader.TestLoader that allowed Test classes that raise
   exceptions in __init__ to crash the test run (#269).
-- Updated multiprocess plugin and nose's packaging to allow multiprocess
-  plugin to work on Windows.
 - Fixed bugs in nose's test suite that caused spurious failures on Windows.
 - Fixed bug in twisted tools: delayed calls were not shut down on
   reactor stop. Thanks to abbeyj for the patch (#278).
@@ -15,8 +26,15 @@
   Jenvey for the bug report and patch (#280).
 - Fixed bug in profile plugin that caused stats to fail to print under Python
   2.5 and later. Thanks to djs at n-cube dot org for the bug report (#285).
+- Improved logcapture filtering, with default setting to filter out log
+  messages from nose itself. Thanks to gfxmonk for the patch (#277).
 - The xunit plugin now tags skipped tests with a <skipped> testcase tag, and
   prevents the XML from containing invalid control characters.
+- Updated nose to be compatible with python 2.7 (#305).
+- Updated loading of usage document to allow nose to run from within
+  an egg archive (#288).
+- Fixed IronPython checks to make nose compatible with more versions
+  of IronPython. Thanks to Kevin Mitchell for the patch (#316).
 
 0.11.1
 

@@ -13,7 +13,7 @@ class TestRunner(unittest.TextTestRunner):
         self.result = _TextTestResult(
             self.stream, self.descriptions, self.verbosity)
         return self.result
-    
+
 
 class TestNoseTestCollector(unittest.TestCase):
 
@@ -27,7 +27,7 @@ class TestNoseTestCollector(unittest.TestCase):
         warnings.filterwarnings(action='ignore',
                                 category=RuntimeWarning,
                                 module='nose.plugins.manager')
-        
+
         try:
             os.chdir(os.path.join(support, 'issue038'))
             unittest.TestProgram(

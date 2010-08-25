@@ -182,7 +182,7 @@ class NoPlugins(object):
     """Null Plugin manager that has no plugins."""
     interface = IPluginInterface
     def __init__(self):
-        self.plugins = ()
+        self._plugins = self.plugins = ()
 
     def __iter__(self):
         return ()
@@ -398,10 +398,10 @@ class BuiltinPluginManager(PluginManager):
     def loadPlugins(self):
         """Load plugins in nose.plugins.builtin
         """
-        super(BuiltinPluginManager, self).loadPlugins()
         from nose.plugins import builtin
         for plug in builtin.plugins:
             self.addPlugin(plug())
+        super(BuiltinPluginManager, self).loadPlugins()
 
 try:
     import pkg_resources
