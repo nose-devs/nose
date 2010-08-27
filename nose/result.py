@@ -125,7 +125,6 @@ class TextTestResult(_TextTestResult):
 
         summary = {}
         eckeys = self.errorClasses.keys()
-        eckeys.sort()
         for cls in eckeys:
             storage, label, isfail = self.errorClasses[cls]
             count = len(storage)

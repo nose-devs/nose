@@ -52,6 +52,7 @@ from warnings import warn
 import nose.config
 from nose.failure import Failure
 from nose.plugins.base import IPluginInterface
+from nose.pyversion import cmp, sort_list
 
 try:
     import cPickle as pickle
@@ -280,7 +281,7 @@ class PluginManager(object):
         if cmpf is None:
             cmpf = lambda a, b: cmp(getattr(b, 'score', 1),
                                     getattr(a, 'score', 1))
-        self._plugins.sort(cmpf)
+        sort_list(self._plugins, cmpf)
 
     def _get_plugins(self):
         return self._plugins

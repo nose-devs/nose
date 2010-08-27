@@ -52,6 +52,9 @@ except ImportError:
         scripts = ['bin/nosetests'],
         )
 
+if sys.version_info >= (3,):
+    addl_args['use_2to3'] = True
+
 setup(
     name = 'nose',
     version = VERSION,

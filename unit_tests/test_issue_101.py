@@ -2,6 +2,10 @@ import sys
 import unittest
 import warnings
 from nose.plugins.errorclass import ErrorClass, ErrorClassPlugin
+from nose import SkipTest
+
+if sys.version_info >= (3,):
+    raise SkipTest("Python 3.x does not support string exceptions")
 
 class TestErrorClassWithStringException(unittest.TestCase):
 

@@ -92,7 +92,7 @@ Since we defined a Todo as a failure, the run was not successful.
     False
 """
 
-from new import instancemethod
+from nose.pyversion import make_instancemethod
 from nose.plugins.base import Plugin
 from nose.result import TextTestResult
 from nose.util import isclass
@@ -173,24 +173,21 @@ def add_error_patch(result):
     that recognizes the errorClasses attribute and deals with
     errorclasses correctly.
     """
-    return instancemethod(
-        TextTestResult.addError.im_func, result, result.__class__)
+    return make_instancemethod(TextTestResult.addError, result)
 
 
 def print_errors_patch(result):
     """Create a new printErrors method that prints errorClasses items
     as well.
     """
-    return instancemethod(
-        TextTestResult.printErrors.im_func, result, result.__class__)
+    return make_instancemethod(TextTestResult.printErrors, result)
 
 
 def print_label_patch(result):
     """Create a new printLabel method that prints errorClasses items
     as well.
     """
-    return instancemethod(
-        TextTestResult.printLabel.im_func, result, result.__class__)
+    return make_instancemethod(TextTestResult.printLabel, result)
 
 
 def wassuccessful_patch(result):
@@ -198,16 +195,14 @@ def wassuccessful_patch(result):
     exceptions that were put into other slots than error or failure
     but that still count as not success.
     """
-    return instancemethod(
-        TextTestResult.wasSuccessful.im_func, result, result.__class__)
+    return make_instancemethod(TextTestResult.wasSuccessful, result)
 
 
 def add_skip_patch(result):
     """Create a new addSkip method to patch into a result instance
     that delegates to addError.
     """
-    return instancemethod(
-        TextTestResult.addSkip.im_func, result, result.__class__)
+    return make_instancemethod(TextTestResult.addSkip, result)
 
 
 if __name__ == '__main__':

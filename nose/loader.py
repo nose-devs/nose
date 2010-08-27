@@ -21,6 +21,7 @@ from nose.selector import defaultSelector, TestAddress
 from nose.util import cmp_lineno, getpackage, isclass, isgenerator, ispackage, \
     match_last, resolve_name, transplant_func, transplant_class, test_address
 from nose.suite import ContextSuiteFactory, ContextList, LazySuite
+from nose.pyversion import cmp, sort_list
 
 
 log = logging.getLogger(__name__)
@@ -112,7 +113,7 @@ class TestLoader(unittest.TestLoader):
         if not cases and hasattr(testCaseClass, 'runTest'):
             cases = ['runTest']
         if self.sortTestMethodsUsing:
-            cases.sort(self.sortTestMethodsUsing)
+            sort_list(cases, self.sortTestMethodsUsing)
         return cases
 
     def loadTestsFromDir(self, path):
@@ -128,7 +129,7 @@ class TestLoader(unittest.TestLoader):
             paths_added = add_path(path, self.config)
 
         entries = os.listdir(path)
-        entries.sort(lambda a, b: match_last(a, b, self.config.testMatch))
+        sort_list(entries, lambda a, b: match_last(a, b, self.config.testMatch))
         for entry in entries:
             # this hard-coded initial-dot test will be removed:
             # http://code.google.com/p/python-nose/issues/detail?id=82
@@ -181,7 +182,8 @@ class TestLoader(unittest.TestLoader):
         
         # pop paths
         if self.config.addPaths:
-            map(remove_path, paths_added)
+            for p in paths_added:
+              remove_path(p)
         plugins.afterDirectory(path)
 
     def loadTestsFromFile(self, filename):
@@ -299,8 +301,8 @@ class TestLoader(unittest.TestLoader):
                         test_classes.append(test)
                 elif isfunction(test) and self.selector.wantFunction(test):
                     test_funcs.append(test)
-            test_classes.sort(lambda a, b: cmp(a.__name__, b.__name__))
-            test_funcs.sort(cmp_lineno)
+            sort_list(test_classes, lambda a, b: cmp(a.__name__, b.__name__))
+            sort_list(test_funcs, cmp_lineno)
             tests = map(lambda t: self.makeTest(t, parent=module),
                         test_classes + test_funcs)
 

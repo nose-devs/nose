@@ -47,6 +47,7 @@ from nose.plugins.base import Plugin
 from nose.exc import SkipTest
 from time import time
 from xml.sax import saxutils
+from nose.pyversion import UNICODE_STRINGS
 
 # Invalid XML characters, control characters 0-31 sans \t, \n and \r
 CONTROL_CHARACTERS = re.compile(r"[\000-\010\013\014\016-\037]")
@@ -120,7 +121,7 @@ class Xunit(Plugin):
     def _quoteattr(self, attr):
         """Escape an XML attribute. Value can be unicode."""
         attr = xml_safe(attr)
-        if isinstance(attr, unicode):
+        if isinstance(attr, unicode) and not UNICODE_STRINGS:
             attr = attr.encode(self.encoding)
         return saxutils.quoteattr(attr)
 
@@ -146,7 +147,10 @@ class Xunit(Plugin):
                           'skipped': 0
                           }
             self.errorlist = []
-            self.error_report_file = open(options.xunit_file, 'w')
+            if UNICODE_STRINGS:
+                self.error_report_file = open(options.xunit_file, 'w', encoding=self.encoding)
+            else:
+                self.error_report_file = open(options.xunit_file, 'w')
 
     def report(self, stream):
         """Writes an Xunit-formatted XML file

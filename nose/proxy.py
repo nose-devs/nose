@@ -133,6 +133,8 @@ class ResultProxy(object):
         formatted = plugins.formatFailure(self.test, err)
         if formatted is not None:
             err = formatted
+        if not isinstance(err[1], Exception):
+            err = (err[0], err[0](err[1]), err[2])
         plugins.addFailure(self.test, err)
         self.result.addFailure(self.test, err)
         if self.config.stopOnError:

@@ -8,7 +8,7 @@ import re
 import sys
 import types
 import unittest
-from types import ClassType, TypeType
+from nose.pyversion import cmp, ClassType, TypeType
 
 try:
     from compiler.consts import CO_GENERATOR
@@ -308,7 +308,7 @@ def ln(label):
     '---------------------------- hello there -----------------------------'
     """
     label_len = len(label) + 2
-    chunk = (70 - label_len) / 2
+    chunk = (70 - label_len) // 2
     out = '%s %s %s' % ('-' * chunk, label, '-' * chunk)
     pad = 70 - len(out)
     if pad > 0:
@@ -431,8 +431,6 @@ def test_address(test):
                 file = os.path.abspath(file)
         call = getattr(test, '__name__', None)
         return (src(file), module, call)
-    if t == types.InstanceType:
-        return test_address(test.__class__)
     if t == types.MethodType:
         cls_adr = test_address(test.im_class)
         return (src(cls_adr[0]), cls_adr[1],
@@ -455,6 +453,8 @@ def test_address(test):
             method_name = test._testMethodName
         return (src(cls_adr[0]), cls_adr[1],
                 "%s.%s" % (cls_adr[2], method_name))
+    if hasattr(test, '__class__') and test.__class__.__module__ != 'builtins':
+        return test_address(test.__class__)
     raise TypeError("I don't know what %s is (%s)" % (test, t))
 test_address.__test__ = False # do not collect
 
@@ -511,10 +511,11 @@ def match_last(a, b, regex):
     regular expression last.
 
     >>> from nose.config import Config
+    >>> from nose.pyversion import sort_list
     >>> c = Config()
     >>> regex = c.testMatch
     >>> entries = ['.', '..', 'a_test', 'src', 'lib', 'test', 'foo.py']
-    >>> entries.sort(lambda a, b: match_last(a, b, regex))
+    >>> sort_list(entries, lambda a, b: match_last(a, b, regex))
     >>> entries
     ['.', '..', 'foo.py', 'lib', 'src', 'a_test', 'test']
     """
