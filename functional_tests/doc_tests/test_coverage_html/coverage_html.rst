@@ -32,9 +32,9 @@ The console coverage output is printed, as normal.
     test_covered.test_blah ... hi
     ok
     <BLANKLINE>
-    Name    Stmts   Exec  Cover   Missing
+    Name    Stmts   Miss  Cover   Missing
     -------------------------------------
-    blah        4      3    75%   6
+    blah        4      1    75%   6
     ----------------------------------------------------------------------
     Ran 1 test in ...s
     <BLANKLINE>
