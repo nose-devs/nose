@@ -29,17 +29,15 @@ import sys
 
 if __name__ == "__main__":
     this_dir = os.path.normpath(os.path.abspath(os.path.dirname(__file__)))
-    lib_dir = this_dir
     if os.path.isdir(os.path.join(this_dir, 'build', 'lib', 'nose')):
 	# In some cases (for example, Python 3.x), we may have to build an
 	# alternate version of the source (under build/lib) which we want to be
 	# using instead of the source dir.  If there's a build/lib/nose
 	# directory, use that.
-        this_dir = os.path.join(this_dir, 'build')
-        lib_dir = os.path.join(this_dir, 'lib')
+        this_dir = os.path.join(this_dir, 'build', 'lib')
     try:
         import pkg_resources
-        env = pkg_resources.Environment(search_path=[lib_dir])
+        env = pkg_resources.Environment(search_path=[this_dir])
         distributions = env["nose"]
         assert len(distributions) == 1
         dist = distributions[0]
@@ -47,7 +45,7 @@ if __name__ == "__main__":
     except ImportError:
         pass
     # Always make sure our chosen version is first on the path
-    sys.path.insert(0, lib_dir)
+    sys.path.insert(0, this_dir)
     os.chdir(this_dir)
     import nose
     nose.run_exit()

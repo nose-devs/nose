@@ -83,7 +83,7 @@ Errors and failures are empty, but todo has our test:
     ----------------------------------------------------------------------
     Traceback (most recent call last):
     ...
-    Todo: I need to test something
+    ...Todo: I need to test something
     <BLANKLINE>
 
 Since we defined a Todo as a failure, the run was not successful.
