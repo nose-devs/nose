@@ -79,7 +79,7 @@ else:
             test_base = self.distribution.test_build_dir
             if not test_base:
                 bcmd = self.get_finalized_command('build')
-                test_base = bcmd.build_base
+                test_base = os.path.join(bcmd.build_base, 'tests')
             self.test_base = test_base
 
         def run(self):

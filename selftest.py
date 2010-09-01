@@ -29,21 +29,26 @@ import sys
 
 if __name__ == "__main__":
     this_dir = os.path.normpath(os.path.abspath(os.path.dirname(__file__)))
+    lib_dir = this_dir
     if sys.version_info >= (3,):
 	# Under Python 3.x, we need to 'build' the source (using 2to3, etc)
-	# first, so it will be located under build/lib/nose instead of this
-	# dir.
-        this_dir = os.path.join(this_dir, 'build', 'lib')
+	# first.  'python3 setup.py build_tests' will put everything under
+	# build/tests (including nose itself, since some tests are inside the
+	# nose source), so we'll run from that directory instead.
+        lib_dir = os.path.join(this_dir, 'build', 'lib')
+        this_dir = os.path.join(this_dir, 'build', 'tests')
+        if not os.path.isdir(this_dir):
+            raise AssertionError("Error: %s does not exist.  Use the setup.py 'build_tests' command to create it." % (this_dir,))
     try:
         import pkg_resources
-        env = pkg_resources.Environment(search_path=[this_dir])
+        env = pkg_resources.Environment(search_path=[lib_dir])
         distributions = env["nose"]
         assert len(distributions) == 1
         dist = distributions[0]
         dist.activate()
     except ImportError:
         pass
-    # Always make sure our chosen version is first on the path
+    # Always make sure our chosen test dir is first on the path
     sys.path.insert(0, this_dir)
     os.chdir(this_dir)
     import nose

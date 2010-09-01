@@ -4,7 +4,7 @@ import os
 VERSION = '0.11.4'
 py_vers_tag = '-%s.%s' % sys.version_info[:2]
 
-test_dirs = ['functional_tests', 'unit_tests', os.path.join('doc','doc_tests')]
+test_dirs = ['functional_tests', 'unit_tests', os.path.join('doc','doc_tests'), 'nose']
 
 try:
     from setup3lib import setup
@@ -25,7 +25,6 @@ try:
         use_2to3 = True,
         test_dirs = test_dirs,
         # The following is needed for the ispackage doctests to work right:
-        test_build_dir = "build/lib",
         pyversion_patching = True,
         )
 
