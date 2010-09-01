@@ -168,6 +168,7 @@ class Config(object):
       self.testNames = ()
       self.verbosity = int(env.get('NOSE_VERBOSE', 1))
       self.where = ()
+      self.py3where = ()
       self.workingDir = None   
     """
 
@@ -202,6 +203,7 @@ class Config(object):
         self.testNames = []
         self.verbosity = int(env.get('NOSE_VERBOSE', 1))
         self.where = ()
+        self.py3where = ()
         self.workingDir = os.getcwd()
         self.traverseNamespace = False
         self.firstPackageWins = False
@@ -281,6 +283,10 @@ class Config(object):
             self.testNames = args
         if options.testNames is not None:
             self.testNames.extend(tolist(options.testNames))
+
+        if options.py3where is not None:
+            if sys.version_info >= (3,):
+                options.where = options.py3where
 
         # `where` is an append action, so it can't have a default value 
         # in the parser, or that default will always be in the list
@@ -448,6 +454,16 @@ class Config(object):
             "will be used as the working directory, in place of the current "
             "working directory, which is the default. Others will be added "
             "to the list of tests to execute. [NOSE_WHERE]"
+            )
+        parser.add_option(
+            "--py3where", action="append", dest="py3where",
+            metavar="PY3WHERE",
+            help="Look for tests in this directory under Python 3.x. "
+            "Functions the same as 'where', but only applies if running under "
+            "Python 3.x or above.  Note that, if present under 3.x, this "
+            "option completely replaces any directories specified with "
+            "'where', so the 'where' option becomes ineffective. "
+            "[NOSE_PY3WHERE]"
             )
         parser.add_option(
             "-m", "--match", "--testmatch", action="store",
