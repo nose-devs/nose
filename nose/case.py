@@ -5,6 +5,7 @@ to create test cases from test functions and methods in test classes.
 import logging
 import sys
 import unittest
+from inspect import isfunction
 from nose.config import Config
 from nose.failure import Failure # for backwards compatibility
 from nose.util import resolve_name, test_address, try_run
@@ -308,7 +309,8 @@ class MethodTestCase(TestBase):
 
         * method -- the method to call, may be bound or unbound. In either
           case, a new instance of the method's class will be instantiated to
-          make the call.
+	  make the call.  Note: In Python 3.x, if using an unbound method, you
+	  must wrap it using pyversion.unbound_method.
 
         Optional arguments:
 
@@ -327,6 +329,8 @@ class MethodTestCase(TestBase):
         self.test = test
         self.arg = arg
         self.descriptor = descriptor
+        if isfunction(method):
+            raise ValueError("Unbound methods must be wrapped using pyversion.unbound_method before passing to MethodTestCase")
         self.cls = method.im_class
         self.inst = self.cls()
         if self.test is None:

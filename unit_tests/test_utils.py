@@ -2,6 +2,7 @@ import os
 import unittest
 import nose
 from nose import case
+from nose.pyversion import unbound_method
 # don't import * -- some util functions look testlike
 from nose import util
 
@@ -86,14 +87,14 @@ class TestUtils(unittest.TestCase):
         foo_funct = case.FunctionTestCase(baz)
         foo_functu = unittest.FunctionTestCase(baz)
 
-        foo_mtc = case.MethodTestCase(Foo.bar)
+        foo_mtc = case.MethodTestCase(unbound_method(Foo, Foo.bar))
 
         me = util.src(absfile(__file__))
         self.assertEqual(test_address(baz),
                          (me, __name__, 'baz'))
         assert test_address(Foo) == (me, __name__, 'Foo')
-        assert test_address(Foo.bar) == (me, __name__,
-                                              'Foo.bar')
+        assert test_address(unbound_method(Foo, Foo.bar)) == (me, __name__,
+                                                              'Foo.bar')
         assert test_address(f) == (me, __name__, 'Foo')
         assert test_address(f.bar) == (me, __name__, 'Foo.bar')
         assert test_address(nose) == (

@@ -29,11 +29,10 @@ import sys
 
 if __name__ == "__main__":
     this_dir = os.path.normpath(os.path.abspath(os.path.dirname(__file__)))
-    if os.path.isdir(os.path.join(this_dir, 'build', 'lib', 'nose')):
-	# In some cases (for example, Python 3.x), we may have to build an
-	# alternate version of the source (under build/lib) which we want to be
-	# using instead of the source dir.  If there's a build/lib/nose
-	# directory, use that.
+    if sys.version_info >= (3,):
+	# Under Python 3.x, we need to 'build' the source (using 2to3, etc)
+	# first, so it will be located under build/lib/nose instead of this
+	# dir.
         this_dir = os.path.join(this_dir, 'build', 'lib')
     try:
         import pkg_resources

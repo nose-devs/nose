@@ -152,7 +152,7 @@ class TestId(Plugin):
         # used to track ids seen when tests is filled from
         # loaded ids file
         self._seen = {}
-        self._write_hashes = options.verbosity >= 2
+        self._write_hashes = conf.verbosity >= 2
 
     def finalize(self, result):
         """Save new ids file, if needed.

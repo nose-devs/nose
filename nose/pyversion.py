@@ -1,9 +1,13 @@
 """
 This module contains fixups for using nose under different versions of Python.
 """
+import sys
+import os
 import types
+import inspect
+import nose.util
 
-__all__ = ['make_instancemethod', 'cmp', 'sort_list', 'ClassType', 'TypeType', 'UNICODE_STRINGS']
+__all__ = ['make_instancemethod', 'cmp', 'sort_list', 'ClassType', 'TypeType', 'UNICODE_STRINGS', 'unbound_method', 'ismethod', 'isunboundmethod']
 
 # In Python 3.x, all strings are unicode (the call to 'unicode()' in the 2.x
 # source will be replaced with 'str()' when running 2to3, so this test will
@@ -61,3 +65,51 @@ if hasattr(types, 'ClassType'):
 else:
     ClassType = type
     TypeType = type
+
+# The following emulates the behavior (we need) of an 'unbound method' under
+# Python 3.x (namely, the ability to have a class associated with a function
+# definition so that things can do stuff based on its associated class)
+class UnboundMethod:
+    def __init__(self, cls, func):
+        self.func = func
+        self.__self__ = UnboundSelf(cls)
+
+    def address(self):
+        cls = self.__self__.cls
+        module = cls.__module__
+        m = sys.modules[module]
+        file = getattr(m, '__file__', None)
+        if file is not None:
+            file = os.path.abspath(file)
+        return (nose.util.src(file), module, "%s.%s" % (cls.__name__, self.func.__name__))
+
+    def __call__(self, *args, **kwargs):
+        return self.func(*args, **kwargs)
+
+    def __getattr__(self, attr):
+        return getattr(self.func, attr)
+
+class UnboundSelf:
+    def __init__(self, cls):
+        self.cls = cls
+
+    # We have to do this hackery because Python won't let us override the
+    # __class__ attribute...
+    def __getattribute__(self, attr):
+        if attr == '__class__':
+            return self.cls
+        else:
+            return object.__getattribute__(self, attr)
+
+def unbound_method(cls, func):
+    if inspect.ismethod(func):
+        return func
+    if not inspect.isfunction(func):
+        raise TypeError('%s is not a function' % (repr(func),))
+    return UnboundMethod(cls, func)
+
+def ismethod(obj):
+    return inspect.ismethod(obj) or isinstance(obj, UnboundMethod)
+
+def isunboundmethod(obj):
+    return (inspect.ismethod(obj) and obj.im_self is None) or isinstance(obj, UnboundMethod)

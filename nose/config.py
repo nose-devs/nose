@@ -557,6 +557,12 @@ class NoOptions(object):
     def __getstate__(self):
         return {}
     
+    def __setstate__(self, state):
+        pass
+
+    def __getnewargs__(self):
+        return ()
+    
     def __getattr__(self, attr):
         return None
 

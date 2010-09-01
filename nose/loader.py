@@ -12,7 +12,9 @@ import logging
 import os
 import sys
 import unittest
-from inspect import isfunction, ismethod
+import types
+from inspect import isfunction
+from nose.pyversion import unbound_method, ismethod
 from nose.case import FunctionTestCase, MethodTestCase
 from nose.failure import Failure
 from nose.config import Config
@@ -101,7 +103,9 @@ class TestLoader(unittest.TestLoader):
         
         def wanted(attr, cls=testCaseClass, sel=self.selector):
             item = getattr(cls, attr, None)
-            if not (ismethod(item) or isfunction(item)):
+            if isfunction(item):
+                item = unbound_method(cls, item)
+            elif not ismethod(item):
                 return False
             return sel.wantMethod(item)
         cases = filter(wanted, dir(testCaseClass))
@@ -248,7 +252,8 @@ class TestLoader(unittest.TestLoader):
         """
         # convert the unbound generator method
         # into a bound method so it can be called below
-        cls = generator.im_class
+        if hasattr(generator, 'im_class'):
+            cls = generator.im_class
         inst = cls()
         method = generator.__name__
         generator = getattr(inst, method)
@@ -266,7 +271,7 @@ class TestLoader(unittest.TestLoader):
                         # to run the inline function as its test call,
                         # but using the generator method as the 'method of
                         # record' (so no need to pass it as the descriptor)
-                        yield MethodTestCase(g, test=test_func, arg=arg)
+                        yield MethodTestCase(unbound_method(c, g), test=test_func, arg=arg)
                     else:
                         yield Failure(
                             TypeError,
@@ -473,7 +478,9 @@ class TestLoader(unittest.TestLoader):
         """
         def wanted(attr, cls=cls, sel=self.selector):
             item = getattr(cls, attr, None)
-            if not ismethod(item):
+            if isfunction(item):
+                item = unbound_method(cls, item)
+            elif not ismethod(item):
                 return False
             return sel.wantMethod(item)
         cases = [self.makeTest(getattr(cls, case), cls)
@@ -520,6 +527,11 @@ class TestLoader(unittest.TestLoader):
             exc = sys.exc_info()
             return Failure(exc[0], exc[1], exc[2], address=addr)
         
+        if isfunction(obj) and parent and not isinstance(parent, types.ModuleType):
+	    # This is a Python 3.x 'unbound method'.  Wrap it with its
+	    # associated class..
+            obj = unbound_method(parent, obj)
+
         if isinstance(obj, unittest.TestCase):
             return obj
         elif isclass(obj):

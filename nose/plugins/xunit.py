@@ -65,8 +65,8 @@ def nice_classname(obj):
 
         >>> nice_classname(Exception()) # doctest: +ELLIPSIS
         '...Exception'
-        >>> nice_classname(Exception)
-        'exceptions.Exception'
+        >>> nice_classname(Exception) # doctest: +ELLIPSIS
+        '...Exception'
 
     """
     if inspect.isclass(obj):

@@ -9,6 +9,7 @@ import sys
 import nose.config
 from nose.plugins.manager import DefaultPluginManager
 from nose.plugins.skip import SkipTest
+from nose.plugins.prof import Profile
 
 
 class TestNoseConfig(unittest.TestCase):
@@ -93,10 +94,13 @@ class TestNoseConfig(unittest.TestCase):
         if 'java' in sys.version.lower():
             raise SkipTest("jython has no profiler plugin")
         c = nose.config.Config(plugins=DefaultPluginManager())
-        c.configure(['--with-doctest', '--with-coverage', '--with-profile',
+        config_args = ['--with-doctest', '--with-coverage', 
                      '--with-id', '--attr=A', '--collect', '--all',
                      '--with-isolation', '-d', '--with-xunit', '--processes=2',
-                     '--pdb'])
+                     '--pdb']
+        if Profile.available():
+            config_args.append('--with-profile')
+        c.configure(config_args)
         cp = pickle.dumps(c)
         cc = pickle.loads(cp)
         assert cc.plugins._plugins

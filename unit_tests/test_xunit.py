@@ -5,6 +5,7 @@ import optparse
 import unittest
 from xml.sax import saxutils
 
+from nose.pyversion import UNICODE_STRINGS
 from nose.tools import eq_
 from nose.plugins.xunit import Xunit, escape_cdata
 from nose.exc import SkipTest
@@ -31,15 +32,21 @@ class TestEscaping(unittest.TestCase):
                 'quote=&quot;inix hubris \'maximus\'?&quot; /&gt;"'))
 
     def test_unicode_is_utf8_by_default(self):
-        eq_(self.x._quoteattr(u'Ivan Krsti\u0107'),
-            '"Ivan Krsti\xc4\x87"')
+        if not UNICODE_STRINGS:
+            eq_(self.x._quoteattr(u'Ivan Krsti\u0107'),
+                '"Ivan Krsti\xc4\x87"')
 
     def test_unicode_custom_utf16_madness(self):
         self.x.encoding = 'utf-16'
         utf16 = self.x._quoteattr(u'Ivan Krsti\u0107')[1:-1]
 
-        # to avoid big/little endian bytes, assert that we can put it back:
-        eq_(utf16.decode('utf16'), u'Ivan Krsti\u0107')
+        if UNICODE_STRINGS:
+	    # If all internal strings are unicode, then _quoteattr shouldn't
+	    # have changed anything.
+            eq_(utf16, u'Ivan Krsti\u0107')
+        else:
+            # to avoid big/little endian bytes, assert that we can put it back:
+            eq_(utf16.decode('utf16'), u'Ivan Krsti\u0107')
 
     def test_control_characters(self):
         # quoting of \n, \r varies in diff. python versions
@@ -131,7 +138,7 @@ class TestXMLOutputWithXML(unittest.TestCase):
             assert int(tc.attrib['time']) >= 0
 
             err = tc.find("failure")
-            eq_(err.attrib['type'], "exceptions.AssertionError")
+            eq_(err.attrib['type'], "%s.AssertionError" % (AssertionError.__module__,))
             err_lines = err.text.strip().split("\n")
             eq_(err_lines[0], 'Traceback (most recent call last):')
             eq_(err_lines[-1], 'AssertionError: one is not \'equal\' to two')
@@ -196,7 +203,7 @@ class TestXMLOutputWithXML(unittest.TestCase):
             assert int(tc.attrib['time']) >= 0
 
             err = tc.find("error")
-            eq_(err.attrib['type'], "exceptions.RuntimeError")
+            eq_(err.attrib['type'], "%s.RuntimeError" % (RuntimeError.__module__,))
             err_lines = err.text.strip().split("\n")
             eq_(err_lines[0], 'Traceback (most recent call last):')
             eq_(err_lines[-1], 'RuntimeError: some error happened')

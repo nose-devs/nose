@@ -1,5 +1,6 @@
 import sys
 from optparse import OptionParser
+from nose.pyversion import UNICODE_STRINGS
 from nose.config import Config
 from nose.plugins.logcapture import LogCapture
 from nose.tools import eq_
@@ -198,4 +199,7 @@ class TestLogCapturePlugin(object):
             err = sys.exc_info()
         (ec, ev, tb) = c.formatError(test, err)
         print ev
-        assert msg.encode('utf-8') in ev
+        if UNICODE_STRINGS:
+            assert msg in ev
+        else:
+            assert msg.encode('utf-8') in ev
