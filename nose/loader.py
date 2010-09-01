@@ -101,7 +101,7 @@ class TestLoader(unittest.TestLoader):
         
         def wanted(attr, cls=testCaseClass, sel=self.selector):
             item = getattr(cls, attr, None)
-            if not ismethod(item):
+            if not (ismethod(item) or isfunction(item)):
                 return False
             return sel.wantMethod(item)
         cases = filter(wanted, dir(testCaseClass))
