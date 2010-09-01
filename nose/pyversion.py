@@ -71,7 +71,10 @@ else:
 # definition so that things can do stuff based on its associated class)
 class UnboundMethod:
     def __init__(self, cls, func):
-        self.func = func
+	# Make sure we have all the same attributes as the original function,
+	# so that the AttributeSelector plugin will work correctly...
+        self.__dict__ = func.__dict__.copy()
+        self._func = func
         self.__self__ = UnboundSelf(cls)
 
     def address(self):
@@ -81,13 +84,16 @@ class UnboundMethod:
         file = getattr(m, '__file__', None)
         if file is not None:
             file = os.path.abspath(file)
-        return (nose.util.src(file), module, "%s.%s" % (cls.__name__, self.func.__name__))
+        return (nose.util.src(file), module, "%s.%s" % (cls.__name__, self._func.__name__))
 
     def __call__(self, *args, **kwargs):
-        return self.func(*args, **kwargs)
+        return self._func(*args, **kwargs)
 
     def __getattr__(self, attr):
-        return getattr(self.func, attr)
+        return getattr(self._func, attr)
+
+    def __repr__(self):
+        return '<unbound method %s.%s>' % (self.__self__.cls.__name__, self._func.__name__)
 
 class UnboundSelf:
     def __init__(self, cls):

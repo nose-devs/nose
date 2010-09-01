@@ -439,6 +439,8 @@ class ContextSuiteFactory(object):
         # (classes are re-ancestored elsewhere).
         if hasattr(context, 'im_class'):
             context = context.im_class
+        elif hasattr(context, '__self__'):
+            context = context.__self__.__class__
         if hasattr(context, '__module__'):
             ancestors = context.__module__.split('.')
         elif hasattr(context, '__name__'):

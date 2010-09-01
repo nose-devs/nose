@@ -263,7 +263,7 @@ class TestLoader(unittest.TestLoader):
                 for test in g():
                     test_func, arg = self.parseGeneratedTest(test)
                     if not callable(test_func):
-                        test_func = getattr(c, test_func)
+                        test_func = unbound_method(c, getattr(c, test_func))
                     if ismethod(test_func):
                         yield MethodTestCase(test_func, arg=arg, descriptor=g)
                     elif isfunction(test_func):
@@ -271,7 +271,7 @@ class TestLoader(unittest.TestLoader):
                         # to run the inline function as its test call,
                         # but using the generator method as the 'method of
                         # record' (so no need to pass it as the descriptor)
-                        yield MethodTestCase(unbound_method(c, g), test=test_func, arg=arg)
+                        yield MethodTestCase(g, test=test_func, arg=arg)
                     else:
                         yield Failure(
                             TypeError,

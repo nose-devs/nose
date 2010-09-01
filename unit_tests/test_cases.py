@@ -82,7 +82,7 @@ class TestNoseCases(unittest.TestCase):
                 raise Exception("failed")
             
         called[:] = []
-        case = nose.case.MethodTestCase(unbound_method(TestClassFailingSetup,
+        case = nose.case.MethodTestCase(unbound_method(TestClassFailingTest,
                                             TestClassFailingTest.test_func))
         case(res)
         self.assertEqual(called, ['setup', 'test', 'teardown'])     
