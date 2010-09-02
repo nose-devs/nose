@@ -24,7 +24,7 @@ try:
         test_suite = 'nose.collector',
         use_2to3 = True,
         test_dirs = test_dirs,
-        # The following is needed for the ispackage doctests to work right:
+        test_build_dir = 'build/tests',
         pyversion_patching = True,
         )
 

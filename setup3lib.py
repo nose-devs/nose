@@ -79,7 +79,7 @@ else:
             test_base = self.distribution.test_build_dir
             if not test_base:
                 bcmd = self.get_finalized_command('build')
-                test_base = os.path.join(bcmd.build_base, 'tests')
+                test_base = bcmd.build_base
             self.test_base = test_base
 
         def run(self):
@@ -91,6 +91,7 @@ else:
             modified = []
             py_modified = []
             doc_modified = []
+            dir_util.mkpath(test_base)
             for testdir in test_dirs:
               for srcdir, dirnames, filenames in os.walk(testdir):
                 destdir = os.path.join(test_base, srcdir)
@@ -121,9 +122,6 @@ else:
                 else:
                     log.warn("Warning: pyversion_patching specified in setup config but patch module not found.  Patching will not be performed.")
 
-	    # Some test frameworks read things from setup.cfg and expect it to
-	    # be present in the current directory.  In any case, doesn't hurt..
-            file_util.copy_file('setup.cfg', test_base, update=True)
             dir_util.mkpath(lib_base)
             self.reinitialize_command('egg_info', egg_base=lib_base)
             self.run_command('egg_info')
