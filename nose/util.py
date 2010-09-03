@@ -8,7 +8,7 @@ import re
 import sys
 import types
 import unittest
-from nose.pyversion import cmp, ClassType, TypeType
+from nose.pyversion import ClassType, TypeType
 
 try:
     from compiler.consts import CO_GENERATOR
@@ -145,19 +145,6 @@ def file_like(name):
             or os.path.dirname(name)
             or name.endswith('.py')
             or not ident_re.match(os.path.splitext(name)[0]))
-
-
-def cmp_lineno(a, b):
-    """Compare functions by their line numbers.
-
-    >>> cmp_lineno(isgenerator, ispackage)
-    -1
-    >>> cmp_lineno(ispackage, isgenerator)
-    1
-    >>> cmp_lineno(isgenerator, isgenerator)
-    0
-    """
-    return cmp(func_lineno(a), func_lineno(b))
 
 
 def func_lineno(func):
@@ -506,8 +493,8 @@ def src(filename):
     return filename
 
 
-def match_last(a, b, regex):
-    """Sort compare function that puts items that match a
+def regex_last_key(regex):
+    """Sort key function factory that puts items that match a
     regular expression last.
 
     >>> from nose.config import Config
@@ -515,15 +502,15 @@ def match_last(a, b, regex):
     >>> c = Config()
     >>> regex = c.testMatch
     >>> entries = ['.', '..', 'a_test', 'src', 'lib', 'test', 'foo.py']
-    >>> sort_list(entries, lambda a, b: match_last(a, b, regex))
+    >>> sort_list(entries, regex_last_key(regex))
     >>> entries
     ['.', '..', 'foo.py', 'lib', 'src', 'a_test', 'test']
     """
-    if regex.search(a) and not regex.search(b):
-        return 1
-    elif regex.search(b) and not regex.search(a):
-        return -1
-    return cmp(a, b)
+    def k(obj):
+        if regex.search(obj):
+            return (1, obj)
+        return (0, obj)
+    return k
 
 
 def tolist(val):
