@@ -352,7 +352,7 @@ class Patch(object):
       if debugmode and len(self.source) > 0:
           debug("- %2d hunks for %s" % (len(self.hunks[nextfileno-1]), self.source[nextfileno-1]))
 
-    info("total files: %d  total hunks: %d" % (len(self.source), sum(len(hset) for hset in self.hunks)))
+    info("total files: %d  total hunks: %d" % (len(self.source), sum([len(hset) for hset in self.hunks])))
 
 
   def apply(self):
