@@ -109,7 +109,8 @@ class TestProgram(unittest.TestProgram):
         self.suite = suite
         self.exit = exit
         extra_args = {}
-        if sys.version_info[0:2] >= (2,7):
+        version = sys.version_info[0:2]
+        if version >= (2,7) and version != (3,0):
             extra_args['exit'] = exit
         unittest.TestProgram.__init__(
             self, module=module, defaultTest=defaultTest,
