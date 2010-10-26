@@ -6,6 +6,7 @@ include lgpl.txt
 include nosetests.1
 include install-rpm.sh
 include bin/nosetests
+include distribute_setup.py
 include selftest.py
 include nose/usage.txt
 graft doc

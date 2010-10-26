@@ -7,8 +7,11 @@ py_vers_tag = '-%s.%s' % sys.version_info[:2]
 test_dirs = ['functional_tests', 'unit_tests', os.path.join('doc','doc_tests'), 'nose']
 
 if sys.version_info >= (3,):
-    from distribute_setup import use_setuptools
-    use_setuptools()
+    try:
+        import setuptools
+    except ImportError:
+        from distribute_setup import use_setuptools
+        use_setuptools()
 
     extra = {'use_2to3': True,
              'test_dirs': test_dirs,
