@@ -56,7 +56,7 @@ Python3
 =======
 
 nose supports python3. Building from source on python3 requires
-`distribute <http://packages.python.org/distribute/>`. If you don't
+`distribute <http://packages.python.org/distribute/>`_. If you don't
 have distribute installed, ``python3 setup.py install`` will install
 it via distribute's bootstrap script.
 
