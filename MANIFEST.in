@@ -8,6 +8,7 @@ include install-rpm.sh
 include bin/nosetests
 include distribute_setup.py
 include selftest.py
+include setup3lib.py
 include nose/usage.txt
 graft doc
 graft examples
