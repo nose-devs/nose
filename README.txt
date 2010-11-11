@@ -195,6 +195,14 @@ Options
    in place of the current working directory, which is the default.
    Others will be added to the list of tests to execute. [NOSE_WHERE]
 
+--py3where=PY3WHERE
+
+   Look for tests in this directory under Python 3.x. Functions the
+   same as 'where', but only applies if running under Python 3.x or
+   above.  Note that, if present under 3.x, this option completely
+   replaces any directories specified with 'where', so the 'where'
+   option becomes ineffective. [NOSE_PY3WHERE]
+
 -m=REGEX, --match=REGEX, --testmatch=REGEX
 
    Files, directories, function names, and class names that match this

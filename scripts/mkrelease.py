@@ -3,12 +3,13 @@
 #
 # create and upload a release
 import os
-import nose
 import sys
 from commands import getstatusoutput
 
 success = 0
 
+sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
+import nose
 version = nose.__version__
 
 SIMULATE = 'exec' not in sys.argv
@@ -47,13 +48,12 @@ def main():
     # remove dev tag from setup
     runcmd('cp setup.cfg.release setup.cfg')
 
-    # build included docs
-    cd('doc')
-    runcmd('make man readme html')
-    cd('..')
+    # build included docs, run tests
+    runcmd('tox')
 
-    # make the distribution
+    # make the distributions
     runcmd('python setup.py sdist')
+    runcmd('python3.1 setup.py bdist_egg')
 
     # upload docs and distribution
     if 'NOSE_UPLOAD' in os.environ:
@@ -67,6 +67,9 @@ def main():
         cv['versionpath'] = os.path.join(cv['path'], cv['version'])
 
         cmd = 'scp -C dist/nose-%(version)s.tar.gz %(upload)s' % cv
+        runcmd(cmd)
+
+        cmd = 'scp -C dist/nose-%(version)s.*egg %(upload)s' % cv
         runcmd(cmd)
 
         cmd = 'ssh %(host)s "mkdir -p %(versionpath)s"' % cv
