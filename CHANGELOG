@@ -1,6 +1,7 @@
 1.0
 
-- Made nose compatible with python 3. **Huge** thanks to foogod!
+- Made nose compatible with python 3. **Huge** thanks to Alex "foogod"
+  Stewart!
 
 0.11.4
 
