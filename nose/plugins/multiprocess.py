@@ -2,10 +2,6 @@
 Overview
 ========
 
-.. warning ::
-
-   The multiprocess plugin is not available on Windows.
-
 The multiprocess plugin enables you to distribute your test run among a set of
 worker processes that run tests in parallel. This can speed up CPU-bound test
 runs (as long as the number of work processeses is around the number of
@@ -14,9 +10,10 @@ spend most of their time waiting for data to arrive from someplace else.
 
 .. note ::
 
-   See :doc:`../doc_tests/test_multiprocess/multiprocess` for additional
-   documentation and examples. Use of this plugin requires the
-   multiprocessing_ module, also available from PyPI.
+   See :doc:`../doc_tests/test_multiprocess/multiprocess` for
+   additional documentation and examples. Use of this plugin on python
+   2.5 or earlier requires the multiprocessing_ module, also available
+   from PyPI.
 
 .. _multiprocessing : http://code.google.com/p/python-multiprocessing/
 
