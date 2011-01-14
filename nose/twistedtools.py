@@ -97,7 +97,7 @@ def deferred(timeout=None):
     
         @deferred(timeout=5.0)
         def test_resolve():
-            return reactor.resolve("nose.python-hosting.com")
+            return reactor.resolve("www.python.org")
 
     Attention! If you combine this decorator with other decorators (like
     "raises"), deferred() must be called *first*!
