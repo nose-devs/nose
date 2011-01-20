@@ -1,3 +1,10 @@
+1.0.1
+
+- Fixed bug in doctest plugin under python 3. Thanks to Thomas Kluyver
+  for the patch. (#391)
+- Fixed bug in tests for twisted tools. Thanks to Thomas Kluyver
+  for the patch.
+
 1.0
 
 - Made nose compatible with python 3. **Huge** thanks to Alex "foogod"
