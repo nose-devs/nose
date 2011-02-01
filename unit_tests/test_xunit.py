@@ -217,6 +217,30 @@ class TestXMLOutputWithXML(unittest.TestCase):
             assert 'RuntimeError: some error happened' in result
             assert '</error></testcase></testsuite>' in result
 
+    def test_non_utf8_error(self):
+        test = mktest()
+        self.x.startTest(test)
+        try:
+            raise RuntimeError(chr(128)) # cannot encode as utf8 
+        except RuntimeError:
+            some_err = sys.exc_info()
+        self.x.addError(test, some_err)
+        result = self.get_xml_report()
+        print repr(result)
+        if self.ET:
+            tree = self.ET.fromstring(result)
+            tc = tree.find("testcase")
+            err = tc.find("error")
+            if UNICODE_STRINGS:
+                eq_(err.attrib['message'],
+                    '\x80')
+            else:
+                eq_(err.attrib['message'],
+                    u'\ufffd')
+        else:
+            # this is a dumb test for 2.4-
+            assert 'RuntimeError: \xef\xbf\xbd' in result
+
     def test_addError_early(self):
         test = mktest()
         try:

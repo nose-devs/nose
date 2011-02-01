@@ -37,16 +37,17 @@ Here is an abbreviated version of what an XML test report might look like::
 .. _Hudson: https://hudson.dev.java.net/
 
 """
-
+import codecs
 import doctest
 import os
 import traceback
 import re
 import inspect
-from nose.plugins.base import Plugin
-from nose.exc import SkipTest
 from time import time
 from xml.sax import saxutils
+
+from nose.plugins.base import Plugin
+from nose.exc import SkipTest
 from nose.pyversion import UNICODE_STRINGS
 
 # Invalid XML characters, control characters 0-31 sans \t, \n and \r
@@ -147,10 +148,8 @@ class Xunit(Plugin):
                           'skipped': 0
                           }
             self.errorlist = []
-            if UNICODE_STRINGS:
-                self.error_report_file = open(options.xunit_file, 'w', encoding=self.encoding)
-            else:
-                self.error_report_file = open(options.xunit_file, 'w')
+            self.error_report_file = codecs.open(options.xunit_file, 'w',
+                                                 self.encoding, 'replace')
 
     def report(self, stream):
         """Writes an Xunit-formatted XML file
@@ -162,12 +161,13 @@ class Xunit(Plugin):
         self.stats['total'] = (self.stats['errors'] + self.stats['failures']
                                + self.stats['passes'] + self.stats['skipped'])
         self.error_report_file.write(
-            '<?xml version="1.0" encoding="%(encoding)s"?>'
-            '<testsuite name="nosetests" tests="%(total)d" '
-            'errors="%(errors)d" failures="%(failures)d" '
-            'skip="%(skipped)d">' % self.stats)
-        self.error_report_file.write(''.join(self.errorlist))
-        self.error_report_file.write('</testsuite>')
+            u'<?xml version="1.0" encoding="%(encoding)s"?>'
+            u'<testsuite name="nosetests" tests="%(total)d" '
+            u'errors="%(errors)d" failures="%(failures)d" '
+            u'skip="%(skipped)d">' % self.stats)
+        self.error_report_file.write(u''.join([self._forceUnicode(e)
+                                               for e in self.errorlist]))
+        self.error_report_file.write(u'</testsuite>')
         self.error_report_file.close()
         if self.config.verbosity > 1:
             stream.writeln("-" * 70)
@@ -235,3 +235,9 @@ class Xunit(Plugin):
              'name': self._quoteattr(id.split('.')[-1]),
              'taken': taken,
              })
+
+    def _forceUnicode(self, s):
+        if not UNICODE_STRINGS:
+            if isinstance(s, str):
+                s = s.decode(self.encoding, 'replace')
+        return s
