@@ -8,8 +8,7 @@ import inspect
 import nose.util
 
 __all__ = ['make_instancemethod', 'cmp_to_key', 'sort_list', 'ClassType',
-           'TypeType', 'UNICODE_STRINGS', 'unbound_method', 'ismethod',
-           'bytes']
+           'TypeType', 'UNICODE_STRINGS', 'unbound_method', 'ismethod']
 
 # In Python 3.x, all strings are unicode (the call to 'unicode()' in the 2.x
 # source will be replaced with 'str()' when running 2to3, so this test will
