@@ -218,6 +218,7 @@ class TestXMLOutputWithXML(unittest.TestCase):
             assert '</error></testcase></testsuite>' in result
 
     def test_non_utf8_error(self):
+        # See http://code.google.com/p/python-nose/issues/detail?id=395
         test = mktest()
         self.x.startTest(test)
         try:
