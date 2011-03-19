@@ -221,17 +221,18 @@ class TestProgram(unittest.TestProgram):
                                               initial_indent='  ',
                                               subsequent_indent='  '))
                 if v >= 3:
-                    print
-                    print "  Options:"
                     parser = DummyParser()
                     p.addOptions(parser)
-                    for opts, help in parser.options:
-                        print '  %s' % (', '.join(opts))
-                        if help:
-                            print '\n'.join(
-                                textwrap.wrap(help.strip(),
-                                              initial_indent='    ',
-                                              subsequent_indent='    '))
+                    if len(parser.options):
+                        print
+                        print "  Options:"
+                        for opts, help in parser.options:
+                            print '  %s' % (', '.join(opts))
+                            if help:
+                                print '\n'.join(
+                                    textwrap.wrap(help.strip(),
+                                                  initial_indent='    ',
+                                                  subsequent_indent='    '))
                 print
             
     def usage(cls):
