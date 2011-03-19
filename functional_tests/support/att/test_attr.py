@@ -1,3 +1,4 @@
+from nose.plugins.attrib import attr
 import unittest
 
 def test_one():
@@ -41,3 +42,14 @@ class Something(unittest.TestCase):
     
     def test_case_three(self):
         pass
+
+
+class TestAttrClass:
+
+    def test_one(self):
+        pass
+
+    def test_two(self):
+        pass
+
+TestAttrClass = attr('a')(TestAttrClass)

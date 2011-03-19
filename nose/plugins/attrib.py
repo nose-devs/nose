@@ -44,6 +44,19 @@ This test could be run with ::
 
     $ nosetests -a speed=slow
 
+In Python 2.6 and higher, ``@attr`` can be used on a class to set attributes
+on all its test methods at once.  For example:
+
+.. code-block:: python
+
+    from nose.plugins.attrib import attr
+    @attr(speed='slow')
+    class MyTestCase:
+        def test_long_integration(self):
+            pass
+        def test_end_to_end_something(self):
+            pass
+
 Below is a reference to the different syntaxes available.
 
 Simple syntax
@@ -87,6 +100,7 @@ Examples using the ``-A`` and ``--eval-attr`` options:
   Evaluates a complex Python expression and runs the test if True
 
 """
+import inspect
 import logging
 import os
 import sys
@@ -101,13 +115,25 @@ def attr(*args, **kwargs):
     """Decorator that adds attributes to objects
     for use with the Attribute (-a) plugin.
     """
-    def wrap(func):
+    def apply_to_fn(fn):
         for name in args:
             # these are just True flags:
-            setattr(func, name, 1)
-        func.__dict__.update(kwargs)
-        return func
-    return wrap
+            fn.__dict__[name] = 1
+        fn.__dict__.update(kwargs)
+
+    def wrap_ob(ob):
+        if inspect.isclass(ob):
+            cls = ob
+            for k, v in cls.__dict__.items():
+                if not k.lower().startswith('test'):
+                    continue
+                fn = getattr(cls, k)
+                apply_to_fn(fn)
+        else:
+            apply_to_fn(ob)
+        return ob
+
+    return wrap_ob
 
 class ContextHelper:
     """Returns default values for dictionary lookups."""

@@ -29,4 +29,21 @@ def test_mixed():
     eq_(test.slow, 1)
     eq_(test.net, 1)
     eq_(test.role, 'integration')
+
+def test_class_attrs():
+    class MyTest:
+        def setUp():
+            pass
+        def test_one(self):
+            pass
+        def test_two(self):
+            pass
+
+    MyTest = attr('slow', 'net', role='integration')(MyTest)
+    for n in ('test_one', 'test_two'):
+        eq_(getattr(MyTest, n).slow, 1)
+        eq_(getattr(MyTest, n).net, 1)
+        eq_(getattr(MyTest, n).slow, 1)
+
+    assert not hasattr(MyTest.setUp, 'slow')
     

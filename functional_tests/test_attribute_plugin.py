@@ -28,6 +28,8 @@ class TestSimpleAttribute(PluginTester, unittest.TestCase):
         assert 'test_case_two' not in self.output
         assert 'test_case_one' not in self.output
         assert 'test_case_three' not in self.output
+        assert 'TestAttrClass.test_one ... ok' in self.output
+        assert 'TestAttrClass.test_two ... ok' in self.output
 
 
 class TestNotSimpleAttribute(PluginTester, unittest.TestCase):
