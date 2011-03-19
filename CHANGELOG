@@ -1,4 +1,8 @@
-1.0
+1.0.1
+
+- Fixed problems with SkipTest in Python 3.2 (#389)
+
+1.0.0
 
 - Made nose compatible with python 3. **Huge** thanks to Alex "foogod"
   Stewart!
