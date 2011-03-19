@@ -1,6 +1,7 @@
 1.0.1
 
 - Fixed problems with SkipTest in Python 3.2 (#389)
+- Fixes Xunit plugin to handle non-UTF8 characters (#395)
 
 1.0.0
 
