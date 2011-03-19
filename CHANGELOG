@@ -1,5 +1,6 @@
 1.0.1
 
+- Xunit plugin now shows test run time in fractions of a second (#317)
 - @attr (from nose.plugins.attrib) can now be used as a class decorator (#292)
 - Fixed problems with SkipTest in Python 3.2 (#389)
 - Fixes Xunit plugin to handle non-UTF8 characters (#395)

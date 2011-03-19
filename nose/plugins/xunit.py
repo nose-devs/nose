@@ -191,7 +191,7 @@ class Xunit(Plugin):
         tb = ''.join(traceback.format_exception(*err))
         id = test.id()
         self.errorlist.append(
-            '<testcase classname=%(cls)s name=%(name)s time="%(taken)d">'
+            '<testcase classname=%(cls)s name=%(name)s time="%(taken).3f">'
             '<%(type)s type=%(errtype)s message=%(message)s><![CDATA[%(tb)s]]>'
             '</%(type)s></testcase>' %
             {'cls': self._quoteattr('.'.join(id.split('.')[:-1])),
@@ -211,7 +211,7 @@ class Xunit(Plugin):
         self.stats['failures'] += 1
         id = test.id()
         self.errorlist.append(
-            '<testcase classname=%(cls)s name=%(name)s time="%(taken)d">'
+            '<testcase classname=%(cls)s name=%(name)s time="%(taken).3f">'
             '<failure type=%(errtype)s message=%(message)s><![CDATA[%(tb)s]]>'
             '</failure></testcase>' %
             {'cls': self._quoteattr('.'.join(id.split('.')[:-1])),
@@ -230,7 +230,7 @@ class Xunit(Plugin):
         id = test.id()
         self.errorlist.append(
             '<testcase classname=%(cls)s name=%(name)s '
-            'time="%(taken)d" />' %
+            'time="%(taken).3f" />' %
             {'cls': self._quoteattr('.'.join(id.split('.')[:-1])),
              'name': self._quoteattr(id.split('.')[-1]),
              'taken': taken,

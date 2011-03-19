@@ -2,6 +2,7 @@
 import sys
 import os
 import optparse
+import re
 import unittest
 from xml.sax import saxutils
 
@@ -19,6 +20,8 @@ def mktest():
     return test
 
 mktest.__test__ = False
+
+time_taken = re.compile(r'\d\.\d\d')
 
 class TestEscaping(unittest.TestCase):
 
@@ -135,7 +138,8 @@ class TestXMLOutputWithXML(unittest.TestCase):
             tc = tree.find("testcase")
             eq_(tc.attrib['classname'], "test_xunit.TC")
             eq_(tc.attrib['name'], "runTest")
-            assert int(tc.attrib['time']) >= 0
+            assert time_taken.match(tc.attrib['time']), (
+                        'Expected decimal time: %s' % tc.attrib['time'])
 
             err = tc.find("failure")
             eq_(err.attrib['type'], "%s.AssertionError" % (AssertionError.__module__,))
@@ -169,12 +173,13 @@ class TestXMLOutputWithXML(unittest.TestCase):
         if self.ET:
             tree = self.ET.fromstring(result)
             tc = tree.find("testcase")
-            eq_(tc.attrib['time'], "0")
+            assert time_taken.match(tc.attrib['time']), (
+                        'Expected decimal time: %s' % tc.attrib['time'])
         else:
             # this is a dumb test for 2.4-
             assert '<?xml version="1.0" encoding="UTF-8"?>' in result
             assert ('<testcase classname="test_xunit.TC" '
-                    'name="runTest" time="0">') in result
+                    'name="runTest" time="0') in result
 
     def test_addError(self):
         test = mktest()
@@ -200,7 +205,8 @@ class TestXMLOutputWithXML(unittest.TestCase):
             tc = tree.find("testcase")
             eq_(tc.attrib['classname'], "test_xunit.TC")
             eq_(tc.attrib['name'], "runTest")
-            assert int(tc.attrib['time']) >= 0
+            assert time_taken.match(tc.attrib['time']), (
+                        'Expected decimal time: %s' % tc.attrib['time'])
 
             err = tc.find("error")
             eq_(err.attrib['type'], "%s.RuntimeError" % (RuntimeError.__module__,))
@@ -259,12 +265,13 @@ class TestXMLOutputWithXML(unittest.TestCase):
         if self.ET:
             tree = self.ET.fromstring(result)
             tc = tree.find("testcase")
-            eq_(tc.attrib['time'], "0")
+            assert time_taken.match(tc.attrib['time']), (
+                        'Expected decimal time: %s' % tc.attrib['time'])
         else:
             # this is a dumb test for 2.4-
             assert '<?xml version="1.0" encoding="UTF-8"?>' in result
             assert ('<testcase classname="test_xunit.TC" '
-                    'name="runTest" time="0">') in result
+                    'name="runTest" time="0') in result
 
     def test_addSuccess(self):
         test = mktest()
@@ -285,7 +292,8 @@ class TestXMLOutputWithXML(unittest.TestCase):
             tc = tree.find("testcase")
             eq_(tc.attrib['classname'], "test_xunit.TC")
             eq_(tc.attrib['name'], "runTest")
-            assert int(tc.attrib['time']) >= 0
+            assert time_taken.match(tc.attrib['time']), (
+                        'Expected decimal time: %s' % tc.attrib['time'])
         else:
             # this is a dumb test for 2.4-
             assert '<?xml version="1.0" encoding="UTF-8"?>' in result
@@ -305,10 +313,11 @@ class TestXMLOutputWithXML(unittest.TestCase):
         if self.ET:
             tree = self.ET.fromstring(result)
             tc = tree.find("testcase")
-            eq_(tc.attrib['time'], "0")
+            assert time_taken.match(tc.attrib['time']), (
+                        'Expected decimal time: %s' % tc.attrib['time'])
         else:
             # this is a dumb test for 2.4-
             assert '<?xml version="1.0" encoding="UTF-8"?>' in result
             assert ('<testcase classname="test_xunit.TC" '
-                    'name="runTest" time="0" />') in result
+                    'name="runTest" time="0') in result
 
