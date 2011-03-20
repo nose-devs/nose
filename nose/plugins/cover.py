@@ -55,8 +55,19 @@ class Coverage(Plugin):
     """
     coverTests = False
     coverPackages = None
+    _coverInstance = None
     score = 200
     status = {}
+
+    def coverInstance(self):
+        if not self._coverInstance:
+            import coverage
+            try:
+                self._coverInstance = coverage.coverage()
+            except coverage.CoverageException:
+                self._coverInstance = coverage
+        return self._coverInstance
+    coverInstance = property(coverInstance)
 
     def options(self, parser, env):
         """
@@ -139,64 +150,68 @@ class Coverage(Plugin):
         Begin recording coverage information.
         """
         log.debug("Coverage begin")
-        import coverage
         self.skipModules = sys.modules.keys()[:]
         if self.coverErase:
             log.debug("Clearing previously collected coverage statistics")
-            coverage.erase()
-        coverage.exclude('#pragma[: ]+[nN][oO] [cC][oO][vV][eE][rR]')
-        coverage.start()
+            self.coverInstance.erase()
+        self.coverInstance.exclude('#pragma[: ]+[nN][oO] [cC][oO][vV][eE][rR]')
+        self.coverInstance.start()
 
     def report(self, stream):
         """
         Output code coverage report.
         """
         log.debug("Coverage report")
-        import coverage
-        coverage.stop()
+        self.coverInstance.stop()
         modules = [ module
                     for name, module in sys.modules.items()
                     if self.wantModuleCoverage(name, module) ]
         log.debug("Coverage report will cover modules: %s", modules)
-        coverage.report(modules, file=stream)
+        self.coverInstance.report(modules, file=stream)
         if self.coverHtmlDir:
-            if not os.path.exists(self.coverHtmlDir):
-                os.makedirs(self.coverHtmlDir)
             log.debug("Generating HTML coverage report")
-            files = {}
-            for m in modules:
-                if hasattr(m, '__name__') and hasattr(m, '__file__'):
-                    files[m.__name__] = m.__file__
-            coverage.annotate(files.values())
-            global_stats =  {'covered': 0, 'missed': 0, 'skipped': 0}
-            file_list = []
-            for m, f in files.iteritems():
-                if f.endswith('pyc'):
-                    f = f[:-1]
-                coverfile = f+',cover'
-                outfile, stats = self.htmlAnnotate(m, f, coverfile,
-                                                   self.coverHtmlDir)
-                for field in ('covered', 'missed', 'skipped'):
-                    global_stats[field] += stats[field]
-                file_list.append((stats['percent'], m, outfile, stats))
-                os.unlink(coverfile)
-            file_list.sort()
-            global_stats['percent'] = self.computePercent(
-                global_stats['covered'], global_stats['missed'])
-            # Now write out an index file for the coverage HTML
-            index = open(os.path.join(self.coverHtmlDir, 'index.html'), 'w')
-            index.write('<html><head><title>Coverage Index</title></head>'
-                        '<body><p>')
-            index.write(COVERAGE_STATS_TEMPLATE % global_stats)
-            index.write('<table><tr><td>File</td><td>Covered</td><td>Missed'
-                        '</td><td>Skipped</td><td>Percent</td></tr>')
-            for junk, name, outfile, stats in file_list:
-                stats['a'] = '<a href="%s">%s</a>' % (outfile, name)
-                index.write('<tr><td>%(a)s</td><td>%(covered)s</td><td>'
-                            '%(missed)s</td><td>%(skipped)s</td><td>'
-                            '%(percent)s %%</td></tr>' % stats)
-            index.write('</table></p></html')
-            index.close()
+            if hasattr(self.coverInstance, 'html_report'):
+                self.coverInstance.html_report(modules, self.coverHtmlDir)
+            else:
+                self.report_html(modules)
+
+    def report_html(self, modules):
+        if not os.path.exists(self.coverHtmlDir):
+            os.makedirs(self.coverHtmlDir)
+        files = {}
+        for m in modules:
+            if hasattr(m, '__name__') and hasattr(m, '__file__'):
+                files[m.__name__] = m.__file__
+        self.coverInstance.annotate(files.values())
+        global_stats =  {'covered': 0, 'missed': 0, 'skipped': 0}
+        file_list = []
+        for m, f in files.iteritems():
+            if f.endswith('pyc'):
+                f = f[:-1]
+            coverfile = f+',cover'
+            outfile, stats = self.htmlAnnotate(m, f, coverfile,
+                                               self.coverHtmlDir)
+            for field in ('covered', 'missed', 'skipped'):
+                global_stats[field] += stats[field]
+            file_list.append((stats['percent'], m, outfile, stats))
+            os.unlink(coverfile)
+        file_list.sort()
+        global_stats['percent'] = self.computePercent(
+            global_stats['covered'], global_stats['missed'])
+        # Now write out an index file for the coverage HTML
+        index = open(os.path.join(self.coverHtmlDir, 'index.html'), 'w')
+        index.write('<html><head><title>Coverage Index</title></head>'
+                    '<body><p>')
+        index.write(COVERAGE_STATS_TEMPLATE % global_stats)
+        index.write('<table><tr><td>File</td><td>Covered</td><td>Missed'
+                    '</td><td>Skipped</td><td>Percent</td></tr>')
+        for junk, name, outfile, stats in file_list:
+            stats['a'] = '<a href="%s">%s</a>' % (outfile, name)
+            index.write('<tr><td>%(a)s</td><td>%(covered)s</td><td>'
+                        '%(missed)s</td><td>%(skipped)s</td><td>'
+                        '%(percent)s %%</td></tr>' % stats)
+        index.write('</table></p></html')
+        index.close()
 
     def htmlAnnotate(self, name, file, coverfile, outputDir):
         log.debug('Name: %s file: %s' % (name, file, ))
