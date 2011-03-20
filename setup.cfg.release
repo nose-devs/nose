@@ -2,6 +2,7 @@
 with-doctest=1
 doctest-extension=.rst
 doctest-fixtures=_fixtures
+py3where=build/tests
 
 [bdist_rpm]
 doc_files = man/man1/nosetests.1 README.txt

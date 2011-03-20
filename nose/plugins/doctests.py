@@ -63,7 +63,7 @@ try:
 except ImportError:
     from StringIO import StringIO
 import sys
-import __builtin__
+import __builtin__ as builtin_mod
 
 log = logging.getLogger(__name__)
 
@@ -385,14 +385,14 @@ class DocTestCase(doctest.DocTestCase):
     def _displayhook(self, value):
         if value is None:
             return
-        setattr(__builtin__, self._result_var,  value)
+        setattr(builtin_mod, self._result_var,  value)
         print repr(value)
 
     def tearDown(self):
         super(DocTestCase, self).tearDown()
         if self._result_var is not None:
             sys.displayhook = self._old_displayhook
-            delattr(__builtin__, self._result_var)
+            delattr(builtin_mod, self._result_var)
 
 
 class DocFileCase(doctest.DocFileCase):
@@ -418,11 +418,11 @@ class DocFileCase(doctest.DocFileCase):
     def _displayhook(self, value):
         if value is None:
             return
-        setattr(__builtin__, self._result_var, value)
+        setattr(builtin_mod, self._result_var, value)
         print repr(value)
 
     def tearDown(self):
         super(DocFileCase, self).tearDown()
         if self._result_var is not None:
             sys.displayhook = self._old_displayhook
-            delattr(__builtin__, self._result_var)
+            delattr(builtin_mod, self._result_var)
