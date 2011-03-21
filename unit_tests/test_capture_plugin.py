@@ -83,5 +83,18 @@ class TestCapturePlugin(unittest.TestCase):
         assert 'Oh my!' in fev, "Output not found in error message"
         assert 'Oh my!' in d.capturedOutput, "Output not attached to test"
 
+    def test_format_nonascii_error(self):
+        class Dummy:
+            pass
+        d = Dummy()
+        c = Capture()
+        c.start()
+        try:
+            print "debug 日本"
+            raise AssertionError(u'response does not contain 名')
+        except:
+            err = sys.exc_info()
+        formatted = c.formatError(d, err)
+
 if __name__ == '__main__':
     unittest.main()
