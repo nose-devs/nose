@@ -94,7 +94,7 @@ class Capture(Plugin):
                 # 2.5-
                 if not hasattr(ev, 'message'):
                     # 2.4
-                    msg = ev.args[0]
+                    msg = len(ev.args) and ev.args[0] or ''
                 else:
                     msg = ev.message
                 if not isinstance(msg, unicode):

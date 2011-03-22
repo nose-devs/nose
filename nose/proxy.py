@@ -85,6 +85,19 @@ class ResultProxy(object):
     def __repr__(self):
         return repr(self.result)
 
+    def _prepareErr(self, err):
+        if not isinstance(err[1], Exception):
+            # Turn value back into an Exception (required in Python 3.x).
+            # Plugins do all sorts of crazy things with exception values.
+            try:
+                # The actual exception class is needed for failure detail
+                # but maybe other plugins?
+                value = err[0](err[1])
+            except:
+                value = Exception(err[1])
+            err = (err[0], value, err[2])
+        return err
+
     def assertMyTest(self, test):
         # The test I was called with must be my .test or my
         # .test's .test. or my .test.test's .case
@@ -117,12 +130,9 @@ class ResultProxy(object):
         # test.passed is set in result, to account for error classes
         formatted = plugins.formatError(self.test, err)
         if formatted is not None:
-            if isinstance(formatted[1], basestring):
-                # Turn it back into an Exception (required in Python 3.x)
-                formatted = (formatted[0], Exception(formatted[1]), formatted[2])
             err = formatted
         plugins.addError(self.test, err)
-        self.result.addError(self.test, err)
+        self.result.addError(self.test, self._prepareErr(err))
         if not self.result.wasSuccessful() and self.config.stopOnError:
             self.shouldStop = True
 
@@ -136,10 +146,8 @@ class ResultProxy(object):
         formatted = plugins.formatFailure(self.test, err)
         if formatted is not None:
             err = formatted
-        if not isinstance(err[1], Exception):
-            err = (err[0], err[0](err[1]), err[2])
         plugins.addFailure(self.test, err)
-        self.result.addFailure(self.test, err)
+        self.result.addFailure(self.test, self._prepareErr(err))
         if self.config.stopOnError:
             self.shouldStop = True
 
@@ -181,4 +189,3 @@ class ResultProxy(object):
                                  """Tests that failed""")
     testsRun = proxied_attribute('result', 'testsRun',
                                  """Number of tests run""")
-
