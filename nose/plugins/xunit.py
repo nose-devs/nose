@@ -1,9 +1,8 @@
-
 """This plugin provides test results in the standard XUnit XML format.
 
-It was designed for the `Hudson`_ continuous build system but will
-probably work for anything else that understands an XUnit-formatted XML
-representation of test results.
+It's designed for the `Jenkins`_ (previously Hudson) continuous build
+system, but will probably work for anything else that understands an
+XUnit-formatted XML representation of test results.
 
 Add this shell command to your builder ::
 
@@ -12,7 +11,7 @@ Add this shell command to your builder ::
 And by default a file named nosetests.xml will be written to the
 working directory.
 
-In a Hudson builder, tick the box named "Publish JUnit test result report"
+In a Jenkins builder, tick the box named "Publish JUnit test result report"
 under the Post-build Actions and enter this value for Test report XMLs::
 
     **/nosetests.xml
@@ -34,7 +33,7 @@ Here is an abbreviated version of what an XML test report might look like::
         </testcase>
     </testsuite>
 
-.. _Hudson: https://hudson.dev.java.net/
+.. _Jenkins: http://jenkins-ci.org/
 
 """
 import codecs
