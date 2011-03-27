@@ -19,9 +19,14 @@ class ArgChecker:
         self.target = target
         self.args = args
         # skip the id and queues
-        pargs = args[4:]
+        pargs = args[7:]
         self.pickled = pickle.dumps(pargs)
-    def start(self):
+        try:
+            testQueue = args[1]
+            testQueue.get(timeout=0)
+        except:
+            pass # ok if queue is empty
+    def start(self,*args):
         pass
     def is_alive(self):
         return False
@@ -40,7 +45,6 @@ class T(unittest.TestCase):
     def runTest(self):
         pass
 
-    
 def test_mp_process_args_pickleable():
     test = case.Test(T('runTest'))
     config = Config()
@@ -48,7 +52,7 @@ def test_mp_process_args_pickleable():
     config.multiprocess_timeout = 0.1
     runner = multiprocess.MultiProcessTestRunner(
         stream=_WritelnDecorator(sys.stdout),
-        verbosity=2,
+        verbosity=10,
         loaderClass=TestLoader,
         config=config)
     runner.run(test)
