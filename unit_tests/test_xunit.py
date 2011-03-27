@@ -110,7 +110,7 @@ class TestXMLOutputWithXML(unittest.TestCase):
         class DummyStream:
             pass
         self.x.report(DummyStream())
-        f = open(self.xmlfile, 'r')
+        f = open(self.xmlfile, 'rb')
         return f.read()
         f.close()
 
