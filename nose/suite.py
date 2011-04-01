@@ -531,8 +531,8 @@ class ContextSuiteFactory(object):
                         remain.append(test)
                 if common:
                     suite = self.makeSuite(common, ancestor)
-                tail = remain
-        return [suite] + self.mixedSuites(tail)
+                tail = self.mixedSuites(remain)
+        return [suite] + tail
 
     def wrapTests(self, tests):
         log.debug("wrap %s", tests)
