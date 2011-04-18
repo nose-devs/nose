@@ -448,6 +448,12 @@ Options
    Set timeout for return of results from each test runner process.
    [NOSE_PROCESS_TIMEOUT]
 
+--process-restartworker
+
+   If set, will restart each worker process once their tests are done,
+   this helps control memory leaks from killing the system.
+   [NOSE_PROCESS_RESTARTWORKER]
+
 --with-xunit
 
    Enable plugin Xunit: This plugin provides test results in the

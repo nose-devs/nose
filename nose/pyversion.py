@@ -8,7 +8,8 @@ import inspect
 import nose.util
 
 __all__ = ['make_instancemethod', 'cmp_to_key', 'sort_list', 'ClassType',
-           'TypeType', 'UNICODE_STRINGS', 'unbound_method', 'ismethod']
+           'TypeType', 'UNICODE_STRINGS', 'unbound_method', 'ismethod',
+           'bytes_']
 
 # In Python 3.x, all strings are unicode (the call to 'unicode()' in the 2.x
 # source will be replaced with 'str()' when running 2to3, so this test will
@@ -116,3 +117,12 @@ def unbound_method(cls, func):
 
 def ismethod(obj):
     return inspect.ismethod(obj) or isinstance(obj, UnboundMethod)
+
+
+# Make a pseudo-bytes function that can be called without the encoding arg:
+if sys.version_info >= (3, 0):
+    def bytes_(s, encoding='utf8'):
+        return bytes(s, encoding)
+else:
+    def bytes_(s, encoding=None):
+        return str(s)

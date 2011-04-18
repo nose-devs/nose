@@ -49,7 +49,7 @@ def test_mp_process_args_pickleable():
     test = case.Test(T('runTest'))
     config = Config()
     config.multiprocess_workers = 2
-    config.multiprocess_timeout = 0.1
+    config.multiprocess_timeout = 0.5
     runner = multiprocess.MultiProcessTestRunner(
         stream=_WritelnDecorator(sys.stdout),
         verbosity=10,

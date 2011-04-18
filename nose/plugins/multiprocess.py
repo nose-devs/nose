@@ -106,6 +106,7 @@ from nose.core import TextTestRunner
 from nose import failure
 from nose import loader
 from nose.plugins.base import Plugin
+from nose.pyversion import bytes_
 from nose.result import TextTestResult
 from nose.suite import ContextSuite
 from nose.util import test_address
@@ -315,8 +316,8 @@ class MultiProcessTestRunner(TextTestRunner):
 
         log.debug("Starting %s workers", self.config.multiprocess_workers)
         for i in range(self.config.multiprocess_workers):
-            currentaddr = Array('c',' '*1000)
-            currentaddr.value = ''
+            currentaddr = Array('c',1000)
+            currentaddr.value = bytes_('')
             currentstart = Value('d')
             keyboardCaught = Event()
             p = Process(target=runner, args=(i, testQueue, resultQueue,
@@ -374,8 +375,8 @@ class MultiProcessTestRunner(TextTestRunner):
                     workers[iworker].join(timeout=1)
                     if not shouldStop.is_set() and not testQueue.empty():
                         log.debug('starting new process on worker %s',iworker)
-                        currentaddr = Array('c',' '*1000)
-                        currentaddr.value = ''
+                        currentaddr = Array('c',1000)
+                        currentaddr.value = bytes_('')
                         currentstart = Value('d')
                         currentstart.value = time.time()
                         keyboardCaught = Event()
@@ -400,7 +401,7 @@ class MultiProcessTestRunner(TextTestRunner):
                 any_alive = False
                 for iworker, w in enumerate(workers):
                     if w.is_alive():
-                        worker_addr = w.currentaddr.value
+                        worker_addr = str(w.currentaddr.value,'ascii')
                         timeprocessing = time.time()-w.currentstart.value
                         if (len(worker_addr) == 0
                             and timeprocessing > self.config.multiprocess_timeout-0.1):
@@ -413,7 +414,7 @@ class MultiProcessTestRunner(TextTestRunner):
                             and timeprocessing > self.config.multiprocess_timeout-0.1):
                             log.debug('timed out worker %s: %s',
                                       iworker,worker_addr)
-                            w.currentaddr.value = ''
+                            w.currentaddr.value = bytes_('')
                             # If the process is in C++ code, sending a SIGINT
                             # might not send a python KeybordInterrupt exception
                             # therefore, send multiple signals until an
@@ -426,8 +427,8 @@ class MultiProcessTestRunner(TextTestRunner):
                                     # have to terminate...
                                     log.error("terminating worker %s",iworker)
                                     w.terminate()
-                                    currentaddr = Array('c',' '*1000)
-                                    currentaddr.value = ''
+                                    currentaddr = Array('c',1000)
+                                    currentaddr.value = bytes_('')
                                     currentstart = Value('d')
                                     currentstart.value = time.time()
                                     keyboardCaught = Event()
@@ -673,28 +674,28 @@ def runner(ix, testQueue, resultQueue, currentaddr, currentstart,
                 try:
                     if arg is not None:
                         test_addr = test_addr + str(arg)
-                    currentaddr.value = test_addr
+                    currentaddr.value = bytes_(test_addr)
                     currentstart.value = time.time()
                     test(result)
-                    currentaddr.value = ''
+                    currentaddr.value = bytes_('')
                     resultQueue.put((ix, test_addr, test.tasks, batch(result)))
                 except KeyboardInterrupt:
                     keyboardCaught.set()
                     if len(currentaddr.value) > 0:
                         log.exception('Worker %s keyboard interrupt, failing '
                                       'current test %s',ix,test_addr)
-                        currentaddr.value = ''
+                        currentaddr.value = bytes_('')
                         failure.Failure(*sys.exc_info())(result)
                         resultQueue.put((ix, test_addr, test.tasks, batch(result)))
                     else:
                         log.debug('Worker %s test %s timed out',ix,test_addr)
                         resultQueue.put((ix, test_addr, test.tasks, batch(result)))
                 except SystemExit:
-                    currentaddr.value = ''
+                    currentaddr.value = bytes_('')
                     log.exception('Worker %s system exit',ix)
                     raise
                 except:
-                    currentaddr.value = ''
+                    currentaddr.value = bytes_('')
                     log.exception("Worker %s error running test or returning "
                                   "results",ix)
                     failure.Failure(*sys.exc_info())(result)
