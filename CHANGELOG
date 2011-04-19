@@ -8,6 +8,8 @@
 - @attr (from nose.plugins.attrib) can now be used as a class decorator (#292)
 - Fixed problems with SkipTest in Python 3.2 (#389)
 - Fixes Xunit plugin to handle non-UTF8 characters (#395)
+- Fixes case where teardown_class() was called more than once (#408). Thanks
+  to Heng Liu for the patch.
 - Makes --plugins more succinct when there are no options (#235)
 - Fixes mishandling of custom exceptions during failures (#405)
 - Fixes capture plugin when exception message contains non-ascii chars (#402)
