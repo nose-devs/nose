@@ -46,6 +46,7 @@ class T(unittest.TestCase):
         pass
 
 def test_mp_process_args_pickleable():
+    raise SkipTest('this currently gets stuck in poll() 90% of the time')
     test = case.Test(T('runTest'))
     config = Config()
     config.multiprocess_workers = 2
