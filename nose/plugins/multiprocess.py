@@ -293,7 +293,11 @@ class MultiProcessTestRunner(TextTestRunner):
                 case(result) # run here to capture the failure
                 continue
             # handle shared fixtures
-            if isinstance(case, ContextSuite) and self.sharedFixtures(case):
+            if isinstance(case, ContextSuite) and case.context is failure.Failure:
+                log.debug("Case is a Failure")
+                case(result) # run here to capture the failure
+                continue
+            elif isinstance(case, ContextSuite) and self.sharedFixtures(case):
                 log.debug("%s has shared fixtures", case)
                 try:
                     case.setUp()
