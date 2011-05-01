@@ -624,6 +624,23 @@ class MultiProcessTestRunner(TextTestRunner):
 
 def runner(ix, testQueue, resultQueue, currentaddr, currentstart,
            keyboardCaught, shouldStop, loaderClass, resultClass, config):
+    try:
+        try:
+            try:
+                return __runner(ix, testQueue, resultQueue, currentaddr, currentstart,
+                        keyboardCaught, shouldStop, loaderClass, resultClass, config)
+            except KeyboardInterrupt:
+                keyboardCaught.set()
+                log.debug('Worker %s keyboard interrupt, stopping',ix)
+        except Empty:
+            log.debug("Worker %s timed out waiting for tasks", ix)
+    finally:
+        testQueue.close()
+        resultQueue.close()
+
+def __runner(ix, testQueue, resultQueue, currentaddr, currentstart,
+           keyboardCaught, shouldStop, loaderClass, resultClass, config):
+
     config = pickle.loads(config)
     dummy_parser = config.parserClass()
     if _instantiate_plugins is not None:
@@ -663,54 +680,47 @@ def runner(ix, testQueue, resultQueue, currentaddr, currentstart,
             failures,
             errors,
             errorClasses)
-    try:
+    for test_addr, arg in iter(get, 'STOP'):
+        if shouldStop.is_set():
+            log.exception('Worker %d STOPPED',ix)
+            break
+        result = makeResult()
+        test = loader.loadTestsFromNames([test_addr])
+        test.testQueue = testQueue
+        test.tasks = []
+        test.arg = arg
+        log.debug("Worker %s Test is %s (%s)", ix, test_addr, test)
         try:
-            for test_addr, arg in iter(get, 'STOP'):
-                if shouldStop.is_set():
-                    log.exception('Worker %d STOPPED',ix)
-                    break
-                result = makeResult()
-                test = loader.loadTestsFromNames([test_addr])
-                test.testQueue = testQueue
-                test.tasks = []
-                test.arg = arg
-                log.debug("Worker %s Test is %s (%s)", ix, test_addr, test)
-                try:
-                    if arg is not None:
-                        test_addr = test_addr + str(arg)
-                    currentaddr.value = bytes_(test_addr)
-                    currentstart.value = time.time()
-                    test(result)
-                    currentaddr.value = bytes_('')
-                    resultQueue.put((ix, test_addr, test.tasks, batch(result)))
-                except KeyboardInterrupt:
-                    keyboardCaught.set()
-                    if len(currentaddr.value) > 0:
-                        log.exception('Worker %s keyboard interrupt, failing '
-                                      'current test %s',ix,test_addr)
-                        currentaddr.value = bytes_('')
-                        failure.Failure(*sys.exc_info())(result)
-                        resultQueue.put((ix, test_addr, test.tasks, batch(result)))
-                    else:
-                        log.debug('Worker %s test %s timed out',ix,test_addr)
-                        resultQueue.put((ix, test_addr, test.tasks, batch(result)))
-                except SystemExit:
-                    currentaddr.value = bytes_('')
-                    log.exception('Worker %s system exit',ix)
-                    raise
-                except:
-                    currentaddr.value = bytes_('')
-                    log.exception("Worker %s error running test or returning "
-                                  "results",ix)
-                    failure.Failure(*sys.exc_info())(result)
-                    resultQueue.put((ix, test_addr, test.tasks, batch(result)))
-                if config.multiprocess_restartworker:
-                    break
-        except Empty:
-            log.debug("Worker %s timed out waiting for tasks", ix)
-    finally:
-        testQueue.close()
-        resultQueue.close()
+            if arg is not None:
+                test_addr = test_addr + str(arg)
+            currentaddr.value = bytes_(test_addr)
+            currentstart.value = time.time()
+            test(result)
+            currentaddr.value = bytes_('')
+            resultQueue.put((ix, test_addr, test.tasks, batch(result)))
+        except KeyboardInterrupt:
+            keyboardCaught.set()
+            if len(currentaddr.value) > 0:
+                log.exception('Worker %s keyboard interrupt, failing '
+                                'current test %s',ix,test_addr)
+                currentaddr.value = bytes_('')
+                failure.Failure(*sys.exc_info())(result)
+                resultQueue.put((ix, test_addr, test.tasks, batch(result)))
+            else:
+                log.debug('Worker %s test %s timed out',ix,test_addr)
+                resultQueue.put((ix, test_addr, test.tasks, batch(result)))
+        except SystemExit:
+            currentaddr.value = bytes_('')
+            log.exception('Worker %s system exit',ix)
+            raise
+        except:
+            currentaddr.value = bytes_('')
+            log.exception("Worker %s error running test or returning "
+                            "results",ix)
+            failure.Failure(*sys.exc_info())(result)
+            resultQueue.put((ix, test_addr, test.tasks, batch(result)))
+        if config.multiprocess_restartworker:
+            break
     log.debug("Worker %s ending", ix)
 
 
