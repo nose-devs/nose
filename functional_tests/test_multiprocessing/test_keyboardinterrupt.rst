@@ -1,5 +1,5 @@
     >>> from os.path import join, dirname
-    >>> from mp_helper import run_buffered
+    >>> from nose.plugins.plugintest import run_buffered
     >>> from nose.plugins.multiprocess import MultiProcess
 
     >>> run_buffered( argv=[
