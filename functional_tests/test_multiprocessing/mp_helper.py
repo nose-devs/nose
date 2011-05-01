@@ -289,10 +289,12 @@ class AccessDecorator(object):
 
 
 def blankline_separated_blocks(text):
+    "a bunch of === characters is also considered a blank line"
     block = []
     for line in text.splitlines(True):
         block.append(line)
-        if not line.strip():
+        line = line.strip()
+        if not line or line.startswith('===') and not line.strip('='):
             yield "".join(block)
             block = []
     if block:

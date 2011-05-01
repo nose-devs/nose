@@ -401,7 +401,7 @@ class MultiProcessTestRunner(TextTestRunner):
                 any_alive = False
                 for iworker, w in enumerate(workers):
                     if w.is_alive():
-                        worker_addr = str(w.currentaddr.value,'ascii')
+                        worker_addr = bytes_(w.currentaddr.value,'ascii')
                         timeprocessing = time.time()-w.currentstart.value
                         if (len(worker_addr) == 0
                             and timeprocessing > self.config.multiprocess_timeout-0.1):
