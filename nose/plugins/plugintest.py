@@ -311,13 +311,15 @@ def remove_stack_traces(out):
             |   innermost\ last
             ) \) :
         )
-        \s* $                # toss trailing whitespace on the header.
-        (?P<stack> .*?)      # don't blink: absorb stuff until...
-        ^ (?P<msg> \w+ .*)   #     a line *starts* with alphanum.
+        \s* $                   # toss trailing whitespace on the header.
+        (?P<stack> .*?)         # don't blink: absorb stuff until...
+        ^(?=\w)                 #     a line *starts* with alphanum.
+        .*?(?P<exception> \w+ ) # exception name
+        (?P<msg> [:\n] .*)      # the rest
         """, re.VERBOSE | re.MULTILINE | re.DOTALL)
     blocks = []
     for block in blankline_separated_blocks(out):
-        blocks.append(traceback_re.sub(r"\g<hdr>\n...\n\g<msg>", block))
+        blocks.append(traceback_re.sub(r"\g<hdr>\n...\n\g<exception>\g<msg>", block))
     return "".join(blocks)
 
 
