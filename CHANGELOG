@@ -2,6 +2,8 @@
 
 - Revised multiprocessing implementation so that it works for test generators
   (#399). Thanks to Rosen Diankov for the patch.
+- More fixes to multiprocessing implemented by Buck Golemon (also part of
+  #399).
 - Code coverage plugin now uses native HTML generation when coverage 3 is
   installed (#264). Thanks to Timothee Peignier for the patch.
 - Xunit plugin now shows test run time in fractions of a second (#317)
