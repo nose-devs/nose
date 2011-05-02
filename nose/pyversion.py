@@ -70,8 +70,8 @@ else:
 # definition so that things can do stuff based on its associated class)
 class UnboundMethod:
     def __init__(self, cls, func):
-	# Make sure we have all the same attributes as the original function,
-	# so that the AttributeSelector plugin will work correctly...
+        # Make sure we have all the same attributes as the original function,
+        # so that the AttributeSelector plugin will work correctly...
         self.__dict__ = func.__dict__.copy()
         self._func = func
         self.__self__ = UnboundSelf(cls)
@@ -122,6 +122,8 @@ def ismethod(obj):
 # Make a pseudo-bytes function that can be called without the encoding arg:
 if sys.version_info >= (3, 0):
     def bytes_(s, encoding='utf8'):
+        if isinstance(s, bytes):
+            return s
         return bytes(s, encoding)
 else:
     def bytes_(s, encoding=None):

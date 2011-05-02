@@ -46,11 +46,13 @@ class T(unittest.TestCase):
         pass
 
 def test_mp_process_args_pickleable():
-    raise SkipTest('this currently gets stuck in poll() 90% of the time')
+    # TODO(Kumar) this test needs to be more succint.
+    # If you start seeing it timeout then perhaps we need to skip it again.
+    # raise SkipTest('this currently gets stuck in poll() 90% of the time')
     test = case.Test(T('runTest'))
     config = Config()
     config.multiprocess_workers = 2
-    config.multiprocess_timeout = 0.5
+    config.multiprocess_timeout = 5
     runner = multiprocess.MultiProcessTestRunner(
         stream=_WritelnDecorator(sys.stdout),
         verbosity=10,

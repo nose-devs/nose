@@ -20,3 +20,4 @@ dist
 build
 .noseids
 .tox
+.*.sw[nop]
