@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python2.6
 #
 #
 # create and upload a release
@@ -54,6 +54,7 @@ def main():
     # make the distributions
     runcmd('python setup.py sdist')
     runcmd('python3.1 setup.py bdist_egg')
+    runcmd('python3.2 setup.py bdist_egg')
 
     # upload docs and distribution
     if 'NOSE_UPLOAD' in os.environ:
