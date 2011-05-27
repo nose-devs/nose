@@ -169,9 +169,19 @@ class Test(unittest.TestCase):
         # 2.7 compat: shortDescription() always returns something
         # which is a change from 2.6 and below, and breaks the
         # testName plugin call.
-        desc = self.test.shortDescription()
-        if desc == str(self.test):
-            return
+        try:
+            desc = self.test.shortDescription()
+        except Exception:
+            # this is probably caused by a problem in test.__str__() and is
+            # only triggered by python 3.1's unittest!
+            pass
+        try:
+            if desc == str(self.test):
+                return
+        except Exception:
+            # If str() triggers an exception then ignore it.
+            # see issue 422
+            pass
         return desc
 
 
