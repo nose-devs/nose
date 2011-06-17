@@ -538,7 +538,7 @@ class Config(object):
             help="Traverse through all path entries of a namespace package")
         parser.add_option(
             "--first-package-wins", "--first-pkg-wins", "--1st-pkg-wins",
-            default=False, dest="firstPackageWins",
+            action="store_true", default=False, dest="firstPackageWins",
             help="nose's importer will normally evict a package from sys."
             "modules if it sees a package with the same name in a different "
             "location. Set this option to disable that behavior.")
