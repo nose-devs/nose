@@ -3,7 +3,7 @@ Hello and welcome!  Thanks for taking the time to work on Nose.
 Run the Test Suite
 ==================
 
-Install `tox`_ so that it's accessible on $PATH somehow.  The cd into the source and type::
+Install `tox`_ so that it's accessible on $PATH somehow.  Then cd into the source and type::
 
   $ tox
 
