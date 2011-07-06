@@ -186,10 +186,11 @@ class Config(object):
         self.getTestCaseNamesCompat = False
         self.includeExe = env.get('NOSE_INCLUDE_EXE',
                                   sys.platform in exe_allowed_platforms)
-        self.ignoreFiles = (re.compile(r'^\.'),
-                            re.compile(r'^_'),
-                            re.compile(r'^setup\.py$')
-                            )
+        self.ignoreFilesDefaultStrings = [r'^\.',
+                                          r'^_',
+                                          r'^setup\.py$',
+                                          ]
+        self.ignoreFiles = map(re.compile(self.ignoreFilesDefaultStrings))
         self.include = None
         self.loggingConfig = None
         self.logStream = sys.stderr
@@ -294,6 +295,8 @@ class Config(object):
             options.where = env.get('NOSE_WHERE', None)
 
         # include and exclude also
+        if not options.ignoreFiles:
+            options.ignoreFiles = env.get('NOSE_IGNORE_FILES', [])
         if not options.include:
             options.include = env.get('NOSE_INCLUDE', [])
         if not options.exclude:
@@ -315,7 +318,13 @@ class Config(object):
         
         if options.testMatch:
             self.testMatch = re.compile(options.testMatch)
-                
+        
+        if options.ignoreFiles:
+            self.ignoreFiles = map(re.compile, tolist(options.ignoreFiles))
+            log.info("Ignoring files matching %s", options.ignoreFiles)
+        else:
+            log.info("Ignoring files matching %s", options.ignoreFilesDefaultStrings)
+        
         if options.include:
             self.include = map(re.compile, tolist(options.include))
             log.info("Including tests matching %s", options.include)
@@ -497,6 +506,15 @@ class Config(object):
             default=self.loggingConfig, metavar="FILE",
             help="Load logging config from this file -- bypasses all other"
             " logging config settings.")
+        parser.add_option(
+            "-I", "--ignore-files", action="append", dest="ignoreFiles",
+            metavar="REGEX",
+            help="Completely ignore any file that matches this regular "
+            "expression. Takes precedence over any other settings or "
+            "plugins. "
+            "Specifying this option will replace the default setting. "
+            "Specify this option multiple times "
+            "to add more regular expressions [NOSE_IGNORE_FILES]")
         parser.add_option(
             "-e", "--exclude", action="append", dest="exclude",
             metavar="REGEX",

@@ -31,6 +31,37 @@ class TestNoseConfig(unittest.TestCase):
         c.update({'exclude':'x'})
         assert c.exclude == 'x'
 
+    def test_ignore_files_default(self):
+        """
+        The default configuration should have several ignore file settings.
+        """
+        c = nose.config.Config()
+        c.configure(['program'])
+        self.assertEqual(len(c.ignoreFiles), 3)
+    
+    def test_ignore_files_single(self):
+        """A single ignore-files flag should override the default settings.""" 
+        c = nose.config.Config()
+        c.configure(['program', '--ignore-files=a'])
+        self.assertEqual(len(c.ignoreFiles), 1)
+        aMatcher = c.ignoreFiles[0]
+        assert aMatcher.match('a')
+        assert not aMatcher.match('b')
+    
+    def test_ignore_files_multiple(self):
+        """
+        Multiple ignore-files flags should be appended together, overriding
+        the default settings.
+        """
+        c = nose.config.Config()
+        c.configure(['program', '--ignore-files=a', '-Ib'])
+        self.assertEqual(len(c.ignoreFiles), 2)
+        aMatcher, bMatcher = c.ignoreFiles
+        assert aMatcher.match('a')
+        assert not aMatcher.match('b')
+        assert bMatcher.match('b')
+        assert not bMatcher.match('a')
+    
     def test_multiple_include(self):
         c = nose.config.Config()
         c.configure(['program', '--include=a', '--include=b'])
