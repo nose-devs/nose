@@ -323,7 +323,7 @@ class Config(object):
             self.ignoreFiles = map(re.compile, tolist(options.ignoreFiles))
             log.info("Ignoring files matching %s", options.ignoreFiles)
         else:
-            log.info("Ignoring files matching %s", options.ignoreFilesDefaultStrings)
+            log.info("Ignoring files matching %s", self.ignoreFilesDefaultStrings)
         
         if options.include:
             self.include = map(re.compile, tolist(options.include))
