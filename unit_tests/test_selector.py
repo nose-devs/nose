@@ -29,7 +29,7 @@ class TestSelector(unittest.TestCase):
         
         assert s.wantFile('_test_underscore.py')
         assert s.wantFile('.test_hidden.py')
-        assert s.wantFile('setup.py')
+        assert not s.wantFile('setup.py') # Actually excluded because of testMatch
         assert not s.wantFile('test_favourite_colour.py')
     
     def test_exclude(self):
