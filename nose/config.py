@@ -190,7 +190,7 @@ class Config(object):
                                           r'^_',
                                           r'^setup\.py$',
                                           ]
-        self.ignoreFiles = map(re.compile, self.ignoreFilesDefaultStrings))
+        self.ignoreFiles = map(re.compile, self.ignoreFilesDefaultStrings)
         self.include = None
         self.loggingConfig = None
         self.logStream = sys.stderr
