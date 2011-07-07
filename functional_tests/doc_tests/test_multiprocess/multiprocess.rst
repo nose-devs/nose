@@ -221,6 +221,8 @@ Then we can run again and see the failures.
 
     >>> run(argv=['nosetests', '-v', '--processes=2', test_can_split],
     ...     plugins=[MultiProcess()]) #doctest: +ELLIPSIS
+    setup called
+    teardown called
     test_can_split....
     ...
     FAILED (failures=...)

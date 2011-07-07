@@ -259,5 +259,16 @@ class TestNoseTestWrapper(unittest.TestCase):
         assert case_c.shortDescription() in (None, # pre 2.7
                                              'test_c (test_cases.TC)') # 2.7
 
+    def test_unrepresentable_shortDescription(self):
+        class TC(unittest.TestCase):
+            def __str__(self):
+                # see issue 422
+                raise ValueError('simulate some mistake in this code')
+            def runTest(self):
+                pass
+
+        case = nose.case.Test(TC())
+        self.assertEqual(case.shortDescription(), None)
+
 if __name__ == '__main__':
     unittest.main()
