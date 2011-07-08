@@ -1,4 +1,4 @@
-1.0.1
+1.1.0
 
 - Revised multiprocessing implementation so that it works for test generators
   (#399). Thanks to Rosen Diankov for the patch.
@@ -15,6 +15,8 @@
 - Fixes Xunit plugin for reporting generator tests (#369)
 - Fixed subtle bug in ``--first-package-wins`` that made it unpredictable
   (#293)
+- Fixes coverage module names -- 'cal' used to also match calendar which was a
+  bug (#433)
 - Fixes case where teardown_class() was called more than once (#408). Thanks
   to Heng Liu for the patch.
 - Makes --plugins more succinct when there are no options (#235)

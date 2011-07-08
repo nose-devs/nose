@@ -12,6 +12,7 @@ variable.
 """
 import logging
 import os
+import re
 import sys
 from nose.plugins.base import Plugin
 from nose.util import src, tolist
@@ -274,7 +275,7 @@ class Coverage(Plugin):
             return False
         if self.coverPackages:
             for package in self.coverPackages:
-                if (name.startswith(package)
+                if (re.findall(r'^%s\b' % re.escape(package), name)
                     and (self.coverTests
                          or not self.conf.testMatch.search(name))):
                     log.debug("coverage for %s", name)
