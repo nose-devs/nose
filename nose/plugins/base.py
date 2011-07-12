@@ -119,7 +119,7 @@ class Plugin(object):
 
 class IPluginInterface(object):
     """
-    IPluginInteface describes the plugin API. Do not subclass or use this
+    IPluginInterface describes the plugin API. Do not subclass or use this
     class directly.
     """
     def __new__(cls, *arg, **kw):
