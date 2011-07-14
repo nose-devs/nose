@@ -64,7 +64,7 @@ A class might look like::
       def setup_class(cls):
           ...
 
-Alternatively, If a context's fixtures may only be run once, or may not run
+Alternatively, if a context's fixtures may only be run once, or may not run
 concurrently, but *may* be shared by tests running in different processes
 -- for instance a package-level fixture that starts an external http server or
 initializes a shared database -- then set ``_multiprocess_shared_ = True`` in
