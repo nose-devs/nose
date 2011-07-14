@@ -8,7 +8,7 @@ from xml.sax import saxutils
 
 from nose.pyversion import UNICODE_STRINGS
 from nose.tools import eq_
-from nose.plugins.xunit import Xunit, escape_cdata
+from nose.plugins.xunit import Xunit, escape_cdata, id_split
 from nose.exc import SkipTest
 from nose.config import Config
 
@@ -57,6 +57,26 @@ class TestEscaping(unittest.TestCase):
         r = saxutils.quoteattr('\r')[1:-1]
         eq_(self.x._quoteattr('foo\n\b\f\r'), '"foo%s??%s"' % (n, r))
         eq_(escape_cdata('foo\n\b\f\r'), 'foo\n??\r')
+
+class TestSplitId(unittest.TestCase):
+
+    def check_id_split(self, cls, name):
+        split = id_split('%s.%s' % (cls, name))
+        eq_(split[0], cls)
+        eq_(split[1], name)
+
+    def test_no_parenthesis(self):
+        self.check_id_split("test_parset", "test_args")
+
+    def test_no_dot_in_args(self):
+        self.check_id_split("test_parset", "test_args(('x', [1, 2]),)")
+
+    def test_dot_in_args(self):
+        self.check_id_split("test_parset", "test_args(('x.y', 1),)")
+
+    def test_grandchild_has_dot_in_args(self):
+        self.check_id_split("test_grandparset.test_parset",
+                            "test_args(('x.y', 1),)")
 
 class TestOptions(unittest.TestCase):
 

@@ -52,6 +52,8 @@ from nose.pyversion import UNICODE_STRINGS
 # Invalid XML characters, control characters 0-31 sans \t, \n and \r
 CONTROL_CHARACTERS = re.compile(r"[\000-\010\013\014\016-\037]")
 
+TEST_ID = re.compile(r'^(.*?)(\(.*\))$')
+
 def xml_safe(value):
     """Replaces invalid XML characters with '?'."""
     return CONTROL_CHARACTERS.sub('?', value)
@@ -59,6 +61,15 @@ def xml_safe(value):
 def escape_cdata(cdata):
     """Escape a string for an XML CDATA section."""
     return xml_safe(cdata).replace(']]>', ']]>]]&gt;<![CDATA[')
+
+def id_split(idval):
+    m = TEST_ID.match(idval)
+    if m:
+        name, fargs = m.groups()
+        head, tail = name.rsplit(".", 1)
+        return [head, tail+fargs]
+    else:
+        return idval.rsplit(".", 1)
 
 def nice_classname(obj):
     """Returns a nice name for class object or class instance.
@@ -193,8 +204,8 @@ class Xunit(Plugin):
             '<testcase classname=%(cls)s name=%(name)s time="%(taken).3f">'
             '<%(type)s type=%(errtype)s message=%(message)s><![CDATA[%(tb)s]]>'
             '</%(type)s></testcase>' %
-            {'cls': self._quoteattr('.'.join(id.split('.')[:-1])),
-             'name': self._quoteattr(id.split('.')[-1]),
+            {'cls': self._quoteattr(id_split(id)[0]),
+             'name': self._quoteattr(id_split(id)[-1]),
              'taken': taken,
              'type': type,
              'errtype': self._quoteattr(nice_classname(err[0])),
@@ -213,8 +224,8 @@ class Xunit(Plugin):
             '<testcase classname=%(cls)s name=%(name)s time="%(taken).3f">'
             '<failure type=%(errtype)s message=%(message)s><![CDATA[%(tb)s]]>'
             '</failure></testcase>' %
-            {'cls': self._quoteattr('.'.join(id.split('.')[:-1])),
-             'name': self._quoteattr(id.split('.')[-1]),
+            {'cls': self._quoteattr(id_split(id)[0]),
+             'name': self._quoteattr(id_split(id)[-1]),
              'taken': taken,
              'errtype': self._quoteattr(nice_classname(err[0])),
              'message': self._quoteattr(exc_message(err)),
@@ -230,8 +241,8 @@ class Xunit(Plugin):
         self.errorlist.append(
             '<testcase classname=%(cls)s name=%(name)s '
             'time="%(taken).3f" />' %
-            {'cls': self._quoteattr('.'.join(id.split('.')[:-1])),
-             'name': self._quoteattr(id.split('.')[-1]),
+            {'cls': self._quoteattr(id_split(id)[0]),
+             'name': self._quoteattr(id_split(id)[-1]),
              'taken': taken,
              })
 

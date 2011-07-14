@@ -8,7 +8,8 @@ import inspect
 import nose.util
 
 __all__ = ['make_instancemethod', 'cmp_to_key', 'sort_list', 'ClassType',
-           'TypeType', 'UNICODE_STRINGS', 'unbound_method', 'ismethod']
+           'TypeType', 'UNICODE_STRINGS', 'unbound_method', 'ismethod',
+           'bytes_']
 
 # In Python 3.x, all strings are unicode (the call to 'unicode()' in the 2.x
 # source will be replaced with 'str()' when running 2to3, so this test will
@@ -69,8 +70,8 @@ else:
 # definition so that things can do stuff based on its associated class)
 class UnboundMethod:
     def __init__(self, cls, func):
-	# Make sure we have all the same attributes as the original function,
-	# so that the AttributeSelector plugin will work correctly...
+        # Make sure we have all the same attributes as the original function,
+        # so that the AttributeSelector plugin will work correctly...
         self.__dict__ = func.__dict__.copy()
         self._func = func
         self.__self__ = UnboundSelf(cls)
@@ -116,3 +117,14 @@ def unbound_method(cls, func):
 
 def ismethod(obj):
     return inspect.ismethod(obj) or isinstance(obj, UnboundMethod)
+
+
+# Make a pseudo-bytes function that can be called without the encoding arg:
+if sys.version_info >= (3, 0):
+    def bytes_(s, encoding='utf8'):
+        if isinstance(s, bytes):
+            return s
+        return bytes(s, encoding)
+else:
+    def bytes_(s, encoding=None):
+        return str(s)

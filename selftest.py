@@ -48,7 +48,8 @@ if __name__ == "__main__":
         import pkg_resources
         env = pkg_resources.Environment(search_path=lib_dirs)
         distributions = env["nose"]
-        assert len(distributions) == 1
+        assert len(distributions) == 1, (
+                "Incorrect usage of selftest.py; please see DEVELOPERS.txt")
         dist = distributions[0]
         dist.activate()
     except ImportError:

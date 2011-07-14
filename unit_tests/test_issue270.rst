@@ -13,11 +13,9 @@ The test package has a package-level fixture, which causes the entire package
 to be dispatched to a multiprocess worker. Tests are still collected and run
 properly.
 
-    >>> argv = [__file__, '-v', '--processes=2', issue270]
+    >>> argv = [__file__, '--processes=2', issue270]
     >>> run(argv=argv, plugins=[MultiProcess()])
-    issue270.foo_test.Foo_Test.test_bar ... ok
-    issue270.foo_test.Foo_Test.test_foo ... ok
-    <BLANKLINE>
+    ..
     ----------------------------------------------------------------------
     Ran 2 tests in ...s
     <BLANKLINE>
