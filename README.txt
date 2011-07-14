@@ -231,6 +231,13 @@ Options
    Load logging config from this file -- bypasses all other logging
    config settings.
 
+-I=REGEX, --ignore-files=REGEX
+
+   Completely ignore any file that matches this regular expression.
+   Takes precedence over any other settings or plugins. Specifying
+   this option will replace the default setting. Specify this option
+   multiple times to add more regular expressions [NOSE_IGNORE_FILES]
+
 -e=REGEX, --exclude=REGEX
 
    Don't run tests that match regular expression [NOSE_EXCLUDE]
@@ -265,7 +272,7 @@ Options
 
    Traverse through all path entries of a namespace package
 
---first-package-wins=DEFAULT, --first-pkg-wins=DEFAULT, --1st-pkg-wins=DEFAULT
+--first-package-wins, --first-pkg-wins, --1st-pkg-wins
 
    nose's importer will normally evict a package from sys.modules if
    it sees a package with the same name in a different location. Set

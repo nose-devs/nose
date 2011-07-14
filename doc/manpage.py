@@ -155,7 +155,7 @@ class Translator(nodes.NodeVisitor):
         nodes.NodeVisitor.__init__(self, document)
         self.settings = settings = document.settings
         lcode = settings.language_code
-        self.language = languages.get_language(lcode)
+        self.language = languages.get_language(lcode, document.reporter)
         self.head = []
         self.body = []
         self.foot = []
