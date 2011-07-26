@@ -25,7 +25,8 @@ def runcmd(cmd):
     if not SIMULATE:
         (status,output) = getstatusoutput(cmd)
         if status != success:
-            raise Exception(output)
+            sys.stderr.write(output)
+            raise Exception('command did not exit successfully')
 
 
 def cd(dir):
