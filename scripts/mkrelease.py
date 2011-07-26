@@ -26,6 +26,7 @@ def runcmd(cmd):
         (status,output) = getstatusoutput(cmd)
         if status != success:
             sys.stderr.write(output)
+            sys.stderr.write("\n")
             raise Exception('command did not exit successfully')
 
 
@@ -55,10 +56,11 @@ def main():
     runcmd('tox')
 
     # make the distributions
-    runcmd('python setup.py sdist')
-    runcmd('python3.1 setup.py bdist_egg')
-    runcmd('python3.2 setup.py bdist_egg')
-    runcmd('python setup.py register upload -s')
+    runcmd('python setup.py sdist upload -s')
+    # TODO(Kumar) put this back when this bug is fixed:
+    # http://bugs.python.org/issue10571
+    # runcmd('python3.2 setup.py bdist_egg upload -s')
+    runcmd('python setup.py register')
 
     rtd = 'http://readthedocs.org/build/1137'
     print 'POST %s' % rtd
