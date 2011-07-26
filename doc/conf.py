@@ -195,6 +195,9 @@ html_theme_options = {
     'relbartextcolor': '#20435c',
     'relbarlinkcolor': '#355f7c',
 }
+
+# the css mostly overrides this:
+html_theme = 'default'
     
 # Options for LaTeX output
 # ------------------------
