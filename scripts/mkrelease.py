@@ -55,6 +55,7 @@ def main():
     runcmd('python setup.py sdist')
     runcmd('python3.1 setup.py bdist_egg')
     runcmd('python3.2 setup.py bdist_egg')
+    runcmd('python setup.py register upload -s')
 
     # upload docs and distribution
     if 'NOSE_UPLOAD' in os.environ:
