@@ -101,10 +101,7 @@ setup(
     """,
     license = 'GNU LGPL',
     keywords = 'test unittest doctest automatic discovery',
-    url = 'http://somethingaboutorange.com/mrl/projects/nose/',
-    download_url = \
-    'http://somethingaboutorange.com/mrl/projects/nose/nose-%s.tar.gz' \
-    % VERSION,
+    url = 'http://readthedocs.org/docs/nose/',
     data_files = [('man/man1', ['nosetests.1'])],
     package_data = {'': ['*.txt',
                          'examples/*.py',
