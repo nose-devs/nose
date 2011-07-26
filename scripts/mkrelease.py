@@ -4,6 +4,8 @@
 # create and upload a release
 import os
 import sys
+import urllib
+from urllib2 import urlopen
 from commands import getstatusoutput
 
 success = 0
@@ -57,32 +59,14 @@ def main():
     runcmd('python3.2 setup.py bdist_egg')
     runcmd('python setup.py register upload -s')
 
-    # upload docs and distribution
-    if 'NOSE_UPLOAD' in os.environ:
-        up = os.environ['NOSE_UPLOAD']
-        cv = {
-            'host': up[:up.index(':')],
-            'path': up[up.index(':')+1:],
-            'version':version,
-            'upload': up,
-            'upload_docs': os.path.join(up, version) }
-        cv['versionpath'] = os.path.join(cv['path'], cv['version'])
-
-        cmd = 'scp -C dist/nose-%(version)s.tar.gz %(upload)s' % cv
-        runcmd(cmd)
-
-        cmd = 'scp -C dist/nose-%(version)s.*egg %(upload)s' % cv
-        runcmd(cmd)
-
-        cmd = 'ssh %(host)s "mkdir -p %(versionpath)s"' % cv
-        runcmd(cmd)
-
-        cmd = ('scp -Cr doc/.build/html/* '
-               '%(upload_docs)s/' % cv)
-        runcmd(cmd)
-
-        cmd = ('scp -C doc/index.html %(upload)s' % cv)
-        runcmd(cmd)
+    rtd = 'http://readthedocs.org/build/1137'
+    print 'POST %s' % rtd
+    if not SIMULATE:
+        u = urlopen(rtd,
+                    # send dummy params to force a POST
+                    urllib.urlencode({'build': 1}))
+        print u.read()
+        u.close()
 
 if __name__ == '__main__':
     main()
