@@ -1,3 +1,7 @@
+1.1.1
+
+- Fixed missing nose.sphinx module in source distribution (#436).
+
 1.1.0
 
 - Revised multiprocessing implementation so that it works for test generators
