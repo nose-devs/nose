@@ -68,7 +68,7 @@ try:
 except ImportError:
     from distutils.core import setup
     addl_args = dict(
-        packages = ['nose', 'nose.ext', 'nose.plugins'],
+        packages = ['nose', 'nose.ext', 'nose.plugins', 'nose.sphinx'],
         scripts = ['bin/nosetests'],
         )
 
