@@ -4,7 +4,7 @@ Running Initialization Code Before the Test Run
 Many applications, especially those using web frameworks like Pylons_
 or Django_, can't be tested without first being configured or
 otherwise initialized. Plugins can fulfill this requirement by
-implementing `begin()`_.
+implementing :meth:`begin() <nose.plugins.base.IPluginInterface.begin>`.
 
 In this example, we'll use a very simple example: a widget class that
 can't be tested without a configuration.
@@ -86,9 +86,10 @@ the tests fail.
     FAILED (errors=2)
 
 To configure the widget system before running tests, write a plugin
-that implements `begin()`_ and initializes the system with a
-hard-coded configuration. (Later, we'll write a better plugin that
-accepts a command-line argument specifying the configuration file.)
+that implements :meth:`begin() <nose.plugins.base.IPluginInterface.begin>`
+and initializes the system with a hard-coded configuration. (Later, we'll
+write a better plugin that accepts a command-line argument specifying the
+configuration file.)
 
     >>> from nose.plugins import Plugin
     >>> class ConfiguringPlugin(Plugin):
@@ -161,4 +162,3 @@ resetting the widget system to an unconfigured state.
 
 .. _Pylons: http://pylonshq.com/
 .. _Django: http://www.djangoproject.com/
-.. _`begin()`: plugin_interface.html#begin
