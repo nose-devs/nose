@@ -139,7 +139,7 @@ To use the plugin, we need a config file.
 
     >>> import os
     >>> cfg_file = os.path.join(os.path.dirname(__file__), 'example.cfg')
-    >>> open(cfg_file, 'w').write("""\
+    >>> bytes = open(cfg_file, 'w').write("""\
     ... [DEFAULT]
     ... can_frobnicate = 1
     ... likes_cheese = 0
