@@ -71,5 +71,9 @@ def main():
         print u.read()
         u.close()
 
+    print '*'
+    print "* it's live! Now you can show/hide old releases on PyPI"
+    print '*'
+
 if __name__ == '__main__':
     main()
