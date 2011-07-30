@@ -14,12 +14,16 @@ code coverage, the coverage plugin supports basic HTML coverage output.
     >>> import os
     >>> support = os.path.join(os.path.dirname(__file__), 'support')
     >>> cover_html_dir = os.path.join(support, 'cover')
+    >>> cover_file = os.path.join(os.getcwd(), '.coverage')
+    >>> if os.path.exists(cover_file):
+    ...     os.unlink(cover_file)
+    ...
 
 
 The console coverage output is printed, as normal.
 
-    >>> cover_html_dir = os.path.join(support, 'cover')
     >>> from nose.plugins.cover import Coverage
+    >>> cover_html_dir = os.path.join(support, 'cover')
     >>> run(argv=[__file__, '-v', '--with-coverage', '--cover-package=blah', 
     ...           '--cover-html', '--cover-html-dir=' + cover_html_dir,
     ...           support, ], 
@@ -43,6 +47,8 @@ covered and which are not. There is an example of this HTML output in the
 `coverage.py`_ docs.
 
 .. hide this from the actual documentation:
+    >>> os.path.exists(cover_file)
+    True
     >>> os.path.exists(os.path.join(cover_html_dir, 'index.html'))
     True
     >>> os.path.exists(os.path.join(cover_html_dir, 'blah.html'))

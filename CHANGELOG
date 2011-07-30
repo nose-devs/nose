@@ -1,3 +1,8 @@
+1.1.2
+
+- Fixed regression where the .coverage file was not saved (#439).
+  Patch by Timothée Peignier.
+
 1.1.1
 
 - Fixed missing nose.sphinx module in source distribution (#436).
@@ -11,7 +16,7 @@
 - Lots of improvements to the attrib plugin by Bobby Impollonia (#412, #411,
   #324 and #381)
 - Code coverage plugin now uses native HTML generation when coverage 3 is
-  installed (#264). Thanks to Timothee Peignier for the patch.
+  installed (#264). Thanks to Timothée Peignier for the patch.
 - Xunit plugin now shows test run time in fractions of a second (#317)
 - @attr (from nose.plugins.attrib) can now be used as a class decorator (#292)
 - Fixes Xunit plugin to handle non-UTF8 characters (#395)

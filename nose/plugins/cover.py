@@ -164,6 +164,7 @@ class Coverage(Plugin):
         """
         log.debug("Coverage report")
         self.coverInstance.stop()
+        self.coverInstance.save()
         modules = [ module
                     for name, module in sys.modules.items()
                     if self.wantModuleCoverage(name, module) ]
