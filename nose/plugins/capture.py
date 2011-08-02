@@ -97,7 +97,8 @@ class Capture(Plugin):
                     msg = len(ev.args) and ev.args[0] or ''
                 else:
                     msg = ev.message
-                if not isinstance(msg, unicode):
+                if (isinstance(msg, basestring) and
+                    not isinstance(msg, unicode)):
                     msg = msg.decode('utf8', 'replace')
                 ev = u'%s: %s' % (ev.__class__.__name__, msg)
         if not isinstance(output, unicode):
