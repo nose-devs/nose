@@ -17,7 +17,7 @@ import sys
 from nose.plugins.base import Plugin
 from nose.util import src, tolist
 
-log =  logging.getLogger(__name__)
+log = logging.getLogger(__name__)
 
 COVERAGE_TEMPLATE = '''<html>
 <head>
@@ -64,7 +64,7 @@ class Coverage(Plugin):
         if not self._coverInstance:
             import coverage
             try:
-                self._coverInstance = coverage.coverage()
+                self._coverInstance = coverage.coverage(branch=self.coverBranches)
             except coverage.CoverageException:
                 self._coverInstance = coverage
         return self._coverInstance
@@ -108,6 +108,11 @@ class Coverage(Plugin):
                           dest='cover_html_dir',
                           metavar='DIR',
                           help='Produce HTML coverage information in dir')
+        parser.add_option("--cover-branches", action="store_true",
+                          default=env.get('NOSE_COVER_BRANCHES'),
+                          dest="cover_branches",
+                          help="Include branch coverage in coverage report "
+                          "[NOSE_COVER_BRANCHES]")
 
     def configure(self, options, config):
         """
@@ -143,6 +148,7 @@ class Coverage(Plugin):
         if options.cover_html:
             self.coverHtmlDir = options.cover_html_dir
             log.debug('Will put HTML coverage report in %s', self.coverHtmlDir)
+        self.coverBranches = options.cover_branches
         if self.enabled:
             self.status['active'] = True
 
@@ -165,9 +171,9 @@ class Coverage(Plugin):
         log.debug("Coverage report")
         self.coverInstance.stop()
         self.coverInstance.save()
-        modules = [ module
+        modules = [module
                     for name, module in sys.modules.items()
-                    if self.wantModuleCoverage(name, module) ]
+                    if self.wantModuleCoverage(name, module)]
         log.debug("Coverage report will cover modules: %s", modules)
         self.coverInstance.report(modules, file=stream)
         if self.coverHtmlDir:
@@ -185,12 +191,12 @@ class Coverage(Plugin):
             if hasattr(m, '__name__') and hasattr(m, '__file__'):
                 files[m.__name__] = m.__file__
         self.coverInstance.annotate(files.values())
-        global_stats =  {'covered': 0, 'missed': 0, 'skipped': 0}
+        global_stats = {'covered': 0, 'missed': 0, 'skipped': 0}
         file_list = []
         for m, f in files.iteritems():
             if f.endswith('pyc'):
                 f = f[:-1]
-            coverfile = f+',cover'
+            coverfile = f + ',cover'
             outfile, stats = self.htmlAnnotate(m, f, coverfile,
                                                self.coverHtmlDir)
             for field in ('covered', 'missed', 'skipped'):
@@ -263,7 +269,7 @@ class Coverage(Plugin):
         if covered + missed == 0:
             percent = 1
         else:
-            percent = covered/(covered+missed+0.0)
+            percent = covered / (covered + missed + 0.0)
         return int(percent * 100)
 
     def wantModuleCoverage(self, name, module):
