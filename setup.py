@@ -93,7 +93,7 @@ setup(
     coverage and profiling, flexible attribute-based test selection,
     output capture and more. More information about writing plugins may be
     found on in the nose API documentation, here:
-    http://somethingaboutorange.com/mrl/projects/nose/
+    http://readthedocs.org/docs/nose/
 
     If you have recently reported a bug marked as fixed, or have a craving for
     the very latest, you may want the unstable development version instead:
