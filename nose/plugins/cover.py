@@ -113,6 +113,15 @@ class Coverage(Plugin):
                           dest="cover_branches",
                           help="Include branch coverage in coverage report "
                           "[NOSE_COVER_BRANCHES]")
+        parser.add_option("--cover-xml", action="store_true",
+                          default=env.get('NOSE_COVER_XML'),
+                          dest="cover_xml",
+                          help="Produce XML coverage information")
+        parser.add_option("--cover-xml-file", action="store",
+                          default=env.get('NOSE_COVER_XML_FILE', 'coverage.xml'),
+                          dest="cover_xml_file",
+                          metavar="FILE",
+                          help="Produce XML coverage information in file")
 
     def configure(self, options, config):
         """
@@ -149,6 +158,10 @@ class Coverage(Plugin):
             self.coverHtmlDir = options.cover_html_dir
             log.debug('Will put HTML coverage report in %s', self.coverHtmlDir)
         self.coverBranches = options.cover_branches
+        self.coverXmlFile = None
+        if options.cover_xml:
+            self.coverXmlFile = options.cover_xml_file
+            log.debug('Will put XML coverage report in %s', self.coverHtmlFile)
         if self.enabled:
             self.status['active'] = True
 
@@ -182,6 +195,9 @@ class Coverage(Plugin):
                 self.coverInstance.html_report(modules, self.coverHtmlDir)
             else:
                 self.report_html(modules)
+        if self.coverXmlFile:
+            log.debug("Generating XML coverage report")
+            self.coverInstance.xml_report(modules, self.coverXmlFile)
 
     def report_html(self, modules):
         if not os.path.exists(self.coverHtmlDir):
