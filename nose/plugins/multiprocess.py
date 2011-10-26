@@ -254,6 +254,46 @@ class MultiProcessTestRunner(TextTestRunner):
         self.loaderClass = kw.pop('loaderClass', loader.defaultTestLoader)
         super(MultiProcessTestRunner, self).__init__(**kw)
 
+    def collect(self, test, testQueue, tasks, to_teardown, result):
+        # dispatch and collect results
+        # put indexes only on queue because tests aren't picklable
+        for case in self.nextBatch(test):
+            log.debug("Next batch %s (%s)", case, type(case))
+            if (isinstance(case, nose.case.Test) and
+                isinstance(case.test, failure.Failure)):
+                log.debug("Case is a Failure")
+                case(result) # run here to capture the failure
+                continue
+            # handle shared fixtures
+            if isinstance(case, ContextSuite) and case.context is failure.Failure:
+                log.debug("Case is a Failure")
+                case(result) # run here to capture the failure
+                continue
+            elif isinstance(case, ContextSuite) and self.sharedFixtures(case):
+                log.debug("%s has shared fixtures", case)
+                try:
+                    case.setUp()
+                except (KeyboardInterrupt, SystemExit):
+                    raise
+                except:
+                    log.debug("%s setup failed", sys.exc_info())
+                    result.addError(case, sys.exc_info())
+                else:
+                    to_teardown.append(case)
+                    if case.factory:
+                        ancestors=case.factory.context.get(case, [])
+                        for an in ancestors[:2]:
+                            #log.debug('reset ancestor %s', an)
+                            if getattr(an, '_multiprocess_shared_', False):
+                                an._multiprocess_can_split_=True
+                            #an._multiprocess_shared_=False
+                    self.collect(case, testQueue, tasks, to_teardown, result)
+
+            else:
+                test_addr = self.addtask(testQueue,tasks,case)
+                log.debug("Queued test %s (%s) to %s",
+                          len(tasks), test_addr, testQueue)
+
     def run(self, test):
         """
         Execute the test (which may be a test suite). If the test is a suite,
@@ -283,40 +323,7 @@ class MultiProcessTestRunner(TextTestRunner):
         result = self._makeResult()
         start = time.time()
 
-        # dispatch and collect results
-        # put indexes only on queue because tests aren't picklable
-        for case in self.nextBatch(test):
-            log.debug("Next batch %s (%s)", case, type(case))
-            if (isinstance(case, nose.case.Test) and
-                isinstance(case.test, failure.Failure)):
-                log.debug("Case is a Failure")
-                case(result) # run here to capture the failure
-                continue
-            # handle shared fixtures
-            if isinstance(case, ContextSuite) and case.context is failure.Failure:
-                log.debug("Case is a Failure")
-                case(result) # run here to capture the failure
-                continue
-            elif isinstance(case, ContextSuite) and self.sharedFixtures(case):
-                log.debug("%s has shared fixtures", case)
-                try:
-                    case.setUp()
-                except (KeyboardInterrupt, SystemExit):
-                    raise
-                except:
-                    log.debug("%s setup failed", sys.exc_info())
-                    result.addError(case, sys.exc_info())
-                else:
-                    to_teardown.append(case)
-                    for _t in case:
-                        test_addr = self.addtask(testQueue,tasks,_t)
-                        log.debug("Queued shared-fixture test %s (%s) to %s",
-                                  len(tasks), test_addr, testQueue)
-
-            else:
-                test_addr = self.addtask(testQueue,tasks,case)
-                log.debug("Queued test %s (%s) to %s",
-                          len(tasks), test_addr, testQueue)
+        self.collect(test, testQueue, tasks, to_teardown, result)
 
         log.debug("Starting %s workers", self.config.multiprocess_workers)
         for i in range(self.config.multiprocess_workers):
@@ -755,40 +762,27 @@ class NoSharedFixtureContextSuite(ContextSuite):
             result.addError(self, self._exc_info())
             return
         try:
-            localtests = [test for test in self._tests]
-            if (not self.hasFixtures(MultiProcessTestRunner.checkCanSplit) 
-                and len(localtests) > 1 and self.testQueue is not None):
-                log.debug("queue %d tests"%len(localtests))
-                for test in localtests:
-                    if isinstance(test.test,nose.failure.Failure):
-                        # proably failed in the generator, so execute directly
-                        # to get the exception
-                        test(orig)
-                    else:
-                        MultiProcessTestRunner.addtask(self.testQueue,
-                                                       self.tasks, test)
-            else:
-                for test in localtests:
-                    if (isinstance(test,nose.case.Test)
-                        and self.arg is not None):
-                        test.test.arg = self.arg
-                    else:
-                        test.arg = self.arg
-                    test.testQueue = self.testQueue
-                    test.tasks = self.tasks
-                    if result.shouldStop:
-                        log.debug("stopping")
-                        break
-                    # each nose.case.Test will create its own result proxy
-                    # so the cases need the original result, to avoid proxy
-                    # chains
-                    try:
-                        test(orig)
-                    except KeyboardInterrupt,e:
-                        err = (TimedOutException,TimedOutException(str(test)),
-                               sys.exc_info()[2])
-                        test.config.plugins.addError(test,err)
-                        orig.addError(test,err)
+            for test in self._tests:
+                if (isinstance(test,nose.case.Test)
+                    and self.arg is not None):
+                    test.test.arg = self.arg
+                else:
+                    test.arg = self.arg
+                test.testQueue = self.testQueue
+                test.tasks = self.tasks
+                if result.shouldStop:
+                    log.debug("stopping")
+                    break
+                # each nose.case.Test will create its own result proxy
+                # so the cases need the original result, to avoid proxy
+                # chains
+                try:
+                    test(orig)
+                except KeyboardInterrupt,e:
+                    err = (TimedOutException,TimedOutException(str(test)),
+                           sys.exc_info()[2])
+                    test.config.plugins.addError(test,err)
+                    orig.addError(test,err)
         finally:
             self.has_run = True
             try:
