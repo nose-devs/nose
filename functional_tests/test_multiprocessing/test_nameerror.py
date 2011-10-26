@@ -28,4 +28,6 @@ class TestMPNameError(PluginTester, unittest.TestCase):
         print str(self.output)
         assert 'NameError' in self.output
         assert "'undefined_variable' is not defined" in self.output
+    def tearDown(self):
+        MultiProcess.status.pop('active')
 

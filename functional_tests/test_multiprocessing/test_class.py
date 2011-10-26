@@ -5,6 +5,7 @@ from nose.plugins import PluginTester
 from nose.plugins.skip import SkipTest
 from nose.plugins.multiprocess import MultiProcess
 
+
 support = os.path.join(os.path.dirname(__file__), 'support')
 
 
@@ -18,23 +19,15 @@ def setup():
         raise SkipTest("multiprocessing module not available")
 
 
-
-class TestMPTimeout(PluginTester, unittest.TestCase):
-    activate = '--processes=2'
-    args = ['--process-timeout=1']
+#test case for #462
+class TestClassFixture(PluginTester, unittest.TestCase):
+    activate = '--processes=1'
     plugins = [MultiProcess()]
-    suitepath = os.path.join(support, 'timeout.py')
+    suitepath = os.path.join(support, 'class.py')
 
     def runTest(self):
-        assert "TimedOutException: 'timeout.test_timeout'" in self.output
-
-
-class TestMPTimeoutPass(TestMPTimeout):
-    args = ['--process-timeout=3']
-
-    def runTest(self):
-        assert "TimedOutException: 'timeout.test_timeout'" not in self.output
         assert str(self.output).strip().endswith('OK')
+        assert 'Ran 2 tests' in self.output
     def tearDown(self):
         MultiProcess.status.pop('active')
 

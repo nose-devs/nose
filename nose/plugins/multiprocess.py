@@ -573,7 +573,7 @@ class MultiProcessTestRunner(TextTestRunner):
                 for batch in self.nextBatch(case):
                     yield batch
 
-    def checkCanSplit(self, context, fixt):
+    def checkCanSplit(context, fixt):
         """
         Callback that we use to check whether the fixtures found in a
         context or ancestor are ones we care about.
@@ -587,6 +587,7 @@ class MultiProcessTestRunner(TextTestRunner):
         if getattr(context, '_multiprocess_can_split_', False):
             return False
         return True
+    checkCanSplit = staticmethod(checkCanSplit)
 
     def sharedFixtures(self, case):
         context = getattr(case, 'context', None)
@@ -755,7 +756,8 @@ class NoSharedFixtureContextSuite(ContextSuite):
             return
         try:
             localtests = [test for test in self._tests]
-            if len(localtests) > 1 and self.testQueue is not None:
+            if (not self.hasFixtures(MultiProcessTestRunner.checkCanSplit) 
+                and len(localtests) > 1 and self.testQueue is not None):
                 log.debug("queue %d tests"%len(localtests))
                 for test in localtests:
                     if isinstance(test.test,nose.failure.Failure):
