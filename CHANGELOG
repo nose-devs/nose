@@ -5,6 +5,7 @@
 - Adds support for :option:`--cover-branches` (related to #370).
   Patch by Timothée Peignier.
 - Fixed Unicode issue on Python 3.1 with coverage (#442)
+- fixed class level fixture handling in multiprocessing plugin
 
 1.1.2
 
