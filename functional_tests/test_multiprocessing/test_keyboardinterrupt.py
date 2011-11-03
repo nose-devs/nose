@@ -44,7 +44,7 @@ def get_log_content(stdout):
 
 def test_keyboardinterrupt():
     process = keyboardinterrupt('keyboardinterrupt.py')
-    stdout, stderr = process.communicate(None)
+    stdout, stderr = [s.decode('utf-8') for s in process.communicate(None)]
     log = get_log_content(stdout)
     assert 'setup' in log
     assert 'test_timeout' in log
@@ -58,7 +58,7 @@ def test_keyboardinterrupt_twice():
     process = keyboardinterrupt('keyboardinterrupt_twice.py')
     sleep(0.5)
     os.killpg(process.pid, signal.SIGINT)
-    stdout, stderr = process.communicate(None)
+    stdout, stderr = [s.decode('utf-8') for s in process.communicate(None)]
     log = get_log_content(stdout)
     assert 'setup' in log
     assert 'test_timeout' in log
