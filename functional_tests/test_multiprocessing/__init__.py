@@ -26,6 +26,3 @@ class MPTestBase(PluginTester, TestCase):
         self.activate = '--processes=%d' % self.processes
         PluginTester.__init__(self)
         TestCase.__init__(self, *args, **kwargs)
-
-    def tearDown(self):
-        MultiProcess.status.pop('active')
