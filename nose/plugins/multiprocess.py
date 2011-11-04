@@ -141,7 +141,16 @@ def _import_mp():
     global Process, Queue, Pool, Event, Value, Array
     try:
         from multiprocessing import Manager, Process
+        #prevent the server process created in the manager which holds Python 
+        #objects and allows other processes to manipulate them using proxies
+        #to interrupt on SIGINT (keyboardinterrupt) so that the communication
+        #channel between subprocesses and main process is still usable after
+        #ctrl+C is received in the main process.
+        old=signal.signal(signal.SIGINT, signal.SIG_IGN)
         m = Manager()
+        #reset it back so main process will receive a KeyboardInterrupt
+        #exception on ctrl+c
+        signal.signal(signal.SIGINT, old)
         Queue, Pool, Event, Value, Array = (
                 m.Queue, m.Pool, m.Event, m.Value, m.Array
         )

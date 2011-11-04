@@ -53,6 +53,9 @@ def test_keyboardinterrupt():
     assert 'teardown' in log
     assert 'Ran 0 tests' in stderr
     assert 'KeyboardInterrupt' in stderr
+    assert 'FAILED (errors=1)' in stderr
+    assert 'ERROR: Worker 0 keyboard interrupt, failing current test '+os.path.join(support,'keyboardinterrupt.py') in stderr
+
 
 def test_keyboardinterrupt_twice():
     process = keyboardinterrupt('keyboardinterrupt_twice.py')
@@ -68,3 +71,4 @@ def test_keyboardinterrupt_twice():
     assert 'teardown_finished' not in log
     assert 'Ran 0 tests' in stderr
     assert 'KeyboardInterrupt' in stderr
+    assert 'FAILED (errors=1)' in stderr
