@@ -1,10 +1,10 @@
 import os
 
-from . import support, MPTestBase
+from test_multiprocessing import support, MPTestBase
 
 class TestMPNameError(MPTestBase):
     processes = 2
-    suitepath = os.path.join(support, 'nameerror.py')
+    suitepath = os.path.join(os.path.dirname(__file__), 'support', 'nameerror.py')
 
     def runTest(self):
         print str(self.output)

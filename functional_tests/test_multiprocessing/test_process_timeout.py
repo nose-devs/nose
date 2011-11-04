@@ -1,10 +1,10 @@
 import os
 
-from . import support, MPTestBase
+from test_multiprocessing import MPTestBase
 
 class TestMPTimeout(MPTestBase):
     args = ['--process-timeout=1']
-    suitepath = os.path.join(support, 'timeout.py')
+    suitepath = os.path.join(os.path.dirname(__file__), 'support', 'timeout.py')
 
     def runTest(self):
         assert "TimedOutException: 'timeout.test_timeout'" in self.output
