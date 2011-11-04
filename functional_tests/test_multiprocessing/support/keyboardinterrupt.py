@@ -1,18 +1,16 @@
 from tempfile import mktemp
 from time import sleep
 
+logfile = mktemp()
+print "tempfile is:",logfile
+
 def log(w):
     f = open(logfile, 'a')
     f.write(w+"\n")
     f.close()
 #make sure all tests in this file are dispatched to the same subprocess
 def setup():
-    global logfile
-    logfile = mktemp()
-    print "tempfile is:",logfile
-
     log('setup')
-    pass
 
 def test_timeout():
     log('test_timeout')
