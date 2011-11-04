@@ -25,27 +25,31 @@ runner = os.path.join(support, 'fake_nosetest.py')
 def keyboardinterrupt(case):
     #os.setsid would create a process group so signals sent to the
     #parent process will propogates to all children processes
-    process = Popen([sys.executable,runner,os.path.join(support,case)], preexec_fn=os.setsid, stdout=PIPE, stderr=PIPE, bufsize=-1)
+    from tempfile import mktemp
+    logfile = mktemp()
+    process = Popen([sys.executable,runner,os.path.join(support,case),logfile], preexec_fn=os.setsid, stdout=PIPE, stderr=PIPE, bufsize=-1)
 
     sleep(0.5)
 
     os.killpg(process.pid, signal.SIGINT)
-    return process
+    return process, logfile
 
-def get_log_content(stdout):
-    prefix = 'tempfile is: '
+def get_log_content(logfile):
+    '''prefix = 'tempfile is: '
     if not stdout.startswith(prefix):
         raise Exception('stdout does not contain tmp file name: '+stdout)
-    logfile = stdout[len(prefix):].strip() #remove trailing new line char
+    logfile = stdout[len(prefix):].strip() #remove trailing new line char'''
     f = open(logfile)
     content = f.read()
     f.close()
+    os.remove(logfile)
     return content
 
 def test_keyboardinterrupt():
-    process = keyboardinterrupt('keyboardinterrupt.py')
+    process, logfile = keyboardinterrupt('keyboardinterrupt.py')
     stdout, stderr = [s.decode('utf-8') for s in process.communicate(None)]
-    log = get_log_content(stdout)
+    print stderr
+    log = get_log_content(logfile)
     assert 'setup' in log
     assert 'test_timeout' in log
     assert 'test_timeout_finished' not in log
@@ -58,11 +62,11 @@ def test_keyboardinterrupt():
 
 
 def test_keyboardinterrupt_twice():
-    process = keyboardinterrupt('keyboardinterrupt_twice.py')
+    process, logfile = keyboardinterrupt('keyboardinterrupt_twice.py')
     sleep(0.5)
     os.killpg(process.pid, signal.SIGINT)
     stdout, stderr = [s.decode('utf-8') for s in process.communicate(None)]
-    log = get_log_content(stdout)
+    log = get_log_content(logfile)
     assert 'setup' in log
     assert 'test_timeout' in log
     assert 'test_timeout_finished' not in log

@@ -1,8 +1,12 @@
+import os
+
 from tempfile import mktemp
 from time import sleep
 
-logfile = mktemp()
-print "tempfile is:",logfile
+if 'NOSE_MP_LOG' not in os.environ:
+    raise Exception('Environment variable NOSE_MP_LOG is not set')
+
+logfile = os.environ['NOSE_MP_LOG']
 
 def log(w):
     f = open(logfile, 'a')
