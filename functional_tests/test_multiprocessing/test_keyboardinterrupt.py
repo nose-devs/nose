@@ -29,7 +29,7 @@ def keyboardinterrupt(case):
     logfile = mktemp()
     process = Popen([sys.executable,runner,os.path.join(support,case),logfile], preexec_fn=os.setsid, stdout=PIPE, stderr=PIPE, bufsize=-1)
 
-    sleep(0.5)
+    sleep(1)
 
     os.killpg(process.pid, signal.SIGINT)
     return process, logfile
