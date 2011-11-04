@@ -6,7 +6,7 @@ import signal
 
 import nose
 
-from . import support
+support = os.path.join(os.path.dirname(__file__), 'support')
 
 PYTHONPATH = os.environ['PYTHONPATH'] if 'PYTHONPATH' in os.environ else ''
 def setup():
