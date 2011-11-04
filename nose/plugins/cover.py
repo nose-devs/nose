@@ -161,7 +161,7 @@ class Coverage(Plugin):
         self.coverXmlFile = None
         if options.cover_xml:
             self.coverXmlFile = options.cover_xml_file
-            log.debug('Will put XML coverage report in %s', self.coverHtmlFile)
+            log.debug('Will put XML coverage report in %s', self.coverXmlFile)
         if self.enabled:
             self.status['active'] = True
 
