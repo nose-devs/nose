@@ -29,7 +29,13 @@ def keyboardinterrupt(case):
     logfile = mktemp()
     process = Popen([sys.executable,runner,os.path.join(support,case),logfile], preexec_fn=os.setsid, stdout=PIPE, stderr=PIPE, bufsize=-1)
 
-    sleep(1)
+    #wait until logfile is created:
+    retry=100
+    while not os.path.exists(logfile):
+        sleep(0.1)
+        retry -= 1
+        if not retry:
+            raise Exception('Timeout while waiting for log file to be created by fake_nosetest.py')
 
     os.killpg(process.pid, signal.SIGINT)
     return process, logfile
