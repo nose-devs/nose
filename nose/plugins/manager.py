@@ -17,6 +17,10 @@ The plugin managers provided with nose are:
 :class:`EntryPointPluginManager`
     This manager uses setuptools entrypoints to load plugins.
 
+:class:`ExtraPluginsPluginManager`
+    This manager loads extra plugins specified with the keyword
+    `addplugins`.
+
 :class:`DefaultPluginMananger`
     This is the manager class that will be used by default. If
     setuptools is installed, it is a subclass of
@@ -361,9 +365,7 @@ class EntryPointPluginManager(PluginManager):
     def loadPlugins(self):
         """Load plugins by iterating the `nose.plugins` entry point.
         """
-        super(EntryPointPluginManager, self).loadPlugins()
         from pkg_resources import iter_entry_points
-
         loaded = {}
         for entry_point, adapt in self.entry_points:
             for ep in iter_entry_points(entry_point):
@@ -387,6 +389,7 @@ class EntryPointPluginManager(PluginManager):
                 else:
                     plug = plugcls()
                 self.addPlugin(plug)
+        super(EntryPointPluginManager, self).loadPlugins()
 
 
 class BuiltinPluginManager(PluginManager):
@@ -401,13 +404,27 @@ class BuiltinPluginManager(PluginManager):
             self.addPlugin(plug())
         super(BuiltinPluginManager, self).loadPlugins()
 
+class ExtraPluginManager(PluginManager):
+    extraplugins = []
+    """Plugin manager that loads extra plugins specified
+    with the keyword `addplugins`
+    """
+    def loadPlugins(self):
+        for plug in self.__class__.extraplugins:
+            self.addPlugin(plug)
+        super(ExtraPluginManager, self).loadPlugins()
+
 try:
     import pkg_resources
-    class DefaultPluginManager(BuiltinPluginManager, EntryPointPluginManager):
+    class DefaultPluginManager(BuiltinPluginManager,
+                               EntryPointPluginManager,
+                               ExtraPluginManager,
+                               ):
         pass
-except ImportError:
-    DefaultPluginManager = BuiltinPluginManager
 
+except ImportError:
+    class DefaultPluginManager(BuiltinPluginManager, ExtraPluginManager):
+        pass
 
 class RestrictedPluginManager(DefaultPluginManager):
     """Plugin manager that restricts the plugin list to those not

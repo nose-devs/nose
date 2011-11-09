@@ -169,7 +169,7 @@ class Config(object):
       self.verbosity = int(env.get('NOSE_VERBOSE', 1))
       self.where = ()
       self.py3where = ()
-      self.workingDir = None   
+      self.workingDir = None
     """
 
     def __init__(self, **kw):
@@ -210,7 +210,7 @@ class Config(object):
         self.firstPackageWins = False
         self.parserClass = OptionParser
         self.worker = False
-        
+
         self._default = self.__dict__.copy()
         self.update(kw)
         self._orig = self.__dict__.copy()
@@ -237,7 +237,7 @@ class Config(object):
         dummy_parser = self.parserClass()
         self.plugins.addOptions(dummy_parser, {})
         self.plugins.configure(self.options, self)
-    
+
     def __repr__(self):
         d = self.__dict__.copy()
         # don't expose env, could include sensitive info
@@ -289,7 +289,7 @@ class Config(object):
             if sys.version_info >= (3,):
                 options.where = options.py3where
 
-        # `where` is an append action, so it can't have a default value 
+        # `where` is an append action, so it can't have a default value
         # in the parser, or that default will always be in the list
         if not options.where:
             options.where = env.get('NOSE_WHERE', None)
@@ -315,16 +315,16 @@ class Config(object):
 
         if options.where is not None:
             self.configureWhere(options.where)
-        
+
         if options.testMatch:
             self.testMatch = re.compile(options.testMatch)
-        
+
         if options.ignoreFiles:
             self.ignoreFiles = map(re.compile, tolist(options.ignoreFiles))
             log.info("Ignoring files matching %s", options.ignoreFiles)
         else:
             log.info("Ignoring files matching %s", self.ignoreFilesDefaultStrings)
-        
+
         if options.include:
             self.include = map(re.compile, tolist(options.include))
             log.info("Including tests matching %s", options.include)
@@ -348,7 +348,7 @@ class Config(object):
             from logging.config import fileConfig
             fileConfig(self.loggingConfig)
             return
-        
+
         format = logging.Formatter('%(name)s: %(levelname)s: %(message)s')
         if self.debugLog:
             handler = logging.FileHandler(self.debugLog)
@@ -364,7 +364,7 @@ class Config(object):
         if handler not in logger.handlers:
             logger.addHandler(handler)
 
-        # default level    
+        # default level
         lvl = logging.WARNING
         if self.verbosity >= 5:
             lvl = 0
@@ -580,7 +580,7 @@ class Config(object):
 
     def todict(self):
         return self.__dict__.copy()
-        
+
     def update(self, d):
         self.__dict__.update(d)
 
@@ -590,13 +590,13 @@ class NoOptions(object):
     """
     def __getstate__(self):
         return {}
-    
+
     def __setstate__(self, state):
         pass
 
     def __getnewargs__(self):
         return ()
-    
+
     def __getattr__(self, attr):
         return None
 
