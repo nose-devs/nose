@@ -405,12 +405,19 @@ class BuiltinPluginManager(PluginManager):
         super(BuiltinPluginManager, self).loadPlugins()
 
 class ExtraPluginManager(PluginManager):
-    extraplugins = []
     """Plugin manager that loads extra plugins specified
     with the keyword `addplugins`
     """
+    def __init__(self, plugins=(), proxyClass=None):
+        super(ExtraPluginManager, self).__init__(plugins, proxyClass)
+        self._proxies['_extraplugins'] = ()
+
+    def addPlugins(self, plugins=(), extraplugins=()):
+        self._extraplugins = extraplugins
+        super(ExtraPluginManager, self).addPlugins(plugins)
+
     def loadPlugins(self):
-        for plug in self.__class__.extraplugins:
+        for plug in self._extraplugins:
             self.addPlugin(plug)
         super(ExtraPluginManager, self).loadPlugins()
 

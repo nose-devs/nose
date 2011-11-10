@@ -7,18 +7,14 @@ class OverridesSkip(Plugin):
     enabled = True
     name = 'skip'
     is_overridden = True
+    
 
 class TestDefaultPluginManager(unittest.TestCase):
 
-    def setUp(self):
-        ExtraPluginManager.extraplugins = [OverridesSkip()]
-
     def test_extraplugins_override_builtins(self):
         pm = DefaultPluginManager()
+        pm.addPlugins(extraplugins=[OverridesSkip()])
         pm.loadPlugins()
         skip_plugin = next(p for p in pm.plugins if p.name == "skip")
         overridden = getattr(skip_plugin, 'is_overridden', False)
         self.assertTrue(overridden)
-
-    def tearDown(self):
-        ExtraPluginManager.extraplugins = []

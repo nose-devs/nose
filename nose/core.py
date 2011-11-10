@@ -104,7 +104,7 @@ class TestProgram(unittest.TestProgram):
         if config is None:
             config = self.makeConfig(env, plugins)
         if addplugins:
-            ExtraPluginManager.extraplugins = addplugins
+            config.plugins.addPlugins(extraplugins=addplugins)
         self.config = config
         self.suite = suite
         self.exit = exit
