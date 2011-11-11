@@ -52,6 +52,7 @@ import inspect
 import logging
 import os
 import sys
+from itertools import chain as iterchain
 from warnings import warn
 import nose.config
 from nose.failure import Failure
@@ -222,8 +223,10 @@ class NoPlugins(object):
 
 
 class PluginManager(object):
-    """Base class for plugin managers. Does not implement loadPlugins, so it
-    may only be used with a static list of plugins.
+    """Base class for plugin managers. PluginManager is intended to be
+    used only with a static list of plugins. The loadPlugins() implementation
+    only reloads plugins from _extraplugins to prevent those from being
+    overridden by a subclass.
 
     The basic functionality of a plugin manager is to proxy all unknown
     attributes through a ``PluginProxy`` to a list of plugins.
@@ -235,6 +238,7 @@ class PluginManager(object):
 
     def __init__(self, plugins=(), proxyClass=None):
         self._plugins = []
+        self._extraplugins = ()
         self._proxies = {}
         if plugins:
             self.addPlugins(plugins)
@@ -260,8 +264,13 @@ class PluginManager(object):
                             if getattr(p, 'name', None) != new_name]
         self._plugins.append(plug)
 
-    def addPlugins(self, plugins):
-        for plug in plugins:
+    def addPlugins(self, plugins=(), extraplugins=()):
+        """extraplugins are maintained in a separate list and
+        re-added by loadPlugins() to prevent their being overwritten
+        by plugins added by a subclass of PluginManager
+        """
+        self._extraplugins = extraplugins
+        for plug in iterchain(plugins, extraplugins):
             self.addPlugin(plug)
 
     def configure(self, options, config):
@@ -279,7 +288,8 @@ class PluginManager(object):
         log.debug("Plugins enabled: %s", enabled)
 
     def loadPlugins(self):
-        pass
+        for plug in self._extraplugins:
+            self.addPlugin(plug)
 
     def sort(self):
         return sort_list(self._plugins, lambda x: getattr(x, 'score', 1), reverse=True)
@@ -404,33 +414,13 @@ class BuiltinPluginManager(PluginManager):
             self.addPlugin(plug())
         super(BuiltinPluginManager, self).loadPlugins()
 
-class ExtraPluginManager(PluginManager):
-    """Plugin manager that loads extra plugins specified
-    with the keyword `addplugins`
-    """
-    def __init__(self, plugins=(), proxyClass=None):
-        super(ExtraPluginManager, self).__init__(plugins, proxyClass)
-        self._proxies['_extraplugins'] = ()
-
-    def addPlugins(self, plugins=(), extraplugins=()):
-        self._extraplugins = extraplugins
-        super(ExtraPluginManager, self).addPlugins(plugins)
-
-    def loadPlugins(self):
-        for plug in self._extraplugins:
-            self.addPlugin(plug)
-        super(ExtraPluginManager, self).loadPlugins()
-
 try:
     import pkg_resources
-    class DefaultPluginManager(BuiltinPluginManager,
-                               EntryPointPluginManager,
-                               ExtraPluginManager,
-                               ):
+    class DefaultPluginManager(EntryPointPluginManager, BuiltinPluginManager):
         pass
 
 except ImportError:
-    class DefaultPluginManager(BuiltinPluginManager, ExtraPluginManager):
+    class DefaultPluginManager(BuiltinPluginManager):
         pass
 
 class RestrictedPluginManager(DefaultPluginManager):

@@ -1,13 +1,13 @@
 import unittest
 from nose.plugins import Plugin
-from nose.plugins.manager import DefaultPluginManager, ExtraPluginManager
+from nose.plugins.manager import DefaultPluginManager
 
 class OverridesSkip(Plugin):
     """Plugin to override the built-in Skip"""
     enabled = True
     name = 'skip'
     is_overridden = True
-    
+
 
 class TestDefaultPluginManager(unittest.TestCase):
 

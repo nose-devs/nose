@@ -11,7 +11,7 @@ import unittest
 from nose.config import Config, all_config_files
 from nose.loader import defaultTestLoader
 from nose.plugins.manager import PluginManager, DefaultPluginManager, \
-     RestrictedPluginManager, ExtraPluginManager
+     RestrictedPluginManager
 from nose.result import TextTestResult
 from nose.suite import FinalizingSuiteWrapper
 from nose.util import isclass, tolist
