@@ -107,7 +107,7 @@ In addition to passing command-line options, you may also put
 configuration options in your project's *setup.cfg* file, or a .noserc
 or nose.cfg file in your home directory. In any of these standard
 .ini-style config files, you put your nosetests configuration in a
-``[nosetests]`` section. Options are the same as on the command line,
+"[nosetests]" section. Options are the same as on the command line,
 with the -- prefix removed. For options that are simple switches, you
 must supply a value:
 
@@ -117,7 +117,7 @@ must supply a value:
 
 All configuration files that are found will be loaded and their
 options combined. You can override the standard config file loading
-with the ``-c`` option.
+with the "-c" option.
 
 
 Using Plugins
@@ -352,6 +352,18 @@ Options
 --cover-html-dir=DIR
 
    Produce HTML coverage information in dir
+
+--cover-branches
+
+   Include branch coverage in coverage report [NOSE_COVER_BRANCHES]
+
+--cover-xml
+
+   Produce XML coverage information
+
+--cover-xml-file=FILE
+
+   Produce XML coverage information in file
 
 --pdb
 
