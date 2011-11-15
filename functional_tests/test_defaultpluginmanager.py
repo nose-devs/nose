@@ -15,6 +15,8 @@ class TestDefaultPluginManager(unittest.TestCase):
         pm = DefaultPluginManager()
         pm.addPlugins(extraplugins=[OverridesSkip()])
         pm.loadPlugins()
-        skip_plugin = next(p for p in pm.plugins if p.name == "skip")
-        overridden = getattr(skip_plugin, 'is_overridden', False)
+        for plugin in pm.plugins:
+            if plugin.name == "skip":
+                break
+        overridden = getattr(plugin, 'is_overridden', False)
         self.assertTrue(overridden)
