@@ -3,8 +3,8 @@ Testing Plugins
 ===============
 
 The plugin interface is well-tested enough to safely unit test your
-use of its hooks with some level of confidence. However, there is also 
-a mixin for unittest.TestCase called PluginTester that's designed to 
+use of its hooks with some level of confidence. However, there is also
+a mixin for unittest.TestCase called PluginTester that's designed to
 test plugins in their native runtime environment.
 
 Here's a simple example with a do-nothing plugin and a composed suite.
@@ -20,7 +20,7 @@ Here's a simple example with a do-nothing plugin and a composed suite.
     ...         for line in self.output:
     ...             # i.e. check for patterns
     ...             pass
-    ... 
+    ...
     ...         # or check for a line containing ...
     ...         assert "ValueError" in self.output
     ...     def makeSuite(self):
@@ -43,7 +43,7 @@ Here's a simple example with a do-nothing plugin and a composed suite.
 
 And here is a more complex example of testing a plugin that has extra
 arguments and reads environment variables.
-    
+
     >>> import unittest, os
     >>> from nose.plugins import Plugin, PluginTester
     >>> class FancyOutputter(Plugin):
@@ -57,21 +57,21 @@ arguments and reads environment variables.
     ...             self.fanciness = 2
     ...         if 'EVEN_FANCIER' in self.env:
     ...             self.fanciness = 3
-    ... 
+    ...
     ...     def options(self, parser, env=os.environ):
     ...         self.env = env
     ...         parser.add_option('--more-fancy', action='store_true')
     ...         Plugin.options(self, parser, env=env)
-    ... 
+    ...
     ...     def report(self, stream):
     ...         stream.write("FANCY " * self.fanciness)
-    ... 
+    ...
     >>> class TestFancyOutputter(PluginTester, unittest.TestCase):
     ...     activate = '--with-fancy' # enables the plugin
     ...     plugins = [FancyOutputter()]
     ...     args = ['--more-fancy']
     ...     env = {'EVEN_FANCIER': '1'}
-    ... 
+    ...
     ...     def test_fancy_output(self):
     ...         assert "FANCY FANCY FANCY" in self.output, (
     ...                                         "got: %s" % self.output)
@@ -80,7 +80,7 @@ arguments and reads environment variables.
     ...             def runTest(self):
     ...                 raise ValueError("I hate fancy stuff")
     ...         return unittest.TestSuite([TC()])
-    ... 
+    ...
     >>> res = unittest.TestResult()
     >>> case = TestFancyOutputter('test_fancy_output')
     >>> case(res)
@@ -169,7 +169,7 @@ class MultiProcessFile(object):
         return self.__buffer.getvalue()
     def __getattr__(self, attr):
         return getattr(self.__buffer, attr)
-    
+
 try:
     from multiprocessing import Manager
     Buffer = MultiProcessFile
@@ -178,35 +178,35 @@ except ImportError:
 
 class PluginTester(object):
     """A mixin for testing nose plugins in their runtime environment.
-    
-    Subclass this and mix in unittest.TestCase to run integration/functional 
-    tests on your plugin.  When setUp() is called, the stub test suite is 
-    executed with your plugin so that during an actual test you can inspect the 
+
+    Subclass this and mix in unittest.TestCase to run integration/functional
+    tests on your plugin.  When setUp() is called, the stub test suite is
+    executed with your plugin so that during an actual test you can inspect the
     artifacts of how your plugin interacted with the stub test suite.
-    
+
     - activate
-    
+
       - the argument to send nosetests to activate the plugin
-     
+
     - suitepath
-    
+
       - if set, this is the path of the suite to test. Otherwise, you
         will need to use the hook, makeSuite()
-      
+
     - plugins
 
       - the list of plugins to make available during the run. Note
         that this does not mean these plugins will be *enabled* during
         the run -- only the plugins enabled by the activate argument
         or other settings in argv or env will be enabled.
-    
+
     - args
-  
+
       - a list of arguments to add to the nosetests command, in addition to
         the activate argument
-    
+
     - env
-    
+
       - optional dict of environment variables to send nosetests
 
     """
@@ -217,34 +217,34 @@ class PluginTester(object):
     argv = None
     plugins = []
     ignoreFiles = None
-    
+
     def makeSuite(self):
         """returns a suite object of tests to run (unittest.TestSuite())
-        
-        If self.suitepath is None, this must be implemented. The returned suite 
-        object will be executed with all plugins activated.  It may return 
+
+        If self.suitepath is None, this must be implemented. The returned suite
+        object will be executed with all plugins activated.  It may return
         None.
-        
+
         Here is an example of a basic suite object you can return ::
-        
+
             >>> import unittest
             >>> class SomeTest(unittest.TestCase):
             ...     def runTest(self):
             ...         raise ValueError("Now do something, plugin!")
-            ... 
+            ...
             >>> unittest.TestSuite([SomeTest()]) # doctest: +ELLIPSIS
             <unittest...TestSuite tests=[<...SomeTest testMethod=runTest>]>
-        
+
         """
         raise NotImplementedError
-    
+
     def _execPlugin(self):
         """execute the plugin on the internal test suite.
         """
         from nose.config import Config
         from nose.core import TestProgram
         from nose.plugins.manager import PluginManager
-        
+
         suite = None
         stream = Buffer()
         conf = Config(env=self.env,
@@ -254,20 +254,20 @@ class PluginTester(object):
             conf.ignoreFiles = self.ignoreFiles
         if not self.suitepath:
             suite = self.makeSuite()
-            
+
         self.nose = TestProgram(argv=self.argv, config=conf, suite=suite,
                                 exit=False)
         self.output = AccessDecorator(stream)
-                                
+
     def setUp(self):
-        """runs nosetests with the specified test suite, all plugins 
+        """runs nosetests with the specified test suite, all plugins
         activated.
         """
         self.argv = ['nosetests', self.activate]
         if self.args:
             self.argv.extend(self.args)
         if self.suitepath:
-            self.argv.append(self.suitepath)            
+            self.argv.append(self.suitepath)
 
         self._execPlugin()
 
@@ -379,7 +379,7 @@ def run(*arg, **kw):
     if 'argv' not in kw:
         kw['argv'] = ['nosetests', '-v']
     kw['config'].stream = buffer
-    
+
     # Set up buffering so that all output goes to our buffer,
     # or warn user if deprecated behavior is active. If this is not
     # done, prints and warnings will either be out of place or
@@ -406,7 +406,7 @@ def run(*arg, **kw):
     out = buffer.getvalue()
     print munge_nose_output_for_doctest(out)
 
-    
+
 def run_buffered(*arg, **kw):
     kw['buffer_all'] = True
     run(*arg, **kw)
