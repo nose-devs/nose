@@ -100,7 +100,7 @@ from nose.plugins import Plugin
 from nose.util import src, set
 
 try:
-    from pickle import dump, load
+    from cPickle import dump, load
 except ImportError:
     from pickle import dump, load
 
