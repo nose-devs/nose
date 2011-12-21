@@ -10,6 +10,9 @@
   Patch by Timothée Peignier.
 - Fixed Unicode issue on Python 3.1 with coverage (#442)
 - fixed class level fixture handling in multiprocessing plugin
+- Clue in the ``unittest`` module so it no longer prints traceback frames for
+  our clones of their simple assertion helpers. (#453).
+  Patch by Erik Rose.
 
 1.1.2
 
