@@ -4,19 +4,14 @@ Developing with nose
 Get the code
 ------------
 
-The stable branch of nose is hosted at `google code
-<http://code.google.com/p/python-nose/>`__. You should clone this
-branch if you're developing a plugin or working on bug fixes for nose::
+nose is hosted at `GitHub
+<http://github.com/nose-devs/nose/>`__. You should clone this
+repository if you're developing a plugin or working on bug fixes for nose::
 
-  hg clone http://python-nose.googlecode.com/hg/ nose-stable
+  git clone https://github.com/nose-devs/nose
 
-The **unstable** branch of nose is hosted at `bitbucket
-<http://bitbucket.org/jpellerin/nose/>`__. You should **fork** this branch if
-you are developing new features for nose. Then clone your fork, and submit
-your changes as a pull request. If you just want to use unstable, you can
-clone the branch::
-
-  hg clone http://bitbucket.org/jpellerin/nose/ nose-unstable
+You should **fork** this repository if you are developing new features for
+nose. Then submit your changes as a pull request.
 
 
 Read
