@@ -133,7 +133,7 @@ Recipes
 
 * Writing a plugin that adds detail to error reports
 
-  Implement ``formatError`` and/or ``formatFailture``. The error tuple
+  Implement ``formatError`` and/or ``formatFailure``. The error tuple
   you return (error class, error message, traceback) will replace the
   original error tuple.
 
