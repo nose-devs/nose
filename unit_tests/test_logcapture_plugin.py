@@ -79,6 +79,22 @@ class TestLogCapturePlugin(object):
         eq_(1, len(c.handler.buffer))
         eq_("Hello", c.handler.buffer[0].msg)
 
+    def test_loglevel(self):
+        c = LogCapture()
+        parser = OptionParser()
+        c.addOptions(parser, {})
+        options, args = parser.parse_args(['--logging-level', 'INFO'])
+        c.configure(options, Config())
+        c.start()
+        log = logging.getLogger("loglevel")
+        log.debug("Hello")
+        log.info("Goodbye")
+        c.end()
+        records = c.formatLogRecords()
+        eq_(1, len(c.handler.buffer))
+        eq_("Goodbye", c.handler.buffer[0].msg)
+        eq_("loglevel: INFO: Goodbye", records[0])
+
     def test_clears_all_existing_log_handlers(self):
         c = LogCapture()
         parser = OptionParser()
@@ -101,7 +117,6 @@ class TestLogCapturePlugin(object):
         c.start()
         c.beforeTest(mktest())
         c.end()
-
 
         if py27:
             expect = ["<class 'nose.plugins.logcapture.MyMemoryHandler'>"]
@@ -141,7 +156,7 @@ class TestLogCapturePlugin(object):
         assert records[0].startswith('foo:'), records[0]
         assert records[1].startswith('foo.x:'), records[1]
         assert records[2].startswith('bar.quux:'), records[2]
-        
+
     def test_logging_filter_exclude(self):
         env = {'NOSE_LOGFILTER': '-foo,-bar'}
         c = LogCapture()
@@ -159,7 +174,7 @@ class TestLogCapturePlugin(object):
         eq_(2, len(records))
         assert records[0].startswith('foobar.something:'), records[0]
         assert records[1].startswith('abara:'), records[1]
-        
+
     def test_logging_filter_exclude_and_include(self):
         env = {'NOSE_LOGFILTER': 'foo,-foo.bar'}
         c = LogCapture()
