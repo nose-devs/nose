@@ -149,6 +149,10 @@ class LogCapture(Plugin):
             "--logging-clear-handlers", action="store_true",
             default=False, dest="logcapture_clear",
             help="Clear all other logging handlers")
+        parser.add_option(
+            "--logging-level", action="store",
+            default='NOTSET', dest="logcapture_level",
+            help="Set the log level to capture")
 
     def configure(self, options, conf):
         """Configure plugin.
@@ -161,6 +165,7 @@ class LogCapture(Plugin):
         self.logformat = options.logcapture_format
         self.logdatefmt = options.logcapture_datefmt
         self.clear = options.logcapture_clear
+        self.loglevel = options.logcapture_level
         if options.logcapture_filters:
             self.filters = options.logcapture_filters.split(',')
 
@@ -186,7 +191,8 @@ class LogCapture(Plugin):
                 root_logger.handlers.remove(handler)
         root_logger.addHandler(self.handler)
         # to make sure everything gets captured
-        root_logger.setLevel(logging.NOTSET)
+        loglevel = getattr(self, "loglevel", "NOTSET")
+        root_logger.setLevel(getattr(logging, loglevel))
 
     def begin(self):
         """Set up logging handler before test run begins.
