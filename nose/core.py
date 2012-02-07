@@ -194,8 +194,8 @@ class TestProgram(unittest.TestProgram):
         plug_runner = self.config.plugins.prepareTestRunner(self.testRunner)
         if plug_runner is not None:
             self.testRunner = plug_runner
-        result = self.testRunner.run(self.test)
-        self.success = result.wasSuccessful()
+        self.result = self.testRunner.run(self.test)
+        self.success = self.result.wasSuccessful()
         if self.exit:
             sys.exit(not self.success)
         return self.success
