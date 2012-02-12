@@ -170,6 +170,11 @@ class Doctest(Plugin):
                           help="Find fixtures for a doctest file in module "
                           "with this name appended to the base name "
                           "of the doctest file")
+        parser.add_option('--doctest-options', action="append",
+                          dest="doctestOptions",
+                          metavar="OPTIONS",
+                          help="Specify options to pass to doctest. " +
+                          "Eg. '+ELLIPSIS,+NORMALIZE_WHITESPACE'")
         # Set the default as a list, if given in env; otherwise
         # an additional value set on the command line will cause
         # an error.
@@ -186,7 +191,23 @@ class Doctest(Plugin):
         self.extension = tolist(options.doctestExtension)
         self.fixtures = options.doctestFixtures
         self.finder = doctest.DocTestFinder()
-        
+        self.optionflags = 0
+        if options.doctestOptions:
+            flags = ",".join(options.doctestOptions).split(',')
+            for flag in flags:
+                try:
+                    if flag.startswith('+'):
+                        self.optionflags |= getattr(doctest, flag[1:])
+                    elif flag.startswith('-'):
+                        self.optionflags &= ~getattr(doctest, flag[1:])
+                    else:
+                        raise ValueError(
+                            "Must specify doctest options with starting " +
+                            "'+' or '-'.  Got %s" % (flag,))
+                except AttributeError:
+                    raise ValueError("Unknown doctest option %s" %
+                                     (flag[1:],))
+
     def prepareTestLoader(self, loader):
         """Capture loader's suiteClass.
 
@@ -222,7 +243,9 @@ class Doctest(Plugin):
                 continue
             if not test.filename:
                 test.filename = module_file
-            cases.append(DocTestCase(test, result_var=self.doctest_result_var))
+            cases.append(DocTestCase(test,
+                                     optionflags=self.optionflags,
+                                     result_var=self.doctest_result_var))
         if cases:
             yield self.suiteClass(cases, context=module, can_split=False)
             
@@ -265,6 +288,7 @@ class Doctest(Plugin):
             if test.examples:
                 case = DocFileCase(
                     test,
+                    optionflags=self.optionflags,
                     setUp=getattr(fixture_context, 'setup_test', None),
                     tearDown=getattr(fixture_context, 'teardown_test', None),
                     result_var=self.doctest_result_var)
@@ -285,7 +309,7 @@ class Doctest(Plugin):
             for test in doctests:
                 if len(test.examples) == 0:
                     continue
-                yield DocTestCase(test, obj=obj,
+                yield DocTestCase(test, obj=obj, optionflags=self.optionflags,
                                   result_var=self.doctest_result_var)
     
     def matches(self, name):
