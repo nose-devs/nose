@@ -133,6 +133,15 @@ class TestInheritance(AttributePluginTester):
         assert 'test_case_three' not in self.output
 
 
+class TestMethodOverriding(AttributePluginTester):
+    # Issue #464
+    args = ["-a", "!from_child"]
+
+    def verify(self):
+        assert 'test_method (test_attr.TestSuperNoAttr) ... ok' in self.output
+        assert 'test_method (test_attr.TestSubclassWithAttr) ... ok' not in self.output
+
+
 class TestStatic(AttributePluginTester):
     # Issue #411
     args = ["-a", "with_static"]

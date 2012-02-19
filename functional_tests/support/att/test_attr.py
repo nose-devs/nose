@@ -53,6 +53,16 @@ class TestSubclass(Superclass):
     pass
 
 
+class TestSuperNoAttr(unittest.TestCase):
+    def test_method(self):
+        pass
+
+class TestSubclassWithAttr(TestSuperNoAttr):
+    def test_method(self):
+        pass
+    test_method.from_child = True
+
+
 class Static:
     def test_with_static(self):
         pass
@@ -90,7 +100,7 @@ class TestAttrSubClass(TestAttrClass):
     def test_sub_three(self):
         pass
 
-def added_later_test(self):
+def added_later_test(*args):
     pass
 
 TestAttrSubClass.added_later_test = added_later_test
