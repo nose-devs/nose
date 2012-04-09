@@ -60,6 +60,11 @@ nose supports python3. Building from source on python3 requires
 have distribute installed, ``python3 setup.py install`` will install
 it via distribute's bootstrap script.
 
+Additionally, if your project is using `2to3
+<http://docs.python.org/library/2to3.html>`_, ``python3 setup.py nosetests``
+command will automatically convert your sources with 2to3 and then the
+tests with python 3.
+
 .. warning ::
 
    nose itself supports python 3, but many 3rd-party plugins do not!

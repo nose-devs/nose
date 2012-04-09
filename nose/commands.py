@@ -113,11 +113,27 @@ else:
         def run(self):
             """ensure tests are capable of being run, then
             run nose.main with a reconstructed argument list"""
-            self.run_command('egg_info')
+            if getattr(self.distribution, 'use_2to3', False):
+                # If we run 2to3 we can not do this inplace:
 
-            # Build extensions in-place
-            self.reinitialize_command('build_ext', inplace=1)
-            self.run_command('build_ext')
+                # Ensure metadata is up-to-date
+                self.reinitialize_command('build_py', inplace=0)
+                self.run_command('build_py')
+                bpy_cmd = self.get_finalized_command("build_py")
+                build_path = bpy_cmd.build_lib
+
+                # Build extensions
+                self.reinitialize_command('egg_info', egg_base=build_path)
+                self.run_command('egg_info')
+
+                self.reinitialize_command('build_ext', inplace=0)
+                self.run_command('build_ext')
+            else:
+                self.run_command('egg_info')
+
+                # Build extensions in-place
+                self.reinitialize_command('build_ext', inplace=1)
+                self.run_command('build_ext')
 
             if self.distribution.install_requires:
                 self.distribution.fetch_build_eggs(
@@ -126,7 +142,8 @@ else:
                 self.distribution.fetch_build_eggs(
                     self.distribution.tests_require)
 
-            argv = ['nosetests'] 
+            ei_cmd = self.get_finalized_command("egg_info")
+            argv = ['nosetests', ei_cmd.egg_base] 
             for (option_name, cmd_name) in self.option_to_cmds.items():
                 if option_name in option_blacklist:
                     continue
