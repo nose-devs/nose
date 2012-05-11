@@ -440,7 +440,7 @@ def test_address(test):
             method_name = test._testMethodName
         return (src(cls_adr[0]), cls_adr[1],
                 "%s.%s" % (cls_adr[2], method_name))
-    if hasattr(test, '__class__') and test.__class__.__module__ != 'builtins':
+    if hasattr(test, '__class__') and test.__class__.__module__ != '__builtin__':
         return test_address(test.__class__)
     raise TypeError("I don't know what %s is (%s)" % (test, t))
 test_address.__test__ = False # do not collect
