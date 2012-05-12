@@ -233,7 +233,7 @@ class MultiProcess(Plugin):
             try:
                 import multiprocessing
                 workers = multiprocessing.cpu_count()
-            except NotImplementedError:
+            except (NotImplementedError, ImportError):
                 workers = 0
         if workers:
             _import_mp()
