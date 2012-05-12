@@ -229,17 +229,18 @@ class MultiProcess(Plugin):
             workers = int(options.multiprocess_workers)
         except (TypeError, ValueError):
             workers = 0
-        if workers < 0:
-            try:
-                import multiprocessing
-                workers = multiprocessing.cpu_count()
-            except (NotImplementedError, ImportError):
-                workers = 0
         if workers:
             _import_mp()
             if Process is None:
                 self.enabled = False
                 return
+            if workers < 0:
+                try:
+                    import multiprocessing
+                    workers = multiprocessing.cpu_count()
+                except NotImplementedError:
+                    self.enabled = False
+                    return
             self.enabled = True
             self.config.multiprocess_workers = workers
             t = float(options.multiprocess_timeout)
