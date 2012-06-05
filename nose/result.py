@@ -50,6 +50,7 @@ class TextTestResult(_TextTestResult):
             storage, label, isfail = self.errorClasses[SkipTest]
             storage.append((test, reason))
             self.printLabel(label, (SkipTest, reason, None))
+        self.config.plugins.addSkip(test, reason)
 
     def addError(self, test, err):
         """Overrides normal addError to add support for
