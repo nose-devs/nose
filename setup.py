@@ -96,8 +96,8 @@ setup(
     http://readthedocs.org/docs/nose/
 
     If you have recently reported a bug marked as fixed, or have a craving for
-    the very latest, you may want the unstable development version instead:
-    http://bitbucket.org/jpellerin/nose/get/tip.gz#egg=nose-dev
+    the very latest, you may want the development version instead:
+    https://github.com/nose-devs/nose/tarball/master#egg=nose-dev
     """,
     license = 'GNU LGPL',
     keywords = 'test unittest doctest automatic discovery',
