@@ -70,7 +70,11 @@ def stop_reactor():
     you mix tests using these tools and tests using twisted.trial.
     """
     global _twisted_thread
-    reactor.stop()
+
+    def stop_reactor():
+        '''Helper for calling stop from withing the thread.'''
+        reactor.stop()
+
     reactor_thread.join()
     for p in reactor.getDelayedCalls():
         if p.active():
