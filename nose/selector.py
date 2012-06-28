@@ -8,6 +8,7 @@ thinks may be a test.
 """
 import logging
 import os
+import stat
 import unittest
 from nose.config import Config
 from nose.util import split_test_name, src, getfilename, getpackage, ispackage
@@ -120,7 +121,13 @@ class Selector(object):
             log.debug('%s matches ignoreFiles pattern; skipped',
                       base) 
             return False
-        if not self.config.includeExe and os.access(file, os.X_OK):
+
+        def is_executable(file):
+            '''Return True if file is executable by the current user.'''
+            st = os.stat(file)
+            return bool(st.st_mode & stat.S_IXUSR)
+
+        if not self.config.includeExe and is_executable(file):
             log.info('%s is executable; skipped', file)
             return False
         dummy, ext = op_splitext(base)
