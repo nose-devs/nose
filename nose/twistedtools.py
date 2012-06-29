@@ -75,6 +75,7 @@ def stop_reactor():
         '''Helper for calling stop from withing the thread.'''
         reactor.stop()
 
+    reactor.callFromThread(stop_reactor)
     reactor_thread.join()
     for p in reactor.getDelayedCalls():
         if p.active():
