@@ -40,7 +40,7 @@ python M.py -v
 and a detailed report of all examples tried is printed to stdout, along
 with assorted summaries at the end.
 
-You can force verbose mode by passing "verbose=True" to testmod, or prohibit
+You can force __patched_linecache_getlineserbose mode by passing "verbose=True" to testmod, or prohibit
 it by passing "verbose=False".  In either of those cases, sys.argv is not
 examined by testmod.
 
@@ -1259,7 +1259,7 @@ class DocTestRunner:
     __LINECACHE_FILENAME_RE = re.compile(r'<doctest '
                                          r'(?P<name>[\w\.]+)'
                                          r'\[(?P<examplenum>\d+)\]>$')
-    def __patched_linecache_getlines(self, filename):
+    def __patched_linecache_getlines(self, filename, module_globals=None):
         m = self.__LINECACHE_FILENAME_RE.match(filename)
         if m and m.group('name') == self.test.name:
             example = self.test.examples[int(m.group('examplenum'))]
