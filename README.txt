@@ -1,4 +1,3 @@
-
 Basic usage
 ***********
 
@@ -171,7 +170,7 @@ Options
    Output list of available plugins and exit. Combine with higher
    verbosity for greater detail
 
--v=DEFAULT, --verbose=DEFAULT
+-v, --verbose=DEFAULT
 
    Be more verbose. [NOSE_VERBOSE]
 
@@ -179,16 +178,16 @@ Options
 
    Set verbosity; --verbosity=2 is the same as -v
 
--q=DEFAULT, --quiet=DEFAULT
+-q, --quiet=DEFAULT
 
    Be less verbose
 
--c=FILES, --config=FILES
+-c FILES, --config=FILES
 
    Load configuration from config file(s). May be specified multiple
    times; in that case, all config files will be loaded and combined
 
--w=WHERE, --where=WHERE
+-w WHERE, --where=WHERE
 
    Look for tests in this directory. May be specified multiple times.
    The first directory passed will be used as the working directory,
@@ -203,7 +202,7 @@ Options
    replaces any directories specified with 'where', so the 'where'
    option becomes ineffective. [NOSE_PY3WHERE]
 
--m=REGEX, --match=REGEX, --testmatch=REGEX
+-m REGEX, --match=REGEX, --testmatch=REGEX
 
    Files, directories, function names, and class names that match this
    regular expression are considered tests.  Default:
@@ -215,7 +214,7 @@ Options
    mainly from configuration files; on the command line, just pass the
    tests to run as additional arguments with no switch.
 
--l=DEFAULT, --debug=DEFAULT
+-l DEFAULT, --debug=DEFAULT
 
    Activate debug logging for one or more systems. Available debug
    loggers: nose, nose.importer, nose.inspector, nose.plugins,
@@ -231,18 +230,18 @@ Options
    Load logging config from this file -- bypasses all other logging
    config settings.
 
--I=REGEX, --ignore-files=REGEX
+-I REGEX, --ignore-files=REGEX
 
    Completely ignore any file that matches this regular expression.
    Takes precedence over any other settings or plugins. Specifying
    this option will replace the default setting. Specify this option
    multiple times to add more regular expressions [NOSE_IGNORE_FILES]
 
--e=REGEX, --exclude=REGEX
+-e REGEX, --exclude=REGEX
 
    Don't run tests that match regular expression [NOSE_EXCLUDE]
 
--i=REGEX, --include=REGEX
+-i REGEX, --include=REGEX
 
    This regular expression will be applied to files, directories,
    function names, and class names for a chance to include additional
@@ -278,11 +277,11 @@ Options
    it sees a package with the same name in a different location. Set
    this option to disable that behavior.
 
--a=ATTR, --attr=ATTR
+-a ATTR, --attr=ATTR
 
    Run only tests that have attributes specified by ATTR [NOSE_ATTR]
 
--A=EXPR, --eval-attr=EXPR
+-A EXPR, --eval-attr=EXPR
 
    Run only tests for whose attributes the Python expression EXPR
    evaluates to True [NOSE_EVAL_ATTR]
