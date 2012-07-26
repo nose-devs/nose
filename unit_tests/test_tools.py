@@ -78,6 +78,44 @@ class TestTools(unittest.TestCase):
         else:
             self.fail("raises did not raise assertion error on no exception")
 
+    def test_raises_with_statement(self):
+
+        def message_is_foo(error):
+            assert error.message == "foo", "message is not foo"
+
+        #: raise good
+        with raises(TypeError):
+            raise TypeError("foo")
+
+        with raises(TypeError, checker=message_is_foo):
+            raise TypeError("foo")
+
+        try:
+            with raises(TypeError, checker=message_is_foo):
+                raise TypeError("spam")
+        except AssertionError as error:
+            assert error.message == "message is not foo"
+        else:
+            self.fail("raises has failure while checking exception.")
+
+        #: raise other
+        try:
+            with raises(ValueError):
+                raise TypeError("foo")
+        except TypeError, e:
+            pass
+        else:
+            self.fail("raises did pass through unwanted exception")
+
+        #: raise nothing
+        try:
+            with raises(TypeError):
+                pass
+        except AssertionError, e:
+            pass
+        else:
+            self.fail("raises did not raise assertion error on no exception")
+
     def test_timed(self):
 
         def too_slow():
