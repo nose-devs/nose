@@ -96,6 +96,7 @@ class Importer(object):
         return mod
 
     def sameModule(self, mod, filename):
+        filename = os.path.realpath(filename)
         mod_paths = []
         if hasattr(mod, '__path__'):
             for path in mod.__path__:
@@ -112,6 +113,7 @@ class Importer(object):
             return False
         new_path = os.path.dirname(os.path.normpath(filename))
         for mod_path in mod_paths:
+            mod_path = os.path.realpath(mod_path)
             log.debug(
                 "module already loaded? mod: %s new: %s",
                 mod_path, new_path)
