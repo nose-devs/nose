@@ -174,7 +174,7 @@ class Coverage(Plugin):
         if self.coverMinPercentage:
             f = StringIO.StringIO()
             self.coverInstance.report(modules, file=f)
-            m = re.search(r'\w+\s+\d+\s+\d+\s+(\d+)%', f.getvalue())
+            m = re.search(r'TOTAL\s+\d+\s+\d+\s+(\d+)%', f.getvalue())
             if m:
                 percentage = int(m.groups()[0])
                 if percentage < self.coverMinPercentage:
