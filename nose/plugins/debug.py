@@ -57,6 +57,12 @@ class Pdb(Plugin):
         stdout = sys.stdout
         sys.stdout = sys.__stdout__
         try:
-            pdb.post_mortem(tb)
+            import ipdb
+            call = ipdb.post_mortem
+        except ImportError:
+            call = pdb.post_mortem
+            
+        try:
+            call(tb)
         finally:
             sys.stdout = stdout
