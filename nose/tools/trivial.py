@@ -50,17 +50,15 @@ for at in [ at for at in dir(_t)
     __all__.append(pepd)
 
 def assert_not_raises( exception, func, *args, **kwargs ):
-	def closure( func, *args, **kwargs ):
-		try:
-			assert_raises( exception, func, *args, **kwargs )
-			raise Exception
-		except:
-			raise
-	assert_raises( Exception, closure, func, args, kwargs )
+    def closure( func, *args, **kwargs ):
+        try:
+            assert_raises( exception, func, *args, **kwargs )
+            raise Exception
+        except:
+            raise
+    assert_raises( Exception, closure, func, args, kwargs )
 
 __all__.append( "assert_not_raises" )
-    
-#TODO: Add in assert_not_raises to the __all__ list to clean up some tests.
 
 del Dummy
 del _t
