@@ -52,11 +52,12 @@ for at in [ at for at in dir(_t)
 def assert_not_raises( exception, func, *args, **kwargs ):
     def closure( func, *args, **kwargs ):
         try:
-            assert_raises( exception, func, *args, **kwargs )
-            raise Exception
-        except:
-            raise
-    assert_raises( Exception, closure, func, args, kwargs )
+            func( *args, **kwargs )
+        except exception:
+		raise AssertionError, exception
+	else:
+		return
+    closure( func, *args, **kwargs )
 
 __all__.append( "assert_not_raises" )
 
