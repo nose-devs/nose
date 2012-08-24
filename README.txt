@@ -322,6 +322,10 @@ Options
 
    Clear all other logging handlers
 
+--logging-level=DEFAULT
+
+   Set the log level to capture
+
 --with-coverage
 
    Enable plugin Coverage:  Activate a coverage report using Ned
@@ -404,6 +408,11 @@ Options
 
    Find fixtures for a doctest file in module with this name appended
    to the base name of the doctest file
+
+--doctest-options=OPTIONS
+
+   Specify options to pass to doctest. Eg.
+   '+ELLIPSIS,+NORMALIZE_WHITESPACE'
 
 --with-isolation
 

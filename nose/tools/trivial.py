@@ -49,6 +49,18 @@ for at in [ at for at in dir(_t)
     vars()[pepd] = getattr(_t, at)
     __all__.append(pepd)
 
+def assert_not_raises( exception, func, *args, **kwargs ):
+    def closure( func, *args, **kwargs ):
+        try:
+            func( *args, **kwargs )
+        except exception:
+	    raise AssertionError, exception
+        else:
+            return
+    closure( func, *args, **kwargs )
+
+__all__.append( "assert_not_raises" )
+
 del Dummy
 del _t
 del pep8
