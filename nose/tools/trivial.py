@@ -54,9 +54,9 @@ def assert_not_raises( exception, func, *args, **kwargs ):
         try:
             func( *args, **kwargs )
         except exception:
-		raise AssertionError, exception
-	else:
-		return
+	    raise AssertionError, exception
+        else:
+            return
     closure( func, *args, **kwargs )
 
 __all__.append( "assert_not_raises" )
