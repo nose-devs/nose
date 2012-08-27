@@ -13,6 +13,7 @@ variable.
 import logging
 import re
 import sys
+import StringIO
 from nose.plugins.base import Plugin
 from nose.util import src, tolist
 
@@ -27,6 +28,7 @@ class Coverage(Plugin):
     coverPackages = None
     coverInstance = None
     coverErase = False
+    coverMinPercentage = None
     score = 200
     status = {}
 
@@ -51,6 +53,11 @@ class Coverage(Plugin):
                           default=env.get('NOSE_COVER_TESTS'),
                           help="Include test modules in coverage report "
                           "[NOSE_COVER_TESTS]")
+        parser.add_option("--cover-min-percentage", action="store",
+                          dest="cover_min_percentage",
+                          default=env.get('NOSE_COVER_MIN_PERCENTAGE'),
+                          help="Minimum percentage of coverage for tests"
+                          "to pass [NOSE_COVER_MIN_PERCENTAGE]")
         parser.add_option("--cover-inclusive", action="store_true",
                           dest="cover_inclusive",
                           default=env.get('NOSE_COVER_INCLUSIVE'),
@@ -119,6 +126,8 @@ class Coverage(Plugin):
             log.debug('Will put HTML coverage report in %s', self.coverHtmlDir)
         self.coverBranches = options.cover_branches
         self.coverXmlFile = None
+        if options.cover_min_percentage:
+            self.coverMinPercentage = int(options.cover_min_percentage.rstrip('%'))
         if options.cover_xml:
             self.coverXmlFile = options.cover_xml_file
             log.debug('Will put XML coverage report in %s', self.coverXmlFile)
@@ -160,6 +169,22 @@ class Coverage(Plugin):
         if self.coverXmlFile:
             log.debug("Generating XML coverage report")
             self.coverInstance.xml_report(modules, self.coverXmlFile)
+
+        # make sure we have minimum required coverage
+        if self.coverMinPercentage:
+            f = StringIO.StringIO()
+            self.coverInstance.report(modules, file=f)
+            m = re.search(r'-------\s\w+\s+\d+\s+\d+\s+(\d+)%\s+\d*\s{0,1}$', f.getvalue())
+            if m:
+                percentage = int(m.groups()[0])
+                if percentage < self.coverMinPercentage:
+                    log.error('TOTAL Coverage did not reach minimum '
+                              'required: %d%%' % self.coverMinPercentage)
+                    sys.exit(1)
+            else:
+                log.error("No total percentage was found in coverage output, "
+                          "something went wrong.")
+
 
     def wantModuleCoverage(self, name, module):
         if not hasattr(module, '__file__'):
