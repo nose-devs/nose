@@ -6,4 +6,4 @@ python:
   - 3.2
   - pypy
 script:
-  - python setup.py test
+  - python setup.py egg_info && python selftest.py
