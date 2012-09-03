@@ -1,4 +1,4 @@
-1.1.3
+1.2.0
 
 - Fixed issue where plugins included with `addplugins` keyword could
   be overridden by built-in plugins (or third-party plugins registered
@@ -14,6 +14,16 @@
   our clones of their simple assertion helpers (#453). Patch by Erik Rose.
 - Stop using the ``assert`` statement in ``ok_`` and ``eq_`` so they work under
   ``python -O`` (#504). Patch by Erik Rose.
+- Add loglevel option to logcapture plugin (#493). Patch by Arach Tchoupani.
+- Add doctest options flag (#7 from google code tracker). Patch by Michael
+  Forbes.
+- Add support for using 2to3 with the nosetests setuptools command. Patch by
+  Andrey Golovizin.
+- Add --cover-min-percentage flag to force test runs without sufficient
+  coverage to fail (#540). Patch by Domen Kožar.
+- Add travis-ci configuraion (#545). Patch by Domen Kožar.
+- Call reactor.stop from twisted thread (#301). Patch by Adi Roiban.
+
 
 1.1.2
 
