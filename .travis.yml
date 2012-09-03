@@ -6,4 +6,4 @@ python:
   - 3.2
   - pypy
 script:
-  - python selftest.py
+  - python setup.py test
