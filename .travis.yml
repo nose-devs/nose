@@ -9,4 +9,4 @@ install:
   - pip uninstall -y nose
   - pip install -r requirements.txt --use-mirrors
 script:
-  - python setup.py build_tests test
+  - python setup.py test
