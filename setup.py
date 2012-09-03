@@ -1,7 +1,7 @@
 import sys
 import os
 
-VERSION = '1.1.3'
+VERSION = '1.2.0'
 py_vers_tag = '-%s.%s' % sys.version_info[:2]
 
 test_dirs = ['functional_tests', 'unit_tests', os.path.join('doc','doc_tests'), 'nose']
@@ -107,7 +107,7 @@ setup(
                          'examples/*.py',
                          'examples/*/*.py']},
     classifiers = [
-        'Development Status :: 4 - Beta',
+        'Development Status :: 5 - Production/Stable',
         'Intended Audience :: Developers',
         'License :: OSI Approved :: GNU Library or Lesser General Public License (LGPL)',
         'Natural Language :: English',
