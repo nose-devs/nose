@@ -1,3 +1,7 @@
+1.2.1
+
+- Correct nose.__version__ (#549). Thanks to Chris Withers for the bug report.
+
 1.2.0
 
 - Fixed issue where plugins included with `addplugins` keyword could
