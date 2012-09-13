@@ -86,15 +86,12 @@ class ResultProxy(object):
         return repr(self.result)
 
     def _prepareErr(self, err):
-        if not isinstance(err[1], Exception):
+        if not isinstance(err[1], Exception) and isinstance(err[0], type):
             # Turn value back into an Exception (required in Python 3.x).
             # Plugins do all sorts of crazy things with exception values.
-            try:
-                # The actual exception class is needed for failure detail
-                # but maybe other plugins?
-                value = err[0](err[1])
-            except:
-                value = Exception(err[1])
+            # Convert it to a custom subclass of Exception with the same
+            # name as the actual exception to make it print correctly.
+            value = type(err[0].__name__, (Exception,), {})(err[1])
             err = (err[0], value, err[2])
         return err
 
