@@ -18,6 +18,7 @@ Further reading
    doc_tests/test_restricted_plugin_options/restricted_plugin_options.rst
    doc_tests/test_selector_plugin/selector_plugin.rst
    doc_tests/test_allmodules/test_allmodules.rst
+   doc_tests/test_xunit_plugin/test_skips.rst
    more_info
 
 Articles, etc

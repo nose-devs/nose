@@ -91,9 +91,8 @@ def autoplugin_directive(dirname, arguments, options, content, lineno,
     # source
     rst.append('Source', '<autodoc>')
     rst.append('------', '<autodoc>')
-    rst.append('.. include :: %s\n' % os.path.relpath(
-            mod.__file__.replace('.pyc', '.py'), os.getcwd()),
-               '<autodoc>')
+    rst.append('.. include :: %s\n' % os.path.abspath( mod.__file__.replace('.pyc', '.py') ),
+              '<autodoc>')
     rst.append('   :literal:\n', '<autodoc>')
     rst.append('', '<autodoc>')
     
