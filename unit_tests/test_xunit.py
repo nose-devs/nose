@@ -44,8 +44,8 @@ class TestEscaping(unittest.TestCase):
         utf16 = self.x._quoteattr(u'Ivan Krsti\u0107')[1:-1]
 
         if UNICODE_STRINGS:
-	    # If all internal strings are unicode, then _quoteattr shouldn't
-	    # have changed anything.
+            # If all internal strings are unicode, then _quoteattr shouldn't
+            # have changed anything.
             eq_(utf16, u'Ivan Krsti\u0107')
         else:
             # to avoid big/little endian bytes, assert that we can put it back:
