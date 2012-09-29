@@ -13,7 +13,7 @@ class FailureDetail(Plugin):
     """
     Plugin that provides extra information in tracebacks of test failures.
     """
-    score = 600 # before capture
+    score = 1600 # before capture
     
     def options(self, parser, env):
         """Register commmandline options.

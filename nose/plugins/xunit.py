@@ -125,7 +125,7 @@ class Tee(object):
 class Xunit(Plugin):
     """This plugin provides test results in the standard XUnit XML format."""
     name = 'xunit'
-    score = 499
+    score = 1500
     encoding = 'UTF-8'
     error_report_file = None
 
