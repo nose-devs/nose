@@ -77,7 +77,24 @@ class TestLogCapturePlugin(object):
         log.debug("Hello")
         c.end()
         eq_(1, len(c.handler.buffer))
-        eq_("Hello", c.handler.buffer[0].msg)
+        eq_("foobar.something: DEBUG: Hello", c.handler.buffer[0])
+
+    def test_consistent_mutables(self):
+        c = LogCapture()
+        parser = OptionParser()
+        c.addOptions(parser)
+        c.start()
+        log = logging.getLogger("mutable")
+        mutable = { 'value': 1 }
+        log.debug("%r", mutable)
+        repr_1 = repr(mutable)
+        mutable['value'] = 2
+        log.debug("%r", mutable)
+        repr_2 = repr(mutable)
+        c.end()
+        records = c.formatLogRecords()
+        eq_("mutable: DEBUG: %s" % (repr_1,), records[0])
+        eq_("mutable: DEBUG: %s" % (repr_2,), records[1])
 
     def test_loglevel(self):
         c = LogCapture()
@@ -92,7 +109,7 @@ class TestLogCapturePlugin(object):
         c.end()
         records = c.formatLogRecords()
         eq_(1, len(c.handler.buffer))
-        eq_("Goodbye", c.handler.buffer[0].msg)
+        eq_("loglevel: INFO: Goodbye", c.handler.buffer[0])
         eq_("loglevel: INFO: Goodbye", records[0])
 
     def test_clears_all_existing_log_handlers(self):
