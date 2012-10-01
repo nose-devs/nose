@@ -195,6 +195,9 @@ class MultiProcess(Plugin):
                           help="Spread test run among this many processes. "
                           "Set a number equal to the number of processors "
                           "or cores in your machine for best results. "
+                          "Pass a negative number to have the number of "
+                          "processes automatically set to the number of "
+                          "cores. "
                           "[NOSE_PROCESSES]")
         parser.add_option("--process-timeout", action="store",
                           default=env.get('NOSE_PROCESS_TIMEOUT', 10),
@@ -234,6 +237,15 @@ class MultiProcess(Plugin):
             if Process is None:
                 self.enabled = False
                 return
+            # Negative number of workers will cause multiprocessing to hang.
+            # Set the number of workers to the CPU count to avoid this.
+            if workers < 0:
+                try:
+                    import multiprocessing
+                    workers = multiprocessing.cpu_count()
+                except NotImplementedError:
+                    self.enabled = False
+                    return
             self.enabled = True
             self.config.multiprocess_workers = workers
             t = float(options.multiprocess_timeout)
