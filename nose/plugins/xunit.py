@@ -122,6 +122,10 @@ class Tee(object):
         for s in self._streams:
             s.write(*args)
 
+    def flush(self):
+        for s in self._streams:
+            s.flush()
+
 class Xunit(Plugin):
     """This plugin provides test results in the standard XUnit XML format."""
     name = 'xunit'
