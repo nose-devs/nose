@@ -136,7 +136,8 @@ class Xunit(Plugin):
     def __init__(self):
         super(Xunit, self).__init__()
         self._capture_stack = []
-        self._current = None
+        self._currentStdout = None
+        self._currentStderr = None
 
     def _timeTaken(self):
         if hasattr(self, '_timer'):
@@ -203,9 +204,11 @@ class Xunit(Plugin):
             stream.writeln("XML: %s" % self.error_report_file.name)
 
     def _startCapture(self):
-        self._capture_stack.append(sys.stdout)
-        self._current = StringIO()
-        sys.stdout = Tee(self._current, sys.stdout)
+        self._capture_stack.append((sys.stdout, sys.stderr))
+        self._currentStdout = StringIO()
+        self._currentStderr = StringIO()
+        sys.stdout = Tee(self._currentStdout, sys.stdout)
+        sys.stderr = Tee(self._currentStderr, sys.stderr)
 
     def startContext(self, context):
         self._startCapture()
@@ -217,21 +220,30 @@ class Xunit(Plugin):
 
     def _endCapture(self):
         if self._capture_stack:
-            sys.stdout = self._capture_stack.pop()
+            sys.stdout, sys.stderr = self._capture_stack.pop()
 
     def afterTest(self, test):
         self._endCapture()
-        self._current = None
+        self._currentStdout = None
+        self._currentStderr = None
 
     def finalize(self, test):
         while self._capture_stack:
-            self._capture_stack.pop()
+            self._endCapture()
 
-    def _getCapturedOutput(self):
-        if self._current:
-            value = self._current.getvalue()
+    def _getCapturedStdout(self):
+        if self._currentStdout:
+            value = self._currentStdout.getvalue()
             if value:
                 return '<system-out><![CDATA[%s]]></system-out>' % escape_cdata(
+                        value)
+        return ''
+
+    def _getCapturedStderr(self):
+        if self._currentStderr:
+            value = self._currentStderr.getvalue()
+            if value:
+                return '<system-err><![CDATA[%s]]></system-err>' % escape_cdata(
                         value)
         return ''
 
@@ -251,7 +263,7 @@ class Xunit(Plugin):
         self.errorlist.append(
             '<testcase classname=%(cls)s name=%(name)s time="%(taken).3f">'
             '<%(type)s type=%(errtype)s message=%(message)s><![CDATA[%(tb)s]]>'
-            '</%(type)s>%(systemout)s</testcase>' %
+            '</%(type)s>%(systemout)s%(systemerr)s</testcase>' %
             {'cls': self._quoteattr(id_split(id)[0]),
              'name': self._quoteattr(id_split(id)[-1]),
              'taken': taken,
@@ -259,7 +271,8 @@ class Xunit(Plugin):
              'errtype': self._quoteattr(nice_classname(err[0])),
              'message': self._quoteattr(exc_message(err)),
              'tb': escape_cdata(tb),
-             'systemout': self._getCapturedOutput(),
+             'systemout': self._getCapturedStdout(),
+             'systemerr': self._getCapturedStderr(),
              })
 
     def addFailure(self, test, err, capt=None, tb_info=None):
@@ -272,14 +285,15 @@ class Xunit(Plugin):
         self.errorlist.append(
             '<testcase classname=%(cls)s name=%(name)s time="%(taken).3f">'
             '<failure type=%(errtype)s message=%(message)s><![CDATA[%(tb)s]]>'
-            '</failure>%(systemout)s</testcase>' %
+            '</failure>%(systemout)s%(systemerr)s</testcase>' %
             {'cls': self._quoteattr(id_split(id)[0]),
              'name': self._quoteattr(id_split(id)[-1]),
              'taken': taken,
              'errtype': self._quoteattr(nice_classname(err[0])),
              'message': self._quoteattr(exc_message(err)),
              'tb': escape_cdata(tb),
-             'systemout': self._getCapturedOutput(),
+             'systemout': self._getCapturedStdout(),
+             'systemerr': self._getCapturedStderr(),
              })
 
     def addSuccess(self, test, capt=None):
@@ -290,11 +304,12 @@ class Xunit(Plugin):
         id = test.id()
         self.errorlist.append(
             '<testcase classname=%(cls)s name=%(name)s '
-            'time="%(taken).3f">%(systemout)s</testcase>' %
+            'time="%(taken).3f">%(systemout)s%(systemerr)s</testcase>' %
             {'cls': self._quoteattr(id_split(id)[0]),
              'name': self._quoteattr(id_split(id)[-1]),
              'taken': taken,
-             'systemout': self._getCapturedOutput(),
+             'systemout': self._getCapturedStdout(),
+             'systemerr': self._getCapturedStderr(),
              })
 
     def _forceUnicode(self, s):
