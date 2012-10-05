@@ -29,7 +29,7 @@ class Capture(Plugin):
     enabled = True
     env_opt = 'NOSE_NOCAPTURE'
     name = 'capture'
-    score = 500
+    score = 1600
 
     def __init__(self):
         self.stdout = []

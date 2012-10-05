@@ -136,7 +136,7 @@ class TestXMLOutputWithXML(unittest.TestCase):
 
     def test_addFailure(self):
         test = mktest()
-        self.x.startTest(test)
+        self.x.beforeTest(test)
         try:
             raise AssertionError("one is not 'equal' to two")
         except AssertionError:
@@ -203,7 +203,7 @@ class TestXMLOutputWithXML(unittest.TestCase):
 
     def test_addError(self):
         test = mktest()
-        self.x.startTest(test)
+        self.x.beforeTest(test)
         try:
             raise RuntimeError("some error happened")
         except RuntimeError:
@@ -246,7 +246,7 @@ class TestXMLOutputWithXML(unittest.TestCase):
     def test_non_utf8_error(self):
         # See http://code.google.com/p/python-nose/issues/detail?id=395
         test = mktest()
-        self.x.startTest(test)
+        self.x.beforeTest(test)
         try:
             raise RuntimeError(chr(128)) # cannot encode as utf8 
         except RuntimeError:
@@ -275,6 +275,8 @@ class TestXMLOutputWithXML(unittest.TestCase):
         except RuntimeError:
             some_err = sys.exc_info()
 
+        self.x.startContext(None)
+
         # call addError without startTest
         # which can happen if setup() raises an error
         self.x.addError(test, some_err)
@@ -295,7 +297,7 @@ class TestXMLOutputWithXML(unittest.TestCase):
 
     def test_addSuccess(self):
         test = mktest()
-        self.x.startTest(test)
+        self.x.beforeTest(test)
         self.x.addSuccess(test, (None,None,None))
 
         result = self.get_xml_report()
