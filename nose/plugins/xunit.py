@@ -39,9 +39,11 @@ Here is an abbreviated version of what an XML test report might look like::
 import codecs
 import doctest
 import os
+import sys
 import traceback
 import re
 import inspect
+from cStringIO import StringIO
 from time import time
 from xml.sax import saxutils
 
@@ -112,12 +114,30 @@ def exc_message(exc_info):
                 result = exc.args[0]
     return xml_safe(result)
 
+class Tee(object):
+    def __init__(self, *args):
+        self._streams = args
+
+    def write(self, *args):
+        for s in self._streams:
+            s.write(*args)
+
+    def flush(self):
+        for s in self._streams:
+            s.flush()
+
 class Xunit(Plugin):
     """This plugin provides test results in the standard XUnit XML format."""
     name = 'xunit'
-    score = 2000
+    score = 1500
     encoding = 'UTF-8'
     error_report_file = None
+
+    def __init__(self):
+        super(Xunit, self).__init__()
+        self._capture_stack = []
+        self._currentStdout = None
+        self._currentStderr = None
 
     def _timeTaken(self):
         if hasattr(self, '_timer'):
@@ -183,9 +203,49 @@ class Xunit(Plugin):
             stream.writeln("-" * 70)
             stream.writeln("XML: %s" % self.error_report_file.name)
 
-    def startTest(self, test):
+    def _startCapture(self):
+        self._capture_stack.append((sys.stdout, sys.stderr))
+        self._currentStdout = StringIO()
+        self._currentStderr = StringIO()
+        sys.stdout = Tee(self._currentStdout, sys.stdout)
+        sys.stderr = Tee(self._currentStderr, sys.stderr)
+
+    def startContext(self, context):
+        self._startCapture()
+
+    def beforeTest(self, test):
         """Initializes a timer before starting a test."""
         self._timer = time()
+        self._startCapture()
+
+    def _endCapture(self):
+        if self._capture_stack:
+            sys.stdout, sys.stderr = self._capture_stack.pop()
+
+    def afterTest(self, test):
+        self._endCapture()
+        self._currentStdout = None
+        self._currentStderr = None
+
+    def finalize(self, test):
+        while self._capture_stack:
+            self._endCapture()
+
+    def _getCapturedStdout(self):
+        if self._currentStdout:
+            value = self._currentStdout.getvalue()
+            if value:
+                return '<system-out><![CDATA[%s]]></system-out>' % escape_cdata(
+                        value)
+        return ''
+
+    def _getCapturedStderr(self):
+        if self._currentStderr:
+            value = self._currentStderr.getvalue()
+            if value:
+                return '<system-err><![CDATA[%s]]></system-err>' % escape_cdata(
+                        value)
+        return ''
 
     def addError(self, test, err, capt=None):
         """Add error output to Xunit report.
@@ -203,7 +263,7 @@ class Xunit(Plugin):
         self.errorlist.append(
             '<testcase classname=%(cls)s name=%(name)s time="%(taken).3f">'
             '<%(type)s type=%(errtype)s message=%(message)s><![CDATA[%(tb)s]]>'
-            '</%(type)s></testcase>' %
+            '</%(type)s>%(systemout)s%(systemerr)s</testcase>' %
             {'cls': self._quoteattr(id_split(id)[0]),
              'name': self._quoteattr(id_split(id)[-1]),
              'taken': taken,
@@ -211,6 +271,8 @@ class Xunit(Plugin):
              'errtype': self._quoteattr(nice_classname(err[0])),
              'message': self._quoteattr(exc_message(err)),
              'tb': escape_cdata(tb),
+             'systemout': self._getCapturedStdout(),
+             'systemerr': self._getCapturedStderr(),
              })
 
     def addFailure(self, test, err, capt=None, tb_info=None):
@@ -223,13 +285,15 @@ class Xunit(Plugin):
         self.errorlist.append(
             '<testcase classname=%(cls)s name=%(name)s time="%(taken).3f">'
             '<failure type=%(errtype)s message=%(message)s><![CDATA[%(tb)s]]>'
-            '</failure></testcase>' %
+            '</failure>%(systemout)s%(systemerr)s</testcase>' %
             {'cls': self._quoteattr(id_split(id)[0]),
              'name': self._quoteattr(id_split(id)[-1]),
              'taken': taken,
              'errtype': self._quoteattr(nice_classname(err[0])),
              'message': self._quoteattr(exc_message(err)),
              'tb': escape_cdata(tb),
+             'systemout': self._getCapturedStdout(),
+             'systemerr': self._getCapturedStderr(),
              })
 
     def addSuccess(self, test, capt=None):
@@ -240,10 +304,12 @@ class Xunit(Plugin):
         id = test.id()
         self.errorlist.append(
             '<testcase classname=%(cls)s name=%(name)s '
-            'time="%(taken).3f" />' %
+            'time="%(taken).3f">%(systemout)s%(systemerr)s</testcase>' %
             {'cls': self._quoteattr(id_split(id)[0]),
              'name': self._quoteattr(id_split(id)[-1]),
              'taken': taken,
+             'systemout': self._getCapturedStdout(),
+             'systemerr': self._getCapturedStderr(),
              })
 
     def _forceUnicode(self, s):
