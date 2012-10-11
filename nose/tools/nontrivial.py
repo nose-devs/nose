@@ -49,11 +49,21 @@ class raises(object):
       def test_that_fails_by_passing():
           pass
 
+
       def check_value_error(e):
           assert e.message == "ouch!"
 
       with raises(ValueError, checker=check_value_error):
           raise ValueError("ouch!")
+
+      @raises(ValueError, checker=check_value_error)
+      def test_for_ouch_typeerror():
+          raise ValueError("ouch!")
+
+
+      @raises(ValueError, TypeError, name="test_custom")
+      def test_custom_with_long_name():
+          raise TypeError
 
     If you want to test many assertions about exceptions in a single test,
     you may want to use `assert_raises` instead.
