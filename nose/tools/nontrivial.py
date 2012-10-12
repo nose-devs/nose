@@ -1,5 +1,7 @@
 """Tools not exempt from being descended into in tracebacks"""
 
+from __future__ import with_statement
+
 import time
 
 
