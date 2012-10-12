@@ -93,7 +93,7 @@ class TestTools(unittest.TestCase):
         try:
             with raises(TypeError, checker=message_is_foo):
                 raise TypeError("spam")
-        except AssertionError as error:
+        except AssertionError, error:
             assert error.message == "message is not foo"
         else:
             self.fail("raises has failure while checking exception.")
