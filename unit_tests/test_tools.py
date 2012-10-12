@@ -1,3 +1,5 @@
+from __future__ import with_statement
+
 import sys
 import time
 import unittest
@@ -81,7 +83,7 @@ class TestTools(unittest.TestCase):
     def test_raises_with_statement(self):
 
         def message_is_foo(error):
-            assert error.message == "foo", "message is not foo"
+            assert error.args == ("foo",), "wrong arguments of raised error"
 
         #: raise good
         with raises(TypeError):
@@ -94,7 +96,8 @@ class TestTools(unittest.TestCase):
             with raises(TypeError, checker=message_is_foo):
                 raise TypeError("spam")
         except AssertionError, error:
-            assert error.message == "message is not foo"
+            #: expect to get assertion failed
+            assert error.args[0] == "wrong arguments of raised error"
         else:
             self.fail("raises has failure while checking exception.")
 
