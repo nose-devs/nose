@@ -16,7 +16,7 @@ You can remove other installed logging handlers with the
 """
 
 import logging
-from logging.handlers import BufferingHandler
+from logging import Handler
 import threading
 
 from nose.plugins.base import Plugin
@@ -71,12 +71,15 @@ class FilterSet(object):
         return self._any_match(self.exclusive, record)
 
 
-class MyMemoryHandler(BufferingHandler):
-    def __init__(self, capacity, logformat, logdatefmt, filters):
-        BufferingHandler.__init__(self, capacity)
+class MyMemoryHandler(Handler):
+    def __init__(self, logformat, logdatefmt, filters):
+        Handler.__init__(self)
         fmt = logging.Formatter(logformat, logdatefmt)
         self.setFormatter(fmt)
         self.filterset = FilterSet(filters)
+        self.buffer = []
+    def emit(self, record):
+        self.buffer.append(self.format(record))
     def flush(self):
         pass # do nothing
     def truncate(self):
@@ -200,7 +203,7 @@ class LogCapture(Plugin):
         self.start()
 
     def start(self):
-        self.handler = MyMemoryHandler(1000, self.logformat, self.logdatefmt,
+        self.handler = MyMemoryHandler(self.logformat, self.logdatefmt,
                                        self.filters)
         self.setupLoghandler()
 
@@ -233,8 +236,7 @@ class LogCapture(Plugin):
         return (ec, self.addCaptureToErr(ev, records), tb)
 
     def formatLogRecords(self):
-        format = self.handler.format
-        return [safe_str(format(r)) for r in self.handler.buffer]
+        return map(safe_str, self.handler.buffer)
 
     def addCaptureToErr(self, ev, records):
         return '\n'.join([safe_str(ev), ln('>> begin captured logging <<')] + \
