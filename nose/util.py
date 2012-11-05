@@ -332,7 +332,22 @@ def resolve_name(name, module=None):
     return obj
 
 
-def split_test_name(test):
+def split_verbose_test_name(verbose_test_name, workingDir):
+    """Split a verbose test name into a filename and a callable."""
+    file_parts = verbose_test_name.split('.')[:-1]
+    test_parts = [verbose_test_name.split('.')[-1]]
+    while len(file_parts) > 0:
+        module_path = os.sep.join(file_parts) + '.py'
+        if os.path.exists(os.path.join(workingDir, module_path)):
+            break
+        test_parts.insert(0, file_parts.pop())
+    if not file_parts:
+        return (None, verbose_test_name)
+    test_name = '.'.join(test_parts)
+    return (module_path, test_name)
+
+
+def split_test_name(test, workingDir):
     """Split a test name into a 3-tuple containing file, module, and callable
     names, any of which (but not all) may be blank.
 
@@ -350,8 +365,10 @@ def split_test_name(test):
         # only a file or mod part
         if file_like(test):
             return (norm(test), None, None)
-        else:
-            return (None, test, None)
+        file_name, test_name = split_verbose_test_name(test, workingDir)
+        if file_name:
+            return (file_name, None, test_name)
+        return (None, test, None)
 
     # could be path|mod:callable, or a : in the file path someplace
     head, tail = os.path.split(test)

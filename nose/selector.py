@@ -223,7 +223,8 @@ class TestAddress(object):
             workingDir = os.getcwd()
         self.name = name
         self.workingDir = workingDir
-        self.filename, self.module, self.call = split_test_name(name)
+        self.filename, self.module, self.call = split_test_name(
+            name, workingDir)
         log.debug('Test name %s resolved to file %s, module %s, call %s',
                   name, self.filename, self.module, self.call)
         if self.filename is None:
