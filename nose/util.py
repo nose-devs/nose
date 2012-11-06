@@ -347,7 +347,7 @@ def split_verbose_test_name(verbose_test_name, workingDir):
     return (module_path, test_name)
 
 
-def split_test_name(test, workingDir):
+def split_test_name(test, workingDir=None):
     """Split a test name into a 3-tuple containing file, module, and callable
     names, any of which (but not all) may be blank.
 
@@ -365,9 +365,10 @@ def split_test_name(test, workingDir):
         # only a file or mod part
         if file_like(test):
             return (norm(test), None, None)
-        file_name, test_name = split_verbose_test_name(test, workingDir)
-        if file_name:
-            return (file_name, None, test_name)
+        if workingDir:
+            file_name, test_name = split_verbose_test_name(test, workingDir)
+            if file_name:
+                return (file_name, None, test_name)
         return (None, test, None)
 
     # could be path|mod:callable, or a : in the file path someplace
