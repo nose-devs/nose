@@ -67,8 +67,8 @@ class raises(object):
       def test_custom_with_long_name():
           raise TypeError
 
-    If you want to test many assertions about exceptions in a single test,
-    you may want to use `assert_raises` instead.
+    If you wish to test many assertions about exceptions in a single test,
+    you maybe need to use `assert_raises` instead of this.
     """
 
     def __init__(self, *exceptions, **kwargs):
