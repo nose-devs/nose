@@ -53,7 +53,7 @@ class raises(object):
 
 
       def check_value_error(e):
-          assert e.message == "ouch!"
+          assert e.args == ("ouch!",)
 
       with raises(ValueError, checker=check_value_error):
           raise ValueError("ouch!")
