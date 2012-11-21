@@ -284,7 +284,12 @@ class Xunit(Plugin):
         """Add failure output to Xunit report.
         """
         taken = self._timeTaken()
-        tb = ''.join(traceback.format_exception(*err))
+
+        try:
+            tb = ''.join(traceback.format_exception(*err))
+        except:
+            tb = str(err)
+
         self.stats['failures'] += 1
         id = test.id()
         self.errorlist.append(
