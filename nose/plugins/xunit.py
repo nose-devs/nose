@@ -258,7 +258,12 @@ class Xunit(Plugin):
         else:
             type = 'error'
             self.stats['errors'] += 1
-        tb = ''.join(traceback.format_exception(*err))
+        try:
+            tb = ''.join(traceback.format_exception(*err))
+        except:
+            #If this fails, just str the error (better than completely dying)
+            tb = str(err)
+
         id = test.id()
         self.errorlist.append(
             '<testcase classname=%(cls)s name=%(name)s time="%(taken).3f">'
