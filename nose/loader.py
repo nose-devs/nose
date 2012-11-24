@@ -22,7 +22,7 @@ from nose.importer import Importer, add_path, remove_path
 from nose.selector import defaultSelector, TestAddress
 from nose.util import func_lineno, getpackage, isclass, isgenerator, \
     ispackage, regex_last_key, resolve_name, transplant_func, \
-    transplant_class, test_address
+    transplant_class, test_address, TransplantError
 from nose.suite import ContextSuiteFactory, ContextList, LazySuite
 from nose.pyversion import sort_list, cmp_to_key
 
@@ -537,7 +537,10 @@ class TestLoader(unittest.TestLoader):
             return obj
         elif isclass(obj):
             if parent and obj.__module__ != parent.__name__:
-                obj = transplant_class(obj, parent.__name__)
+                try:
+                    obj = transplant_class(obj, parent.__name__)
+                except TransplantError:
+                    return self.loadTestsFromTestClass(object)  # XXX: this is a hack but at least avoids errors/failures
             if issubclass(obj, unittest.TestCase):
                 return self.loadTestsFromTestCase(obj)
             else:

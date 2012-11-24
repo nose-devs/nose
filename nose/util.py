@@ -641,11 +641,19 @@ def transplant_class(cls, module):
     'Failure'
 
     """
-    class C(cls):
-        pass
-    C.__module__ = module
-    C.__name__ = cls.__name__
-    return C
+    try:
+        class C(cls):
+            pass
+    except Exception:
+        raise TransplantError
+    else:
+        C.__module__ = module
+        C.__name__ = cls.__name__
+        return C
+
+
+class TransplantError(Exception):
+    pass
 
 
 def safe_str(val, encoding='utf-8'):
