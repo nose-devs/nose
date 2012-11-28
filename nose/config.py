@@ -313,6 +313,9 @@ class Config(object):
         self.firstPackageWins = options.firstPackageWins
         self.configureLogging()
 
+        if not options.byteCompile:
+            sys.dont_write_bytecode = True
+
         if options.where is not None:
             self.configureWhere(options.where)
 
@@ -560,6 +563,11 @@ class Config(object):
             help="nose's importer will normally evict a package from sys."
             "modules if it sees a package with the same name in a different "
             "location. Set this option to disable that behavior.")
+        parser.add_option(
+            "--no-byte-compile",
+            action="store_false", default=True, dest="byteCompile",
+            help="Prevent nose from byte-compiling the source into .pyc files "
+            "while nose is scanning for and running tests.")
 
         self.plugins.loadPlugins()
         self.pluginOpts(parser)
