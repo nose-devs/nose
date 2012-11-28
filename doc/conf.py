@@ -21,8 +21,8 @@ import sys, os
 # absolute, like shown here.
 
 # need to be brutal because of easy_install's pth hacks:
-sys.path.insert(0, 
-    os.path.join(os.path.dirname(__file__), '..'))
+sys.path.insert(0,
+    os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 sys.path.insert(0, os.path.abspath('.'))
 
 
