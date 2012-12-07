@@ -31,7 +31,7 @@ Here's a simple example with a do-nothing plugin and a composed suite.
     ...
     >>> res = unittest.TestResult()
     >>> case = TestPluginFoo('test_foo')
-    >>> case(res)
+    >>> _ = case(res)
     >>> res.errors
     []
     >>> res.failures
@@ -83,7 +83,7 @@ arguments and reads environment variables.
     ...
     >>> res = unittest.TestResult()
     >>> case = TestFancyOutputter('test_fancy_output')
-    >>> case(res)
+    >>> _ = case(res)
     >>> res.errors
     []
     >>> res.failures
