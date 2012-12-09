@@ -285,6 +285,17 @@ class TestLoader(unittest.TestLoader):
                               address=test_address(generator))
         return self.suiteClass(generate, context=generator, can_split=False)
 
+    def _filterModulePaths(self, path, paths):
+        if path is None:
+            return paths
+
+        filtered = []
+        for p in paths:
+            if os.path.exists(os.path.join(p, '__init__.py')):
+                filtered.append(p)
+
+        return filtered
+
     def loadTestsFromModule(self, module, path=None, discovered=False):
         """Load all tests from module and return a suite containing
         them. If the module has been discovered and is not test-like,
@@ -316,8 +327,12 @@ class TestLoader(unittest.TestLoader):
         # FIXME can or should this be lazy?
         # is this syntax 2.2 compatible?
         module_paths = getattr(module, '__path__', [])
+
         if path:
             path = os.path.realpath(path)
+
+        module_paths = self._filterModulePaths(path, module_paths)
+
         for module_path in module_paths:
             log.debug("Load tests from module path %s?", module_path)
             log.debug("path: %s os.path.realpath(%s): %s",
