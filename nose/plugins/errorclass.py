@@ -65,7 +65,7 @@ each step.
 
 Now run the test. TODO is printed.
 
-    >>> case(result) # doctest: +ELLIPSIS
+    >>> _ = case(result) # doctest: +ELLIPSIS
     runTest (....TestTodo) ... TODO: I need to test something
 
 Errors and failures are empty, but todo has our test:

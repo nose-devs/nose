@@ -113,6 +113,10 @@ class TestUtils(unittest.TestCase):
         self.assertEqual(test_address(foo_mtc),
                          (me, __name__, 'Foo.bar'))
 
+        # verify that we fail on an invalid input type
+        self.assertRaises(TypeError, test_address, 1)
+        self.assertRaises(TypeError, test_address, "foo")
+
     def test_isclass_detects_classes(self):
         class TC(unittest.TestCase):
             pass
