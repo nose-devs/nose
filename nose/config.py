@@ -129,7 +129,10 @@ class ConfiguredDefaultsOptionParser(object):
         except ConfigError, exc:
             self._error(str(exc))
         else:
-            self._applyConfigurationToValues(self._parser, config, values)
+            try:
+                self._applyConfigurationToValues(self._parser, config, values)
+            except ConfigError, exc:
+                self._error(str(exc))
         return self._parser.parse_args(args, values)
 
 
