@@ -3,6 +3,7 @@ import codecs
 import os
 import sys
 import unittest
+from nose.plugins.capture import Capture
 from nose.plugins.xunit import Xunit
 from nose.plugins.skip import Skip
 from nose.plugins import PluginTester
@@ -43,6 +44,22 @@ class TestXUnitPlugin(PluginTester, unittest.TestCase):
             assert ('<error type="%s.Exception" message="日本">' % (Exception.__module__,)).decode('utf8') in result
         assert '</testcase>' in result
         assert '</testsuite>' in result
+
+
+class TestIssue134(PluginTester, unittest.TestCase):
+    activate = '--with-xunit'
+    args = ['-v','--xunit-file=%s' % xml_results_filename]
+    plugins = [Capture(), Xunit()]
+    suitepath = os.path.join(support, 'issue134')
+
+    def runTest(self):
+        print str(self.output)
+        f = open(xml_results_filename,'r')
+        result = f.read()
+        f.close()
+        print result
+        assert 'raise IOError(42, "test")' in result
+        assert 'tests="1" errors="1" failures="0" skip="0"' in result
 
 
 class TestIssue279(PluginTester, unittest.TestCase):
