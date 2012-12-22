@@ -114,6 +114,19 @@ def exc_message(exc_info):
                 result = exc.args[0]
     return xml_safe(result)
 
+def format_exception(exc_info):
+    ec, ev, tb = exc_info
+
+    # formatError() may have turned our exception object into a string, and
+    # Python 3's traceback.format_exception() doesn't take kindly to that (it
+    # expects an actual exception object).  So we work around it, by doing the
+    # work ourselves if ev is a string.
+    if isinstance(ev, basestring):
+        tb_data = ''.join(traceback.format_tb(tb))
+        return tb_data + ev
+    else:
+        return ''.join(traceback.format_exception(*exc_info))
+
 class Tee(object):
     def __init__(self, *args):
         self._streams = args
@@ -258,7 +271,7 @@ class Xunit(Plugin):
         else:
             type = 'error'
             self.stats['errors'] += 1
-        tb = ''.join(traceback.format_exception(*err))
+        tb = format_exception(err)
         id = test.id()
         self.errorlist.append(
             '<testcase classname=%(cls)s name=%(name)s time="%(taken).3f">'
@@ -279,7 +292,7 @@ class Xunit(Plugin):
         """Add failure output to Xunit report.
         """
         taken = self._timeTaken()
-        tb = ''.join(traceback.format_exception(*err))
+        tb = format_exception(err)
         self.stats['failures'] += 1
         id = test.id()
         self.errorlist.append(
