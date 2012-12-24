@@ -114,7 +114,11 @@ class Coverage(Plugin):
         self.coverTests = options.cover_tests
         self.coverPackages = []
         if options.cover_packages:
-            for pkgs in [tolist(x) for x in options.cover_packages]:
+            if isinstance(options.cover_packages, (list, tuple)):
+                cover_packages = options.cover_packages                
+            else:
+                cover_packages = [options.cover_packages]
+            for pkgs in [tolist(x) for x in cover_packages]:            
                 self.coverPackages.extend(pkgs)
         self.coverInclusive = options.cover_inclusive
         if self.coverPackages:
