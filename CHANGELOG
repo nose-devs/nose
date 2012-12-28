@@ -26,6 +26,8 @@
 - Fixed a bug where nose was failing to parse the NOSE_COVER_PACKAGE
   environment variable correctly. (#109)
   Patch by Churkin Oleg.
+- Taught nose to lookup it's usage text according to PEP-302.
+  Patch by Bradely Froehle.
 
 1.2.1
 
