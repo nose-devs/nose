@@ -17,9 +17,14 @@ def _clear():
     if os.path.isfile(flag):
         os.unlink(flag)
 
-        
+
 def logged():
-    return [line for line in open(flag, 'r')]
+    flag_file = open(flag, 'r')
+    try:
+        lines = [line for line in flag_file]
+    finally:
+        flag_file.close()
+    return lines
 
 
 def setup():
@@ -31,7 +36,7 @@ def teardown():
     print >> sys.stderr, "teardown called"
     _clear()
 
-    
+
 def test_a():
     assert len(logged()) == 1, "len(%s) !=1" % called
 
