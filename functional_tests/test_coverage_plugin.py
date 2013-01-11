@@ -8,6 +8,12 @@ from nose.plugins.cover import Coverage
 
 support = os.path.join(os.path.dirname(__file__), 'support')
 
+try:
+    import coverage
+    hasCoverage = True
+except ImportError:
+    hasCoverage = False
+
 
 class TestCoveragePlugin(PluginTester, unittest.TestCase):
     activate = "--with-coverage"
@@ -16,6 +22,9 @@ class TestCoveragePlugin(PluginTester, unittest.TestCase):
     suitepath = os.path.join(support, 'coverage')
 
     def setUp(self):
+        if not hasCoverage:
+            raise unittest.SkipTest('coverage not available; skipping')
+
         self.cover_file = os.path.join(os.getcwd(), '.coverage')
         self.cover_html_dir = os.path.join(os.getcwd(), 'cover')
         if os.path.exists(self.cover_file):
@@ -26,7 +35,7 @@ class TestCoveragePlugin(PluginTester, unittest.TestCase):
 
     def runTest(self):
         self.assertTrue("blah        4      3    25%   1" in self.output)
-        self.assertTrue("Ran 1 test in""" in self.output)
+        self.assertTrue("Ran 1 test in" in self.output)
         # Assert coverage html report exists
         self.assertTrue(os.path.exists(os.path.join(self.cover_html_dir,
                         'index.html')))
@@ -41,6 +50,9 @@ class TestCoverageMinPercentagePlugin(PluginTester, unittest.TestCase):
     suitepath = os.path.join(support, 'coverage')
 
     def setUp(self):
+        if not hasCoverage:
+            raise unittest.SkipTest('coverage not available; skipping')
+
         self.cover_file = os.path.join(os.getcwd(), '.coverage')
         self.cover_html_dir = os.path.join(os.getcwd(), 'cover')
         if os.path.exists(self.cover_file):
@@ -62,6 +74,9 @@ class TestCoverageMinPercentageTOTALPlugin(PluginTester, unittest.TestCase):
     suitepath = os.path.join(support, 'coverage2')
 
     def setUp(self):
+        if not hasCoverage:
+            raise unittest.SkipTest('coverage not available; skipping')
+
         self.cover_file = os.path.join(os.getcwd(), '.coverage')
         self.cover_html_dir = os.path.join(os.getcwd(), 'cover')
         if os.path.exists(self.cover_file):
