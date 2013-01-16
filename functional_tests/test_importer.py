@@ -2,6 +2,7 @@ import os
 import sys
 import unittest
 from nose.importer import Importer
+from nose.plugins.skip import SkipTest
 
 
 class TestImporter(unittest.TestCase):
@@ -16,6 +17,14 @@ class TestImporter(unittest.TestCase):
         sys.modules.pop('pak', None)
         sys.modules.pop('pak.mod', None)
         sys.modules.pop('pak.sub', None)
+        try:
+            os.symlink(
+                os.path.abspath(os.path.join(self.dir, 'dir1', 'pak')),
+                os.path.join(self.dir, 'dir3', 'pak'))
+        except (AttributeError, NotImplementedError):
+            self.has_symlinks = False
+        else:
+            self.has_symlinks = True
 
     def tearDown(self):
         to_del = [ m for m in sys.modules.keys() if
@@ -25,6 +34,8 @@ class TestImporter(unittest.TestCase):
                 del sys.modules[mod]
         sys.modules.update(self._mods)
         sys.path = self._path[:]
+        if self.has_symlinks:
+            os.unlink(os.path.join(self.dir, 'dir3', 'pak'))
 
     def test_import_from_dir(self):
         imp = self.imp
@@ -45,6 +56,8 @@ class TestImporter(unittest.TestCase):
         self.assertNotEqual(p1.__file__, p2.__file__)
 
     def test_import_from_dirlink(self):
+        if not self.has_symlinks:
+            raise SkipTest("symlinks not available")
         imp = self.imp
 
         d1 = os.path.join(self.dir, 'dir3')
@@ -151,7 +164,9 @@ class TestImporter(unittest.TestCase):
         assert mod_nose_imported2 != mod_sys_imported, \
                "nose failed to reimport same name, different dir"
 
-    def test_sys_modules_same_file_no_reload(self):
+    def test_sys_modules_symlinked_package_no_reload(self):
+        if not self.has_symlinks:
+            raise SkipTest("symlinks not available")
         imp = self.imp
 
         d1 = os.path.join(self.dir, 'dir1')

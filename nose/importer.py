@@ -13,6 +13,14 @@ from imp import find_module, load_module, acquire_lock, release_lock
 
 log = logging.getLogger(__name__)
 
+try:
+    _samefile = os.path.samefile
+except AttributeError:
+    def _samefile(path, other):
+        return (os.path.normpath(os.path.abspath(path)) ==
+                os.path.normpath(os.path.abspath(other)))
+
+
 class Importer(object):
     """An importer class that does only path-specific imports. That
     is, the given module is not searched for on sys.path, but only at
@@ -96,29 +104,28 @@ class Importer(object):
         return mod
 
     def _dirname_if_file(self, filename):
+        # We only take the dirname if we have a path to a non-dir,
+        # because taking the dirname of a symlink to a directory does not
+        # give the actual directory parent.
         return filename if os.path.isdir(filename) else os.path.dirname(filename)
 
     def sameModule(self, mod, filename):
         mod_paths = []
         if hasattr(mod, '__path__'):
             for path in mod.__path__:
-                mod_paths.append(self._dirname_if_file(
-                    os.path.normpath(
-                    os.path.abspath(path))))
+                mod_paths.append(self._dirname_if_file(path))
         elif hasattr(mod, '__file__'):
-            mod_paths.append(self._dirname_if_file(
-                os.path.normpath(
-                os.path.abspath(mod.__file__))))
+            mod_paths.append(self._dirname_if_file(mod.__file__))
         else:
             # builtin or other module-like object that
             # doesn't have __file__; must be new
             return False
-        new_path = self._dirname_if_file(os.path.normpath(filename))
+        new_path = self._dirname_if_file(filename)
         for mod_path in mod_paths:
             log.debug(
                 "module already loaded? mod: %s new: %s",
                 mod_path, new_path)
-            if os.path.samefile(mod_path, new_path):
+            if _samefile(mod_path, new_path):
                 return True
         return False
 
