@@ -36,7 +36,7 @@ class Importer(object):
         path_parts = path_parts[:-(len(name_parts))]
         dir_path = os.sep.join(path_parts)
         # then import fqname starting from that dir
-        return self.importFromDir(dir_path, fqname)                
+        return self.importFromDir(dir_path, fqname)
 
     def importFromDir(self, dir, fqname):
         """Import a module *only* from path, ignoring sys.path and
@@ -46,14 +46,14 @@ class Importer(object):
         log.debug("Import %s from %s", fqname, dir)
 
         # FIXME reimplement local per-dir cache?
-        
+
         # special case for __main__
         if fqname == '__main__':
             return sys.modules[fqname]
-        
+
         if self.config.addPaths:
             add_path(dir, self.config)
-            
+
         path = [dir]
         parts = fqname.split('.')
         part_fqname = ''
@@ -95,27 +95,30 @@ class Importer(object):
             parent = mod
         return mod
 
+    def _dirname_if_file(self, filename):
+        return filename if os.path.isdir(filename) else os.path.dirname(filename)
+
     def sameModule(self, mod, filename):
         mod_paths = []
         if hasattr(mod, '__path__'):
             for path in mod.__path__:
-                mod_paths.append(os.path.dirname(
+                mod_paths.append(self._dirname_if_file(
                     os.path.normpath(
                     os.path.abspath(path))))
         elif hasattr(mod, '__file__'):
-            mod_paths.append(os.path.dirname(
+            mod_paths.append(self._dirname_if_file(
                 os.path.normpath(
                 os.path.abspath(mod.__file__))))
         else:
             # builtin or other module-like object that
             # doesn't have __file__; must be new
             return False
-        new_path = os.path.dirname(os.path.normpath(filename))
+        new_path = self._dirname_if_file(os.path.normpath(filename))
         for mod_path in mod_paths:
             log.debug(
                 "module already loaded? mod: %s new: %s",
                 mod_path, new_path)
-            if mod_path == new_path:
+            if os.path.samefile(mod_path, new_path):
                 return True
         return False
 
@@ -126,8 +129,8 @@ def add_path(path, config=None):
     """
 
     # FIXME add any src-looking dirs seen too... need to get config for that
-    
-    log.debug('Add path %s' % path)    
+
+    log.debug('Add path %s' % path)
     if not path:
         return []
     added = []
