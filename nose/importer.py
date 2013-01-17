@@ -17,8 +17,7 @@ try:
     _samefile = os.path.samefile
 except AttributeError:
     def _samefile(path, other):
-        return (os.path.normpath(os.path.abspath(path)) ==
-                os.path.normpath(os.path.abspath(other)))
+        return os.path.realpath(path) == os.path.realpath(other)
 
 
 class Importer(object):
