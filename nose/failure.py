@@ -33,7 +33,9 @@ class Failure(unittest.TestCase):
         return self._address
     
     def runTest(self):
-        if self.tb is not None:            
+        if self.tb is not None:
+            if isinstance(self.exc_val, BaseException):
+                raise self.exc_val, None, self.tb
             raise self.exc_class, self.exc_val, self.tb
         else:
             raise self.exc_class(self.exc_val)
