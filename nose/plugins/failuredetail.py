@@ -38,6 +38,10 @@ class FailureDetail(Plugin):
         """Add detail from traceback inspection to error message of a failure.
         """
         ec, ev, tb = err
-        tbinfo = inspect_traceback(tb)
+        tbinfo, str_ev = None, str(ev)
+        if tb:
+            tbinfo = inspect_traceback(tb)
+            str_ev = '\n'.join([str(ev), tbinfo])
         test.tbinfo = tbinfo
-        return (ec, '\n'.join([str(ev), tbinfo]), tb)
+        return (ec, str_ev, tb)
+
