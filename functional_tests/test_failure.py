@@ -20,7 +20,9 @@ class TestPrintedTraceback(PluginTester, unittest.TestCase):
         print str(self.output)
         print '!' * 70
         print
-        assert 'ordinal not in range(128)' in str(self.output)
+
+        # Look for the line in the traceback causing the failure
+        assert "raise '\\xf1'.encode('ASCII')" in str(self.output)
         assert 'FAILED (errors=1)' in str(self.output)
 
 if __name__ == '__main__':
