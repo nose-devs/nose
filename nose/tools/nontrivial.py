@@ -80,7 +80,7 @@ def set_trace():
     stdout = sys.stdout
     sys.stdout = sys.__stdout__
     pdb.Pdb().set_trace(sys._getframe().f_back)
-    
+
 
 def timed(limit):
     """Test must finish within specified time limit to pass.
@@ -94,10 +94,11 @@ def timed(limit):
     def decorate(func):
         def newfunc(*arg, **kw):
             start = time.time()
-            func(*arg, **kw)
+            result = func(*arg, **kw)
             end = time.time()
             if end - start > limit:
                 raise TimeExpired("Time limit (%s) exceeded" % limit)
+            return result
         newfunc = make_decorator(func)(newfunc)
         return newfunc
     return decorate
