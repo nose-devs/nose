@@ -88,6 +88,12 @@ class TestTools(unittest.TestCase):
             time.sleep(.1)
         quick = timed(.2)(quick)
 
+        def check_result():
+            return 42
+        check_result = timed(.2)(check_result)
+
+        assert 42 == check_result()
+
         quick()
         try:
             too_slow()
