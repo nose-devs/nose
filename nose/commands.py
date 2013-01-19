@@ -143,7 +143,7 @@ else:
                     self.distribution.tests_require)
 
             ei_cmd = self.get_finalized_command("egg_info")
-            argv = ['nosetests', ei_cmd.egg_base] 
+            argv = ['nosetests', '--where', ei_cmd.egg_base] 
             for (option_name, cmd_name) in self.option_to_cmds.items():
                 if option_name in option_blacklist:
                     continue
