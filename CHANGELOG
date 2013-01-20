@@ -1,3 +1,34 @@
+1.3.0
+
+- Added support for Python 3.3.
+  Patch by John Szakmeister and Bradley Froehle.
+- Added the ability to skip generating .pyc files with --no-byte-complie.
+  Patch by John Szakmeister.
+- Suppress tracebacks caused by configuration errors (#401).
+  Patch by Andrea Corbellini.
+- Fixed doctest failures under Python 3 (#519).
+  Patch by John Szakmeister.
+- Fixed test_address's checking for builtins to work with Python 2 and 3.
+  Patch by Joe Mathes and John Szakmeister.
+- Fixed a bug where nose.tools was not being installed on systems without
+  setuptools. (#554)
+  Patch by Bradley Froehle.
+- Fixed a bug in xunit that was causing it to die ungracefully under
+  Python 3. (#134)
+  Patch by John Szakmeister.
+- Fixed #561: logcapture shouldn't buffer records, breaks %r point-in-time
+  formatting.
+  Patch by Santeri Paavolainen.
+- Taught xunit to capture stdout and stderr in the xunit report.
+  Patch by John Szakmeister.
+- Repopulate nose.tools.__all__ so that the autodocs generate correctly.
+  Patch by Taavi Burns.
+- Fixed a bug where nose was failing to parse the NOSE_COVER_PACKAGE
+  environment variable correctly. (#109)
+  Patch by Churkin Oleg.
+- Taught nose to lookup it's usage text according to PEP-302.
+  Patch by Bradely Froehle.
+
 1.2.1
 
 - Correct nose.__version__ (#549). Thanks to Chris Withers for the bug report.
