@@ -50,7 +50,7 @@ plugins implementing `startTest`, an exception is raised and nose exits.
     >>> run(argv=argv, plugins=restricted) #doctest: +REPORT_NDIFF +ELLIPSIS
     Traceback (most recent call last):
     ...
-    SystemExit: ...
+    SystemExit: 2
 
 Errors are only raised when options defined by excluded plugins are used.
 
@@ -86,4 +86,4 @@ error is raised.
     >>> run(argv=argv, plugins=restricted) # doctest: +ELLIPSIS
     Traceback (most recent call last):
     ...
-    ConfigError: Error reading config file '...bad.cfg': no such option 'with-meltedcheese'
+    SystemExit: 2
