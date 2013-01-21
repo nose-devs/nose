@@ -34,6 +34,7 @@ def mods():
         'test_module_with_generators')
     M['test_module_with_metaclass_tests'] = imp.new_module(
         'test_module_with_metaclass_tests')
+    M['test_transplant'] = imp.new_module('test_transplant')
 
     # a unittest testcase subclass
     class TC(unittest.TestCase):
@@ -105,6 +106,11 @@ def mods():
 
     def try_odd(v):
         assert v % 2
+    
+    # test class defined in one module and used in another
+    class Transplant(unittest.TestCase):
+        def runTest(self):
+            pass
 
     M['nose'] = nose
     M['__main__'] = sys.modules['__main__']
@@ -125,6 +131,8 @@ def mods():
     try_odd.__module__ = 'test_module_with_generators'
     M['test_module_with_metaclass_tests'].TestMetaclassed = TestMetaclassed
     TestMetaclassed.__module__ = 'test_module_with_metaclass_tests'
+    M['test_transplant'].Transplant = Transplant
+    Transplant.__module__ = 'test_class_source'
     del TC
     del TC2
     del TestMetaclassed
@@ -132,6 +140,7 @@ def mods():
     del test_func
     del TestClass
     del test_func_generator
+    del Transplant
     return M
 
 M = mods()
@@ -348,6 +357,17 @@ class TestTestLoader(unittest.TestCase):
         res = unittest.TestResult()
         l = self.l
         suite = l.loadTestsFromName('test_module:TC.testThat')
+        tests = [t for t in suite]
+        assert len(tests) == 1, \
+               "Should have loaded 1 test, but got %s" % tests
+        tests[0](res)
+        assert res.errors, "Expected missing method test to raise exception"
+
+    def test_load_from_name_module_transplanted_class_missing_method(self):
+        print "load from name module transplanted class missing method"
+        res = unittest.TestResult()
+        l = self.l
+        suite = l.loadTestsFromName('test_transplant:Transplant.testThat')
         tests = [t for t in suite]
         assert len(tests) == 1, \
                "Should have loaded 1 test, but got %s" % tests
