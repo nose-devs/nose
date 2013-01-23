@@ -27,13 +27,16 @@ class Capture(Plugin):
     should the test fail or raise an error.
     """
     enabled = True
+    capture_stderr = False
     env_opt = 'NOSE_NOCAPTURE'
     name = 'capture'
     score = 1600
 
     def __init__(self):
         self.stdout = []
-        self._buf = None
+        self.stderr = []
+        self._stdout_buf = None
+        self._stderr_buf = None
 
     def options(self, parser, env):
         """Register commandline options
@@ -43,6 +46,10 @@ class Capture(Plugin):
             default=not env.get(self.env_opt), dest="capture",
             help="Don't capture stdout (any stdout output "
             "will be printed immediately) [NOSE_NOCAPTURE]")
+        parser.add_option(
+            "--capture-stderr", action="store_true",
+            default=False, dest="capture_stderr",
+            help="Also capture stderr")
 
     def configure(self, options, conf):
         """Configure plugin. Plugin is enabled by default.
@@ -50,12 +57,14 @@ class Capture(Plugin):
         self.conf = conf
         if not options.capture:
             self.enabled = False
+        self.capture_stderr = options.capture_stderr
 
     def afterTest(self, test):
         """Clear capture buffer.
         """
         self.end()
-        self._buf = None
+        self._stdout_buf = None
+        self._stderr_buf = None
 
     def begin(self):
         """Replace sys.stdout with capture buffer.
@@ -70,22 +79,30 @@ class Capture(Plugin):
     def formatError(self, test, err):
         """Add captured output to error report.
         """
-        test.capturedOutput = output = self.buffer
-        self._buf = None
-        if not output:
+        test.capturedOutput = stdout = self.stdout_buffer
+        stderr = self.stderr_buffer
+        self._stdout_buf = None
+        self._stderr_buf = None
+
+        if not stdout and not stderr:
             # Don't return None as that will prevent other
             # formatters from formatting and remove earlier formatters
             # formats, instead return the err we got
             return err
         ec, ev, tb = err
-        return (ec, self.addCaptureToErr(ev, output), tb)
+        ev_plus_captured = [self.evToUnicode(ev),
+                            self.formatCapturedOutput(stdout)]
+        if self.capture_stderr:
+            ev_plus_captured.append(self.formatCapturedOutput(stderr, u'stderr'))
+
+        return (ec,  u'\n'.join(ev_plus_captured), tb)
 
     def formatFailure(self, test, err):
         """Add captured output to failure report.
         """
         return self.formatError(test, err)
 
-    def addCaptureToErr(self, ev, output):
+    def evToUnicode(self, ev):
         if isinstance(ev, Exception):
             if hasattr(ev, '__unicode__'):
                 # 2.6+
@@ -101,29 +118,46 @@ class Capture(Plugin):
                     not isinstance(msg, unicode)):
                     msg = msg.decode('utf8', 'replace')
                 ev = u'%s: %s' % (ev.__class__.__name__, msg)
+        return u'\n'.join([ev])
+
+    def formatCapturedOutput(self, output, which_pipe=u'stdout'):
         if not isinstance(output, unicode):
             output = output.decode('utf8', 'replace')
-        return u'\n'.join([ev, ln(u'>> begin captured stdout <<'),
-                           output, ln(u'>> end captured stdout <<')])
+        return u'\n'.join([ln(u'>> begin captured %s <<' % which_pipe),
+                           output,
+                           ln(u'>> end captured %s <<' % which_pipe)])
 
     def start(self):
         self.stdout.append(sys.stdout)
-        self._buf = StringIO()
-        sys.stdout = self._buf
+        self._stdout_buf = StringIO()
+        sys.stdout = self._stdout_buf
+        if self.capture_stderr:
+            self.stderr.append(sys.stderr)
+            self._stderr_buf = StringIO()
+            sys.stderr = self._stderr_buf
 
     def end(self):
         if self.stdout:
             sys.stdout = self.stdout.pop()
+        if self.stderr:
+            sys.stderr = self.stderr.pop()
 
     def finalize(self, result):
         """Restore stdout.
         """
-        while self.stdout:
+        while self.stdout or self.stderr:
             self.end()
 
-    def _get_buffer(self):
-        if self._buf is not None:
-            return self._buf.getvalue()
+    def _get_stdout_buffer(self):
+        if self._stdout_buf is not None:
+            return self._stdout_buf.getvalue()
 
-    buffer = property(_get_buffer, None, None,
+    stdout_buffer = property(_get_stdout_buffer, None, None,
                       """Captured stdout output.""")
+
+    def _get_stderr_buffer(self):
+        if self._stderr_buf is not None:
+            return self._stderr_buf.getvalue()
+
+    stderr_buffer = property(_get_stderr_buffer, None, None,
+                      """Captured stderr output.""")

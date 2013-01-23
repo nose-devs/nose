@@ -53,14 +53,14 @@ class TestCapturePlugin(unittest.TestCase):
         c.start()
         print "Hello"
         c.end()
-        self.assertEqual(c.buffer, "Hello\n")
+        self.assertEqual(c.stdout_buffer, "Hello\n")
         
     def test_captures_nonascii_stdout(self):
         c = Capture()
         c.start()
         print "test 日本"
         c.end()
-        self.assertEqual(c.buffer, "test 日本\n")
+        self.assertEqual(c.stdout_buffer, "test 日本\n")
 
     def test_format_error(self):
         class Dummy:
