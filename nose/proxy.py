@@ -86,16 +86,17 @@ class ResultProxy(object):
         return repr(self.result)
 
     def _prepareErr(self, err):
-        if not isinstance(err[1], Exception):
+        exc_type, exc_val, exc_traceback = err
+        if isinstance(exc_type, str):
+            # Handle string exceptions in Python versions < 2.6
+            return err
+        if not isinstance(exc_val, Exception):
             # Turn value back into an Exception (required in Python 3.x).
             # Plugins do all sorts of crazy things with exception values.
-            try:
-                # The actual exception class is needed for failure detail
-                # but maybe other plugins?
-                value = err[0](err[1])
-            except:
-                value = Exception(err[1])
-            err = (err[0], value, err[2])
+            ProxyException = type(exc_type.__name__,
+                                  (Exception,),
+                                  {'__module__': exc_type.__module__})
+            err = exc_type, ProxyException(exc_val), exc_traceback
         return err
 
     def assertMyTest(self, test):
