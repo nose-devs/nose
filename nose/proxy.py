@@ -87,6 +87,9 @@ class ResultProxy(object):
 
     def _prepareErr(self, err):
         exc_type, exc_val, exc_traceback = err
+        if isinstance(exc_type, str):
+            # Handle string exceptions in Python versions < 2.6
+            return err
         if not isinstance(exc_val, Exception):
             # Turn value back into an Exception (required in Python 3.x).
             # Plugins do all sorts of crazy things with exception values.
