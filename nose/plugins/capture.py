@@ -85,7 +85,7 @@ class Capture(Plugin):
         return self.formatError(test, err)
 
     def addCaptureToErr(self, ev, output):
-        if isinstance(ev, Exception):
+        if (isinstance(ev, Exception) or isinstance(ev, SystemExit)):
             if hasattr(ev, '__unicode__'):
                 # 2.6+
                 ev = unicode(ev)
