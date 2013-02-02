@@ -147,7 +147,8 @@ class Coverage(Plugin):
         if self.enabled:
             self.status['active'] = True
             self.coverInstance = coverage.coverage(auto_data=False,
-                branch=self.coverBranches, data_suffix=None)
+                branch=self.coverBranches, data_suffix=None, 
+                cover_pylib=self.checkPylibDir)
 
     def begin(self):
         """
