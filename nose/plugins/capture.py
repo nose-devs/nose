@@ -10,7 +10,6 @@ the options ``-s`` or ``--nocapture``.
 
 """
 import logging
-import os
 import sys
 from nose.plugins.base import Plugin
 from nose.util import ln
