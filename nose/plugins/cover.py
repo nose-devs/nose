@@ -66,6 +66,10 @@ class Coverage(Plugin):
                           "discovering holes in test coverage if not all "
                           "files are imported by the test suite. "
                           "[NOSE_COVER_INCLUSIVE]")
+        parser.add_option("--cover-suppress-stdout", action="store_true",
+                          default=env.get('NOSE_COVER_SUPPRESS_STDOUT'),
+                          dest='cover_suppress_stdout',
+                          help="Suppress reporting to stdout")
         parser.add_option("--cover-html", action="store_true",
                           default=env.get('NOSE_COVER_HTML'),
                           dest='cover_html',
@@ -139,6 +143,8 @@ class Coverage(Plugin):
             self.status['active'] = True
             self.coverInstance = coverage.coverage(auto_data=False,
                 branch=self.coverBranches, data_suffix=None)
+        if options.cover_suppress_stdout:
+            self.coverSuppressStdout = options.cover_suppress_stdout
 
     def begin(self):
         """
@@ -166,7 +172,8 @@ class Coverage(Plugin):
                     for name, module in sys.modules.items()
                     if self.wantModuleCoverage(name, module)]
         log.debug("Coverage report will cover modules: %s", modules)
-        self.coverInstance.report(modules, file=stream)
+        if not self.coverSuppressStdout:
+            self.coverInstance.report(modules, file=stream)
         if self.coverHtmlDir:
             log.debug("Generating HTML coverage report")
             self.coverInstance.html_report(modules, self.coverHtmlDir)
