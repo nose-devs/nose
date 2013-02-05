@@ -29,6 +29,7 @@ class Coverage(Plugin):
     coverInstance = None
     coverErase = False
     coverMinPercentage = None
+    coverSuppressStdout = False
     score = 200
     status = {}
 
