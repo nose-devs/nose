@@ -14,6 +14,7 @@ from nose.plugins.attrib import AttributeSelector
 from nose.plugins.base import Plugin
 from nose.plugins.cover import Coverage
 from nose.plugins.doctests import Doctest
+from nose.plugins.failuredetail import FailureDetail
 from nose.plugins.prof import Profile
 
 from mock import *
@@ -351,6 +352,28 @@ class TestAttribPlugin(unittest.TestCase):
         assert not plug.wantFunction(f3)
         assert not plug.wantFunction(f4)
         
+
+class TestFailureDetailPlugin(unittest.TestCase):
+
+    def test_formatFailure(self):
+        class DummyError(Exception):
+            pass
+
+        try:
+            raise DummyError
+        except DummyError:
+            exc_info = sys.exc_info()
+
+        plug = FailureDetail()
+        (ec, ev, tb) = plug.formatFailure(self, exc_info)
+        assert exc_info[0] is ec
+        assert exc_info[2] is tb
+        assert self.tbinfo is not None
+
+        exc_info = (exc_info[0], exc_info[1], None) # Try without traceback
+        (ec, ev, tb) = plug.formatFailure(self, exc_info)
+        assert self.tbinfo is None
+
 
 class TestProfPlugin(unittest.TestCase):
 
