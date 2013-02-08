@@ -131,8 +131,9 @@ class TestXMLOutputWithXML(unittest.TestCase):
             pass
         self.x.report(DummyStream())
         f = open(self.xmlfile, 'rb')
-        return f.read()
+        data = f.read()
         f.close()
+        return data
 
     def test_addFailure(self):
         test = mktest()
