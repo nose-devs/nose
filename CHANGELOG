@@ -37,6 +37,14 @@
   Patch by Churkin Oleg.
 - Taught nose to lookup it's usage text according to PEP-302.
   Patch by Bradely Froehle.
+- Fixed an ugly traceback when a test class was imported from another module,
+  but was missing a method. (#595)
+  Patch by Michael Williamson.
+- Fix formatFailure expection if missing tb in exc_info. (#603)
+  Patch by Sascha Peilicke.
+- Taught the test suite to skip coverage tests if the coverage module is not
+  available. (#597)
+  Patch by Dmitry Shachnev.
 
 1.2.1
 
