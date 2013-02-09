@@ -170,7 +170,8 @@ def isclass(obj):
 
 def isgenerator(func):
     try:
-        return func.func_code.co_flags & CO_GENERATOR != 0
+        return (func.__code__.co_flags & CO_GENERATOR != 0) \
+            or getattr(func, "__test_generator__", False)
     except AttributeError:
         return False
 # backwards compat (issue #64)

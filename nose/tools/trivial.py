@@ -9,7 +9,7 @@ import re
 import unittest
 
 
-__all__ = ['ok_', 'eq_']
+__all__ = ['ok_', 'eq_', 'test_generator']
 
 # Use the same flag as unittest itself to prevent descent into these functions:
 __unittest = 1
@@ -52,3 +52,15 @@ for at in [ at for at in dir(_t)
 del Dummy
 del _t
 del pep8
+
+#
+# Enable manual designation of a function as a test generator. Functions
+# which delegate test generation to others (applying another decorator
+# would have that effect, for example) are obviously not considered
+# generator functions by Python's introspection mechanisms.
+#
+def test_generator(func):
+    """Mark a function as a test generator.
+    """
+    func.__test_generator__ = True
+    return func
