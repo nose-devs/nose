@@ -22,7 +22,7 @@ class TestConcurrentShared(MPTestBase):
         MPTestBase.setUp(self)
 
     def runTest(self):
-        assert 'Ran 2 tests in 1.' in self.output, "make sure two tests use 1.x seconds (no more than 2 seconsd)"
+        assert 'Ran 2 tests in 1.' in self.output, "make sure two tests use 1.x seconds (no more than 2 seconds)"
         assert str(self.output).strip().endswith('OK')
 
 
