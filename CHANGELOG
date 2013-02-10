@@ -45,6 +45,10 @@
 - Taught the test suite to skip coverage tests if the coverage module is not
   available. (#597)
   Patch by Dmitry Shachnev.
+- Fix #135: ResultProxy._prepareErr mangles error output in some cases.
+  Patch by Arnon Yaari.
+- Updated plugin documentation to fix numerous typos and incorrect names.
+  Patch by Arnon Yaari.
 
 1.2.1
 
