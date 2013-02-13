@@ -75,7 +75,7 @@ class TestEmptyIdFileDoesErrorSuite(PluginTester, unittest.TestCase):
     def test_empty_idfile_runs_full_suite(self):
         try:
             PluginTester.setUp(self)
-            self.assertIn('Ran 15 tests', str(self.output))
+            assert 'Ran 15 tests' in self.output.contains
         except EOFError:
             assert False, "Should not fail with an EOFError"
 
