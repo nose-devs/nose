@@ -200,6 +200,8 @@ class TestId(Plugin):
             fh.close()
         except IOError:
             log.debug('IO error reading %s', self.idfile)
+        except EOFError:
+            log.debug('Error reading empty file %s', self.idfile)
 
         if self.loopOnFailed and self.failed:
             self.collecting = False
