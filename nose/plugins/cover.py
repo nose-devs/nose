@@ -115,10 +115,10 @@ class Coverage(Plugin):
         self.coverPackages = []
         if options.cover_packages:
             if isinstance(options.cover_packages, (list, tuple)):
-                cover_packages = options.cover_packages                
+                cover_packages = options.cover_packages
             else:
                 cover_packages = [options.cover_packages]
-            for pkgs in [tolist(x) for x in cover_packages]:            
+            for pkgs in [tolist(x) for x in cover_packages]:
                 self.coverPackages.extend(pkgs)
         self.coverInclusive = options.cover_inclusive
         if self.coverPackages:
@@ -178,7 +178,7 @@ class Coverage(Plugin):
         if self.coverMinPercentage:
             f = StringIO.StringIO()
             self.coverInstance.report(modules, file=f)
-            m = re.search(r'-------\s\w+\s+\d+\s+\d+\s+(\d+)%\s+\d*\s{0,1}$', f.getvalue())
+            m = re.search(r'-------\s\w+\s+\d+\s+\d+(?:\s+\d+\s+\d+)?\s+(\d+)%\s+\d*\s{0,1}$', f.getvalue())
             if m:
                 percentage = int(m.groups()[0])
                 if percentage < self.coverMinPercentage:
