@@ -95,6 +95,8 @@ class Capture(Plugin):
     def start(self):
         self.stdout.append(sys.stdout)
         self._buf = StringIO()
+        if not hasattr(self._buf, 'encoding'):
+            self._buf.encoding = sys.__stdout__.encoding
         sys.stdout = self._buf
 
     def end(self):
