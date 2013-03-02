@@ -48,6 +48,9 @@ try:
         from setuptools.command.easy_install import easy_install
 
         def wrap_write_script(self, script_name, contents, *arg, **kwarg):
+            if script_name.endswith('.exe'):
+                return self._write_script(script_name, contents, *arg, **kwarg)
+
             bad_text = re.compile(
                 "\n"
                 "sys.exit\(\n"
