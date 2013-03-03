@@ -178,7 +178,16 @@ class Coverage(Plugin):
         if self.coverMinPercentage:
             f = StringIO.StringIO()
             self.coverInstance.report(modules, file=f)
-            m = re.search(r'-------\s\w+\s+\d+\s+\d+(?:\s+\d+\s+\d+)?\s+(\d+)%\s+\d*\s{0,1}$', f.getvalue())
+
+            multiPackageRe = (r'-------\s\w+\s+\d+\s+\d+(?:\s+\d+\s+\d+)?'
+                              r'\s+(\d+)%\s+\d*\s{0,1}$')
+            singlePackageRe = (r'-------\s[\w./]+\s+\d+\s+\d+(?:\s+\d+\s+\d+)?'
+                               r'\s+(\d+)%(?:\s+[-\d, ]+)\s{0,1}$')
+
+            m = re.search(multiPackageRe, f.getvalue())
+            if m is None:
+                m = re.search(singlePackageRe, f.getvalue())
+
             if m:
                 percentage = int(m.groups()[0])
                 if percentage < self.coverMinPercentage:
