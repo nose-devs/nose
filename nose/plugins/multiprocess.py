@@ -197,7 +197,9 @@ class MultiProcess(Plugin):
                           "or cores in your machine for best results. "
                           "Pass a negative number to have the number of "
                           "processes automatically set to the number of "
-                          "cores. "
+                          "cores. Passing 0 means to disable parallel "
+                          "testing. Default is 0 unless NOSE_PROCESSES is "
+                          "set. "
                           "[NOSE_PROCESSES]")
         parser.add_option("--process-timeout", action="store",
                           default=env.get('NOSE_PROCESS_TIMEOUT', 10),
