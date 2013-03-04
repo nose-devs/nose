@@ -206,7 +206,8 @@ class MultiProcess(Plugin):
                           dest="multiprocess_timeout",
                           metavar="SECONDS",
                           help="Set timeout for return of results from each "
-                          "test runner process. [NOSE_PROCESS_TIMEOUT]")
+                          "test runner process. Default is 10. "
+                          "[NOSE_PROCESS_TIMEOUT]")
         parser.add_option("--process-restartworker", action="store_true",
                           default=env.get('NOSE_PROCESS_RESTARTWORKER', False),
                           dest="multiprocess_restartworker",
