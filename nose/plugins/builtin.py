@@ -19,6 +19,7 @@ builtins = (
     ('nose.plugins.xunit', 'Xunit'),
     ('nose.plugins.allmodules', 'AllModules'),
     ('nose.plugins.collect', 'CollectOnly'),
+    ('nose.plugins.ignoredoc', 'IgnoreDocstrings'),
     )
 
 for module, cls in builtins:
