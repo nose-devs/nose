@@ -8,14 +8,9 @@ import re
 import sys
 import types
 import unittest
-from nose.pyversion import ClassType, TypeType
+from nose.pyversion import ClassType, TypeType, isgenerator
 
-try:
-    from compiler.consts import CO_GENERATOR
-except ImportError:
-    # IronPython doesn't have a complier module
-    CO_GENERATOR=0x20
-    
+
 log = logging.getLogger('nose')
 
 ident_re = re.compile(r'^[A-Za-z_][A-Za-z0-9_.]*$')
@@ -168,11 +163,6 @@ def isclass(obj):
     return obj_type in class_types or issubclass(obj_type, type)
 
 
-def isgenerator(func):
-    try:
-        return func.func_code.co_flags & CO_GENERATOR != 0
-    except AttributeError:
-        return False
 # backwards compat (issue #64)
 is_generator = isgenerator
 
