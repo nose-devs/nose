@@ -131,7 +131,10 @@ else:
 
 
 if sys.version_info[:2] >= (2, 6):
-    isgenerator = inspect.isgeneratorfunction
+    def isgenerator(o):
+        if isinstance(o, UnboundMethod):
+            o = o._func
+        return inspect.isgeneratorfunction(o) or inspect.isgenerator(o)
 else:
     try:
         from compiler.consts import CO_GENERATOR
