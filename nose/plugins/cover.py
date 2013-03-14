@@ -5,7 +5,7 @@ imported after the start of the test run, excluding modules that match
 testMatch. If you want to include those modules too, use the ``--cover-tests``
 switch, or set the NOSE_COVER_TESTS environment variable to a true value. To
 restrict the coverage report to modules from a particular package or packages,
-use the ``--cover-packages`` switch or the NOSE_COVER_PACKAGES environment
+use the ``--cover-package`` switch or the NOSE_COVER_PACKAGE environment
 variable.
 
 .. _coverage: http://www.nedbatchelder.com/code/modules/coverage.html
