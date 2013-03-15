@@ -104,6 +104,8 @@ class Coverage(Plugin):
         if self.enabled:
             try:
                 import coverage
+                if not hasattr(coverage, 'coverage'):
+                    raise ImportError("Unable to import coverage module")
             except ImportError:
                 log.error("Coverage not available: "
                           "unable to import coverage module")
