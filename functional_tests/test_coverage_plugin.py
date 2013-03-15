@@ -1,5 +1,6 @@
 """Test the coverage plugin."""
 import os
+import sys
 import unittest
 import shutil
 
@@ -10,7 +11,11 @@ support = os.path.join(os.path.dirname(__file__), 'support')
 
 try:
     import coverage
-    hasCoverage = True
+
+    # Python 3.3 may accidentally pick up our support area when running the unit
+    # tests.  Look for the coverage attribute to make sure we've got the right
+    # package.
+    hasCoverage = hasattr(coverage, 'coverage')
 except ImportError:
     hasCoverage = False
 
