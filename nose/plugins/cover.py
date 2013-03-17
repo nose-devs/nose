@@ -66,6 +66,12 @@ class Coverage(Plugin):
                           "discovering holes in test coverage if not all "
                           "files are imported by the test suite. "
                           "[NOSE_COVER_INCLUSIVE]")
+        parser.add_option("--check-pylib-dir", action="store_true",
+                          dest="check_pylib_dir",
+                          help=("Include coverage of files in the same "
+                                "directory as the Python installation. Useful "
+                                "for projects which include a distribution of "
+                                "Python."))
         parser.add_option("--cover-html", action="store_true",
                           default=env.get('NOSE_COVER_HTML'),
                           dest='cover_html',
@@ -123,6 +129,9 @@ class Coverage(Plugin):
             for pkgs in [tolist(x) for x in cover_packages]:
                 self.coverPackages.extend(pkgs)
         self.coverInclusive = options.cover_inclusive
+        self.checkPylibDir = options.check_pylib_dir
+        if self.checkPylibDir:
+            log.debug('Include coverage report of directory containing Python.')
         if self.coverPackages:
             log.info("Coverage report will include only packages: %s",
                      self.coverPackages)
@@ -140,7 +149,8 @@ class Coverage(Plugin):
         if self.enabled:
             self.status['active'] = True
             self.coverInstance = coverage.coverage(auto_data=False,
-                branch=self.coverBranches, data_suffix=None)
+                branch=self.coverBranches, data_suffix=None, 
+                cover_pylib=self.checkPylibDir)
 
     def begin(self):
         """
