@@ -71,6 +71,59 @@ class TestCoverageMinPercentagePlugin(PluginTester, unittest.TestCase):
         pass
 
 
+class TestCoverageMinPercentageSinglePackagePlugin(
+        PluginTester, unittest.TestCase):
+    activate = "--with-coverage"
+    args = ['-v', '--cover-package=blah', '--cover-html',
+            '--cover-min-percentage', '100']
+    plugins = [Coverage()]
+    suitepath = os.path.join(support, 'coverage')
+
+    def setUp(self):
+        if not hasCoverage:
+            raise unittest.SkipTest('coverage not available; skipping')
+
+        self.cover_file = os.path.join(os.getcwd(), '.coverage')
+        self.cover_html_dir = os.path.join(os.getcwd(), 'cover')
+        if os.path.exists(self.cover_file):
+            os.unlink(self.cover_file)
+        if os.path.exists(self.cover_html_dir):
+            shutil.rmtree(self.cover_html_dir)
+        self.assertRaises(SystemExit,
+                          super(TestCoverageMinPercentageSinglePackagePlugin,
+                              self).setUp)
+
+    def runTest(self):
+        pass
+
+
+class TestCoverageMinPercentageSinglePackageWithBranchesPlugin(
+        PluginTester, unittest.TestCase):
+    activate = "--with-coverage"
+    args = ['-v', '--cover-package=blah', '--cover-branches',
+            '--cover-html', '--cover-min-percentage', '100']
+    plugins = [Coverage()]
+    suitepath = os.path.join(support, 'coverage')
+
+    def setUp(self):
+        if not hasCoverage:
+            raise unittest.SkipTest('coverage not available; skipping')
+
+        self.cover_file = os.path.join(os.getcwd(), '.coverage')
+        self.cover_html_dir = os.path.join(os.getcwd(), 'cover')
+        if os.path.exists(self.cover_file):
+            os.unlink(self.cover_file)
+        if os.path.exists(self.cover_html_dir):
+            shutil.rmtree(self.cover_html_dir)
+        self.assertRaises(
+                SystemExit,
+                super(TestCoverageMinPercentageSinglePackageWithBranchesPlugin,
+                    self).setUp)
+
+    def runTest(self):
+        pass
+
+
 class TestCoverageMinPercentageTOTALPlugin(PluginTester, unittest.TestCase):
     activate = "--with-coverage"
     args = ['-v', '--cover-package=blah', '--cover-package=moo',
@@ -90,6 +143,32 @@ class TestCoverageMinPercentageTOTALPlugin(PluginTester, unittest.TestCase):
             shutil.rmtree(self.cover_html_dir)
         self.assertRaises(SystemExit,
                           super(TestCoverageMinPercentageTOTALPlugin, self).setUp)
+
+    def runTest(self):
+        pass
+
+
+class TestCoverageMinPercentageWithBranchesTOTALPlugin(
+        PluginTester, unittest.TestCase):
+    activate = "--with-coverage"
+    args = ['-v', '--cover-package=blah', '--cover-package=moo',
+            '--cover-branches', '--cover-min-percentage', '100']
+    plugins = [Coverage()]
+    suitepath = os.path.join(support, 'coverage2')
+
+    def setUp(self):
+        if not hasCoverage:
+            raise unittest.SkipTest('coverage not available; skipping')
+
+        self.cover_file = os.path.join(os.getcwd(), '.coverage')
+        self.cover_html_dir = os.path.join(os.getcwd(), 'cover')
+        if os.path.exists(self.cover_file):
+            os.unlink(self.cover_file)
+        if os.path.exists(self.cover_html_dir):
+            shutil.rmtree(self.cover_html_dir)
+        self.assertRaises(
+                SystemExit,
+                super(TestCoverageMinPercentageWithBranchesTOTALPlugin, self).setUp)
 
     def runTest(self):
         pass
