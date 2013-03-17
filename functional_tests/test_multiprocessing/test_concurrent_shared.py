@@ -22,10 +22,6 @@ class TestConcurrentShared(MPTestBase):
         # capturing.
         MPTestBase.setUp(self)
 
-        if multiprocessing.cpu_count() < 2:
-            raise unittest.SkipTest(
-                    "At least 2 cpus required for this test; skipping")
-
     def runTest(self):
         assert 'Ran 2 tests in 1.' in self.output, "make sure two tests use 1.x seconds (no more than 2 seconds)"
         assert str(self.output).strip().endswith('OK')
@@ -34,3 +30,10 @@ class TestConcurrentShared(MPTestBase):
 class TestConcurrentSharedWithAutomaticProcessesCount(TestConcurrentShared):
     """Make sure negative numbers are handled gracefully."""
     processes = -1
+
+    def setUp(self):
+        if multiprocessing.cpu_count() < 2:
+            raise unittest.SkipTest(
+                    "At least 2 cpus required for this test; skipping")
+
+        TestConcurrentShared.setUp(self)
