@@ -520,6 +520,7 @@ class MultiProcessTestRunner(TextTestRunner):
             for worker in workers:
                 if worker.is_alive():
                     worker.terminate()
+
             if thrownError: raise thrownError
             else: raise
 
