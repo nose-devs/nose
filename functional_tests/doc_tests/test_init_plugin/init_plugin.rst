@@ -138,18 +138,20 @@ specify a configuration file on the command line:
 To use the plugin, we need a config file.
 
     >>> import os
-    >>> cfg_file = os.path.join(os.path.dirname(__file__), 'example.cfg')
-    >>> bytes = open(cfg_file, 'w').write("""\
+    >>> cfg_path = os.path.join(os.path.dirname(__file__), 'example.cfg')
+    >>> cfg_file = open(cfg_path, 'w')
+    >>> bytes = cfg_file.write("""\
     ... [DEFAULT]
     ... can_frobnicate = 1
     ... likes_cheese = 0
     ... """)
+    >>> cfg_file.close()
 
 Now we can execute a test run using that configuration, after first
 resetting the widget system to an unconfigured state.
 
     >>> ConfigurableWidget.cfg = None
-    >>> argv = [__file__, '-v', '--widget-config', cfg_file]
+    >>> argv = [__file__, '-v', '--widget-config', cfg_path]
     >>> run(argv=argv, suite=suite(),
     ...     plugins=[BetterConfiguringPlugin()]) # doctest: +REPORT_NDIFF
     Widgets can frobnicate (or not) ... ok

@@ -1,7 +1,7 @@
 import sys
 import os
 
-VERSION = '1.2.1'
+VERSION = '1.3.0'
 py_vers_tag = '-%s.%s' % sys.version_info[:2]
 
 test_dirs = ['functional_tests', 'unit_tests', os.path.join('doc','doc_tests'), 'nose']
@@ -48,6 +48,9 @@ try:
         from setuptools.command.easy_install import easy_install
 
         def wrap_write_script(self, script_name, contents, *arg, **kwarg):
+            if script_name.endswith('.exe'):
+                return self._write_script(script_name, contents, *arg, **kwarg)
+
             bad_text = re.compile(
                 "\n"
                 "sys.exit\(\n"

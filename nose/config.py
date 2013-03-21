@@ -367,7 +367,19 @@ class Config(object):
 
         # only add our default handler if there isn't already one there
         # this avoids annoying duplicate log messages.
-        if handler not in logger.handlers:
+        found = False
+        if self.debugLog:
+            debugLogAbsPath = os.path.abspath(self.debugLog)
+            for h in logger.handlers:
+                if type(h) == logging.FileHandler and \
+                        h.baseFilename == debugLogAbsPath:
+                    found = True
+        else:
+            for h in logger.handlers:
+                if type(h) == logging.StreamHandler and \
+                        h.stream == self.logStream:
+                    found = True
+        if not found:
             logger.addHandler(handler)
 
         # default level

@@ -109,6 +109,8 @@ class Coverage(Plugin):
         if self.enabled:
             try:
                 import coverage
+                if not hasattr(coverage, 'coverage'):
+                    raise ImportError("Unable to import coverage module")
             except ImportError:
                 log.error("Coverage not available: "
                           "unable to import coverage module")
@@ -120,10 +122,10 @@ class Coverage(Plugin):
         self.coverPackages = []
         if options.cover_packages:
             if isinstance(options.cover_packages, (list, tuple)):
-                cover_packages = options.cover_packages                
+                cover_packages = options.cover_packages
             else:
                 cover_packages = [options.cover_packages]
-            for pkgs in [tolist(x) for x in cover_packages]:            
+            for pkgs in [tolist(x) for x in cover_packages]:
                 self.coverPackages.extend(pkgs)
         self.coverInclusive = options.cover_inclusive
         if self.coverPackages:
@@ -186,7 +188,16 @@ class Coverage(Plugin):
         if self.coverMinPercentage:
             f = StringIO.StringIO()
             self.coverInstance.report(modules, file=f)
-            m = re.search(r'-------\s\w+\s+\d+\s+\d+\s+(\d+)%\s+\d*\s{0,1}$', f.getvalue())
+
+            multiPackageRe = (r'-------\s\w+\s+\d+\s+\d+(?:\s+\d+\s+\d+)?'
+                              r'\s+(\d+)%\s+\d*\s{0,1}$')
+            singlePackageRe = (r'-------\s[\w./]+\s+\d+\s+\d+(?:\s+\d+\s+\d+)?'
+                               r'\s+(\d+)%(?:\s+[-\d, ]+)\s{0,1}$')
+
+            m = re.search(multiPackageRe, f.getvalue())
+            if m is None:
+                m = re.search(singlePackageRe, f.getvalue())
+
             if m:
                 percentage = int(m.groups()[0])
                 if percentage < self.coverMinPercentage:

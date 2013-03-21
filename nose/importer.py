@@ -106,7 +106,10 @@ class Importer(object):
         # We only take the dirname if we have a path to a non-dir,
         # because taking the dirname of a symlink to a directory does not
         # give the actual directory parent.
-        return filename if os.path.isdir(filename) else os.path.dirname(filename)
+        if os.path.isdir(filename):
+            return filename
+        else:
+            return os.path.dirname(filename)
 
     def sameModule(self, mod, filename):
         mod_paths = []
