@@ -128,3 +128,22 @@ if sys.version_info >= (3, 0):
 else:
     def bytes_(s, encoding=None):
         return str(s)
+
+
+if sys.version_info[:2] >= (2, 6):
+    def isgenerator(o):
+        if isinstance(o, UnboundMethod):
+            o = o._func
+        return inspect.isgeneratorfunction(o) or inspect.isgenerator(o)
+else:
+    try:
+        from compiler.consts import CO_GENERATOR
+    except ImportError:
+        # IronPython doesn't have a complier module
+        CO_GENERATOR=0x20
+
+    def isgenerator(func):
+        try:
+            return func.func_code.co_flags & CO_GENERATOR != 0
+        except AttributeError:
+            return False
