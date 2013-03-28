@@ -2,6 +2,8 @@ In Development
 
 - Corrected a reference to the multiprocessing plugin in the documentation.
   Patch by Nick Loadholtes.
+- Fixed #447: doctests fail when getpackage() returns None
+  Patch by Matthew Brett.
 
 1.3.0
 
