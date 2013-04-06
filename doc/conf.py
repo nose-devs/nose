@@ -235,3 +235,6 @@ latex_documents = [
 
 # Example configuration for intersphinx: refer to the Python standard library.
 intersphinx_mapping = {'http://docs.python.org/dev': None}
+
+# Man page
+man_pages = [('man', 'nosetests', 'Nicer testing for Python', 'Nose developers', 1)]
