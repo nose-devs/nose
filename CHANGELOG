@@ -49,6 +49,29 @@
   Patch by Arnon Yaari.
 - Updated plugin documentation to fix numerous typos and incorrect names.
   Patch by Arnon Yaari.
+- Added the ability to run nose as a module.
+  Patch by Stefano Rivera.
+- Fix installing Nose under Windows with Python 3.3.
+  Patch by John Szakmeister.
+- Added documentation for --processes=0 and the default value of
+  --process-timeout.
+  Patch by Takafumi Arakaki.
+- Fixed broken references to non-existent documentation.
+  Patch by Dmitry Shachnev.
+- Fix --cover-min-percentage with --cover-branches.
+  Patch by B. W. Baugh.
+- Fix --cover-min-percentage with single packages.
+  Patch by John Szakmeister.
+- Fixed reference to PEP 8 to use Sphinx construct for better linking.
+  Patch by Mahhtijs van der Vleuten.
+- Fixed a reference to --cover-packages to use the correct option name.
+  Patch by Wesley Baugh.
+- Updated Nose to avoid using the deprecated compiler module when possible.
+  Patch by Kim Scheilbel.
+- Updated docstrings of formatFailure() and formatError().
+  Patch by Daniel Abel.
+- Several man page fixes for better formatting.
+  Patches by Dmitry Shachnev.
 
 1.2.1
 
