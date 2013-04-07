@@ -260,7 +260,7 @@ def getpackage(filename):
     'nose.plugins'
     """
     src_file = src(filename)
-    if not src_file.endswith('.py') and not ispackage(src_file):
+    if (os.path.isdir(src_file) or not src_file.endswith('.py')) and not ispackage(src_file):
         return None
     base, ext = os.path.splitext(os.path.basename(src_file))
     if base == '__init__':

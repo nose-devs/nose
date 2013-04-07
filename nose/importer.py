@@ -16,8 +16,9 @@ log = logging.getLogger(__name__)
 try:
     _samefile = os.path.samefile
 except AttributeError:
-    def _samefile(path, other):
-        return os.path.realpath(path) == os.path.realpath(other)
+    def _samefile(src, dst):
+        return (os.path.normcase(os.path.realpath(src)) ==
+                os.path.normcase(os.path.realpath(dst)))
 
 
 class Importer(object):
