@@ -86,7 +86,7 @@ class Capture(Plugin):
         return self.formatError(test, err)
 
     def addCaptureToErr(self, ev, output):
-        if isinstance(ev, Exception):
+        if isinstance(ev, BaseException):
             if hasattr(ev, '__unicode__'):
                 # 2.6+
                 ev = unicode(ev)
@@ -101,6 +101,8 @@ class Capture(Plugin):
                     not isinstance(msg, unicode)):
                     msg = msg.decode('utf8', 'replace')
                 ev = u'%s: %s' % (ev.__class__.__name__, msg)
+        elif not isinstance(ev, basestring):
+            ev = repr(ev)
         if not isinstance(output, unicode):
             output = output.decode('utf8', 'replace')
         return u'\n'.join([ev, ln(u'>> begin captured stdout <<'),
