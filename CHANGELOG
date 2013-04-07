@@ -58,7 +58,7 @@
   Patch by Takafumi Arakaki.
 - Fixed broken references to non-existent documentation.
   Patch by Dmitry Shachnev.
-- Fix --cover-min-percentage with --cover-branches.
+- Fix --cover-min-percentage with --cover-branches. (#626)
   Patch by B. W. Baugh.
 - Fix --cover-min-percentage with single packages.
   Patch by John Szakmeister.
@@ -72,6 +72,14 @@
   Patch by Daniel Abel.
 - Several man page fixes for better formatting.
   Patches by Dmitry Shachnev.
+- Fixed a bug causing Nose to crash in directories that end in '.py'. (#612)
+  Patch by Arnon Yaari.
+- Fixed a traceback when a test raises SystemExit and has captured
+  output.  (#526)
+  Patch by Arnon Yaari.
+- Fixed ImportError running nosetests on namespace package in a subdirectory
+  on Windows. (#19)
+  Patch by Arnon Yaari.
 
 1.2.1
 
