@@ -32,7 +32,7 @@ produces::
 """
 import os
 try:
-    from docutils import nodes
+    from docutils import nodes, utils
     from docutils.statemachine import ViewList
     from docutils.parsers.rst import directives
 except ImportError:
@@ -44,6 +44,7 @@ from nose.plugins.manager import BuiltinPluginManager
 from nose.config import Config
 from nose.core import TestProgram
 from inspect import isclass
+
 
 def autoplugin_directive(dirname, arguments, options, content, lineno,
                          content_offset, block_text, state, state_machine):
@@ -91,9 +92,11 @@ def autoplugin_directive(dirname, arguments, options, content, lineno,
     # source
     rst.append('Source', '<autodoc>')
     rst.append('------', '<autodoc>')
-    rst.append('.. include :: %s\n' % os.path.abspath(
-            mod.__file__.replace('.pyc', '.py')),
-               '<autodoc>')
+    rst.append(
+            '.. include :: %s\n' % utils.relative_path(
+                state_machine.document['source'],
+                os.path.abspath(mod.__file__.replace('.pyc', '.py'))),
+            '<autodoc>')
     rst.append('   :literal:\n', '<autodoc>')
     rst.append('', '<autodoc>')
     
