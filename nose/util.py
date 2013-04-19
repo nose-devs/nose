@@ -364,7 +364,7 @@ def split_test_name(test):
                 # nonsense like foo:bar:baz
                 raise ValueError("Test name '%s' could not be parsed. Please "
                                  "format test names as path:callable or "
-                                 "module:callable.")
+                                 "module:callable." % (test,))
     elif not tail:
         # this is a case like 'foo:bar/'
         # : must be part of the file path, so ignore it
