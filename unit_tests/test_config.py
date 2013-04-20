@@ -1,23 +1,55 @@
 import re
 import os
-import tempfile
 import unittest
 import warnings
 import pickle
 import sys
+from optparse import OptionParser
 
 import nose.config
-from nose.plugins.manager import DefaultPluginManager
+from nose.config import NoOptions
+from nose.plugins.manager import DefaultPluginManager, NoPlugins
 from nose.plugins.skip import SkipTest
 from nose.plugins.prof import Profile
+from nose.tools import eq_, ok_
 
 
 class TestNoseConfig(unittest.TestCase):
 
     def test_defaults(self):
         c = nose.config.Config()
-        assert c.addPaths == True
-        # FIXME etc
+        eq_(c.env, {})
+        eq_(c.args, ())
+        eq_(c.testMatchPat, r'(?:^|[\b_\.%s-])[Tt]est' % os.sep)
+        eq_(c.testMatch, re.compile(c.testMatchPat))
+        ok_(c.addPaths)
+        eq_(c.configSection, "nosetests")
+        ok_(not c.debug)
+        ok_(not c.debugLog)
+        ok_(not c.exclude)
+        ok_(not c.getTestCaseNamesCompat)
+        eq_(c.includeExe, sys.platform in ("win32", "cli"))
+        eq_(c.ignoreFilesDefaultStrings, [r"^\.", r"^_", r'^setup\.py$'])
+        eq_(c.ignoreFiles, map(re.compile, [r"^\.", r"^_", r'^setup\.py$']))
+        ok_(not c.include)
+        ok_(not c.loggingConfig)
+        eq_(c.logStream, sys.stderr)
+        ok_(isinstance(c.options, NoOptions))
+        ok_(not c.parser)
+        ok_(isinstance(c.plugins, NoPlugins))
+        eq_(c.srcDirs, ("lib", "src"))
+        ok_(c.runOnInit)
+        ok_(not c.stopOnError)
+        eq_(c.stream, sys.stderr)
+        eq_(c.testNames, [])
+        eq_(c.verbosity, 1)
+        eq_(c.where, ())
+        eq_(c.py3where, ())
+        eq_(c.workingDir, os.getcwd())
+        ok_(not c.traverseNamespace)
+        ok_(not c.firstPackageWins)
+        eq_(c.parserClass, OptionParser)
+        ok_(not c.worker)
 
     def test_reset(self):
         c = nose.config.Config()
@@ -28,7 +60,7 @@ class TestNoseConfig(unittest.TestCase):
 
     def test_update(self):
         c = nose.config.Config()
-        c.update({'exclude':'x'})
+        c.update({'exclude': 'x'})
         assert c.exclude == 'x'
 
     def test_ignore_files_default(self):
@@ -117,6 +149,7 @@ class TestNoseConfig(unittest.TestCase):
         self.assertEqual(c.verbosity, 1)
 
     def test_pickle_empty(self):
+        # XXX what was the goal of this test?
         c = nose.config.Config()
         cp = pickle.dumps(c)
         cc = pickle.loads(cp)
@@ -125,16 +158,35 @@ class TestNoseConfig(unittest.TestCase):
         if 'java' in sys.version.lower():
             raise SkipTest("jython has no profiler plugin")
         c = nose.config.Config(plugins=DefaultPluginManager())
-        config_args = ['--with-doctest', '--with-coverage', 
-                     '--with-id', '--attr=A', '--collect', '--all',
-                     '--with-isolation', '-d', '--with-xunit', '--processes=2',
-                     '--pdb']
+        config_args = [
+            '--with-doctest',
+            '--with-coverage', 
+            '--with-id', 
+            '--attr=A', 
+            '--collect', 
+            '--all',
+            '--with-isolation', 
+            '-d', 
+            '--with-xunit', 
+            '--processes=2',
+            '--pdb',
+        ]
         if Profile.available():
             config_args.append('--with-profile')
         c.configure(config_args)
         cp = pickle.dumps(c)
         cc = pickle.loads(cp)
         assert cc.plugins._plugins
+
+    def test_verbosity_works_with_int(self):
+        """
+        Test the --verbosity option works with type=int rather than type="int"
+        """
+        c = nose.config.Config()
+        parser = c.getParser()
+        options, args = parser.parse_args(["--verbosity=1"])
+        ok_(isinstance(options.verbosity, int))
+        eq_(options.verbosity, 1)
 
 
 if __name__ == '__main__':
