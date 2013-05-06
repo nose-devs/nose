@@ -143,6 +143,10 @@ class Tee(object):
         for s in self._streams:
             s.flush()
 
+    def isatty(self):
+        return False
+
+
 class Xunit(Plugin):
     """This plugin provides test results in the standard XUnit XML format."""
     name = 'xunit'
