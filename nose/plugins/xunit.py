@@ -43,7 +43,7 @@ import sys
 import traceback
 import re
 import inspect
-from cStringIO import StringIO
+from StringIO import StringIO
 from time import time
 from xml.sax import saxutils
 
