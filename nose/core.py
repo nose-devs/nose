@@ -117,11 +117,18 @@ class TestProgram(unittest.TestProgram):
             argv=argv, testRunner=testRunner, testLoader=testLoader,
             **extra_args)
 
+    def getAllConfigFiles(self, env=None):
+        env = env or {}
+        if env.get('NOSE_IGNORE_CONFIG_FILES', False):
+            return []
+        else:
+            return all_config_files()
+
     def makeConfig(self, env, plugins=None):
         """Load a Config, pre-filled with user config files if any are
         found.
         """
-        cfg_files = all_config_files()
+        cfg_files = self.getAllConfigFiles(env)
         if plugins:
             manager = PluginManager(plugins=plugins)
         else:
