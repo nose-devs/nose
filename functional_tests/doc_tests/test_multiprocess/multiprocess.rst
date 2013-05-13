@@ -9,7 +9,7 @@ Parallel Testing with nose
 
 ..
 
-Using the `nose.plugin.multiprocess` plugin, you can parallelize a
+Using the `nose.plugins.multiprocess` plugin, you can parallelize a
 test run across a configurable number of worker processes. While this can
 speed up CPU-bound test runs, it is mainly useful for IO-bound tests
 that spend most of their time waiting for data to arrive from someplace

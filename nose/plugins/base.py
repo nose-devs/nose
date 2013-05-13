@@ -323,8 +323,8 @@ class IPluginInterface(object):
     def formatError(self, test, err):
         """Called in result.addError, before plugin.addError. If you
         want to replace or modify the error tuple, return a new error
-        tuple.
-
+        tuple, otherwise return err, the original error tuple.
+        
         :param test: the test case
         :type test: :class:`nose.case.Test`
         :param err: sys.exc_info() tuple
@@ -339,11 +339,8 @@ class IPluginInterface(object):
     def formatFailure(self, test, err):
         """Called in result.addFailure, before plugin.addFailure. If you
         want to replace or modify the error tuple, return a new error
-        tuple. Because this method is chainable, you must return the
-        test as well, so you'll return something like::
-
-          return (test, err)
-
+        tuple, otherwise return err, the original error tuple.
+        
         :param test: the test case
         :type test: :class:`nose.case.Test`
         :param err: sys.exc_info() tuple

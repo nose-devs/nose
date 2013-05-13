@@ -387,6 +387,8 @@ class DocTestCase(doctest.DocTestCase):
         filename = self._dt_test.filename
         if filename is not None:
             pk = getpackage(filename)
+            if pk is None:
+                return name
             if not name.startswith(pk):
                 name = "%s.%s" % (pk, name)
         return name

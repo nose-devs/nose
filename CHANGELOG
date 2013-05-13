@@ -1,3 +1,10 @@
+In Development
+
+- Corrected a reference to the multiprocessing plugin in the documentation.
+  Patch by Nick Loadholtes.
+- Fixed #447: doctests fail when getpackage() returns None
+  Patch by Matthew Brett.
+
 1.3.0
 
 - Fix #556: fix selecting specific tests in the setuptools command.
@@ -48,6 +55,37 @@
 - Fix #135: ResultProxy._prepareErr mangles error output in some cases.
   Patch by Arnon Yaari.
 - Updated plugin documentation to fix numerous typos and incorrect names.
+  Patch by Arnon Yaari.
+- Added the ability to run nose as a module.
+  Patch by Stefano Rivera.
+- Fix installing Nose under Windows with Python 3.3.
+  Patch by John Szakmeister.
+- Added documentation for --processes=0 and the default value of
+  --process-timeout.
+  Patch by Takafumi Arakaki.
+- Fixed broken references to non-existent documentation.
+  Patch by Dmitry Shachnev.
+- Fix --cover-min-percentage with --cover-branches. (#626)
+  Patch by B. W. Baugh.
+- Fix --cover-min-percentage with single packages.
+  Patch by John Szakmeister.
+- Fixed reference to PEP 8 to use Sphinx construct for better linking.
+  Patch by Mahhtijs van der Vleuten.
+- Fixed a reference to --cover-packages to use the correct option name.
+  Patch by Wesley Baugh.
+- Updated Nose to avoid using the deprecated compiler module when possible.
+  Patch by Kim Scheilbel.
+- Updated docstrings of formatFailure() and formatError().
+  Patch by Daniel Abel.
+- Several man page fixes for better formatting.
+  Patches by Dmitry Shachnev.
+- Fixed a bug causing Nose to crash in directories that end in '.py'. (#612)
+  Patch by Arnon Yaari.
+- Fixed a traceback when a test raises SystemExit and has captured
+  output.  (#526)
+  Patch by Arnon Yaari.
+- Fixed ImportError running nosetests on namespace package in a subdirectory
+  on Windows. (#19)
   Patch by Arnon Yaari.
 
 1.2.1
