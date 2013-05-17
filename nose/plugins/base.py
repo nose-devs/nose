@@ -612,6 +612,8 @@ class IPluginInterface(object):
         :param stream: stream object; send your output here
         :type stream: file-like object
         """
+        pass
+    setOutputStream.chainable = True
 
     def startContext(self, context):
         """Called before context setup and the running of tests in the
