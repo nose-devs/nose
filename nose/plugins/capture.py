@@ -13,6 +13,7 @@ import logging
 import os
 import sys
 from nose.plugins.base import Plugin
+from nose.pyversion import base_exception
 from nose.util import ln
 from StringIO import StringIO
 
@@ -86,7 +87,7 @@ class Capture(Plugin):
         return self.formatError(test, err)
 
     def addCaptureToErr(self, ev, output):
-        if isinstance(ev, BaseException):
+        if isinstance(ev, base_exception):
             if hasattr(ev, '__unicode__'):
                 # 2.6+
                 ev = unicode(ev)
