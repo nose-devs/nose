@@ -7,7 +7,7 @@ import ConfigParser
 from optparse import OptionParser
 from nose.util import absdir, tolist
 from nose.plugins.manager import NoPlugins
-from warnings import warn
+from warnings import warn, filterwarnings
 
 log = logging.getLogger(__name__)
 
@@ -25,6 +25,8 @@ config_files = [
 # Windows and IronPython
 exe_allowed_platforms = ('win32', 'cli')
 
+filterwarnings("always", category=DeprecationWarning,
+               module=r'(.*\.)?nose\.config')
 
 class NoSuchOptionError(Exception):
     def __init__(self, name):
@@ -431,6 +433,7 @@ class Config(object):
                      "the -w argument on the command line, or by using the "
                      "--tests argument in a configuration file.",
                      DeprecationWarning)
+                warned = True
             self.testNames.append(path)
 
     def default(self):
