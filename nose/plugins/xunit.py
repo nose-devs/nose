@@ -43,7 +43,7 @@ import sys
 import traceback
 import re
 import inspect
-from cStringIO import StringIO
+from StringIO import StringIO
 from time import time
 from xml.sax import saxutils
 
@@ -131,9 +131,9 @@ class Tee(object):
     def __init__(self, *args):
         self._streams = args
 
-    def write(self, *args):
+    def write(self, data):
         for s in self._streams:
-            s.write(*args)
+            s.write(data)
 
     def flush(self):
         for s in self._streams:
@@ -271,6 +271,7 @@ class Xunit(Plugin):
         else:
             type = 'error'
             self.stats['errors'] += 1
+
         tb = format_exception(err)
         id = test.id()
         self.errorlist.append(
