@@ -89,7 +89,12 @@ class Capture(Plugin):
         if isinstance(ev, BaseException):
             if hasattr(ev, '__unicode__'):
                 # 2.6+
-                ev = unicode(ev)
+                try:
+                    ev = unicode(ev)
+                except UnicodeDecodeError:
+                    # We need a unicode string... take our best shot at getting,
+                    # since we don't know what the original encoding is in.
+                    ev = str(ev).decode('utf8', 'replace')
             else:
                 # 2.5-
                 if not hasattr(ev, 'message'):
