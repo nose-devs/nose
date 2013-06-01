@@ -155,9 +155,14 @@ else:
 
         def cfgToArg(self, optname, value):
             argv = []
-            if flag(value):
+            long_optname = '--' + optname
+            opt = self.__parser.get_option(long_optname)
+            if opt.action in ('store_true', 'store_false'):
+                if not flag(value):
+                    raise ValueError("Invalid value '%s' for '%s'" % (
+                        value, optname))
                 if _bool(value):
-                    argv.append('--' + optname)
+                    argv.append(long_optname)
             else:
-                argv.extend(['--' + optname, value])
+                argv.extend([long_optname, value])
             return argv
