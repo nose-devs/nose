@@ -15,9 +15,9 @@ standard .ini-style config files. Put your nosetests configuration in a
    with-doctest=1
 
 There is also possiblity to disable configuration files loading (might be
-useful when runnig i.e. tox and you don't want want your global nose config
-file to be used by tox). In order to ignore those configuration files simply
-set an environment variable ``NOSE_IGNORE_CONFIG_FILES``.
+useful when runnig i.e. tox and you don't want your global nose config file to
+be used by tox). In order to ignore those configuration files simply set an
+environment variable ``NOSE_IGNORE_CONFIG_FILES``.
   
 There are several other ways to use the nose test runner besides the
 `nosetests` script. You may use nose in a test script::
