@@ -123,6 +123,8 @@ def format_exception(exc_info):
     # work ourselves if ev is a string.
     if isinstance(ev, basestring):
         tb_data = ''.join(traceback.format_tb(tb))
+        if isinstance(ev, unicode):
+            ev = ev.encode('UTF-8')
         return tb_data + ev
     else:
         return ''.join(traceback.format_exception(*exc_info))

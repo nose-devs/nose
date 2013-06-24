@@ -91,3 +91,19 @@ class TestIssue680(PluginTester, unittest.TestCase):
         f.close()
         print result
         assert 'tests="1" errors="0" failures="0" skip="0"' in result
+
+
+class TestIssue692(PluginTester, unittest.TestCase):
+    activate = '--with-xunit'
+    args = ['-v','--xunit-file=%s' % xml_results_filename]
+    plugins = [Capture(), Xunit()]
+    suitepath = os.path.join(support, 'issue692')
+
+    def runTest(self):
+        print str(self.output)
+        f = open(xml_results_filename,'r')
+        result = f.read()
+        f.close()
+        print result
+        assert 'tests="1" errors="0" failures="1" skip="0"' in result
+        assert 'exceptions.AssertionError' in result
