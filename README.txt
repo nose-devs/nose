@@ -294,7 +294,7 @@ Options
 
 --nologcapture
 
-   Disable logging capture plugin. Logging configurtion will be left
+   Disable logging capture plugin. Logging configuration will be left
    intact. [NOSE_NOLOGCAPTURE]
 
 --logging-format=FORMAT
