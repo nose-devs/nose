@@ -135,6 +135,10 @@ class Tee(object):
         for s in self._streams:
             s.write(data)
 
+    def writelines(self, lines):
+        for line in lines:
+            self.write(line)
+
     def flush(self):
         for s in self._streams:
             s.flush()
