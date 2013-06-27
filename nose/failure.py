@@ -2,6 +2,8 @@ import logging
 import unittest
 from traceback import format_tb
 
+from pyversion import base_exception
+
 log = logging.getLogger(__name__)
 
 
@@ -34,7 +36,7 @@ class Failure(unittest.TestCase):
     
     def runTest(self):
         if self.tb is not None:
-            if isinstance(self.exc_val, BaseException):
+            if isinstance(self.exc_val, base_exception):
                 raise self.exc_val, None, self.tb
             raise self.exc_class, self.exc_val, self.tb
         else:
