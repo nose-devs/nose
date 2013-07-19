@@ -105,8 +105,8 @@ Configuration
 
 In addition to passing command-line options, you may also put
 configuration options in your project's *setup.cfg* file, or a .noserc
-or nose.cfg file in your home directory. In any of these standard
-.ini-style config files, you put your nosetests configuration in a
+or nose.cfg file in your home directory. In any of these standard ini-
+style config files, you put your nosetests configuration in a
 "[nosetests]" section. Options are the same as on the command line,
 with the -- prefix removed. For options that are simple switches, you
 must supply a value:
@@ -278,6 +278,11 @@ Options
    it sees a package with the same name in a different location. Set
    this option to disable that behavior.
 
+--no-byte-compile
+
+   Prevent nose from byte-compiling the source into .pyc files while
+   nose is scanning for and running tests.
+
 -a=ATTR, --attr=ATTR
 
    Run only tests that have attributes specified by ATTR [NOSE_ATTR]
@@ -322,6 +327,10 @@ Options
 
    Clear all other logging handlers
 
+--logging-level=DEFAULT
+
+   Set the log level to capture
+
 --with-coverage
 
    Enable plugin Coverage:  Activate a coverage report using Ned
@@ -338,6 +347,11 @@ Options
 --cover-tests
 
    Include test modules in coverage report [NOSE_COVER_TESTS]
+
+--cover-min-percentage=DEFAULT
+
+   Minimum percentage of coverage for teststo pass
+   [NOSE_COVER_MIN_PERCENTAGE]
 
 --cover-inclusive
 
@@ -365,13 +379,21 @@ Options
 
    Produce XML coverage information in file
 
+--cover-nostream
+
+   Disable coverage output to stdout/stderr
+
 --pdb
 
-   Drop into debugger on errors
+   Drop into debugger on failures or errors
 
 --pdb-failures
 
    Drop into debugger on failures
+
+--pdb-errors
+
+   Drop into debugger on errors
 
 --no-deprecated
 
@@ -404,6 +426,11 @@ Options
 
    Find fixtures for a doctest file in module with this name appended
    to the base name of the doctest file
+
+--doctest-options=OPTIONS
+
+   Specify options to pass to doctest. Eg.
+   '+ELLIPSIS,+NORMALIZE_WHITESPACE'
 
 --with-isolation
 
@@ -460,12 +487,15 @@ Options
 
    Spread test run among this many processes. Set a number equal to
    the number of processors or cores in your machine for best results.
-   [NOSE_PROCESSES]
+   Pass a negative number to have the number of processes
+   automatically set to the number of cores. Passing 0 means to
+   disable parallel testing. Default is 0 unless NOSE_PROCESSES is
+   set. [NOSE_PROCESSES]
 
 --process-timeout=SECONDS
 
    Set timeout for return of results from each test runner process.
-   [NOSE_PROCESS_TIMEOUT]
+   Default is 10. [NOSE_PROCESS_TIMEOUT]
 
 --process-restartworker
 

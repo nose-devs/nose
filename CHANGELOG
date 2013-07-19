@@ -4,6 +4,8 @@ In Development
   Patch by Nick Loadholtes.
 - Fixed #447: doctests fail when getpackage() returns None
   Patch by Matthew Brett.
+- Added --cover-nostream flag for coverage plugin to skip stderr stream report.
+  Patch by Sebastian Hanula and Glen Oakley
 
 1.3.0
 

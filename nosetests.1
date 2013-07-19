@@ -1,4 +1,4 @@
-.TH "NOSETESTS" "1" "April 06, 2013" "1.3" "nose"
+.TH "NOSETESTS" "1" "July 19, 2013" "1.3" "nose"
 .SH NAME
 nosetests \- Nicer testing for Python
 .
@@ -413,13 +413,23 @@ Produce XML coverage information in file
 .UNINDENT
 .INDENT 0.0
 .TP
+.B \-\-cover\-nostream
+Disable coverage output to stdout/stderr
+.UNINDENT
+.INDENT 0.0
+.TP
 .B \-\-pdb
-Drop into debugger on errors
+Drop into debugger on failures or errors
 .UNINDENT
 .INDENT 0.0
 .TP
 .B \-\-pdb\-failures
 Drop into debugger on failures
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-\-pdb\-errors
+Drop into debugger on errors
 .UNINDENT
 .INDENT 0.0
 .TP
