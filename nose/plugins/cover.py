@@ -101,6 +101,9 @@ class Coverage(Plugin):
         super(Coverage, self).configure(options, conf)
         if conf.worker:
             return
+        for opt in ["cover_packages", "cover_tests", "cover_inclusive", "cover_html", "cover_xml"]:
+            if getattr(options, opt, None) is not None:
+                self.enabled = True
         if self.enabled:
             try:
                 import coverage
