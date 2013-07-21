@@ -112,9 +112,16 @@ def exc_message(exc_info):
                 # Fallback to args as neither str nor
                 # unicode(Exception(u'\xe6')) work in Python < 2.6
                 result = exc.args[0]
+    result = force_unicode(result, 'UTF-8')
     return xml_safe(result)
 
-def format_exception(exc_info):
+def force_unicode(s, encoding):
+    if not UNICODE_STRINGS:
+        if isinstance(s, str):
+            s = s.decode(encoding, 'replace')
+    return s
+
+def format_exception(exc_info, encoding):
     ec, ev, tb = exc_info
 
     # formatError() may have turned our exception object into a string, and
@@ -122,16 +129,23 @@ def format_exception(exc_info):
     # expects an actual exception object).  So we work around it, by doing the
     # work ourselves if ev is a string.
     if isinstance(ev, basestring):
-        tb_data = ''.join(traceback.format_tb(tb))
+        tb_data = force_unicode(
+                ''.join(traceback.format_tb(tb)),
+                encoding)
+        ev = force_unicode(ev, encoding)
         return tb_data + ev
     else:
-        return ''.join(traceback.format_exception(*exc_info))
+        return force_unicode(
+                ''.join(traceback.format_exception(*exc_info)),
+                encoding)
 
 class Tee(object):
-    def __init__(self, *args):
+    def __init__(self, encoding, *args):
+        self._encoding = encoding
         self._streams = args
 
     def write(self, data):
+        data = force_unicode(data, self._encoding)
         for s in self._streams:
             s.write(data)
 
@@ -173,8 +187,6 @@ class Xunit(Plugin):
     def _quoteattr(self, attr):
         """Escape an XML attribute. Value can be unicode."""
         attr = xml_safe(attr)
-        if isinstance(attr, unicode) and not UNICODE_STRINGS:
-            attr = attr.encode(self.encoding)
         return saxutils.quoteattr(attr)
 
     def options(self, parser, env):
@@ -216,7 +228,7 @@ class Xunit(Plugin):
             u'<testsuite name="nosetests" tests="%(total)d" '
             u'errors="%(errors)d" failures="%(failures)d" '
             u'skip="%(skipped)d">' % self.stats)
-        self.error_report_file.write(u''.join([self._forceUnicode(e)
+        self.error_report_file.write(u''.join([force_unicode(e, self.encoding)
                                                for e in self.errorlist]))
         self.error_report_file.write(u'</testsuite>')
         self.error_report_file.close()
@@ -228,8 +240,8 @@ class Xunit(Plugin):
         self._capture_stack.append((sys.stdout, sys.stderr))
         self._currentStdout = StringIO()
         self._currentStderr = StringIO()
-        sys.stdout = Tee(self._currentStdout, sys.stdout)
-        sys.stderr = Tee(self._currentStderr, sys.stderr)
+        sys.stdout = Tee(self.encoding, self._currentStdout, sys.stdout)
+        sys.stderr = Tee(self.encoding, self._currentStderr, sys.stderr)
 
     def startContext(self, context):
         self._startCapture()
@@ -280,12 +292,13 @@ class Xunit(Plugin):
             type = 'error'
             self.stats['errors'] += 1
 
-        tb = format_exception(err)
+        tb = format_exception(err, self.encoding)
         id = test.id()
+
         self.errorlist.append(
-            '<testcase classname=%(cls)s name=%(name)s time="%(taken).3f">'
-            '<%(type)s type=%(errtype)s message=%(message)s><![CDATA[%(tb)s]]>'
-            '</%(type)s>%(systemout)s%(systemerr)s</testcase>' %
+            u'<testcase classname=%(cls)s name=%(name)s time="%(taken).3f">'
+            u'<%(type)s type=%(errtype)s message=%(message)s><![CDATA[%(tb)s]]>'
+            u'</%(type)s>%(systemout)s%(systemerr)s</testcase>' %
             {'cls': self._quoteattr(id_split(id)[0]),
              'name': self._quoteattr(id_split(id)[-1]),
              'taken': taken,
@@ -301,13 +314,14 @@ class Xunit(Plugin):
         """Add failure output to Xunit report.
         """
         taken = self._timeTaken()
-        tb = format_exception(err)
+        tb = format_exception(err, self.encoding)
         self.stats['failures'] += 1
         id = test.id()
+
         self.errorlist.append(
-            '<testcase classname=%(cls)s name=%(name)s time="%(taken).3f">'
-            '<failure type=%(errtype)s message=%(message)s><![CDATA[%(tb)s]]>'
-            '</failure>%(systemout)s%(systemerr)s</testcase>' %
+            u'<testcase classname=%(cls)s name=%(name)s time="%(taken).3f">'
+            u'<failure type=%(errtype)s message=%(message)s><![CDATA[%(tb)s]]>'
+            u'</failure>%(systemout)s%(systemerr)s</testcase>' %
             {'cls': self._quoteattr(id_split(id)[0]),
              'name': self._quoteattr(id_split(id)[-1]),
              'taken': taken,
@@ -333,9 +347,3 @@ class Xunit(Plugin):
              'systemout': self._getCapturedStdout(),
              'systemerr': self._getCapturedStderr(),
              })
-
-    def _forceUnicode(self, s):
-        if not UNICODE_STRINGS:
-            if isinstance(s, str):
-                s = s.decode(self.encoding, 'replace')
-        return s
