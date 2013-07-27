@@ -43,6 +43,11 @@ class Coverage(Plugin):
                           dest="cover_packages",
                           help="Restrict coverage output to selected packages "
                           "[NOSE_COVER_PACKAGE]")
+        parser.add_option("--cover-omit", action="append",
+                          default=[],
+                          metavar="PATTERNS",
+                          dest="cover_omit",
+                          help="Omit files from coverage report")
         parser.add_option("--cover-erase", action="store_true",
                           default=env.get('NOSE_COVER_ERASE'),
                           dest="cover_erase",
@@ -122,6 +127,11 @@ class Coverage(Plugin):
                 cover_packages = [options.cover_packages]
             for pkgs in [tolist(x) for x in cover_packages]:
                 self.coverPackages.extend(pkgs)
+        if options.cover_omit:
+            cover_omit = []
+            for pattern in options.cover_omit:
+                cover_omit.extend(pattern.split('\n'))
+            options.cover_omit = cover_omit
         self.coverInclusive = options.cover_inclusive
         if self.coverPackages:
             log.info("Coverage report will include only packages: %s",
@@ -140,7 +150,8 @@ class Coverage(Plugin):
         if self.enabled:
             self.status['active'] = True
             self.coverInstance = coverage.coverage(auto_data=False,
-                branch=self.coverBranches, data_suffix=None)
+                branch=self.coverBranches, data_suffix=None,
+                omit=options.cover_omit)
 
     def begin(self):
         """
