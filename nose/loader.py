@@ -113,10 +113,7 @@ class TestLoader(unittest.TestLoader):
                 return False
             return sel.wantMethod(item)
         cases = filter(wanted, dir(testCaseClass))
-        for base in testCaseClass.__bases__:
-            for case in self.getTestCaseNames(base):
-                if case not in cases:
-                    cases.append(case)
+
         # add runTest if nothing else picked
         if not cases and hasattr(testCaseClass, 'runTest'):
             cases = ['runTest']
