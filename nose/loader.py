@@ -55,7 +55,7 @@ class TestLoader(unittest.TestLoader):
     workingDir = None
     selector = None
     suiteClass = None
-    
+
     def __init__(self, config=None, importer=None, workingDir=None,
                  selector=None):
         """Initialize a test loader.
@@ -64,7 +64,7 @@ class TestLoader(unittest.TestLoader):
 
         * config: provide a `nose.config.Config`_ or other config class
           instance; if not provided a `nose.config.Config`_ with
-          default values is used.          
+          default values is used.
         * importer: provide an importer instance that implements
           `importFromPath`. If not provided, a
           `nose.importer.Importer`_ is used.
@@ -91,7 +91,7 @@ class TestLoader(unittest.TestLoader):
         self.workingDir = op_normpath(op_abspath(workingDir))
         self.selector = selector
         if config.addPaths:
-            add_path(workingDir, config)        
+            add_path(workingDir, config)
         self.suiteClass = ContextSuiteFactory(config=config)
 
         self._visitedPaths = set([])
@@ -104,7 +104,7 @@ class TestLoader(unittest.TestLoader):
         """
         if self.config.getTestCaseNamesCompat:
             return unittest.TestLoader.getTestCaseNames(self, testCaseClass)
-        
+
         def wanted(attr, cls=testCaseClass, sel=self.selector):
             item = getattr(cls, attr, None)
             if isfunction(item):
@@ -141,7 +141,7 @@ class TestLoader(unittest.TestLoader):
         -- each suite of tests from a module or other file is yielded
         and is expected to be executed before the next file is
         examined.
-        """        
+        """
         log.debug("load from dir %s", path)
         plugins = self.config.plugins
         plugins.beforeDirectory(path)
@@ -206,7 +206,7 @@ class TestLoader(unittest.TestLoader):
             raise
         except:
             yield self.suiteClass([Failure(*sys.exc_info())])
-        
+
         # pop paths
         if self.config.addPaths:
             for p in paths_added:
@@ -347,12 +347,12 @@ class TestLoader(unittest.TestLoader):
             if (self.config.traverseNamespace or not path) or \
                     os.path.realpath(module_path).startswith(path):
                 tests.extend(self.loadTestsFromDir(module_path))
-            
+
         for test in self.config.plugins.loadTestsFromModule(module, path):
             tests.append(test)
 
         return self.suiteClass(ContextList(tests, context=module))
-    
+
     def loadTestsFromName(self, name, module=None, discovered=False):
         """Load tests from the entity with the given name.
 
@@ -362,14 +362,14 @@ class TestLoader(unittest.TestLoader):
         """
         # FIXME refactor this method into little bites?
         log.debug("load from %s (%s)", name, module)
-        
+
         suite = self.suiteClass
 
         # give plugins first crack
         plug_tests = self.config.plugins.loadTestsFromName(name, module)
         if plug_tests:
             return suite(plug_tests)
-        
+
         addr = TestAddress(name, workingDir=self.workingDir)
         if module:
             # Two cases:
@@ -491,7 +491,7 @@ class TestLoader(unittest.TestLoader):
             [case for case in
              super(TestLoader, self).loadTestsFromTestCase(testCaseClass)])
         return self.suiteClass(cases)
-    
+
     def loadTestsFromTestClass(self, cls):
         """Load tests from a test class that is *not* a unittest.TestCase
         subclass.
@@ -527,7 +527,7 @@ class TestLoader(unittest.TestLoader):
             except:
                 addr = None
             return Failure(exc[0], exc[1], exc[2], address=addr)
-    
+
     def _makeTest(self, obj, parent=None):
         """Given a test object and its parent, return a test case
         or test suite.
@@ -550,7 +550,7 @@ class TestLoader(unittest.TestLoader):
         except:
             exc = sys.exc_info()
             return Failure(exc[0], exc[1], exc[2], address=addr)
-        
+
         if isfunction(obj) and parent and not isinstance(parent, types.ModuleType):
 	    # This is a Python 3.x 'unbound method'.  Wrap it with its
 	    # associated class..

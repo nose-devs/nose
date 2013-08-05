@@ -20,18 +20,18 @@ from nose.plugins.prof import Profile
 from mock import *
 
 class P(Plugin):
-    """Plugin of destiny!"""    
+    """Plugin of destiny!"""
     pass
 
 class ErrPlugin(object):
     def load(self):
         raise Exception("Failed to load the plugin")
-    
+
 class ErrPkgResources(object):
     def iter_entry_points(self, ep):
         yield ErrPlugin()
 
-        
+
 # some plugins have 2.4-only features
 compat_24 = sys.version_info >= (2, 4)
 
@@ -43,7 +43,7 @@ class TestBuiltinPlugins(unittest.TestCase):
 
     def tearDown(self):
         sys.path = self.p[:]
-                
+
     def test_add_options(self):
         conf = Config()
         opt = Bucket()
@@ -63,7 +63,7 @@ class TestBuiltinPlugins(unittest.TestCase):
         plug.configure(opt, conf)
         assert plug.enabled
 
-        
+
 class TestDoctestPlugin(unittest.TestCase):
 
     def setUp(self):
@@ -71,21 +71,21 @@ class TestDoctestPlugin(unittest.TestCase):
 
     def tearDown(self):
         sys.path = self.p[:]
-    
+
     def test_add_options(self):
         # doctest plugin adds some options...
         conf = Config()
         opt = Bucket()
         parser = MockOptParser()
         plug = Doctest()
-        
+
         plug.add_options(parser, {})
         o, d = parser.opts[0]
         assert o[0] == '--with-doctest'
 
         o2, d2 = parser.opts[1]
         assert o2[0] == '--doctest-tests'
-        
+
         o3, d3 = parser.opts[2]
         assert o3[0] == '--doctest-extension'
 
@@ -98,7 +98,7 @@ class TestDoctestPlugin(unittest.TestCase):
         dtp = Doctest()
         dtp.add_options(parser, env)
         options, args = parser.parse_args(argv)
-        
+
         print options
         print args
         self.assertEqual(options.doctestExtension, ['ext', 'txt'])
@@ -110,7 +110,7 @@ class TestDoctestPlugin(unittest.TestCase):
         print options
         print args
         self.assertEqual(options.doctestExtension, ['txt'])
-            
+
     def test_want_file(self):
         # doctest plugin can select module and/or non-module files
         conf = Config()
@@ -118,18 +118,18 @@ class TestDoctestPlugin(unittest.TestCase):
         plug = Doctest()
         plug.can_configure = True
         plug.configure(opt, conf)
-        
+
         assert plug.wantFile('foo.py')
         assert not plug.wantFile('bar.txt')
         assert not plug.wantFile('buz.rst')
         assert not plug.wantFile('bing.mov')
-        
+
         plug.extension = ['.txt', '.rst']
         assert plug.wantFile('/path/to/foo.py')
         assert plug.wantFile('/path/to/bar.txt')
         assert plug.wantFile('/path/to/buz.rst')
         assert not plug.wantFile('/path/to/bing.mov')
-        
+
     def test_matches(self):
         # doctest plugin wants tests from all NON-test modules
         conf = Config()
@@ -146,13 +146,13 @@ class TestDoctestPlugin(unittest.TestCase):
         if not support in sys.path:
             sys.path.insert(0, support)
         import foo.bar.buz
-        
+
         conf = Config()
         opt = Bucket()
         plug = Doctest()
         plug.can_configure = True
         plug.configure(opt, conf)
-        suite = plug.loadTestsFromModule(foo.bar.buz)        
+        suite = plug.loadTestsFromModule(foo.bar.buz)
         expect = ['[afunc (foo.bar.buz)]']
         for test in suite:
             self.assertEqual(str(test), expect.pop(0))
@@ -163,7 +163,7 @@ class TestDoctestPlugin(unittest.TestCase):
         if not support in sys.path:
             sys.path.insert(0, support)
         import foo.bar.buz
-        
+
         conf = Config()
         opt = Bucket()
         plug = Doctest()
@@ -180,13 +180,13 @@ class TestDoctestPlugin(unittest.TestCase):
                 file, mod, call = case.address()
                 self.assertEqual(mod, 'foo.bar.buz')
                 self.assertEqual(call, 'afunc')
-            
+
     def test_collect_txtfile(self):
         here = os.path.abspath(os.path.dirname(__file__))
         support = os.path.join(here, 'support')
         fn = os.path.join(support, 'foo', 'doctests.txt')
-        
-        conf = Config()        
+
+        conf = Config()
         opt = Bucket()
         plug = Doctest()
         plug.can_configure = True
@@ -196,9 +196,9 @@ class TestDoctestPlugin(unittest.TestCase):
         for test in suite:
             assert str(test).endswith('doctests.txt')
             assert test.address(), "Test %s has no address"
-        
+
     def test_collect_no_collect(self):
-        # bug http://nose.python-hosting.com/ticket/55 
+        # bug http://nose.python-hosting.com/ticket/55
         # we got "iteration over non-sequence" when no files match
         here = os.path.abspath(os.path.dirname(__file__))
         support = os.path.join(here, 'support')
@@ -246,14 +246,14 @@ class TestAttribPlugin(unittest.TestCase):
         opt.attr = [ 'something,' ]
         plug.configure(opt, Config())
         self.assertEqual(plug.attribs, [[('something', True)]] )
-        
+
         if compat_24:
             opt.attr = None
             opt.eval_attr = [ 'weird >= 66' ]
             plug.configure(opt, Config())
             self.assertEqual(plug.attribs[0][0][0], 'weird >= 66')
             assert callable(plug.attribs[0][0][1])
-                       
+
     def test_basic_attr(self):
         def f():
             pass
@@ -261,7 +261,7 @@ class TestAttribPlugin(unittest.TestCase):
 
         def g():
             pass
-    
+
         plug = AttributeSelector()
         plug.attribs = [[('a', True)]]
         assert plug.wantFunction(f) is not False
@@ -275,12 +275,12 @@ class TestAttribPlugin(unittest.TestCase):
 
         def i():
             pass
-        
+
         plug = AttributeSelector()
         plug.attribs = [[('foo', True)]]
         assert plug.wantMethod(unbound_method(TestP, TestP.h)) is not False
         assert plug.wantFunction(i) is False
-        
+
     def test_eval_attr(self):
         if not compat_24:
             warn("No support for eval attributes in python versions older"
@@ -289,7 +289,7 @@ class TestAttribPlugin(unittest.TestCase):
         def f():
             pass
         f.monkey = 2
-        
+
         def g():
             pass
         g.monkey = 6
@@ -297,7 +297,7 @@ class TestAttribPlugin(unittest.TestCase):
         def h():
             pass
         h.monkey = 5
-        
+
         cnf = Config()
         opt = Bucket()
         opt.eval_attr = "monkey > 5"
@@ -324,7 +324,7 @@ class TestAttribPlugin(unittest.TestCase):
         def f4():
             pass
         f4.tags = ['c', 'd']
-        
+
         cnf = Config()
         parser = OptionParser()
         plug = AttributeSelector()
@@ -351,7 +351,7 @@ class TestAttribPlugin(unittest.TestCase):
         assert not plug.wantFunction(f2)
         assert not plug.wantFunction(f3)
         assert not plug.wantFunction(f4)
-        
+
 
 class TestFailureDetailPlugin(unittest.TestCase):
 
@@ -377,7 +377,7 @@ class TestFailureDetailPlugin(unittest.TestCase):
 
 class TestProfPlugin(unittest.TestCase):
 
-    def setUp(self):        
+    def setUp(self):
         if not Profile.available():
             raise SkipTest('profile plugin not available; skipping')
 
@@ -409,7 +409,7 @@ class TestProfPlugin(unittest.TestCase):
                 r[1] = f(), "wrapped"
         def func():
             return "func"
-        
+
         plug = Profile()
         plug.prof = dummy()
         result = plug.prepareTest(func)
