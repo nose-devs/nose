@@ -199,8 +199,7 @@ class Xunit(Plugin):
                           'skipped': 0
                           }
             self.errorlist = []
-            self.error_report_file = codecs.open(options.xunit_file, 'w',
-                                                 self.encoding, 'replace')
+            self.error_report_file_name = options.xunit_file
 
     def report(self, stream):
         """Writes an Xunit-formatted XML file
@@ -208,6 +207,8 @@ class Xunit(Plugin):
         The file includes a report of test errors and failures.
 
         """
+        self.error_report_file = codecs.open(self.error_report_file_name, 'w',
+                                             self.encoding, 'replace')
         self.stats['encoding'] = self.encoding
         self.stats['total'] = (self.stats['errors'] + self.stats['failures']
                                + self.stats['passes'] + self.stats['skipped'])
