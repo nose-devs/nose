@@ -3,18 +3,26 @@ This module contains fixups for using nose under different versions of Python.
 """
 import sys
 import os
+import traceback
 import types
 import inspect
 import nose.util
 
 __all__ = ['make_instancemethod', 'cmp_to_key', 'sort_list', 'ClassType',
            'TypeType', 'UNICODE_STRINGS', 'unbound_method', 'ismethod',
-           'bytes_', 'is_base_exception']
+           'bytes_', 'is_base_exception', 'force_unicode', 'exc_to_unicode',
+           'format_exception']
 
 # In Python 3.x, all strings are unicode (the call to 'unicode()' in the 2.x
 # source will be replaced with 'str()' when running 2to3, so this test will
 # then become true)
 UNICODE_STRINGS = (type(unicode()) == type(str()))
+
+def force_unicode(s, encoding='UTF-8'):
+    if not UNICODE_STRINGS:
+        if isinstance(s, str):
+            s = s.decode(encoding, 'replace')
+    return s
 
 # new.instancemethod() is obsolete for new-style classes (Python 3.x)
 # We need to use descriptor methods instead.
@@ -156,3 +164,49 @@ if sys.version_info[:2] < (2, 5):
 else:
     def is_base_exception(exc):
         return isinstance(exc, BaseException)
+
+def exc_to_unicode(ev, encoding='utf-8'):
+    if is_base_exception(ev):
+        if hasattr(ev, '__unicode__'):
+            # 2.6+
+            try:
+                ev = unicode(ev)
+            except UnicodeDecodeError:
+                # We need a unicode string... take our best shot at getting,
+                # since we don't know what the original encoding is in.
+                ev = str(ev).decode(encoding, 'replace')
+        else:
+            # 2.5-
+            if not hasattr(ev, 'message'):
+                # 2.4
+                msg = len(ev.args) and ev.args[0] or ''
+            else:
+                msg = ev.message
+            if (isinstance(msg, basestring) and
+                not isinstance(msg, unicode)):
+                msg = msg.decode(encoding, 'replace')
+            ev = u'%s: %s' % (ev.__class__.__name__, msg)
+    elif not isinstance(ev, basestring):
+        ev = repr(ev)
+    elif not UNICODE_STRINGS and isinstance(ev, str):
+        ev = ev.decode(encoding, 'replace')
+
+    return ev
+
+def format_exception(exc_info, encoding='UTF-8'):
+    ec, ev, tb = exc_info
+
+    # Our exception object may have been turned into a string, and Python 3's
+    # traceback.format_exception() doesn't take kindly to that (it expects an
+    # actual exception object).  So we work around it, by doing the work
+    # ourselves if ev is not an exception object.
+    if not is_base_exception(ev):
+        tb_data = force_unicode(
+                ''.join(traceback.format_tb(tb)),
+                encoding)
+        ev = exc_to_unicode(ev)
+        return tb_data + ev
+    else:
+        return force_unicode(
+                ''.join(traceback.format_exception(*exc_info)),
+                encoding)

@@ -13,7 +13,7 @@ import logging
 import os
 import sys
 from nose.plugins.base import Plugin
-from nose.pyversion import is_base_exception
+from nose.pyversion import exc_to_unicode, force_unicode
 from nose.util import ln
 from StringIO import StringIO
 
@@ -87,30 +87,8 @@ class Capture(Plugin):
         return self.formatError(test, err)
 
     def addCaptureToErr(self, ev, output):
-        if is_base_exception(ev):
-            if hasattr(ev, '__unicode__'):
-                # 2.6+
-                try:
-                    ev = unicode(ev)
-                except UnicodeDecodeError:
-                    # We need a unicode string... take our best shot at getting,
-                    # since we don't know what the original encoding is in.
-                    ev = str(ev).decode('utf8', 'replace')
-            else:
-                # 2.5-
-                if not hasattr(ev, 'message'):
-                    # 2.4
-                    msg = len(ev.args) and ev.args[0] or ''
-                else:
-                    msg = ev.message
-                if (isinstance(msg, basestring) and
-                    not isinstance(msg, unicode)):
-                    msg = msg.decode('utf8', 'replace')
-                ev = u'%s: %s' % (ev.__class__.__name__, msg)
-        elif not isinstance(ev, basestring):
-            ev = repr(ev)
-        if not isinstance(output, unicode):
-            output = output.decode('utf8', 'replace')
+        ev = exc_to_unicode(ev)
+        output = force_unicode(output)
         return u'\n'.join([ev, ln(u'>> begin captured stdout <<'),
                            output, ln(u'>> end captured stdout <<')])
 

@@ -49,7 +49,7 @@ from xml.sax import saxutils
 
 from nose.plugins.base import Plugin
 from nose.exc import SkipTest
-from nose.pyversion import UNICODE_STRINGS
+from nose.pyversion import force_unicode, format_exception
 
 # Invalid XML characters, control characters 0-31 sans \t, \n and \r
 CONTROL_CHARACTERS = re.compile(r"[\000-\010\013\014\016-\037]")
@@ -114,30 +114,6 @@ def exc_message(exc_info):
                 result = exc.args[0]
     result = force_unicode(result, 'UTF-8')
     return xml_safe(result)
-
-def force_unicode(s, encoding):
-    if not UNICODE_STRINGS:
-        if isinstance(s, str):
-            s = s.decode(encoding, 'replace')
-    return s
-
-def format_exception(exc_info, encoding):
-    ec, ev, tb = exc_info
-
-    # formatError() may have turned our exception object into a string, and
-    # Python 3's traceback.format_exception() doesn't take kindly to that (it
-    # expects an actual exception object).  So we work around it, by doing the
-    # work ourselves if ev is a string.
-    if isinstance(ev, basestring):
-        tb_data = force_unicode(
-                ''.join(traceback.format_tb(tb)),
-                encoding)
-        ev = force_unicode(ev, encoding)
-        return tb_data + ev
-    else:
-        return force_unicode(
-                ''.join(traceback.format_exception(*exc_info)),
-                encoding)
 
 class Tee(object):
     def __init__(self, encoding, *args):
