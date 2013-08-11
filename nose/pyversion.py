@@ -9,7 +9,7 @@ import nose.util
 
 __all__ = ['make_instancemethod', 'cmp_to_key', 'sort_list', 'ClassType',
            'TypeType', 'UNICODE_STRINGS', 'unbound_method', 'ismethod',
-           'bytes_']
+           'bytes_', 'is_base_exception']
 
 # In Python 3.x, all strings are unicode (the call to 'unicode()' in the 2.x
 # source will be replaced with 'str()' when running 2to3, so this test will
@@ -147,3 +147,12 @@ else:
             return func.func_code.co_flags & CO_GENERATOR != 0
         except AttributeError:
             return False
+
+# Make a function to help check if an exception is derived from BaseException.
+# In Python 2.4, we just use Exception instead.
+if sys.version_info[:2] < (2, 5):
+    def is_base_exception(exc):
+        return isinstance(exc, Exception)
+else:
+    def is_base_exception(exc):
+        return isinstance(exc, BaseException)
