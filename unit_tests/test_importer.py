@@ -50,6 +50,16 @@ class TestImporter(unittest.TestCase):
         assert where in sys.path
         # buz has an intra-package import that sets boodle
         assert mod.boodle
+
+    def test_module_init_prefix(self):
+        where = os.path.abspath(os.path.join(os.path.dirname(__file__),
+                                             'support', 'init_prefix_bug'))
+        nose.importer.add_path(where)
+        mod = os.path.join(where, '__init__not.py')
+        fqname = 'init_prefix_bug.__init__not'
+
+        imp = nose.importer.Importer()
+        mod = imp.importFromPath(mod, fqname)
         
 if __name__ == '__main__':
     unittest.main()
