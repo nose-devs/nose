@@ -18,11 +18,17 @@ __all__ = ['make_instancemethod', 'cmp_to_key', 'sort_list', 'ClassType',
 # then become true)
 UNICODE_STRINGS = (type(unicode()) == type(str()))
 
-def force_unicode(s, encoding='UTF-8'):
-    if not UNICODE_STRINGS:
-        if isinstance(s, str):
-            s = s.decode(encoding, 'replace')
-    return s
+if sys.version_info[:2] < (3, 0):
+    def force_unicode(s, encoding='UTF-8'):
+        try:
+            s = unicode(s)
+        except UnicodeDecodeError:
+            s = str(s).decode(encoding, 'replace')
+
+        return s
+else:
+    def force_unicode(s, encoding='UTF-8'):
+        return str(s)
 
 # new.instancemethod() is obsolete for new-style classes (Python 3.x)
 # We need to use descriptor methods instead.
