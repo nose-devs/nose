@@ -155,6 +155,26 @@ class TestLogCapturePlugin(object):
         eq_(1, len(records))
         eq_("++Hello++", records[0])
 
+    def test_builtin_logging_filtering(self):
+        c = LogCapture()
+        c.logformat = '++%(message)s++'
+        c.start()
+        log = logging.getLogger("foobar.something")
+        filtered = []
+        class filter(object):
+            def filter(record):
+                filtered.append(record)
+                return len(filtered) == 1
+            filter = staticmethod(filter)
+        c.handler.addFilter(filter)
+        log.debug("Hello")
+        log.debug("World")
+        c.end()
+        eq_(2, len(filtered))
+        records = c.formatLogRecords()
+        eq_(1, len(records))
+        eq_("++Hello++", records[0])
+
     def test_logging_filter(self):
         env = {'NOSE_LOGFILTER': 'foo,bar'}
         c = LogCapture()

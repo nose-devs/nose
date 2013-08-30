@@ -85,7 +85,8 @@ class MyMemoryHandler(Handler):
     def truncate(self):
         self.buffer = []
     def filter(self, record):
-        return self.filterset.allow(record.name)
+        if self.filterset.allow(record.name):
+            return Handler.filter(self, record)
     def __getstate__(self):
         state = self.__dict__.copy()
         del state['lock']
