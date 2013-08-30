@@ -39,7 +39,7 @@ class Importer(object):
         # find the base dir of the package
         path_parts = os.path.normpath(os.path.abspath(path)).split(os.sep)
         name_parts = fqname.split('.')
-        if path_parts[-1].startswith('__init__'):
+        if path_parts[-1] == '__init__.py':
             path_parts.pop()
         path_parts = path_parts[:-(len(name_parts))]
         dir_path = os.sep.join(path_parts)
