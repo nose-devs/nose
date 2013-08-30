@@ -171,33 +171,27 @@ else:
     def is_base_exception(exc):
         return isinstance(exc, BaseException)
 
-def exc_to_unicode(ev, encoding='utf-8'):
-    if is_base_exception(ev):
-        if hasattr(ev, '__unicode__'):
-            # 2.6+
-            try:
-                ev = unicode(ev)
-            except UnicodeDecodeError:
-                # We need a unicode string... take our best shot at getting,
-                # since we don't know what the original encoding is in.
-                ev = str(ev).decode(encoding, 'replace')
-        else:
-            # 2.5-
-            if not hasattr(ev, 'message'):
-                # 2.4
-                msg = len(ev.args) and ev.args[0] or ''
-            else:
-                msg = ev.message
-            if (isinstance(msg, basestring) and
-                not isinstance(msg, unicode)):
-                msg = msg.decode(encoding, 'replace')
-            ev = u'%s: %s' % (ev.__class__.__name__, msg)
-    elif not isinstance(ev, basestring):
-        ev = repr(ev)
-    elif not UNICODE_STRINGS and isinstance(ev, str):
-        ev = ev.decode(encoding, 'replace')
+if sys.version_info[:2] < (3, 0):
+    def exc_to_unicode(ev, encoding='utf-8'):
+        if is_base_exception(ev):
+            if not hasattr(ev, '__unicode__'):
+                # 2.5-
+                if not hasattr(ev, 'message'):
+                    # 2.4
+                    msg = len(ev.args) and ev.args[0] or ''
+                else:
+                    msg = ev.message
+                msg = force_unicode(msg, encoding=encoding)
+                clsname = force_unicode(ev.__class__.__name__,
+                        encoding=encoding)
+                ev = u'%s: %s' % (clsname, msg)
+        elif not isinstance(ev, unicode):
+            ev = repr(ev)
 
-    return ev
+        return force_unicode(ev, encoding=encoding)
+else:
+    def exc_to_unicode(ev, encoding='utf-8'):
+        return str(ev)
 
 def format_exception(exc_info, encoding='UTF-8'):
     ec, ev, tb = exc_info
