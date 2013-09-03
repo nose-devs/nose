@@ -226,12 +226,12 @@ Look for tests in this directory. May be specified multiple times. The first dir
 .INDENT 0.0
 .TP
 .B \-\-py3where=PY3WHERE
-Look for tests in this directory under Python 3.x. Functions the same as \(aqwhere\(aq, but only applies if running under Python 3.x or above.  Note that, if present under 3.x, this option completely replaces any directories specified with \(aqwhere\(aq, so the \(aqwhere\(aq option becomes ineffective. [NOSE_PY3WHERE]
+Look for tests in this directory under Python 3.x. Functions the same as \(aqwhere\(aq, but only applies if running under Python 3.x or above. Note that, if present under 3.x, this option completely replaces any directories specified with \(aqwhere\(aq, so the \(aqwhere\(aq option becomes ineffective. [NOSE_PY3WHERE]
 .UNINDENT
 .INDENT 0.0
 .TP
 .B \-m=REGEX, \-\-match=REGEX, \-\-testmatch=REGEX
-Files, directories, function names, and class names that match this regular expression are considered tests.  Default: (?:^|[b_./\-])[Tt]est [NOSE_TESTMATCH]
+Files, directories, function names, and class names that match this regular expression are considered tests. Default: (?:^|[b_./\-])[Tt]est [NOSE_TESTMATCH]
 .UNINDENT
 .INDENT 0.0
 .TP
@@ -266,7 +266,7 @@ Don\(aqt run tests that match regular expression [NOSE_EXCLUDE]
 .INDENT 0.0
 .TP
 .B \-i=REGEX, \-\-include=REGEX
-This regular expression will be applied to files, directories, function names, and class names for a chance to include additional tests that do not match TESTMATCH.  Specify this option multiple times to add more regular expressions [NOSE_INCLUDE]
+This regular expression will be applied to files, directories, function names, and class names for a chance to include additional tests that do not match TESTMATCH. Specify this option multiple times to add more regular expressions [NOSE_INCLUDE]
 .UNINDENT
 .INDENT 0.0
 .TP
@@ -379,12 +379,12 @@ Include test modules in coverage report [NOSE_COVER_TESTS]
 .INDENT 0.0
 .TP
 .B \-\-cover\-min\-percentage=DEFAULT
-Minimum percentage of coverage for teststo pass [NOSE_COVER_MIN_PERCENTAGE]
+Minimum percentage of coverage for tests to pass [NOSE_COVER_MIN_PERCENTAGE]
 .UNINDENT
 .INDENT 0.0
 .TP
 .B \-\-cover\-inclusive
-Include all python files under working directory in coverage report.  Useful for discovering holes in test coverage if not all files are imported by the test suite. [NOSE_COVER_INCLUSIVE]
+Include all python files under working directory in coverage report. Useful for discovering holes in test coverage if not all files are imported by the test suite. [NOSE_COVER_INCLUSIVE]
 .UNINDENT
 .INDENT 0.0
 .TP
