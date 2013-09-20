@@ -4,7 +4,7 @@ import unittest
 from cStringIO import StringIO
 from optparse import OptionParser
 import nose.core
-from nose.config import Config
+from nose.config import Config, all_config_files
 from nose.tools import set_trace
 from mock import Bucket, MockOptParser
 
@@ -63,6 +63,37 @@ class TestUsage(unittest.TestCase):
                 nose.__loader__ = existing_loader
             else:
                 del nose.__loader__
+
+
+class DummyTestProgram(nose.core.TestProgram):
+    def __init__(self, *args, **kwargs):
+        pass
+
+
+class TestProgramConfigs(unittest.TestCase):
+
+    def setUp(self):
+        self.program = DummyTestProgram()
+
+    def test_getAllConfigFiles(self):
+        self.assertEqual(self.program.getAllConfigFiles(), all_config_files())
+
+    def test_getAllConfigFiles_ignore_configs(self):
+        env = {'NOSE_IGNORE_CONFIG_FILES': 'yes'}
+        self.assertEqual(self.program.getAllConfigFiles(env), [])
+
+    def test_makeConfig(self):
+        calls = []
+        class TestProgramMock(DummyTestProgram):
+            def getAllConfigFiles(self, env):
+                calls.append(env)
+                return []
+
+        program = TestProgramMock()
+        env = {'foo': 'bar'}
+        program.makeConfig(env)
+        self.assertEqual(calls, [env])
+
 
 if __name__ == '__main__':
     unittest.main()
