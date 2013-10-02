@@ -2,7 +2,7 @@
 
 import unittest
 import logging
-
+logging.basicConfig()
 
 class TestUnicodeInAssertion(unittest.TestCase):
 
