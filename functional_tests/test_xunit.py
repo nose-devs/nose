@@ -6,6 +6,7 @@ import unittest
 from nose.plugins.capture import Capture
 from nose.plugins.xunit import Xunit
 from nose.plugins.skip import Skip
+from nose.plugins.logcapture import LogCapture
 from nose.plugins import PluginTester
 
 support = os.path.join(os.path.dirname(__file__), 'support')
@@ -108,3 +109,20 @@ class TestIssue700(PluginTester, unittest.TestCase):
         assert 'tests="1" errors="0" failures="0" skip="0"' in result
         assert 'line1\n' in result
         assert 'line2\n' in result
+
+
+class TestOutCaptureIssue(PluginTester, unittest.TestCase):
+    activate = '--with-xunit'
+    args = ['-v', '--xunit-file=%s' % xml_results_filename]
+    plugins = [Xunit(), Skip()]
+    suitepath = os.path.join(support, 'issue_out_capture')
+
+    def runTest(self):
+        print str(self.output)
+        f = open(xml_results_filename,'r')
+        result = f.read()
+        f.close()
+        print result
+        assert 'tests="2" errors="0" failures="0" skip="0"' in result
+        assert 'log_1\n' in result
+        assert 'log_2\n' in result
