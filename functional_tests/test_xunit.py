@@ -124,5 +124,5 @@ class TestOutCaptureIssue(PluginTester, unittest.TestCase):
         f.close()
         print result
         assert 'tests="2" errors="0" failures="0" skip="0"' in result
-        assert 'log_1\n' in result
-        assert 'log_2\n' in result
+        assert 'log_1' in result
+        assert 'log_2' in result

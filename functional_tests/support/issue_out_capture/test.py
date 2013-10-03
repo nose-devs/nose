@@ -2,12 +2,15 @@
 
 import unittest
 import logging
-logging.basicConfig()
+import sys
 
-class TestUnicodeInAssertion(unittest.TestCase):
+LOG = logging.getLogger('test_capture_logging')
+LOG.addHandler(logging.StreamHandler())
+
+class TestLoggingWithXunit(unittest.TestCase):
 
     def test_a(self):
-        logging.error('log_1')
+        LOG.error('log_1')
 
     def test_b(self):
-        logging.error('log_2')
+        LOG.error('log_2')
