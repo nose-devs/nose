@@ -129,7 +129,10 @@ def format_exception(exc_info):
 
 class Tee(object):
     def __init__(self, *args):
-        self._streams = args
+        self._streams = list(args)
+
+    def replace_stream(self, s):
+        self._streams.append(s)
 
     def write(self, data):
         for s in self._streams:
@@ -165,7 +168,7 @@ class Xunit(Plugin):
             taken = time() - self._timer
         else:
             # test died before it ran (probably error in setup())
-            # or success/failure added before test started probably 
+            # or success/failure added before test started probably
             # due to custom TestResult munging
             taken = 0.0
         return taken
@@ -232,20 +235,28 @@ class Xunit(Plugin):
         sys.stdout = Tee(self._currentStdout, sys.stdout)
         sys.stderr = Tee(self._currentStderr, sys.stderr)
 
-    def startContext(self, context):
+    def _replaceCaptureStream(self):
+        self._currentStdout = StringIO()
+        self._currentStderr = StringIO()
+        if not isinstance(sys.stdout, Tee) or not isinstance(sys.stderr, Tee):
+            self._startCapture()
+        sys.stdout.replace_stream(self._currentStdout)
+        sys.stderr.replace_stream(self._currentStderr)
+
+    def beforeImport(self, filename, module):
         self._startCapture()
 
     def beforeTest(self, test):
         """Initializes a timer before starting a test."""
         self._timer = time()
-        self._startCapture()
+        self._replaceCaptureStream()
 
     def _endCapture(self):
         if self._capture_stack:
             sys.stdout, sys.stderr = self._capture_stack.pop()
 
     def afterTest(self, test):
-        self._endCapture()
+        #self._endCapture()
         self._currentStdout = None
         self._currentStderr = None
 

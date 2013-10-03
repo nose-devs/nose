@@ -276,7 +276,7 @@ class TestXMLOutputWithXML(unittest.TestCase):
         except RuntimeError:
             some_err = sys.exc_info()
 
-        self.x.startContext(None)
+        self.x._startCapture()
 
         # call addError without startTest
         # which can happen if setup() raises an error
