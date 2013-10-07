@@ -52,7 +52,7 @@ from nose.exc import SkipTest
 from nose.pyversion import UNICODE_STRINGS
 
 # Invalid XML characters, control characters 0-31 sans \t, \n and \r
-CONTROL_CHARACTERS = re.compile(r"[\000-\010\013\014\016-\037]")
+CONTROL_CHARACTERS = re.compile(r"[\000-\010\013\014\016-\037\0200-\0377]")
 
 TEST_ID = re.compile(r'^(.*?)(\(.*\))$')
 
