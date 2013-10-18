@@ -140,7 +140,8 @@ class Coverage(Plugin):
         if self.enabled:
             self.status['active'] = True
             self.coverInstance = coverage.coverage(auto_data=False,
-                branch=self.coverBranches, data_suffix=None)
+                branch=self.coverBranches, data_suffix=None,
+                source=self.coverPackages)
 
     def begin(self):
         """
