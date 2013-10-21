@@ -7,6 +7,7 @@ debugging information.
 """
     
 from nose.plugins import Plugin
+from nose.pyversion import exc_to_unicode, force_unicode
 from nose.inspector import inspect_traceback
 
 class FailureDetail(Plugin):
@@ -38,10 +39,11 @@ class FailureDetail(Plugin):
         """Add detail from traceback inspection to error message of a failure.
         """
         ec, ev, tb = err
-        tbinfo, str_ev = None, str(ev)
+        tbinfo, str_ev = None, exc_to_unicode(ev)
+
         if tb:
-            tbinfo = inspect_traceback(tb)
-            str_ev = '\n'.join([str(ev), tbinfo])
+            tbinfo = force_unicode(inspect_traceback(tb))
+            str_ev = '\n'.join([str_ev, tbinfo])
         test.tbinfo = tbinfo
         return (ec, str_ev, tb)
 

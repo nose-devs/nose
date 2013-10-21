@@ -46,5 +46,19 @@ class TestFailureDetailWithCapture(PluginTester, unittest.TestCase):
 
         assert expect in self.output
 
+class TestFailureDetailWithUnicodeAndCapture(PluginTester, unittest.TestCase):
+    activate = "-d"
+    args = ['-v']
+    plugins = [FailureDetail(), Capture()]
+    suitepath = os.path.join(support, 'issue720')
+
+    def runTest(self):
+        print '*' * 70
+        print str(self.output)
+        print '*' * 70
+
+        assert 'UnicodeDecodeError' not in self.output
+        assert 'UnicodeEncodeError' not in self.output
+
 if __name__ == '__main__':
     unittest.main()
