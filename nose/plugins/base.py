@@ -651,6 +651,13 @@ class IPluginInterface(object):
         :type test: :class:`nose.case.Test`
         """
         pass
+    
+    def stopWorker(self, config):
+        """Called when a --multiprocess worker exits.
+        
+        :param config: The nose config instance that the worker ran with.
+        """
+        pass
 
     def testName(self, test):
         """Return a short test name. Called by `nose.case.Test.__str__`.

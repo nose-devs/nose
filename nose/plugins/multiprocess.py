@@ -749,6 +749,7 @@ def __runner(ix, testQueue, resultQueue, currentaddr, currentstart,
             resultQueue.put((ix, test_addr, test.tasks, batch(result)))
         if config.multiprocess_restartworker:
             break
+    config.plugins.stopWorker(config)
     log.debug("Worker %s ending", ix)
 
 
