@@ -39,7 +39,7 @@ class TestPluginCalls(unittest.TestCase):
              'beforeTest', 'prepareTestCase', 'startTest', 'addSuccess',
              'stopTest', 'afterTest', 'stopContext', 'afterContext',
              'loadTestsFromDir', 'afterDirectory',
-             'report', 'finalize'])
+             'report', 'finalize', 'stopWorker'])
 
     def test_plugin_calls_package1_verbose(self):
         wdir = os.path.join(support, 'package1')
@@ -63,7 +63,7 @@ class TestPluginCalls(unittest.TestCase):
              'beforeTest', 'prepareTestCase', 'startTest', 'describeTest',
              'testName', 'addSuccess', 'stopTest', 'afterTest', 'stopContext',
              'afterContext', 'loadTestsFromDir', 'afterDirectory',
-             'report', 'finalize'])
+             'report', 'finalize', 'stopWorker'])
 
 
 

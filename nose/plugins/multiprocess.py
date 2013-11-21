@@ -58,6 +58,17 @@ results from the test run are combined into a consolidated result
 set. When results have been received for all dispatched tests, or all
 workers have died, the result summary is output as normal.
 
+Multiprocess Plugin Interoperability
+====================================
+
+Plugins wishing to interoperate with the multiprocess plugin should be aware
+of a few things.  First, there is an additional plugin hook that is executed
+when a worker that has successfully started exits, stopWorker(), available to
+perform any cleanup work that the plugin may require on a per-process basis.
+Second, not all plugin hooks (ex prepareTestLoader()) are called on plugins
+loaded in workers, so make sure to test your plugin with multiprocess enabled
+to ensure it works correctly when run inside a worker. 
+
 Beware!
 =======
 
