@@ -226,6 +226,9 @@ class Xunit(Plugin):
     def startContext(self, context):
         self._startCapture()
 
+    def stopContext(self, context):
+        self._endCapture()
+
     def beforeTest(self, test):
         """Initializes a timer before starting a test."""
         self._timer = time()
