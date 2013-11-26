@@ -20,7 +20,7 @@ class TestPluginInterfaces(unittest.TestCase):
         
         others = ['addDeprecated', 'addError', 'addFailure',
                   'addSkip', 'addSuccess', 'startTest', 'stopTest',
-                  'prepareTest', 'begin', 'report'
+                  'prepareTest', 'begin', 'report', 'stopWorker'
                   ] 
 
         expect = selfuncs + loadfuncs + others

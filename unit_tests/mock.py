@@ -105,3 +105,29 @@ class MockOptParser(object):
         self.opts = []
     def add_option(self, *args, **kw):
         self.opts.append((args, kw))
+
+
+class MockManagedValue(object):
+    
+    def __init__(self, value):
+        
+        self.value = value
+
+
+class MockEvent(object):
+    
+    def __init__(self, initial=False):
+        
+        self._set = initial
+    
+    def set(self):
+        
+        self._set = True
+    
+    def clear(self):
+        
+        self._set = False
+    
+    def is_set(self):
+        
+        return self._set
