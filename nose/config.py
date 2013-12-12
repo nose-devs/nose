@@ -207,6 +207,7 @@ class Config(object):
         self.stopOnError = env.get('NOSE_STOP', False)
         self.stream = sys.stderr
         self.testNames = []
+        self.generatorTests = []
         self.verbosity = int(env.get('NOSE_VERBOSE', 1))
         self.where = ()
         self.py3where = ()
@@ -289,6 +290,8 @@ class Config(object):
             self.testNames = args
         if options.testNames is not None:
             self.testNames.extend(tolist(options.testNames))
+        if options.generatorTests is not None:
+            self.generatorTests.extend(tolist(options.generatorTests))
 
         if options.py3where is not None:
             if sys.version_info >= (3,):
@@ -508,6 +511,13 @@ class Config(object):
             help="Run these tests (comma-separated list). This argument is "
             "useful mainly from configuration files; on the command line, "
             "just pass the tests to run as additional arguments with no "
+            "switch.")
+        parser.add_option(
+            "--gentests", action="store", dest="generatorTests", default=None,
+            metavar='NAMES',
+            help="Rung these generated tests (comma-separated list). This argument is "
+            "useful mainly from configuration files; on the command line, "
+            "just pass the names of generated tests to run as additional arguments with no "
             "switch.")
         parser.add_option(
             "-l", "--debug", action="store",

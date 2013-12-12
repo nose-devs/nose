@@ -252,6 +252,8 @@ class TestLoader(unittest.TestLoader):
             try:
                 for test in g():
                     test_func, arg = self.parseGeneratedTest(test)
+                    if self.config.generatorTests and test_func.description not in self.config.generatorTests:
+                        continue
                     if not callable(test_func):
                         test_func = getattr(m, test_func)
                     yield FunctionTestCase(test_func, arg=arg, descriptor=g)
