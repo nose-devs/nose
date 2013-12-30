@@ -78,6 +78,26 @@ class TestTools(unittest.TestCase):
         else:
             self.fail("raises did not raise assertion error on no exception")
 
+    def test_raises_works_as_context_manager(self):
+        with raises(KeyError):
+            raise KeyError
+
+        try:
+            with raises(ValueError):
+                pass
+        except AssertionError:
+            pass
+        else:
+            self.fail("raises did not raise assertion error")
+
+        try:
+            with raises(ValueError):
+                raise KeyError
+        except AssertionError:
+            pass
+        else:
+            self.fail("raises did not raise assertion error")
+
     def test_timed(self):
 
         def too_slow():
