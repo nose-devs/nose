@@ -171,6 +171,13 @@ class TestTools(unittest.TestCase):
         if compat_24:
             assert 'assert_true' in tc_asserts
 
+        # make sure we support backported unittest features
+        try:
+            with nose.tools.assert_raises(KeyError):
+                raise KeyError
+        except Exception:
+            self.fail('assert_raises not working as context manager')
+
     def test_multiple_with_setup(self):
         from nose.tools import with_setup
         from nose.case import FunctionTestCase
