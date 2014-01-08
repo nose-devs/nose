@@ -609,8 +609,13 @@ def transplant_func(func, module):
 
     """
     from nose.tools import make_decorator
-    def newfunc(*arg, **kw):
-        return func(*arg, **kw)
+    if isgenerator(func):
+        def newfunc(*arg, **kw):
+            for v in func(*arg, **kw):
+                yield v
+    else:
+        def newfunc(*arg, **kw):
+            return func(*arg, **kw)
 
     newfunc = make_decorator(func)(newfunc)
     newfunc.__module__ = module
