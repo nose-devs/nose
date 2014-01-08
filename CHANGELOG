@@ -45,6 +45,8 @@ In Development
 - Fix #501: Imported test generators are misrecognized as simple test
   functions
   Patch by John Szakmeister.
+- Added a test for issue #501
+  Patch by Michael Killough.
 
 1.3.0
 
