@@ -573,6 +573,7 @@ class FinalizingSuiteWrapper(unittest.TestSuite):
     control.
     """
     def __init__(self, suite, finalize):
+        super(FinalizingSuiteWrapper, self).__init__()
         self.suite = suite
         self.finalize = finalize
 
