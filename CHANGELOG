@@ -52,6 +52,8 @@ In Development
   Patch by Ian Wienand.
 - Fix #759: Test failures with Python 3.4
   Patch by Barry Warsaw.
+- Add a note about executable files in the usage, and how to workaround it
+  Patch by Michael Dunn.
 
 1.3.0
 
