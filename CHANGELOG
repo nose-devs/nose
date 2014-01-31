@@ -50,6 +50,8 @@ In Development
 - Use SkipTest from unittest2, if available, for better integration with
   testtools
   Patch by Ian Wienand.
+- Fix #759: Test failures with Python 3.4
+  Patch by Barry Warsaw.
 
 1.3.0
 
