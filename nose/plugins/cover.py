@@ -89,6 +89,11 @@ class Coverage(Plugin):
                           dest="cover_xml_file",
                           metavar="FILE",
                           help="Produce XML coverage information in file")
+        parser.add_option("--cover-nostream", action="store_false",
+                          default=env.get('NOSE_COVER_NOSTREAM'),
+                          dest='cover_stream',
+                          help="Disable coverage output to stdout/stderr")
+
 
     def configure(self, options, conf):
         """
@@ -115,6 +120,7 @@ class Coverage(Plugin):
         self.coverErase = options.cover_erase
         self.coverTests = options.cover_tests
         self.coverPackages = []
+        self.coverStream = options.cover_stream
         if options.cover_packages:
             if isinstance(options.cover_packages, (list, tuple)):
                 cover_packages = options.cover_packages
@@ -168,7 +174,8 @@ class Coverage(Plugin):
                     for name, module in sys.modules.items()
                     if self.wantModuleCoverage(name, module)]
         log.debug("Coverage report will cover modules: %s", modules)
-        self.coverInstance.report(modules, file=stream)
+        if self.coverStream :
+            self.coverInstance.report(modules, file=stream)
         if self.coverHtmlDir:
             log.debug("Generating HTML coverage report")
             self.coverInstance.html_report(modules, self.coverHtmlDir)
