@@ -54,6 +54,8 @@ In Development
   Patch by Barry Warsaw.
 - Add a note about executable files in the usage, and how to workaround it
   Patch by Michael Dunn.
+- Fix #743: fix an incorrect regex in writing_tests.rst
+  Patch by Anne Moroney.
 
 1.3.0
 
