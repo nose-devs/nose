@@ -2,6 +2,7 @@ In Development
 
 - The log capture plugin now correctly applies filters that were added
   using `addFilter`.
+  Patch by Malthe Borch.
 - Corrected a reference to the multiprocessing plugin in the documentation.
   Patch by Nick Loadholtes.
 - Fixed #447: doctests fail when getpackage() returns None
