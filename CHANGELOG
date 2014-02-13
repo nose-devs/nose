@@ -59,6 +59,8 @@ In Development
   Patch by Michael Dunn.
 - Fix #743: fix an incorrect regex in writing_tests.rst
   Patch by Anne Moroney.
+- Fix #690: Don't traceback when coverage reports fail.
+  Patch by John Szakmeister.
 
 1.3.0
 
