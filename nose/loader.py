@@ -104,7 +104,7 @@ class TestLoader(unittest.TestLoader):
         """
         if self.config.getTestCaseNamesCompat:
             return unittest.TestLoader.getTestCaseNames(self, testCaseClass)
-        
+
         def wanted(attr, cls=testCaseClass, sel=self.selector):
             item = getattr(cls, attr, None)
             if isfunction(item):
@@ -112,11 +112,9 @@ class TestLoader(unittest.TestLoader):
             elif not ismethod(item):
                 return False
             return sel.wantMethod(item)
+
         cases = filter(wanted, dir(testCaseClass))
-        for base in testCaseClass.__bases__:
-            for case in self.getTestCaseNames(base):
-                if case not in cases:
-                    cases.append(case)
+
         # add runTest if nothing else picked
         if not cases and hasattr(testCaseClass, 'runTest'):
             cases = ['runTest']

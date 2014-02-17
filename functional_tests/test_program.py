@@ -113,16 +113,8 @@ class TestTestProgram(unittest.TestCase):
         print "-----"
         print repr(res)
 
-        # some versions of twisted.trial.unittest.TestCase have
-        # runTest in the base class -- this is wrong! But we have
-        # to deal with it
-        if hasattr(TestCase, 'runTest'):
-            expect = 5
-        else:
-            expect = 4
-        self.assertEqual(res.testsRun, expect,
-                         "Expected to run %s tests, ran %s" %
-                         (expect, res.testsRun))
+        self.assertEqual(res.testsRun, 4,
+                         "Expected to run 4 tests, ran %s" % (res.testsRun,))
         assert not res.wasSuccessful()
         assert len(res.errors) == 1
 
