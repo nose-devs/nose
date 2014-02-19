@@ -56,7 +56,7 @@ class Coverage(Plugin):
         parser.add_option("--cover-min-percentage", action="store",
                           dest="cover_min_percentage",
                           default=env.get('NOSE_COVER_MIN_PERCENTAGE'),
-                          help="Minimum percentage of coverage for tests"
+                          help="Minimum percentage of coverage for tests "
                           "to pass [NOSE_COVER_MIN_PERCENTAGE]")
         parser.add_option("--cover-inclusive", action="store_true",
                           dest="cover_inclusive",
