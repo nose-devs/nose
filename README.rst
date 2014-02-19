@@ -1,6 +1,6 @@
-
+===========
 Basic usage
-***********
+===========
 
 Use the nosetests script (after installation by setuptools):
 
