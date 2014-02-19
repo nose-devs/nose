@@ -67,6 +67,8 @@ In Development
 - Fix #771: attr plugin is broken when parent and child share same method
   name with different attributes
   Patch by John Szakmeister.  Test case provided by Thomas Grainger.
+- Fix #728: attrib plugin rejects any staticmethod
+  Patch by John Szakmesiter.  Test case provided by Thomas Kluyver.
 
 1.3.0
 

@@ -89,6 +89,7 @@ class UnboundMethod:
         self.__dict__ = func.__dict__.copy()
         self._func = func
         self.__self__ = UnboundSelf(cls)
+        self.im_class = cls
 
     def address(self):
         cls = self.__self__.cls

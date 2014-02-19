@@ -170,6 +170,16 @@ class TestTopLevelNotSelected(AttributePluginTester):
         assert 'TestDerived' not in self.output
 
 
+# Issue #728
+class TestStaticMethod(AttributePluginTester):
+    suitepath = os.path.join(support, 'attrib-static')
+    args = ["-a", "!slow"]
+
+    def verify(self):
+        assert 'test.TestAttrib.test_static ... ok' in self.output
+        assert 'Ran 1 test' in self.output
+
+
 if compat_24:
     class TestAttributeEval(AttributePluginTester):
         args = ["-A", "c>20"]
