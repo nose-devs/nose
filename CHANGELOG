@@ -64,6 +64,9 @@ In Development
 - Display the report summary and stack traces even if Ctrl-C was pressed
   during the test run.
   Patch by Kevin Qiu.
+- Fix #771: attr plugin is broken when parent and child share same method
+  name with different attributes
+  Patch by John Szakmeister.  Test case provided by Thomas Grainger.
 
 1.3.0
 
