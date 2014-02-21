@@ -69,6 +69,8 @@ In Development
   Patch by John Szakmeister.  Test case provided by Thomas Grainger.
 - Fix #728: attrib plugin rejects any staticmethod
   Patch by John Szakmesiter.  Test case provided by Thomas Kluyver.
+- Fix the plugin testing example.
+  Patch by Charlie Dominio.
 
 1.3.0
 
