@@ -27,19 +27,18 @@ class TestPluginCalls(unittest.TestCase):
         assert man.called
 
         self.assertEqual(
-            man.calls(),
             ['loadPlugins', 'addOptions', 'configure', 'begin',
              'prepareTestLoader', 'loadTestsFromNames', 'loadTestsFromName',
              'prepareTestRunner', 'prepareTest', 'setOutputStream',
-             'prepareTestResult', 'beforeDirectory', 'wantFile',
-             'wantDirectory', 'beforeContext', 'beforeImport',
-             'afterImport', 'wantModule', 'wantClass', 'wantFunction',
-             'makeTest', 'wantMethod', 'loadTestsFromTestClass',
+             'beforeDirectory', 'wantFile', 'wantDirectory', 'beforeContext',
+             'beforeImport', 'afterImport', 'wantModule', 'wantClass',
+             'wantFunction', 'makeTest', 'wantMethod', 'loadTestsFromTestClass',
              'loadTestsFromTestCase', 'loadTestsFromModule', 'startContext',
-             'beforeTest', 'prepareTestCase', 'startTest', 'addSuccess',
-             'stopTest', 'afterTest', 'stopContext', 'afterContext',
-             'loadTestsFromDir', 'afterDirectory',
-             'report', 'finalize'])
+             'prepareTestResult', 'beforeTest', 'prepareTestCase', 'startTest',
+             'addSuccess', 'stopTest', 'afterTest', 'stopContext',
+             'afterContext', 'loadTestsFromDir', 'afterDirectory',
+             'report', 'finalize'],
+            man.calls())
 
     def test_plugin_calls_package1_verbose(self):
         wdir = os.path.join(support, 'package1')
@@ -51,19 +50,18 @@ class TestPluginCalls(unittest.TestCase):
         assert man.called
 
         self.assertEqual(
-            man.calls(),
             ['loadPlugins', 'addOptions', 'configure', 'begin',
              'prepareTestLoader', 'loadTestsFromNames', 'loadTestsFromName',
              'prepareTestRunner', 'prepareTest', 'setOutputStream',
-             'prepareTestResult', 'beforeDirectory', 'wantFile',
-             'wantDirectory', 'beforeContext', 'beforeImport',
-             'afterImport', 'wantModule', 'wantClass', 'wantFunction',
-             'makeTest', 'wantMethod', 'loadTestsFromTestClass',
+             'beforeDirectory', 'wantFile', 'wantDirectory', 'beforeContext',
+             'beforeImport', 'afterImport', 'wantModule', 'wantClass',
+             'wantFunction', 'makeTest', 'wantMethod', 'loadTestsFromTestClass',
              'loadTestsFromTestCase', 'loadTestsFromModule', 'startContext',
-             'beforeTest', 'prepareTestCase', 'startTest', 'describeTest',
-             'testName', 'addSuccess', 'stopTest', 'afterTest', 'stopContext',
-             'afterContext', 'loadTestsFromDir', 'afterDirectory',
-             'report', 'finalize'])
+             'prepareTestResult', 'beforeTest', 'prepareTestCase', 'startTest',
+             'describeTest', 'testName', 'addSuccess', 'stopTest', 'afterTest',
+             'stopContext', 'afterContext', 'loadTestsFromDir',
+             'afterDirectory', 'report', 'finalize'],
+            man.calls())
 
 
 
