@@ -38,7 +38,7 @@ test_raises_bad_return = raises(TypeError)(deferred()(test_raises_bad_return))
 #@raises(DNSLookupError)
 #@deferred()
 def test_raises_twisted_error():
-    return reactor.resolve("x.y.z")
+    return reactor.resolve("x.y.invalid")
 test_raises_twisted_error = raises(DNSLookupError)(
     deferred()(test_raises_twisted_error))
 
