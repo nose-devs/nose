@@ -71,6 +71,7 @@ In Development
   Patch by John Szakmesiter.  Test case provided by Thomas Kluyver.
 - Fix the plugin testing example.
   Patch by Charlie Dominio.
+- Instruct coverage instance to cover requested packages only.
 
 1.3.0
 
