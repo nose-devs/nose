@@ -360,7 +360,7 @@ Options
 
 --cover-min-percentage=DEFAULT
 
-   Minimum percentage of coverage for teststo pass
+   Minimum percentage of coverage for tests to pass
    [NOSE_COVER_MIN_PERCENTAGE]
 
 --cover-inclusive
