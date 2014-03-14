@@ -89,9 +89,9 @@ Invalid config files
 
 (file-like object)
 
-    >>> options, args = parse([], StringIO("spam"))
+    >>> options, args = parse([], StringIO("spam")) # doctest: +ELLIPSIS
     error: Error reading config file '<???>': File contains no section headers.
-    file: <???>, line: 1
+    file: ...<???>..., line: 1
     'spam'
 
 (filename)
@@ -99,7 +99,7 @@ Invalid config files
     >>> options, args = parse([], os.path.join(support, "invalid.cfg"))
     ... # doctest: +ELLIPSIS
     error: Error reading config file '...invalid.cfg': File contains no section headers.
-    file: ...invalid.cfg, line: 1
+    file: ...invalid.cfg..., line: 1
     'spam\n'
 
 (filenames, length == 1)
@@ -107,7 +107,7 @@ Invalid config files
     >>> options, args = parse([], [os.path.join(support, "invalid.cfg")])
     ... # doctest: +ELLIPSIS
     error: Error reading config file '...invalid.cfg': File contains no section headers.
-    file: ...invalid.cfg, line: 1
+    file: ...invalid.cfg..., line: 1
     'spam\n'
 
 (filenames, length > 1)
@@ -120,7 +120,7 @@ file is bad
     ...                            os.path.join(support, "b.cfg")])
     ... # doctest: +ELLIPSIS
     error: Error reading config file '...invalid.cfg': File contains no section headers.
-    file: ...invalid.cfg, line: 1
+    file: ...invalid.cfg..., line: 1
     'spam\n'
 
 
