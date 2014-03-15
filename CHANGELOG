@@ -3,6 +3,7 @@ Under Development
 - Fixed #782: Test failures with Python >= 3.3
   Patch by Dmitry Shachnev.
 - Fixed #780: Fix a regression with Python 3
+- Fixed #783: try_run is broken with Python 3.4
 
 1.3.1
 

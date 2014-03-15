@@ -8,7 +8,7 @@ import re
 import sys
 import types
 import unittest
-from nose.pyversion import ClassType, TypeType, isgenerator
+from nose.pyversion import ClassType, TypeType, isgenerator, ismethod
 
 
 log = logging.getLogger('nose')
@@ -449,6 +449,8 @@ def try_run(obj, names):
                 # py.test compatibility
                 try:
                     args, varargs, varkw, defaults = inspect.getargspec(func)
+                    if hasattr(func, '__call__') and ismethod(func.__call__):
+                        args.pop(0)
                 except TypeError:
                     # Not a function. If it's callable, call it anyway
                     if hasattr(func, '__call__'):
