@@ -86,8 +86,8 @@ class TestIssue680(PluginTester, unittest.TestCase):
 
     def runTest(self):
         print str(self.output)
-        f = open(xml_results_filename,'r')
-        result = f.read()
+        f = open(xml_results_filename,'rb')
+        result = f.read().decode('utf-8')
         f.close()
         print result
         assert 'tests="1" errors="0" failures="0" skip="0"' in result
