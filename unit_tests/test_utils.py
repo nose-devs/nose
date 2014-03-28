@@ -1,4 +1,5 @@
 import os
+import sys
 import unittest
 import nose
 from nose import case
@@ -168,7 +169,7 @@ class TestUtils(unittest.TestCase):
         class Bar_m:
             def __call__(self, mod):
                 pass
-        
+
         foo = imp.new_module('foo')
         foo.bar = bar
         foo.bar_m = bar_m

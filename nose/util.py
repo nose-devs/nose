@@ -447,11 +447,10 @@ def try_run(obj, names):
         if func is not None:
             if type(obj) == types.ModuleType:
                 # py.test compatibility
-                try:
-                    args, varargs, varkw, defaults = inspect.getargspec(func)
-                    if hasattr(func, '__call__') and ismethod(func.__call__):
-                        args.pop(0)
-                except TypeError:
+                if isinstance(func, types.FunctionType):
+                    args, varargs, varkw, defaults = \
+                        inspect.getargspec(func)
+                else:
                     # Not a function. If it's callable, call it anyway
                     if hasattr(func, '__call__'):
                         func = func.__call__
