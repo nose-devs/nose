@@ -77,7 +77,7 @@ except ImportError:
         )
 
 setup(
-    name = 'nose',
+    name = 'nose-for-sneeze',
     version = VERSION,
     author = 'Jason Pellerin',
     author_email = 'jpellerin+nose@gmail.com',
