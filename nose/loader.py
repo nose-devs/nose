@@ -287,7 +287,7 @@ class TestLoader(unittest.TestLoader):
                         test_func = unbound_method(c, getattr(c, test_func))
                     if ismethod(test_func):
                         yield MethodTestCase(test_func, arg=arg, descriptor=g)
-                    elif isfunction(test_func):
+                    elif callable(test_func):
                         # In this case we're forcing the 'MethodTestCase'
                         # to run the inline function as its test call,
                         # but using the generator method as the 'method of
@@ -296,7 +296,7 @@ class TestLoader(unittest.TestLoader):
                     else:
                         yield Failure(
                             TypeError,
-                            "%s is not a function or method" % test_func)
+                            "%s is not a callable or method" % test_func)
             except KeyboardInterrupt:
                 raise
             except:
