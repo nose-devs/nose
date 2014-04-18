@@ -180,7 +180,7 @@ class TextTestResult(_TextTestResult):
     def _exc_info_to_string(self, err, test=None):
         # 2.7 skip compat
         from nose.plugins.skip import SkipTest
-        if issubclass(err[0], SkipTest):
+        if isclass(err[0]) and issubclass(err[0], SkipTest):
             return str(err[1])
         # 2.3/2.4 -- 2.4 passes test, 2.3 does not
         try:
