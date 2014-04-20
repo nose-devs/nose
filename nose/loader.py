@@ -344,7 +344,10 @@ class TestLoader(unittest.TestLoader):
                       path, module_path, os.path.realpath(module_path))
             if (self.config.traverseNamespace or not path) or \
                     os.path.realpath(module_path).startswith(path):
-                tests.extend(self.loadTestsFromDir(module_path))
+                # Egg files can be on sys.path, so make sure the path is a
+                # directory before trying to load from it.
+                if os.path.isdir(module_path):
+                    tests.extend(self.loadTestsFromDir(module_path))
             
         for test in self.config.plugins.loadTestsFromModule(module, path):
             tests.append(test)
