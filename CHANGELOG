@@ -1,7 +1,14 @@
 Under Development
 
+- Fixed an issue where build_ext was not working under setup.py nosetest
+  Patch by Michael Crusoe
+- Fixed #786: generator method fails with callable instance
+  Patch by Antoine Dechaume
+- Fixed a traceback when using string exceptions
+- Fixed #792: "Not a directory" error when using python setup.py nosetests
+- Fixed #779: xunit report file is written in --where directory
 - Fixed #782: Test failures with Python >= 3.3
-  Patch by Dmitry Shachnev.
+  Patch by Dmitry Shachnev
 - Fixed #780: Fix a regression with Python 3
 - Fixed #783: try_run is broken with Python 3.4
 
