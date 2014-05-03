@@ -1,17 +1,14 @@
-1.3.1
+1.3.2
 -----
 
-It's been nearly a year since the last release, and this one brings
-about 30+ fixes--a couple of the big ones include better Unicode
-support when capturing output and compatibility with Python 3.4.
-Thank you to all those who contributed to this release, and a special
-thanks goes to Thomas Kluyver for all the code reviews and insights
-while sorting out Unicode-related issues.  See the CHANGELOG for the
-details of what was fixed and the person to thank for fixing it.
+1.3.2 fixes a regression introduced in 1.3.1 on PyPy, and an issue on
+Python 3.3 and 3.4 that managed to slip by--along with a few other
+minor fixes.  See the CHANGELOG for the details of what was fixed and
+the person to thank for fixing it.
 
-It's also time to acknowledge that nose 1.x is in maintenance mode.
-We will not be looking to add any features, and you should
-seriously consider looking at nose2 as the way forward.
+Also note that nose 1.x is in maintenance mode.  We will not be
+looking to add any features, and you should seriously consider
+looking at nose2 as the way forward.
 
 If you're interested in the future of nose, please take a look at the
 nose2 project on github (https://github.com/nose-devs/nose2) or pypi
