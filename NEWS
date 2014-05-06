@@ -1,10 +1,7 @@
-1.3.2
+1.3.3
 -----
 
-1.3.2 fixes a regression introduced in 1.3.1 on PyPy, and an issue on
-Python 3.3 and 3.4 that managed to slip by--along with a few other
-minor fixes.  See the CHANGELOG for the details of what was fixed and
-the person to thank for fixing it.
+1.3.3 fixes a simple issue with the reported version number.
 
 Also note that nose 1.x is in maintenance mode.  We will not be
 looking to add any features, and you should seriously consider
