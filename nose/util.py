@@ -452,7 +452,7 @@ def try_run(obj, names):
                         inspect.getargspec(func)
                 else:
                     # Not a function. If it's callable, call it anyway
-                    if hasattr(func, '__call__'):
+                    if hasattr(func, '__call__') and not inspect.ismethod(func):
                         func = func.__call__
                     try:
                         args, varargs, varkw, defaults = \
