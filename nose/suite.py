@@ -154,6 +154,7 @@ class ContextSuite(LazySuite):
         self.has_run = False
         self.can_split = can_split
         self.error_context = None
+        self.capturedOutput = None
         LazySuite.__init__(self, tests)
 
     def __repr__(self):
