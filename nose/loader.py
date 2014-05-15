@@ -342,8 +342,12 @@ class TestLoader(unittest.TestLoader):
             log.debug("Load tests from module path %s?", module_path)
             log.debug("path: %s os.path.realpath(%s): %s",
                       path, module_path, os.path.realpath(module_path))
+                      
+            norm_module_path = os.path.normcase(module_path)
+            norm_path = os.path.normcase(path)
+            
             if (self.config.traverseNamespace or not path) or \
-                    os.path.realpath(os.path.normcase(module_path)).startswith(os.path.normcase(path)):
+                    os.path.realpath(norm_module_path).startswith(norm_path):
                 # Egg files can be on sys.path, so make sure the path is a
                 # directory before trying to load from it.
                 if os.path.isdir(module_path):
