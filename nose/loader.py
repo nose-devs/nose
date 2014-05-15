@@ -343,7 +343,7 @@ class TestLoader(unittest.TestLoader):
             log.debug("path: %s os.path.realpath(%s): %s",
                       path, module_path, os.path.realpath(module_path))
             if (self.config.traverseNamespace or not path) or \
-                    os.path.realpath(module_path).startswith(path):
+                    os.path.realpath(os.path.normcase(module_path)).startswith(os.path.normcase(path)):
                 # Egg files can be on sys.path, so make sure the path is a
                 # directory before trying to load from it.
                 if os.path.isdir(module_path):
