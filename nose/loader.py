@@ -342,9 +342,10 @@ class TestLoader(unittest.TestLoader):
             log.debug("Load tests from module path %s?", module_path)
             log.debug("path: %s os.path.realpath(%s): %s",
                       path, module_path, os.path.realpath(module_path))
-                      
-            norm_module_path = os.path.normcase(module_path)
-            norm_path = os.path.normcase(path)
+            
+            if path:
+                norm_module_path = os.path.normcase(module_path)
+                norm_path = os.path.normcase(path)
             
             if (self.config.traverseNamespace or not path) or \
                     os.path.realpath(norm_module_path).startswith(norm_path):
