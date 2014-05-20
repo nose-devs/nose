@@ -49,6 +49,7 @@ class LazySuite(unittest.TestSuite):
     def __init__(self, tests=()):
         """Initialize the suite. tests may be an iterable or a generator
         """
+        super(LazySuite, self).__init__()
         self._set_tests(tests)
 
     def __iter__(self):
