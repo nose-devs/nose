@@ -8,6 +8,7 @@ from optparse import OptionParser
 from nose.util import absdir, tolist
 from nose.plugins.manager import NoPlugins
 from warnings import warn, filterwarnings
+import ast
 
 log = logging.getLogger(__name__)
 
@@ -204,7 +205,7 @@ class Config(object):
         self.plugins = NoPlugins()
         self.srcDirs = ('lib', 'src')
         self.runOnInit = True
-        self.stopOnError = env.get('NOSE_STOP', False)
+        self.stopOnError = ast.literal_eval(env.get('NOSE_STOP', False))
         self.stream = sys.stderr
         self.testNames = []
         self.verbosity = int(env.get('NOSE_VERBOSE', 1))
