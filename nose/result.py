@@ -130,7 +130,7 @@ class TextTestResult(_TextTestResult):
         plural = run != 1 and "s" or ""
 
         writeln(self.separator2)
-        writeln("Ran %s test%s in %.3fs" % (run, plural, taken))
+        writeln("Ran %s test%s in %s" % (run, plural, taken))
         writeln()
 
         summary = {}
