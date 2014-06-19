@@ -99,6 +99,7 @@ class Coverage(Plugin):
         except KeyError:
             pass
         super(Coverage, self).configure(options, conf)
+        self.worker = conf.worker
         if conf.worker:
             return
         if self.enabled:
@@ -147,6 +148,8 @@ class Coverage(Plugin):
         """
         Begin recording coverage information.
         """
+        if not self.enabled or self.worker:
+            return
         log.debug("Coverage begin")
         self.skipModules = sys.modules.keys()[:]
         if self.coverErase:
@@ -161,6 +164,8 @@ class Coverage(Plugin):
         """
         Output code coverage report.
         """
+        if not self.enabled or self.worker:
+            return
         log.debug("Coverage report")
         self.coverInstance.stop()
         self.coverInstance.combine()
