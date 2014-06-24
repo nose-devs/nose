@@ -16,7 +16,7 @@ When adding ``--with-id`` you'll see::
   % nosetests -v --with-id
   #1 tests.test_a ... ok
   #2 tests.test_b ... ok
-  #2 tests.test_c ... ok
+  #3 tests.test_c ... ok
 
 Then you can re-run individual tests by supplying just an id number::
 
@@ -85,9 +85,9 @@ Second::
 .. note ::
 
   If you expect to use ``--failed`` regularly, it's a good idea to always run
-  run using the ``--with-id`` option. This will ensure that an id file is
-  always created, allowing you to add ``--failed`` to the command line as soon
-  as you have failing tests. Otherwise, your first run using ``--failed`` will
+  using the ``--with-id`` option. This will ensure that an id file is always
+  created, allowing you to add ``--failed`` to the command line as soon as
+  you have failing tests. Otherwise, your first run using ``--failed`` will
   (perhaps surprisingly) run *all* tests, because there won't be an id file
   containing the record of failed tests from your previous run.
   
