@@ -198,6 +198,11 @@ class TestId(Plugin):
                 self.ids, self.tests, self.failed, self.source_names,
                 self.idfile)
             fh.close()
+        except ValueError, e:
+            # load() may throw a ValueError when reading the ids file, if it
+            # was generated with a newer version of Python than we are currently
+            # running.
+            log.debug('Error loading %s : %s', self.idfile, str(e))
         except IOError:
             log.debug('IO error reading %s', self.idfile)
 
