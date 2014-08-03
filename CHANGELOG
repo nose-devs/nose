@@ -32,6 +32,8 @@
 
 1.3.3
 
+- Add option to suppress printing of coverage report
+  Patch by Eric Larson.
 - Fixed a minor issue with the reported version number.
 
 1.3.2
@@ -883,4 +885,3 @@
 - Increased compatibility with python 2.3 (and maybe earlier)
 - Increased compatibility with tests written for py.test: now calls
   module.setup_module(module) if module.setup_module() fails
-
