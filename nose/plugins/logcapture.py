@@ -119,7 +119,7 @@ class LogCapture(Plugin):
             "--nologcapture", action="store_false",
             default=not env.get(self.env_opt), dest="logcapture",
             help="Disable logging capture plugin. "
-                 "Logging configurtion will be left intact."
+                 "Logging configuration will be left intact."
                  " [NOSE_NOLOGCAPTURE]")
         parser.add_option(
             "--logging-format", action="store", dest="logcapture_format",
