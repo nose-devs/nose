@@ -29,7 +29,7 @@ class Coverage(Plugin):
     coverInstance = None
     coverErase = False
     coverMinPercentage = None
-    coverNoPrint = False
+    coverPrint = True
     score = 200
     status = {}
 
@@ -146,7 +146,7 @@ class Coverage(Plugin):
         if options.cover_xml:
             self.coverXmlFile = options.cover_xml_file
             log.debug('Will put XML coverage report in %s', self.coverXmlFile)
-        self.coverNoPrint = options.cover_no_print
+        self.coverPrint = not options.cover_no_print
         if self.enabled:
             self.status['active'] = True
             self.coverInstance = coverage.coverage(auto_data=False,
@@ -187,7 +187,7 @@ class Coverage(Plugin):
                    for name, module in sys.modules.items()
                    if self.wantModuleCoverage(name, module)]
         log.debug("Coverage report will cover modules: %s", modules)
-        if not self.coverNoPrint:
+        if self.coverPrint:
             self.coverInstance.report(modules, file=stream)
 
         import coverage
