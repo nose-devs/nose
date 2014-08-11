@@ -1,10 +1,8 @@
 import os
-import sys
 from optparse import OptionParser
 from nose.config import Config
 from nose.plugins.cover import Coverage
 from nose.tools import eq_
-import unittest
 
 
 class TestCoveragePlugin(object):
@@ -13,6 +11,11 @@ class TestCoveragePlugin(object):
         _test_options_helper('--cover-package', 'coverPackages',
                              ['pkg1', 'pkg2', 'pkg3'], [],
                              'pkg1,pkg2,pkg3', 'NOSE_COVER_PACKAGE')
+
+    def test_cover_options_noprint(self):
+        _test_options_helper('--cover-no-print', 'coverPrint',
+                             False, True,
+                             env_key='NOSE_COVER_NO_PRINT')
 
     def test_cover_options_erase(self):
         _test_options_helper('--cover-erase', 'coverErase',
@@ -62,6 +65,7 @@ class TestCoveragePlugin(object):
                 assert False, "coverage did not load expected config file"
         finally:
             os.unlink('not_default_config_file')
+
 
 def _test_options_helper(arg_option, cover_option,
                          expected_set, expected_not_set,

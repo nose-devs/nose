@@ -146,6 +146,10 @@ class Coverage(Plugin):
         if options.cover_xml:
             self.coverXmlFile = options.cover_xml_file
             log.debug('Will put XML coverage report in %s', self.coverXmlFile)
+        # Coverage uses True to mean default
+        self.coverConfigFile = True
+        if options.cover_config_file:
+            self.coverConfigFile = options.cover_config_file
         self.coverPrint = not options.cover_no_print
         if self.enabled:
             self.status['active'] = True
@@ -156,7 +160,18 @@ class Coverage(Plugin):
             self.coverInstance.is_worker = conf.worker
             self.coverInstance.exclude('#pragma[: ]+[nN][oO] [cC][oO][vV][eE][rR]')
 
-    def begin(self):
+            log.debug("Coverage begin")
+            self.skipModules = sys.modules.keys()[:]
+            if self.coverErase:
+                log.debug("Clearing previously collected coverage statistics")
+                self.coverInstance.combine()
+                self.coverInstance.erase()
+
+            if not self.coverInstance.is_worker:
+                self.coverInstance.load()
+                self.coverInstance.start()
+
+    def beforeTest(self, *args, **kwargs):
         """
         Begin recording coverage information.
         """
@@ -173,7 +188,6 @@ class Coverage(Plugin):
         if self.coverInstance.is_worker:
             self.coverInstance.stop()
             self.coverInstance.save()
-
 
     def report(self, stream):
         """
