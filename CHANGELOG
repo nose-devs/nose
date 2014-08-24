@@ -1,3 +1,13 @@
+1.3.4
+
+- Recognize doctest options defined in other plugins
+  Patch by Daniel Lepage
+- Another fix for Python 3.4: Call super in LazySuite to access
+  _removed_tests variable
+  Patch by Robert Kuska
+- Fix for try_run when using bound methods
+  Patch by Christian Lyder Jacobsen
+
 1.3.3
 
 - Fixed a minor issue with the reported version number.
