@@ -225,5 +225,45 @@ class TestTools(unittest.TestCase):
         self.assertEqual(called, ['s1', 's2', 's3',
                                   'test3', 't3', 't2', 't1'])
 
+    def test_params_with_setup(self):
+        from nose.tools import with_setup
+
+        def setup_func():
+            return ('Blue', 'Muppet!'), {'kw1': 'Hello', 'kw2': 'world'}
+
+        def t1():
+            pass
+
+        def t2(arg2):
+            # arg2 is arg1 in this case
+            assert_equal(arg2, 'Blue')
+
+        def t3(kw2, kw1):
+            assert_equal(kw1, 'Hello')
+            assert_equal(kw2, 'world')
+
+        def t4(arg1, arg2, kw1):
+            assert_equal(arg1, 'Blue')
+            assert_equal(arg2, 'Muppet!')
+            assert_equal(kw1, 'Hello')
+
+
+        def t5(x, y, z):
+            raise Exception('this should not get raised')
+
+        tests = [t1, t2, t3, t4]
+        for teardown_func in tests:
+            for tf in tests:
+                case = with_setup(setup_func, teardown_func, True)(tf)
+                case.setup()
+                case()
+                case.teardown()
+
+            case = with_setup(setup_func, teardown_func, True)(t5)
+            case.setup()
+            raises(TypeError)(case)()
+            case.teardown()
+
+
 if __name__ == '__main__':
     unittest.main()

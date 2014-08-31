@@ -114,6 +114,24 @@ for test methods in `unittest.TestCase` subclasses or other test
 classes. For those cases, define `setUp` and `tearDown` methods in the
 class.
   
+The `with_setup` decorator also supports the ability for the setup function
+to pass objects into the wrapped test function and teardown via `params=True`.
+For example::
+
+  def setup_func():
+      # pass test fixtures directly to functions
+      return ('Blue', 'Muppet!'), {'kw1': 'Hello', 'kw2': 'world'}
+
+  def teardown_func(arg1, kw2):
+      print "Received arg1 and kw2: %s %s" % (arg1, kw2)  # prints Blue world
+
+  @with_setup(setup_func, teardown_func, params=True)
+  def test_me(arg1, arg2, kw1):
+      msg = "%s, %s %s" % (kw1, arg1, arg2)
+      print msg
+      assert msg == "Hello, Blue Muppet!"
+
+
 Test generators
 ===============
 
