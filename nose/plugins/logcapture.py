@@ -85,7 +85,8 @@ class MyMemoryHandler(Handler):
     def truncate(self):
         self.buffer = []
     def filter(self, record):
-        return self.filterset.allow(record.name)
+        if self.filterset.allow(record.name):
+            return Handler.filter(self, record)
     def __getstate__(self):
         state = self.__dict__.copy()
         del state['lock']
@@ -118,7 +119,7 @@ class LogCapture(Plugin):
             "--nologcapture", action="store_false",
             default=not env.get(self.env_opt), dest="logcapture",
             help="Disable logging capture plugin. "
-                 "Logging configurtion will be left intact."
+                 "Logging configuration will be left intact."
                  " [NOSE_NOLOGCAPTURE]")
         parser.add_option(
             "--logging-format", action="store", dest="logcapture_format",

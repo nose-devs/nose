@@ -633,9 +633,6 @@ class NoOptions(object):
     def __getnewargs__(self):
         return ()
 
-    def __getattr__(self, attr):
-        return None
-
     def __nonzero__(self):
         return False
 

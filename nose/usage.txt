@@ -17,6 +17,11 @@ may use the assert keyword or raise AssertionErrors to indicate test
 failure. TestCase subclasses may do the same or use the various
 TestCase methods available.
 
+**It is important to note that the default behavior of nose is to
+not include tests from files which are executable.**  To include
+tests from such files, remove their executable bit or use
+the --exe flag (see 'Options' section below).
+
 Selecting Tests
 ---------------
 

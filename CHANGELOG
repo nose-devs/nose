@@ -1,9 +1,105 @@
-In Development
+1.3.4
 
+- Recognize doctest options defined in other plugins
+  Patch by Daniel Lepage
+- Another fix for Python 3.4: Call super in LazySuite to access
+  _removed_tests variable
+  Patch by Robert Kuska
+- Fix for try_run when using bound methods
+  Patch by Christian Lyder Jacobsen
+
+1.3.3
+
+- Fixed a minor issue with the reported version number.
+
+1.3.2
+
+- Fixed an issue where build_ext was not working under setup.py nosetest
+  Patch by Michael Crusoe
+- Fixed #786: generator method fails with callable instance
+  Patch by Antoine Dechaume
+- Fixed a traceback when using string exceptions
+- Fixed #792: "Not a directory" error when using python setup.py nosetests
+- Fixed #779: xunit report file is written in --where directory
+- Fixed #782: Test failures with Python >= 3.3
+  Patch by Dmitry Shachnev
+- Fixed #780: Fix a regression with Python 3
+- Fixed #783: try_run is broken with Python 3.4
+
+1.3.1
+
+- The log capture plugin now correctly applies filters that were added
+  using `addFilter`.
+  Patch by Malthe Borch.
 - Corrected a reference to the multiprocessing plugin in the documentation.
   Patch by Nick Loadholtes.
 - Fixed #447: doctests fail when getpackage() returns None
   Patch by Matthew Brett.
+- Fixed #749: xunit exceeds recursion limit
+  Patch by André Caron.
+- Fixed a number of unicode-related issues.
+  Patch by John Szakmeister.
+- Added the ability to ignore config files via an environment variable
+  Patch by Lukasz Balcerzak
+- Fixed #720: nose with detailed errors raises encoding error
+  Patch by John Szakmeister.  Thanks to Guillaume Ayoub for the test case.
+- Fixed #692: UnicodeDecodeError in xunit when capturing stdout and stderr
+  Patch by John Szakmeister.
+- Fixed #693: Python 2.4 incompatibilities
+  Patch by John Szakmeister.
+- Don't save zero-byte xunit test reports
+  Patch by Dan Savilonis.
+- Fix Importer.importFromPath to be able to import modules whose names start
+  with __init__
+  Patch by Paul Bonser.
+- Add a fake isatty() method to Tee
+  Patch by Jimmy Wennlund.
+- Fix #700: Tee is missing the writelines() method
+  Patch by John Szakmeister.
+- Fix #649: UnicodeDecodeError when an exception contains encoded strings
+  Patch by John Szakmeister.
+- Fix #687: verbosity is not a flag
+  Patch by John Szakmeister.
+- Fixed a suppressed deprecation warning
+  Patch by Arnon Yaari.
+- Fixed some broken links in the documentation
+  Patch by Arnon Yaari.
+- Add missing format parameter in error message
+  Patch by Etienne Millon.
+- Switched docs to point at the GitHub site for the issue tracker
+  Patch by Daniel Beck.
+- Fix #447: doctests fail when getpackage() returns None
+  Patch by Matthew Brett.
+- Fix #366: make --pdb report on errors and failures.  Use --pdb-error to get
+  the old behavior.
+  Patch by Arnon Yaari.
+- Fix #501: Imported test generators are misrecognized as simple test
+  functions
+  Patch by John Szakmeister.
+- Added a test for issue #501
+  Patch by Michael Killough.
+- Use SkipTest from unittest2, if available, for better integration with
+  testtools
+  Patch by Ian Wienand.
+- Fix #759: Test failures with Python 3.4
+  Patch by Barry Warsaw.
+- Add a note about executable files in the usage, and how to workaround it
+  Patch by Michael Dunn.
+- Fix #743: fix an incorrect regex in writing_tests.rst
+  Patch by Anne Moroney.
+- Fix #690: Don't traceback when coverage reports fail.
+  Patch by John Szakmeister.
+- Display the report summary and stack traces even if Ctrl-C was pressed
+  during the test run.
+  Patch by Kevin Qiu.
+- Fix #771: attr plugin is broken when parent and child share same method
+  name with different attributes
+  Patch by John Szakmeister.  Test case provided by Thomas Grainger.
+- Fix #728: attrib plugin rejects any staticmethod
+  Patch by John Szakmesiter.  Test case provided by Thomas Kluyver.
+- Fix the plugin testing example.
+  Patch by Charlie Dominio.
+- Instruct coverage instance to cover requested packages only.
 
 1.3.0
 

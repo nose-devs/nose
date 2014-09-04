@@ -62,7 +62,7 @@ it via distribute's bootstrap script.
 
 Additionally, if your project is using `2to3
 <http://docs.python.org/library/2to3.html>`_, ``python3 setup.py nosetests``
-command will automatically convert your sources with 2to3 and then the
+command will automatically convert your sources with 2to3 and then run the
 tests with python 3.
 
 .. warning ::

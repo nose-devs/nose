@@ -56,7 +56,7 @@ class Coverage(Plugin):
         parser.add_option("--cover-min-percentage", action="store",
                           dest="cover_min_percentage",
                           default=env.get('NOSE_COVER_MIN_PERCENTAGE'),
-                          help="Minimum percentage of coverage for tests"
+                          help="Minimum percentage of coverage for tests "
                           "to pass [NOSE_COVER_MIN_PERCENTAGE]")
         parser.add_option("--cover-inclusive", action="store_true",
                           dest="cover_inclusive",
@@ -140,7 +140,8 @@ class Coverage(Plugin):
         if self.enabled:
             self.status['active'] = True
             self.coverInstance = coverage.coverage(auto_data=False,
-                branch=self.coverBranches, data_suffix=None)
+                branch=self.coverBranches, data_suffix=None,
+                source=self.coverPackages)
 
     def begin(self):
         """
@@ -169,12 +170,21 @@ class Coverage(Plugin):
                     if self.wantModuleCoverage(name, module)]
         log.debug("Coverage report will cover modules: %s", modules)
         self.coverInstance.report(modules, file=stream)
+
+        import coverage
         if self.coverHtmlDir:
             log.debug("Generating HTML coverage report")
-            self.coverInstance.html_report(modules, self.coverHtmlDir)
+            try:
+                self.coverInstance.html_report(modules, self.coverHtmlDir)
+            except coverage.misc.CoverageException, e:
+                log.warning("Failed to generate HTML report: %s" % str(e))
+
         if self.coverXmlFile:
             log.debug("Generating XML coverage report")
-            self.coverInstance.xml_report(modules, self.coverXmlFile)
+            try:
+                self.coverInstance.xml_report(modules, self.coverXmlFile)
+            except coverage.misc.CoverageException, e:
+                log.warning("Failed to generate XML report: %s" % str(e))
 
         # make sure we have minimum required coverage
         if self.coverMinPercentage:

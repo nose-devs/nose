@@ -156,6 +156,30 @@ class TestClassAndMethodAttrs(AttributePluginTester):
         assert 'test_case_three' not in self.output
 
 
+# Issue #771
+class TestTopLevelNotSelected(AttributePluginTester):
+    suitepath = os.path.join(support, 'issue771')
+    args = ["-a", "!a"]
+
+    def verify(self):
+        # Note: a failure here may mean that the test case selection is broken
+        # rather than the attribute plugin, but the issue more easily manifests
+        # itself when using attributes.
+        assert 'test.test_b ... ok' in self.output
+        assert 'test_a (test.TestBase) ... ok' in self.output
+        assert 'TestDerived' not in self.output
+
+
+# Issue #728
+class TestStaticMethod(AttributePluginTester):
+    suitepath = os.path.join(support, 'attrib-static')
+    args = ["-a", "!slow"]
+
+    def verify(self):
+        assert 'test.TestAttrib.test_static ... ok' in self.output
+        assert 'Ran 1 test' in self.output
+
+
 if compat_24:
     class TestAttributeEval(AttributePluginTester):
         args = ["-A", "c>20"]

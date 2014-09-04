@@ -35,6 +35,8 @@ def mods():
     M['test_module_with_metaclass_tests'] = imp.new_module(
         'test_module_with_metaclass_tests')
     M['test_transplant'] = imp.new_module('test_transplant')
+    M['test_module_transplant_generator'] = imp.new_module(
+        'test_module_transplant_generator')
 
     # a unittest testcase subclass
     class TC(unittest.TestCase):
@@ -112,6 +114,14 @@ def mods():
         def runTest(self):
             pass
 
+    def test_func_generator_transplant():
+        """docstring for transplanted test func generator
+        """
+        def test_odd(v):
+            assert v % 2
+        for i in range(0, 4):
+            yield test_odd, i
+
     M['nose'] = nose
     M['__main__'] = sys.modules['__main__']
     M['test_module'].TC = TC
@@ -133,6 +143,9 @@ def mods():
     TestMetaclassed.__module__ = 'test_module_with_metaclass_tests'
     M['test_transplant'].Transplant = Transplant
     Transplant.__module__ = 'test_class_source'
+    M['test_module_transplant_generator'].test_func_generator_transplant = \
+        test_func_generator_transplant
+    # don't set test_func_generator_transplant.__module__ so it is transplanted
     del TC
     del TC2
     del TestMetaclassed
@@ -141,6 +154,7 @@ def mods():
     del TestClass
     del test_func_generator
     del Transplant
+    del test_func_generator_transplant
     return M
 
 M = mods()
@@ -514,7 +528,37 @@ class TestTestLoader(unittest.TestCase):
             count += 1
         assert count == 4, \
                "Expected to generate 4 tests, but got %s" % count
-        
+
+    def test_load_transplanted_generator(self):
+        print "load transplanted generator (issue 501)"
+        test_module_transplant_generator = M['test_module_transplant_generator']
+        l = self.l
+        suite = l.loadTestsFromModule(test_module_transplant_generator)
+        tests = [t for t in suite]
+
+        assert len(tests) == 1
+        print "test", tests[0]
+        assert isinstance(tests[0], unittest.TestSuite), \
+            "Test is not a suite - probably did not look like a generator"
+
+        count = 0
+        for t in tests[0]:
+            print "generated test %s" % t
+            print t.shortDescription()
+            assert isinstance(t, nose.case.Test), \
+                   "Test %s is not a Test?" % t
+            assert isinstance(t.test, nose.case.FunctionTestCase), \
+                   "Test %s is not a FunctionTestCase" % t.test
+            assert 'test_func_generator' in str(t), \
+                   "Bad str val '%s' for test" % str(t)
+            assert 'docstring for transplanted test func generator' \
+                   in t.shortDescription(), \
+                   "Bad shortDescription '%s' for test %s" % \
+                   (t.shortDescription(), t)
+            count += 1
+        assert count == 4, \
+               "Expected to generate 4 tests, but got %s" % count
+
 if __name__ == '__main__':
     #import logging
     #logging.basicConfig(level=logging.DEBUG)

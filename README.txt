@@ -16,6 +16,11 @@ removed:
    verbosity=3
    with-doctest=1
 
+There is also possiblity to disable configuration files loading (might
+be useful when runnig i.e. tox and you don't want your global nose
+config file to be used by tox). In order to ignore those configuration
+files simply set an environment variable "NOSE_IGNORE_CONFIG_FILES".
+
 There are several other ways to use the nose test runner besides the
 *nosetests* script. You may use nose in a test script:
 
@@ -61,6 +66,11 @@ may use the assert keyword or raise AssertionErrors to indicate test
 failure. TestCase subclasses may do the same or use the various
 TestCase methods available.
 
+**It is important to note that the default behavior of nose is to not
+include tests from files which are executable.**  To include tests
+from such files, remove their executable bit or use the --exe flag
+(see 'Options' section below).
+
 
 Selecting Tests
 ---------------
@@ -105,8 +115,8 @@ Configuration
 
 In addition to passing command-line options, you may also put
 configuration options in your project's *setup.cfg* file, or a .noserc
-or nose.cfg file in your home directory. In any of these standard
-.ini-style config files, you put your nosetests configuration in a
+or nose.cfg file in your home directory. In any of these standard ini-
+style config files, you put your nosetests configuration in a
 "[nosetests]" section. Options are the same as on the command line,
 with the -- prefix removed. For options that are simple switches, you
 must supply a value:
@@ -278,6 +288,11 @@ Options
    it sees a package with the same name in a different location. Set
    this option to disable that behavior.
 
+--no-byte-compile
+
+   Prevent nose from byte-compiling the source into .pyc files while
+   nose is scanning for and running tests.
+
 -a=ATTR, --attr=ATTR
 
    Run only tests that have attributes specified by ATTR [NOSE_ATTR]
@@ -322,6 +337,10 @@ Options
 
    Clear all other logging handlers
 
+--logging-level=DEFAULT
+
+   Set the log level to capture
+
 --with-coverage
 
    Enable plugin Coverage:  Activate a coverage report using Ned
@@ -338,6 +357,11 @@ Options
 --cover-tests
 
    Include test modules in coverage report [NOSE_COVER_TESTS]
+
+--cover-min-percentage=DEFAULT
+
+   Minimum percentage of coverage for tests to pass
+   [NOSE_COVER_MIN_PERCENTAGE]
 
 --cover-inclusive
 
@@ -367,11 +391,15 @@ Options
 
 --pdb
 
-   Drop into debugger on errors
+   Drop into debugger on failures or errors
 
 --pdb-failures
 
    Drop into debugger on failures
+
+--pdb-errors
+
+   Drop into debugger on errors
 
 --no-deprecated
 
@@ -404,6 +432,11 @@ Options
 
    Find fixtures for a doctest file in module with this name appended
    to the base name of the doctest file
+
+--doctest-options=OPTIONS
+
+   Specify options to pass to doctest. Eg.
+   '+ELLIPSIS,+NORMALIZE_WHITESPACE'
 
 --with-isolation
 
@@ -460,12 +493,15 @@ Options
 
    Spread test run among this many processes. Set a number equal to
    the number of processors or cores in your machine for best results.
-   [NOSE_PROCESSES]
+   Pass a negative number to have the number of processes
+   automatically set to the number of cores. Passing 0 means to
+   disable parallel testing. Default is 0 unless NOSE_PROCESSES is
+   set. [NOSE_PROCESSES]
 
 --process-timeout=SECONDS
 
    Set timeout for return of results from each test runner process.
-   [NOSE_PROCESS_TIMEOUT]
+   Default is 10. [NOSE_PROCESS_TIMEOUT]
 
 --process-restartworker
 

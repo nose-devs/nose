@@ -8,7 +8,7 @@ import re
 import sys
 import types
 import unittest
-from nose.pyversion import ClassType, TypeType, isgenerator
+from nose.pyversion import ClassType, TypeType, isgenerator, ismethod
 
 
 log = logging.getLogger('nose')
@@ -447,11 +447,12 @@ def try_run(obj, names):
         if func is not None:
             if type(obj) == types.ModuleType:
                 # py.test compatibility
-                try:
-                    args, varargs, varkw, defaults = inspect.getargspec(func)
-                except TypeError:
+                if isinstance(func, types.FunctionType):
+                    args, varargs, varkw, defaults = \
+                        inspect.getargspec(func)
+                else:
                     # Not a function. If it's callable, call it anyway
-                    if hasattr(func, '__call__'):
+                    if hasattr(func, '__call__') and not inspect.ismethod(func):
                         func = func.__call__
                     try:
                         args, varargs, varkw, defaults = \
@@ -609,8 +610,13 @@ def transplant_func(func, module):
 
     """
     from nose.tools import make_decorator
-    def newfunc(*arg, **kw):
-        return func(*arg, **kw)
+    if isgenerator(func):
+        def newfunc(*arg, **kw):
+            for v in func(*arg, **kw):
+                yield v
+    else:
+        def newfunc(*arg, **kw):
+            return func(*arg, **kw)
 
     newfunc = make_decorator(func)(newfunc)
     newfunc.__module__ = module

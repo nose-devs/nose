@@ -104,7 +104,7 @@ class TestLoader(unittest.TestLoader):
         """
         if self.config.getTestCaseNamesCompat:
             return unittest.TestLoader.getTestCaseNames(self, testCaseClass)
-        
+
         def wanted(attr, cls=testCaseClass, sel=self.selector):
             item = getattr(cls, attr, None)
             if isfunction(item):
@@ -112,11 +112,9 @@ class TestLoader(unittest.TestLoader):
             elif not ismethod(item):
                 return False
             return sel.wantMethod(item)
+
         cases = filter(wanted, dir(testCaseClass))
-        for base in testCaseClass.__bases__:
-            for case in self.getTestCaseNames(base):
-                if case not in cases:
-                    cases.append(case)
+
         # add runTest if nothing else picked
         if not cases and hasattr(testCaseClass, 'runTest'):
             cases = ['runTest']
@@ -291,7 +289,7 @@ class TestLoader(unittest.TestLoader):
                         test_func = unbound_method(c, getattr(c, test_func))
                     if ismethod(test_func):
                         yield MethodTestCase(test_func, arg=arg, descriptor=g)
-                    elif isfunction(test_func):
+                    elif callable(test_func):
                         # In this case we're forcing the 'MethodTestCase'
                         # to run the inline function as its test call,
                         # but using the generator method as the 'method of
@@ -300,7 +298,7 @@ class TestLoader(unittest.TestLoader):
                     else:
                         yield Failure(
                             TypeError,
-                            "%s is not a function or method" % test_func)
+                            "%s is not a callable or method" % test_func)
             except KeyboardInterrupt:
                 raise
             except:
@@ -348,7 +346,10 @@ class TestLoader(unittest.TestLoader):
                       path, module_path, os.path.realpath(module_path))
             if (self.config.traverseNamespace or not path) or \
                     os.path.realpath(module_path).startswith(path):
-                tests.extend(self.loadTestsFromDir(module_path))
+                # Egg files can be on sys.path, so make sure the path is a
+                # directory before trying to load from it.
+                if os.path.isdir(module_path):
+                    tests.extend(self.loadTestsFromDir(module_path))
             
         for test in self.config.plugins.loadTestsFromModule(module, path):
             tests.append(test)

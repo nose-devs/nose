@@ -1,4 +1,6 @@
-.TH "NOSETESTS" "1" "April 06, 2013" "1.3" "nose"
+.\" Man page generated from reStructuredText.
+.
+.TH "NOSETESTS" "1" "March 10, 2014" "1.3" "nose"
 .SH NAME
 nosetests \- Nicer testing for Python
 .
@@ -28,8 +30,6 @@ level margin: \\n[rst2man-indent\\n[rst2man-indent-level]]
 .\" new: \\n[rst2man-indent\\n[rst2man-indent-level]]
 .in \\n[rst2man-indent\\n[rst2man-indent-level]]u
 ..
-.\" Man page generated from reStructuredText.
-.
 .SH NICER TESTING FOR PYTHON
 .SS SYNOPSIS
 .INDENT 0.0
@@ -57,6 +57,11 @@ subclasses with any name will be loaded and executed as tests. Tests
 may use the assert keyword or raise AssertionErrors to indicate test
 failure. TestCase subclasses may do the same or use the various
 TestCase methods available.
+.sp
+\fBIt is important to note that the default behavior of nose is to
+not include tests from files which are executable.\fP  To include
+tests from such files, remove their executable bit or use
+the \-\-exe flag (see \(aqOptions\(aq section below).
 .SS Selecting Tests
 .sp
 To specify which tests to run, pass test names on the command line:
@@ -379,7 +384,7 @@ Include test modules in coverage report [NOSE_COVER_TESTS]
 .INDENT 0.0
 .TP
 .B \-\-cover\-min\-percentage=DEFAULT
-Minimum percentage of coverage for teststo pass [NOSE_COVER_MIN_PERCENTAGE]
+Minimum percentage of coverage for tests to pass [NOSE_COVER_MIN_PERCENTAGE]
 .UNINDENT
 .INDENT 0.0
 .TP
@@ -414,12 +419,17 @@ Produce XML coverage information in file
 .INDENT 0.0
 .TP
 .B \-\-pdb
-Drop into debugger on errors
+Drop into debugger on failures or errors
 .UNINDENT
 .INDENT 0.0
 .TP
 .B \-\-pdb\-failures
 Drop into debugger on failures
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-\-pdb\-errors
+Drop into debugger on errors
 .UNINDENT
 .INDENT 0.0
 .TP

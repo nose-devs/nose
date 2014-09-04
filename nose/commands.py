@@ -117,23 +117,27 @@ else:
                 # If we run 2to3 we can not do this inplace:
 
                 # Ensure metadata is up-to-date
-                self.reinitialize_command('build_py', inplace=0)
-                self.run_command('build_py')
+                build_py = self.get_finalized_command('build_py')
+                build_py.inplace = 0
+                build_py.run()
                 bpy_cmd = self.get_finalized_command("build_py")
                 build_path = bpy_cmd.build_lib
 
                 # Build extensions
-                self.reinitialize_command('egg_info', egg_base=build_path)
-                self.run_command('egg_info')
+                egg_info = self.get_finalized_command('egg_info')
+                egg_info.egg_base = build_path
+                egg_info.run()
 
-                self.reinitialize_command('build_ext', inplace=0)
-                self.run_command('build_ext')
+                build_ext = self.get_finalized_command('build_ext')
+                build_ext.inplace = 0
+                build_ext.run()
             else:
                 self.run_command('egg_info')
 
                 # Build extensions in-place
-                self.reinitialize_command('build_ext', inplace=1)
-                self.run_command('build_ext')
+                build_ext = self.get_finalized_command('build_ext')
+                build_ext.inplace = 1
+                build_ext.run()
 
             if self.distribution.install_requires:
                 self.distribution.fetch_build_eggs(

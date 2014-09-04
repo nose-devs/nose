@@ -1,4 +1,5 @@
 import os
+import sys
 import unittest
 import nose
 from nose import case
@@ -168,17 +169,23 @@ class TestUtils(unittest.TestCase):
         class Bar_m:
             def __call__(self, mod):
                 pass
-        
+
+        class Bar_method:
+            def method(self):
+                pass
+
         foo = imp.new_module('foo')
         foo.bar = bar
         foo.bar_m = bar_m
         foo.i_bar = Bar()
         foo.i_bar_m = Bar_m()
+        foo.i_bar_m = Bar_method().method
 
         try_run(foo, ('bar',))
         try_run(foo, ('bar_m',))
         try_run(foo, ('i_bar',))
         try_run(foo, ('i_bar_m',))
+        try_run(foo, ('i_bar_method',))
         
 if __name__ == '__main__':
     unittest.main()

@@ -49,6 +49,7 @@ class LazySuite(unittest.TestSuite):
     def __init__(self, tests=()):
         """Initialize the suite. tests may be an iterable or a generator
         """
+        super(LazySuite, self).__init__()
         self._set_tests(tests)
 
     def __iter__(self):
@@ -154,7 +155,7 @@ class ContextSuite(LazySuite):
         self.has_run = False
         self.can_split = can_split
         self.error_context = None
-        LazySuite.__init__(self, tests)
+        super(ContextSuite, self).__init__(tests)
 
     def __repr__(self):
         return "<%s context=%s>" % (
@@ -573,6 +574,7 @@ class FinalizingSuiteWrapper(unittest.TestSuite):
     control.
     """
     def __init__(self, suite, finalize):
+        super(FinalizingSuiteWrapper, self).__init__()
         self.suite = suite
         self.finalize = finalize
 

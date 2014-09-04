@@ -187,7 +187,7 @@ class Xunit(Plugin):
                           'skipped': 0
                           }
             self.errorlist = []
-            self.error_report_file_name = options.xunit_file
+            self.error_report_file_name = os.path.realpath(options.xunit_file)
 
     def report(self, stream):
         """Writes an Xunit-formatted XML file

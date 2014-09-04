@@ -3,7 +3,7 @@ Writing tests
 
 As with py.test_, nose tests need not be subclasses of
 :class:`unittest.TestCase`. Any function or class that matches the configured
-testMatch regular expression (``(?:^|[\\b_\\.-])[Tt]est)`` by default -- that
+testMatch regular expression (``(?:^|[\\b_\\.-])[Tt]est`` by default -- that
 is, has test or Test at a word boundary or following a - or _) and lives in a
 module that also matches that expression will be run as a test. For the sake
 of compatibility with legacy unittest test cases, nose will also load tests
