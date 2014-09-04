@@ -515,10 +515,10 @@ class Config(object):
         parser.add_option(
             "--gentests", action="store", dest="generatorTests", default=None,
             metavar='NAMES',
-            help="Rung these generated tests (comma-separated list). This argument is "
+            help="Run generated tests that match this regular expression. This argument is "
             "useful mainly from configuration files; on the command line, "
-            "just pass the names of generated tests to run as additional arguments with no "
-            "switch.")
+            "just pass regular expression that should match the generated tests "
+            "to run as additional arguments with no switch.")
         parser.add_option(
             "-l", "--debug", action="store",
             dest="debug", default=self.debug,
