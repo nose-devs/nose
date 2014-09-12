@@ -137,11 +137,11 @@ class Coverage(Plugin):
             log.debug('Will put XML coverage report in %s', self.coverXmlFile)
         if self.enabled:
             self.status['active'] = True
-            self.coverInstance.is_worker = conf.worker
             self.coverInstance = coverage.coverage(auto_data=False,
                 branch=self.coverBranches, data_suffix=conf.worker,
                 source=self.coverPackages)
             self.coverInstance._warn_no_data = False
+            self.coverInstance.is_worker = conf.worker
             self.coverInstance.exclude('#pragma[: ]+[nN][oO] [cC][oO][vV][eE][rR]')
 
             log.debug("Coverage begin")
