@@ -175,6 +175,7 @@ class Config(object):
       self.where = ()
       self.py3where = ()
       self.workingDir = None
+      self.useAbsPath = True
     """
 
     def __init__(self, **kw):
@@ -215,6 +216,7 @@ class Config(object):
         self.firstPackageWins = False
         self.parserClass = OptionParser
         self.worker = False
+        self.useAbsPath = True
 
         self._default = self.__dict__.copy()
         self.update(kw)
@@ -559,6 +561,12 @@ class Config(object):
             default=self.addPaths,
             help="Don't make any changes to sys.path when "
             "loading tests [NOSE_NOPATH]")
+        parser.add_option(
+            "--use-absolute-paths", action="store_true",
+            dest="useAbsPath",
+            default=self.useAbsPath,
+            help="Load tests from working directory or "
+            "using absolute paths")
         parser.add_option(
             "--exe", action="store_true", dest="includeExe",
             default=self.includeExe,
