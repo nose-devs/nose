@@ -310,6 +310,7 @@ class Config(object):
             options.exclude = env.get('NOSE_EXCLUDE', [])
 
         self.addPaths = options.addPaths
+        self.useAbsPath = options.useAbsPath
         self.stopOnError = options.stopOnError
         self.verbosity = options.verbosity
         self.includeExe = options.includeExe
@@ -562,10 +563,10 @@ class Config(object):
             help="Don't make any changes to sys.path when "
             "loading tests [NOSE_NOPATH]")
         parser.add_option(
-            "--use-absolute-paths", action="store_true",
+            "-W", "--load-from-working-dir", action="store_false",
             dest="useAbsPath",
             default=self.useAbsPath,
-            help="Load tests from working directory or "
+            help="Load tests from working directory instead of "
             "using absolute paths")
         parser.add_option(
             "--exe", action="store_true", dest="includeExe",

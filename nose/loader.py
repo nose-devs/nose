@@ -370,7 +370,7 @@ class TestLoader(unittest.TestLoader):
         plug_tests = self.config.plugins.loadTestsFromName(name, module)
         if plug_tests:
             return suite(plug_tests)
-        
+
         addr = TestAddress(name, workingDir=self.workingDir, absolutePath=self.config.useAbsPath)
         if module:
             # Two cases:
