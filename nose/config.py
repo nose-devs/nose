@@ -310,6 +310,7 @@ class Config(object):
             options.exclude = env.get('NOSE_EXCLUDE', [])
 
         self.addPaths = options.addPaths
+        self.useAbsPath = options.useAbsPath
         self.stopOnError = options.stopOnError
         self.verbosity = options.verbosity
         self.includeExe = options.includeExe
