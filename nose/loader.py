@@ -371,7 +371,7 @@ class TestLoader(unittest.TestLoader):
         if plug_tests:
             return suite(plug_tests)
         
-        addr = TestAddress(name, workingDir=self.workingDir)
+        addr = TestAddress(name, workingDir=self.workingDir, absolutePath=self.config.useAbsPath)
         if module:
             # Two cases:
             #  name is class.foo
