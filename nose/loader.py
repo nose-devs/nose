@@ -153,7 +153,10 @@ class TestLoader(unittest.TestLoader):
             # http://code.google.com/p/python-nose/issues/detail?id=82
             if entry.startswith('.'):
                 continue
-            entry_path = op_abspath(op_join(path, entry))
+            entry_path = op_join(path, entry)
+            log.debug("Entry path: %s" % entry_path)
+            if self.config.useAbsPath:
+                entry_path = op_abspath(entry_path)
             is_file = op_isfile(entry_path)
             wanted = False
             if is_file:
@@ -336,14 +339,16 @@ class TestLoader(unittest.TestLoader):
         # FIXME can or should this be lazy?
         # is this syntax 2.2 compatible?
         module_paths = getattr(module, '__path__', [])
-        if path:
+        if path and self.config.useAbsPath:
             path = os.path.realpath(path)
+        if not self.config.useAbsPath:
+            module_paths = [os.path.relpath(m, os.getcwd()) for m in module_paths]
         for module_path in module_paths:
             log.debug("Load tests from module path %s?", module_path)
             log.debug("path: %s os.path.realpath(%s): %s",
                       path, module_path, os.path.realpath(module_path))
             if (self.config.traverseNamespace or not path) or \
-                    os.path.realpath(module_path).startswith(path):
+                    os.path.realpath(module_path).endswith(path):
                 # Egg files can be on sys.path, so make sure the path is a
                 # directory before trying to load from it.
                 if os.path.isdir(module_path):
@@ -370,8 +375,8 @@ class TestLoader(unittest.TestLoader):
         plug_tests = self.config.plugins.loadTestsFromName(name, module)
         if plug_tests:
             return suite(plug_tests)
-        
-        addr = TestAddress(name, workingDir=self.workingDir)
+
+        addr = TestAddress(name, workingDir=self.workingDir, absolutePath=self.config.useAbsPath)
         if module:
             # Two cases:
             #  name is class.foo

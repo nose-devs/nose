@@ -175,6 +175,7 @@ class Config(object):
       self.where = ()
       self.py3where = ()
       self.workingDir = None
+      self.useAbsPath = True
     """
 
     def __init__(self, **kw):
@@ -215,6 +216,7 @@ class Config(object):
         self.firstPackageWins = False
         self.parserClass = OptionParser
         self.worker = False
+        self.useAbsPath = True
 
         self._default = self.__dict__.copy()
         self.update(kw)
@@ -308,6 +310,7 @@ class Config(object):
             options.exclude = env.get('NOSE_EXCLUDE', [])
 
         self.addPaths = options.addPaths
+        self.useAbsPath = options.useAbsPath
         self.stopOnError = options.stopOnError
         self.verbosity = options.verbosity
         self.includeExe = options.includeExe
@@ -559,6 +562,12 @@ class Config(object):
             default=self.addPaths,
             help="Don't make any changes to sys.path when "
             "loading tests [NOSE_NOPATH]")
+        parser.add_option(
+            "-W", "--load-from-working-dir", action="store_false",
+            dest="useAbsPath",
+            default=self.useAbsPath,
+            help="Load tests from working directory instead of "
+            "using absolute paths")
         parser.add_option(
             "--exe", action="store_true", dest="includeExe",
             default=self.includeExe,

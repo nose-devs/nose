@@ -218,11 +218,12 @@ class TestAddress(object):
     Callables may be a class name, function name, method name, or
     class.method specification.
     """
-    def __init__(self, name, workingDir=None):
+    def __init__(self, name, workingDir=None, absolutePath=True):
         if workingDir is None:
             workingDir = os.getcwd()
         self.name = name
         self.workingDir = workingDir
+        self.absolutePath = absolutePath
         self.filename, self.module, self.call = split_test_name(name)
         log.debug('Test name %s resolved to file %s, module %s, call %s',
                   name, self.filename, self.module, self.call)
@@ -230,10 +231,11 @@ class TestAddress(object):
             if self.module is not None:
                 self.filename = getfilename(self.module, self.workingDir)
         if self.filename:
-            self.filename = src(self.filename)
-            if not op_isabs(self.filename):
-                self.filename = op_abspath(op_join(workingDir,
-                                                   self.filename))
+            if self.absolutePath:
+                self.filename = src(self.filename)
+                if not op_isabs(self.filename):
+                    self.filename = op_abspath(op_join(workingDir,
+                                                       self.filename))
             if self.module is None:
                 self.module = getpackage(self.filename)
         log.debug(
