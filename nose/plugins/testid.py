@@ -116,6 +116,7 @@ class TestId(Plugin):
     idfile = None
     collecting = True
     loopOnFailed = False
+    _data = None
 
     def options(self, parser, env):
         """Register commandline options.
@@ -177,8 +178,7 @@ class TestId(Plugin):
         """
         log.debug('ltfn %s %s', names, module)
         try:
-            fh = open(self.idfile, 'rb')
-            data = load(fh)
+            data = self.get_data()
             if 'ids' in data:
                 self.ids = data['ids']
                 self.failed = data['failed']
@@ -197,7 +197,6 @@ class TestId(Plugin):
                 'Loaded test ids %s tests %s failed %s sources %s from %s',
                 self.ids, self.tests, self.failed, self.source_names,
                 self.idfile)
-            fh.close()
         except IOError:
             log.debug('IO error reading %s', self.idfile)
 
@@ -304,3 +303,12 @@ class TestId(Plugin):
     def write(self, output):
         if self._write_hashes:
             self.stream.write(output)
+
+    def get_data(self):
+        if self._data is None:
+            fh = open(self.idfile, 'rb')
+            try:
+                self._data = load(fh)
+            finally:
+                fh.close()
+        return self._data
