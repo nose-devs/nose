@@ -1,44 +1,44 @@
 
 Basic usage
-***********
+==========
 
 Use the nosetests script (after installation by setuptools):
 
-   nosetests [options] [(optional) test files or directories]
+````nosetests [options] [(optional) test files or directories]````
 
 In addition to passing command-line options, you may also put
 configuration options in a .noserc or nose.cfg file in your home
 directory. These are standard .ini-style config files. Put your
 nosetests configuration in a [nosetests] section, with the -- prefix
 removed:
-
+````
    [nosetests]
    verbosity=3
    with-doctest=1
-
+````
 There is also possiblity to disable configuration files loading (might
 be useful when runnig i.e. tox and you don't want your global nose
 config file to be used by tox). In order to ignore those configuration
-files simply set an environment variable "NOSE_IGNORE_CONFIG_FILES".
+files simply set an environment variable ````NOSE_IGNORE_CONFIG_FILES````
 
 There are several other ways to use the nose test runner besides the
 *nosetests* script. You may use nose in a test script:
-
+````
    import nose
    nose.main()
-
+````
 If you don't want the test script to exit with 0 on success and 1 on
-failure (like unittest.main), use nose.run() instead:
-
+failure (like unittest.main), use ````nose.run()```` instead:
+````
    import nose
    result = nose.run()
-
+````
 *result* will be true if the test run succeeded, or false if any test
 failed or raised an uncaught exception. Lastly, you can run nose.core
 directly, which will run nose.main():
-
+````
    python /path/to/nose/core.py
-
+````
 Please see the usage message for the nosetests script for information
 about how to control which tests nose runs, which plugins are loaded,
 and the test output.
@@ -51,7 +51,7 @@ nose collects tests automatically from python source files,
 directories and packages found in its working directory (which
 defaults to the current working directory). Any python source file,
 directory or package that matches the testMatch regular expression (by
-default: *(?:^|[b_.-])[Tt]est)* will be collected as a test (or source
+default: ````*(?:^|[b_.-])[Tt]est)*```` will be collected as a test (or source
 for collection of tests). In addition, all other packages found in the
 working directory will be examined for python source files or
 directories that match testMatch. Package discovery descends all the
@@ -76,31 +76,31 @@ Selecting Tests
 ---------------
 
 To specify which tests to run, pass test names on the command line:
-
+````
    nosetests only_test_this.py
-
+````
 Test names specified may be file or module names, and may optionally
 indicate the test case to run by separating the module or file name
 from the test case name with a colon. Filenames may be relative or
 absolute. Examples:
-
+````
    nosetests test.module
    nosetests another.test:TestCase.test_method
    nosetests a.test:TestCase
    nosetests /path/to/test/file.py:test_function
-
+````
 You may also change the working directory where nose looks for tests
 by using the -w switch:
-
+````
    nosetests -w /path/to/tests
-
+````
 Note, however, that support for multiple -w arguments is now
 deprecated and will be removed in a future release. As of nose 0.10,
 you can get the same behavior by specifying the target directories
 *without* the -w switch:
-
+````
    nosetests /path/to/tests /another/path/to/tests
-
+````
 Further customization of test selection and loading is possible
 through the use of plugins.
 
@@ -120,11 +120,11 @@ style config files, you put your nosetests configuration in a
 "[nosetests]" section. Options are the same as on the command line,
 with the -- prefix removed. For options that are simple switches, you
 must supply a value:
-
+````
    [nosetests]
    verbosity=3
    with-doctest=1
-
+````
 All configuration files that are found will be loaded and their
 options combined. You can override the standard config file loading
 with the "-c" option.
@@ -137,9 +137,9 @@ There are numerous nose plugins available via easy_install and
 elsewhere. To use a plugin, just install it. The plugin will add
 command line options to nosetests. To verify that the plugin is
 installed, run:
-
+````
    nosetests --plugins
-
+````
 You can add -v or -vv to that command to show more information about
 each plugin.
 
@@ -171,7 +171,7 @@ All plugins written for nose 0.10 and 0.11 should work with nose 1.0.
 
 Options
 -------
-
+````
 -V, --version
 
    Output nose version and exit
@@ -528,3 +528,4 @@ Options
 
    Enable collect-only:  Collect and output test names only, don't run
    any tests.  [COLLECT_ONLY]
+````
