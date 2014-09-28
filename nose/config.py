@@ -175,6 +175,7 @@ class Config(object):
       self.where = ()
       self.py3where = ()
       self.workingDir = None
+      self.pyutSeparator = False
     """
 
     def __init__(self, **kw):
@@ -215,6 +216,7 @@ class Config(object):
         self.firstPackageWins = False
         self.parserClass = OptionParser
         self.worker = False
+        self.pyutSeparator = False
 
         self._default = self.__dict__.copy()
         self.update(kw)
@@ -317,6 +319,7 @@ class Config(object):
         self.loggingConfig = options.loggingConfig
         self.firstPackageWins = options.firstPackageWins
         self.configureLogging()
+        self.pyutSeparator = options.pyutSeparator
 
         if not options.byteCompile:
             sys.dont_write_bytecode = True
@@ -586,6 +589,13 @@ class Config(object):
             action="store_false", default=True, dest="byteCompile",
             help="Prevent nose from byte-compiling the source into .pyc files "
             "while nose is scanning for and running tests.")
+        parser.add_option(
+            "--pyut-style-separator", action="store_true", default=False,
+            dest="pyutSeparator", metavar='PYUTSEPARATOR',
+            help="Use all-dots (PyUT style) test path separator (eg: "
+            "module.class.test) instead of the default ':' (eg: "
+            "dir.file:class.test). NB: this is inteded for use with module "
+            "names rather than path to files.")
 
         self.plugins.loadPlugins()
         self.pluginOpts(parser)

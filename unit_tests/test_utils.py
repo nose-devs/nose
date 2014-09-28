@@ -36,6 +36,21 @@ class TestUtils(unittest.TestCase):
         assert split_test_name('foo:bar/baz.py') == \
             (np('foo:bar/baz.py'), None, None)
 
+    def test_split_test_name_pyut_separator(self):
+        split_test_name = util.split_test_name
+        assert split_test_name('nose.util.Some.method', True) == \
+            (None, 'nose.util', 'Some.method')
+        assert split_test_name('nose.util', True) == \
+            (None, 'nose.util', None)
+        assert split_test_name('some/file.py', True) == \
+            (np('some/file.py'), None, None)
+        assert split_test_name('.Baz', True) == \
+            (None, None, 'Baz')
+        assert split_test_name('foo.bar/baz.py', True) == \
+            (np('foo.bar/baz.py'), None, None)
+        assert split_test_name(r'c:/some/other/path.py', True) == \
+            (np(r'c:/some/other/path.py'), None, None)
+
     def test_split_test_name_windows(self):
         # convenience
         stn = util.split_test_name

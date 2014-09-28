@@ -293,6 +293,13 @@ Options
    Prevent nose from byte-compiling the source into .pyc files while
    nose is scanning for and running tests.
 
+--pyut-style-separator
+
+   Use all-dots (PyUT style) test path separator (eg:
+   module.class.test) instead of the default ':' (eg:
+   dir.file:class.test). NB: this is inteded for use with module names
+   rather than path to files.
+
 -a=ATTR, --attr=ATTR
 
    Run only tests that have attributes specified by ATTR [NOSE_ATTR]

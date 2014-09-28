@@ -57,7 +57,7 @@ class TestLoader(unittest.TestLoader):
     suiteClass = None
     
     def __init__(self, config=None, importer=None, workingDir=None,
-                 selector=None):
+                 selector=None, pyutSeparator=False):
         """Initialize a test loader.
 
         Parameters (all optional):
@@ -75,6 +75,9 @@ class TestLoader(unittest.TestLoader):
           provided, it will be instantiated with one argument, the
           current config. If not provided, a `nose.selector.Selector`_
           is used.
+        * pyutSeparator: True or False. False will use the default ':' as
+          the character that separates test name parts, True will use '.' like
+          PyUT does.
         """
         if config is None:
             config = Config()
@@ -93,6 +96,10 @@ class TestLoader(unittest.TestLoader):
         if config.addPaths:
             add_path(workingDir, config)        
         self.suiteClass = ContextSuiteFactory(config=config)
+        if pyutSeparator is False:
+            self.pyutSeparator = self.config.pyutSeparator
+        else:
+            self.pyutSeparator = pyutSeparator
 
         self._visitedPaths = set([])
 
@@ -371,7 +378,8 @@ class TestLoader(unittest.TestLoader):
         if plug_tests:
             return suite(plug_tests)
         
-        addr = TestAddress(name, workingDir=self.workingDir)
+        addr = TestAddress(name, workingDir=self.workingDir,
+                           pyutSeparator=self.pyutSeparator)
         if module:
             # Two cases:
             #  name is class.foo

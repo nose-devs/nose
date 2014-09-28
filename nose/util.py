@@ -321,8 +321,7 @@ def resolve_name(name, module=None):
         obj = getattr(obj, part)
     return obj
 
-
-def split_test_name(test):
+def split_test_name(test, pyutSeparator=False):
     """Split a test name into a 3-tuple containing file, module, and callable
     names, any of which (but not all) may be blank.
 
@@ -336,7 +335,7 @@ def split_test_name(test):
     norm = os.path.normpath
     file_or_mod = test
     fn = None
-    if not ':' in test:
+    if not pyutSeparator and ":" not in test:
         # only a file or mod part
         if file_like(test):
             return (norm(test), None, None)
@@ -346,25 +345,48 @@ def split_test_name(test):
     # could be path|mod:callable, or a : in the file path someplace
     head, tail = os.path.split(test)
     if not head:
-        # this is a case like 'foo:bar' -- generally a module
-        # name followed by a callable, but also may be a windows
-        # drive letter followed by a path
-        try:
-            file_or_mod, fn = test.split(':')
-            if file_like(fn):
-                # must be a funny path
-                file_or_mod, fn = test, None
-        except ValueError:
-            # more than one : in the test
-            # this is a case like c:\some\path.py:a_test
-            parts = test.split(':')
-            if len(parts[0]) == 1:
-                file_or_mod, fn = ':'.join(parts[:-1]), parts[-1]
+        if pyutSeparator:
+            tail = filter(None, tail.split("."))
+            # neat trick kindly borrowed from unittest.loader - cheers!
+            # at the end of the loop, the path to the loadable module will be
+            # left in "module", and all else (class and method) in callables.
+            module = ""
+            callables = []
+            while tail:
+                try:
+                    module = '.'.join(tail)
+                    temp = __import__(module)
+                    break
+                except ImportError:
+                    callables.append(tail.pop())
+                    if not tail:
+                        module = None
+            if len(callables) > 0:
+                callables.reverse()
+                callables = ".".join(callables)
             else:
-                # nonsense like foo:bar:baz
-                raise ValueError("Test name '%s' could not be parsed. Please "
-                                 "format test names as path:callable or "
-                                 "module:callable." % (test,))
+                callables = None
+            return (None, module, callables)
+        else:
+            # this is a case like 'foo:bar' -- generally a module
+            # name followed by a callable, but also may be a windows
+            # drive letter followed by a path
+            try:
+                file_or_mod, fn = test.split(':')
+                if file_like(fn):
+                    # must be a funny path
+                    file_or_mod, fn = test, None
+            except ValueError:
+                # more than one : in the test
+                # this is a case like c:\some\path.py:a_test
+                parts = test.split(':')
+                if len(parts[0]) == 1:
+                    file_or_mod, fn = ':'.join(parts[:-1]), parts[-1]
+                else:
+                    # nonsense like foo:bar:baz
+                    raise ValueError("Test name '%s' could not be parsed. "
+                                     "Please format test names as path:"
+                                     "callable or module:callable." % (test,))
     elif not tail:
         # this is a case like 'foo:bar/'
         # : must be part of the file path, so ignore it
