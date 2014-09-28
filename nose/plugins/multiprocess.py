@@ -255,6 +255,29 @@ class MultiProcess(Plugin):
             self.config.multiprocess_timeout = t
             r = int(options.multiprocess_restartworker)
             self.config.multiprocess_restartworker = r
+
+            if hasattr(self, "multiprocess_start_cbs"):
+                #
+                # The following bit will support registering a callback before
+                # the configure method has been called.
+                #
+                if not hasattr(self.config, "multiprocess_start_cbs"):
+                    self.config.multiprocess_start_cbs = []
+                self.config.multiprocess_start_cbs.extend(
+                                                    self.multiprocess_start_cbs)
+                self.multiprocess_start_cbs = []
+
+            if hasattr(self, "multiprocess_stop_cbs"):
+                #
+                # The following bit will support registering a callback before
+                # the configure method has been called.
+                #
+                if not hasattr(self.config, "multiprocess_stop_cbs"):
+                    self.config.multiprocess_stop_cbs = []
+                self.config.multiprocess_stop_cbs.extend(
+                                                    self.multiprocess_stop_cbs)
+                self.multiprocess_stop_cbs = []
+
             self.status['active'] = True
 
     def prepareTestLoader(self, loader):
@@ -271,6 +294,64 @@ class MultiProcess(Plugin):
                                       verbosity=self.config.verbosity,
                                       config=self.config,
                                       loaderClass=self.loaderClass)
+
+    def register_start_callback(self, function, *args, **kwargs):
+        """The registered function will be executed by each worker process upon
+        start, BEFORE the tests are run.
+
+        Arguments:
+            function: function pointer (just pass the name of the function)
+            args and kwargs: named or unamed arguments to pass to the function
+        """
+        #
+        # Note that we cannot use a dictionary to store the function and the
+        # arguments even if it would be more elegant, as a user might want to
+        # register the same function multiple times.
+        #
+        callback_set = (function, args, kwargs)
+
+        #
+        # The following bit will support registering a callback even AFTER the
+        # configure method has already been called, in case that is/will be a
+        # possible scenario.
+        #
+        if hasattr(self, "config"):
+            if not hasattr(self.config, "multiprocess_start_cbs"):
+                self.config.multiprocess_start_cbs = []
+            self.config.multiprocess_start_cbs.append(callback_set)
+        else:
+            if not hasattr(self, "multiprocess_start_cbs"):
+                self.multiprocess_start_cbs = []
+            self.multiprocess_start_cbs.append(callback_set)
+
+    def register_stop_callback(self, function, *args, **kwargs):
+        """The registered function will be executed by each worker process upon
+        stop, AFTER the tests are run.
+
+        Arguments:
+            function: function pointer (just pass the name of the function)
+            args and kwargs: named or unamed arguments to pass to the function
+        """
+        #
+        # Note that we cannot use a dictionary to store the function and the
+        # arguments even if it would be more elegant, as a user might want to
+        # register the same function multiple times.
+        #
+        callback_set = (function, args, kwargs)
+
+        #
+        # The following bit will support registering a callback even AFTER the
+        # configure method has already been called, in case that is/will be a
+        # possible scenario.
+        #
+        if hasattr(self, "config"):
+            if not hasattr(self.config, "multiprocess_stop_cbs"):
+                self.config.multiprocess_stop_cbs = []
+            self.config.multiprocess_stop_cbs.append(callback_set)
+        else:
+            if not hasattr(self, "multiprocess_stop_cbs"):
+                self.multiprocess_stop_cbs = []
+            self.multiprocess_stop_cbs.append(callback_set)
 
 def signalhandler(sig, frame):
     raise TimedOutException()
@@ -671,6 +752,10 @@ def __runner(ix, testQueue, resultQueue, currentaddr, currentstart,
     loader = loaderClass(config=config)
     loader.suiteClass.suiteClass = NoSharedFixtureContextSuite
 
+    if hasattr(config, "multiprocess_start_cbs"):
+        for callback_set in config.multiprocess_start_cbs:
+            callback_set[0](*callback_set[1], **callback_set[2])
+
     def get():
         return testQueue.get(timeout=config.multiprocess_timeout)
 
@@ -716,6 +801,9 @@ def __runner(ix, testQueue, resultQueue, currentaddr, currentstart,
             currentaddr.value = bytes_('')
             resultQueue.put((ix, test_addr, test.tasks, batch(result)))
         except KeyboardInterrupt, e: #TimedOutException:
+            if hasattr(config, "multiprocess_stop_cbs"):
+                for callback_set in config.multiprocess_stop_cbs:
+                    callback_set[0](*callback_set[1], **callback_set[2])
             timeout = isinstance(e, TimedOutException)
             if timeout:
                 keyboardCaught.set()
@@ -749,6 +837,11 @@ def __runner(ix, testQueue, resultQueue, currentaddr, currentstart,
             resultQueue.put((ix, test_addr, test.tasks, batch(result)))
         if config.multiprocess_restartworker:
             break
+
+
+    if hasattr(config, "multiprocess_stop_cbs"):
+        for callback_set in config.multiprocess_stop_cbs:
+            callback_set[0](*callback_set[1], **callback_set[2])
     log.debug("Worker %s ending", ix)
 
 
