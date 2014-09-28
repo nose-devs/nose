@@ -19,6 +19,7 @@ from nose.util import isclass, tolist
 
 log = logging.getLogger('nose.core')
 compat_24 = sys.version_info >= (2, 4)
+compat_272 = sys.version_info >= (2, 7, 2)
 
 __all__ = ['TestProgram', 'main', 'run', 'run_exit', 'runmodule', 'collector',
            'TextTestRunner']
@@ -29,19 +30,29 @@ class TextTestRunner(unittest.TextTestRunner):
     as well as providing hooks for plugins to override or replace the test
     output stream, results, and the test case itself.
     """
+    resultclass = TextTestResult
+
     def __init__(self, stream=sys.stderr, descriptions=1, verbosity=1,
-                 config=None):
+                 config=None, resultclass=None):
         if config is None:
             config = Config()
         self.config = config
-        unittest.TextTestRunner.__init__(self, stream, descriptions, verbosity)
-
+        if resultclass is not None:
+            self.resultclass = resultclass
+        # Custom resultClass capability was added to TextTestRunner in 2.7.2
+        if compat_272:
+            unittest.TextTestRunner.__init__(self, stream, descriptions,
+                                             verbosity,
+                                             resultclass=resultclass)
+        else:
+            unittest.TextTestRunner.__init__(self, stream, descriptions,
+                                             verbosity)
 
     def _makeResult(self):
-        return TextTestResult(self.stream,
-                              self.descriptions,
-                              self.verbosity,
-                              self.config)
+        return self.resultclass(self.stream,
+                                self.descriptions,
+                                self.verbosity,
+                                self.config)
 
     def run(self, test):
         """Overrides to provide plugin hooks and defer all output to

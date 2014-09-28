@@ -270,7 +270,8 @@ class MultiProcess(Plugin):
         return MultiProcessTestRunner(stream=runner.stream,
                                       verbosity=self.config.verbosity,
                                       config=self.config,
-                                      loaderClass=self.loaderClass)
+                                      loaderClass=self.loaderClass,
+                                      resultclass=runner.resultclass)
 
 def signalhandler(sig, frame):
     raise TimedOutException()
