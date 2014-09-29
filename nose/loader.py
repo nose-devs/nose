@@ -336,9 +336,15 @@ class TestLoader(unittest.TestLoader):
         # FIXME can or should this be lazy?
         # is this syntax 2.2 compatible?
         module_paths = getattr(module, '__path__', [])
+
         if path:
-            path = os.path.realpath(path)
+            path = os.path.normcase(os.path.realpath(path))
+
         for module_path in module_paths:
+            log.debug('os.path.normcase(%r): %r', module_path,
+                      os.path.normcase(module_path))
+            module_path = os.path.normcase(module_path)
+
             log.debug("Load tests from module path %s?", module_path)
             log.debug("path: %s os.path.realpath(%s): %s",
                       path, module_path, os.path.realpath(module_path))
