@@ -416,7 +416,7 @@ class Config(object):
             if not self.workingDir:
                 abs_path = absdir(path)
                 if abs_path is None:
-                    raise ValueError("Working directory %s not found, or "
+                    raise ValueError("Working directory '%s' not found, or "
                                      "not a directory" % path)
                 log.info("Set working dir to %s", abs_path)
                 self.workingDir = abs_path
