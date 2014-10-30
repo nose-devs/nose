@@ -180,6 +180,16 @@ class TestStaticMethod(AttributePluginTester):
         assert 'Ran 1 test' in self.output
 
 
+class TestIterClassAttribute(AttributePluginTester):
+    '''Test extension of iterable class and method attributes'''
+    args = ["-a", "foo=a,foo=b"]
+
+    def verify(self):
+        assert 'TestIterAttr.test_one ... ok' in self.output
+        assert 'TestIterAttr.test_two ... ok' not in self.output
+        assert 'Ran 1 test' in self.output
+
+
 if compat_24:
     class TestAttributeEval(AttributePluginTester):
         args = ["-A", "c>20"]

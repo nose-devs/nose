@@ -94,3 +94,13 @@ def added_later_test(self):
     pass
 
 TestAttrSubClass.added_later_test = added_later_test
+
+class TestIterAttr(object):
+    foo = [ 'a' ]
+
+    def test_one(self):
+        pass
+    test_one.foo = [ 'b' ]
+
+    def test_two(self):
+        pass

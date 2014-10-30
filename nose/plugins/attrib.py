@@ -124,13 +124,20 @@ def attr(*args, **kwargs):
     return wrap_ob
 
 def get_method_attr(method, cls, attr_name, default = False):
-    """Look up an attribute on a method/ function. 
+    """Look up an attribute on a method/ function.
     If the attribute isn't found there, looking it up in the
     method's class, if any.
+
+    If the attribute is a tuple or list, and the cls' attribute
+    is also a tuple or list, concatinate the two and return.
     """
     Missing = object()
     value = getattr(method, attr_name, Missing)
-    if value is Missing and cls is not None:
+    if type(value) in (tuple, list) and cls is not None:
+        cls_value = getattr(cls, attr_name, None)
+        if type(cls_value) in (tuple, list):
+            value = list(value) + list(cls_value)
+    elif value is Missing and cls is not None:
         value = getattr(cls, attr_name, Missing)
     if value is Missing:
         return default
