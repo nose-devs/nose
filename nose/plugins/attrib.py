@@ -133,10 +133,15 @@ def get_method_attr(method, cls, attr_name, default = False):
     """
     Missing = object()
     value = getattr(method, attr_name, Missing)
-    if type(value) in (tuple, list) and cls is not None:
-        cls_value = getattr(cls, attr_name, None)
-        if type(cls_value) in (tuple, list):
-            value = list(value) + list(cls_value)
+    if value is not Missing and not isinstance(value, bool) \
+            and cls is not None:
+        cls_value = getattr(cls, attr_name, Missing)
+        if cls_value is not Missing and not isinstance(cls_value, bool):
+            if not isinstance(value, (tuple, list)):
+                value = [value]
+            if not isinstance(cls_value, (tuple, list)):
+                cls_value = [cls_value]
+            value = value + cls_value
     elif value is Missing and cls is not None:
         value = getattr(cls, attr_name, Missing)
     if value is Missing:

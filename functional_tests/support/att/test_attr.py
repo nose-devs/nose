@@ -95,12 +95,22 @@ def added_later_test(self):
 
 TestAttrSubClass.added_later_test = added_later_test
 
-class TestIterAttr(object):
+class TestClassAndMethodIterAttr(object):
     foo = [ 'a' ]
 
     def test_one(self):
         pass
     test_one.foo = [ 'b' ]
+
+    def test_two(self):
+        pass
+
+class TestClassAndMethodStrAttr(object):
+    foo = 'a'
+
+    def test_one(self):
+        pass
+    test_one.foo = 'b'
 
     def test_two(self):
         pass
