@@ -19,6 +19,9 @@ under the Post-build Actions and enter this value for Test report XMLs::
 If you need to change the name or location of the file, you can set the
 ``--xunit-file`` option.
 
+If you need to change the name of the test suite, you can set the
+``--test-suite-name`` option.
+
 Here is an abbreviated version of what an XML test report might look like::
 
     <?xml version="1.0" encoding="UTF-8"?>
