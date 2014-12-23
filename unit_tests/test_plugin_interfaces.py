@@ -10,7 +10,7 @@ class TestPluginInterfaces(unittest.TestCase):
 
 
         exclude = [ 'loadTestsFromGenerator',
-                    'loadTestsFromGeneratorMethod'
+                    'loadTestsFromGeneratorMethod',
                     'loadTestsFromAddress'
                     ]
 
