@@ -28,7 +28,7 @@ from nose.pyversion import sort_list, cmp_to_key
 
 
 log = logging.getLogger(__name__)
-log.setLevel(logging.DEBUG)
+# log.setLevel(logging.DEBUG)
 
 # for efficiency and easier mocking
 op_normpath = os.path.normpath

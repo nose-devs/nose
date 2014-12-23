@@ -13,7 +13,7 @@ from nose.config import Config
 from nose.util import split_test_name, src, getfilename, getpackage, ispackage
 
 log = logging.getLogger(__name__)
-log.setLevel(logging.DEBUG)
+# log.setLevel(logging.DEBUG)
 
 __all__ = ['Selector', 'defaultSelector', 'TestAddress']
 
