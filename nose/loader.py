@@ -20,7 +20,7 @@ from nose.failure import Failure
 from nose.config import Config
 from nose.importer import Importer, add_path, remove_path
 from nose.selector import defaultSelector, TestAddress
-from nose.util import func_lineno, getpackage, isclass, isgenerator, \
+from nose.util import func_lineno, isclass, isgenerator, \
     ispackage, regex_last_key, resolve_name, transplant_func, \
     transplant_class, test_address
 from nose.suite import ContextSuiteFactory, ContextList, LazySuite
@@ -28,7 +28,7 @@ from nose.pyversion import sort_list, cmp_to_key
 
 
 log = logging.getLogger(__name__)
-#log.setLevel(logging.DEBUG)
+# log.setLevel(logging.DEBUG)
 
 # for efficiency and easier mocking
 op_normpath = os.path.normpath
@@ -55,7 +55,7 @@ class TestLoader(unittest.TestLoader):
     workingDir = None
     selector = None
     suiteClass = None
-    
+
     def __init__(self, config=None, importer=None, workingDir=None,
                  selector=None):
         """Initialize a test loader.
@@ -64,7 +64,7 @@ class TestLoader(unittest.TestLoader):
 
         * config: provide a `nose.config.Config`_ or other config class
           instance; if not provided a `nose.config.Config`_ with
-          default values is used.          
+          default values is used.
         * importer: provide an importer instance that implements
           `importFromPath`. If not provided, a
           `nose.importer.Importer`_ is used.
@@ -91,7 +91,7 @@ class TestLoader(unittest.TestLoader):
         self.workingDir = op_normpath(op_abspath(workingDir))
         self.selector = selector
         if config.addPaths:
-            add_path(workingDir, config)        
+            add_path(workingDir, config)
         self.suiteClass = ContextSuiteFactory(config=config)
 
         self._visitedPaths = set([])
@@ -139,7 +139,7 @@ class TestLoader(unittest.TestLoader):
         -- each suite of tests from a module or other file is yielded
         and is expected to be executed before the next file is
         examined.
-        """        
+        """
         log.debug("load from dir %s", path)
         plugins = self.config.plugins
         plugins.beforeDirectory(path)
@@ -204,11 +204,11 @@ class TestLoader(unittest.TestLoader):
             raise
         except:
             yield self.suiteClass([Failure(*sys.exc_info())])
-        
+
         # pop paths
         if self.config.addPaths:
             for p in paths_added:
-              remove_path(p)
+                remove_path(p)
         plugins.afterDirectory(path)
 
     def loadTestsFromFile(self, filename):
@@ -228,7 +228,7 @@ class TestLoader(unittest.TestLoader):
                 return self.suiteClass(tests)
             else:
                 # Nothing was able to even try to load from this file
-                open(filename, 'r').close() # trigger os error
+                open(filename, 'r').close()  # trigger os error
                 raise ValueError("Unable to load tests from file %s"
                                  % filename)
         except (KeyboardInterrupt, SystemExit):
@@ -354,12 +354,12 @@ class TestLoader(unittest.TestLoader):
                 # directory before trying to load from it.
                 if os.path.isdir(module_path):
                     tests.extend(self.loadTestsFromDir(module_path))
-            
+
         for test in self.config.plugins.loadTestsFromModule(module, path):
             tests.append(test)
 
         return self.suiteClass(ContextList(tests, context=module))
-    
+
     def loadTestsFromName(self, name, module=None, discovered=False):
         """Load tests from the entity with the given name.
 
@@ -369,15 +369,14 @@ class TestLoader(unittest.TestLoader):
         """
         # FIXME refactor this method into little bites?
         log.debug("load from %s (%s)", name, module)
-        
+
         suite = self.suiteClass
 
         # give plugins first crack
         plug_tests = self.config.plugins.loadTestsFromName(name, module)
         if plug_tests:
             return suite(plug_tests)
-        
-        addr = TestAddress(name, workingDir=self.workingDir)
+
         if module:
             # Two cases:
             #  name is class.foo
@@ -388,85 +387,19 @@ class TestLoader(unittest.TestLoader):
             #  name is module:class.foo
             #    The addr will be correct. The part we want is the part after
             #    the :, which is in addr.call.
-            if addr.call:
-                name = addr.call
+
+            # if addr.call:
+            #     # This is not executed... when running the tests
+            #     # Commenting for the moment.
+            #     name = addr.call
             parent, obj = self.resolve(name, module)
-            if (isclass(parent)
-                and getattr(parent, '__module__', None) != module.__name__
-                and not isinstance(obj, Failure)):
-                parent = transplant_class(parent, module.__name__)
-                obj = getattr(parent, obj.__name__)
-            log.debug("parent %s obj %s module %s", parent, obj, module)
             if isinstance(obj, Failure):
                 return suite([obj])
             else:
                 return suite(ContextList([self.makeTest(obj, parent)],
                                          context=parent))
-        else:
-            if addr.module:
-                try:
-                    if addr.filename is None:
-                        module = resolve_name(addr.module)
-                    else:
-                        self.config.plugins.beforeImport(
-                            addr.filename, addr.module)
-                        # FIXME: to support module.name names,
-                        # do what resolve-name does and keep trying to
-                        # import, popping tail of module into addr.call,
-                        # until we either get an import or run out of
-                        # module parts
-                        try:
-                            module = self.importer.importFromPath(
-                                addr.filename, addr.module)
-                        finally:
-                            self.config.plugins.afterImport(
-                                addr.filename, addr.module)
-                except (KeyboardInterrupt, SystemExit):
-                    raise
-                except:
-                    exc = sys.exc_info()
-                    return suite([Failure(exc[0], exc[1], exc[2],
-                                          address=addr.totuple())])
-                if addr.call:
-                    return self.loadTestsFromName(addr.call, module)
-                else:
-                    return self.loadTestsFromModule(
-                        module, addr.filename,
-                        discovered=discovered)
-            elif addr.filename:
-                path = addr.filename
-                if addr.call:
-                    package = getpackage(path)
-                    if package is None:
-                        return suite([
-                            Failure(ValueError,
-                                    "Can't find callable %s in file %s: "
-                                    "file is not a python module" %
-                                    (addr.call, path),
-                                    address=addr.totuple())])
-                    return self.loadTestsFromName(addr.call, module=package)
-                else:
-                    if op_isdir(path):
-                        # In this case we *can* be lazy since we know
-                        # that each module in the dir will be fully
-                        # loaded before its tests are executed; we
-                        # also know that we're not going to be asked
-                        # to load from . and ./some_module.py *as part
-                        # of this named test load*
-                        return LazySuite(
-                            lambda: self.loadTestsFromDir(path))
-                    elif op_isfile(path):
-                        return self.loadTestsFromFile(path)
-                    else:
-                        return suite([
-                                Failure(OSError, "No such file %s" % path,
-                                        address=addr.totuple())])
-            else:
-                # just a function? what to do? I think it can only be
-                # handled when module is not None
-                return suite([
-                    Failure(ValueError, "Unresolvable test name %s" % name,
-                            address=addr.totuple())])
+        addr = TestAddress(name, workingDir=self.workingDir)
+        return self.loadTestsFromAddress(addr, name, discovered=discovered)
 
     def loadTestsFromNames(self, names, module=None):
         """Load tests from all names, returning a suite containing all
@@ -498,7 +431,7 @@ class TestLoader(unittest.TestLoader):
             [case for case in
              super(TestLoader, self).loadTestsFromTestCase(testCaseClass)])
         return self.suiteClass(cases)
-    
+
     def loadTestsFromTestClass(self, cls):
         """Load tests from a test class that is *not* a unittest.TestCase
         subclass.
@@ -520,6 +453,47 @@ class TestLoader(unittest.TestLoader):
             cases.append(test)
         return self.suiteClass(ContextList(cases, context=cls))
 
+    def loadTestsFromAddress(self, addr, name, discovered=True):
+        suite = self.suiteClass
+        if addr.module:
+            try:
+                module = self.resolve_module(addr)
+            except (KeyboardInterrupt, SystemExit):
+                raise
+            except:
+                exc = sys.exc_info()
+                return suite([Failure(
+                    exc[0], exc[1], exc[2], address=addr.totuple())])
+            if addr.call:
+                return self.loadTestsFromName(addr.call, module)
+            else:
+                return self.loadTestsFromModule(
+                    module, addr.filename,
+                    discovered=discovered)
+        elif addr.filename:
+            path = addr.filename
+            if op_isdir(path):
+                # In this case we *can* be lazy since we know
+                # that each module in the dir will be fully
+                # loaded before its tests are executed; we
+                # also know that we're not going to be asked
+                # to load from . and ./some_module.py *as part
+                # of this named test load*
+                return LazySuite(
+                    lambda: self.loadTestsFromDir(path))
+            elif op_isfile(path):
+                return self.loadTestsFromFile(path)
+            else:
+                return suite([
+                    Failure(OSError, "No such file %s" % path,
+                            address=addr.totuple())])
+        else:
+            # just a function? what to do? I think it can only be
+            # handled when module is not None
+            err = "Unresolvable test name %s" % name
+            return suite(
+                [Failure(ValueError, err, address=addr.totuple())])
+
     def makeTest(self, obj, parent=None):
         try:
             return self._makeTest(obj, parent)
@@ -534,7 +508,7 @@ class TestLoader(unittest.TestLoader):
             except:
                 addr = None
             return Failure(exc[0], exc[1], exc[2], address=addr)
-    
+
     def _makeTest(self, obj, parent=None):
         """Given a test object and its parent, return a test case
         or test suite.
@@ -557,10 +531,10 @@ class TestLoader(unittest.TestLoader):
         except:
             exc = sys.exc_info()
             return Failure(exc[0], exc[1], exc[2], address=addr)
-        
+
         if isfunction(obj) and parent and not isinstance(parent, types.ModuleType):
-	    # This is a Python 3.x 'unbound method'.  Wrap it with its
-	    # associated class..
+            # This is a Python 3.x 'unbound method'.  Wrap it with its
+            # associated class..
             obj = unbound_method(parent, obj)
 
         if isinstance(obj, unittest.TestCase):
@@ -594,6 +568,16 @@ class TestLoader(unittest.TestLoader):
                            "Can't make a test from %s" % obj,
                            address=addr)
 
+    def need_transplant(self, obj, parent, module):
+        if (
+            isclass(parent)
+            and getattr(parent, '__module__', None) != module.__name__
+            and not isinstance(obj, Failure)
+        ):
+            return True
+        else:
+            return False
+
     def resolve(self, name, module):
         """Resolve name within module
         """
@@ -604,7 +588,31 @@ class TestLoader(unittest.TestLoader):
         if obj is None:
             # no such test
             obj = Failure(ValueError, "No such test %s" % name)
+        if self.need_transplant(obj, parent, module):
+            log.debug("BBBBBBBBBBBBBBB")
+            parent = transplant_class(parent, module.__name__)
+            obj = getattr(parent, obj.__name__)
+            log.debug("parent %s obj %s module %s", parent, obj, module)
         return parent, obj
+
+    def resolve_module(self, address):
+        if address.filename is None:
+            module = resolve_name(address.module)
+        else:
+            self.config.plugins.beforeImport(
+                address.filename, address.module)
+            # FIXME: to support module.name names,
+            # do what resolve-name does and keep trying to
+            # import, popping tail of module into address.call,
+            # until we either get an import or run out of
+            # module parts
+            try:
+                module = self.importer.importFromPath(
+                    address.filename, address.module)
+            finally:
+                self.config.plugins.afterImport(
+                    address.filename, address.module)
+        return module
 
     def parseGeneratedTest(self, test):
         """Given the yield value of a test generator, return a func and args.
@@ -617,9 +625,8 @@ class TestLoader(unittest.TestLoader):
         elif len(test) == 1:                    # yield (test,)
             test_func, arg = (test[0], tuple())
         else:                                   # yield test, foo, bar, ...
-            assert len(test) > 1 # sanity check
+            assert len(test) > 1  # sanity check
             test_func, arg = (test[0], test[1:])
         return test_func, arg
 
 defaultTestLoader = TestLoader
-
