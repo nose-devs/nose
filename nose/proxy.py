@@ -159,6 +159,17 @@ class ResultProxy(object):
         plugins.addError(self.test, (SkipTest, reason, None))
         self.result.addSkip(self.test, reason)
 
+    def addExpectedFailure(self, test, err):
+        self.assertMyTest(test)
+        self.result.addExpectedFailure(self.test, self._prepareErr(err))
+
+    def addUnexpectedSuccess(self, test):
+        self.assertMyTest(test)
+        self.test.passed = False
+        self.result.addUnexpectedSuccess(self.test)
+        if self.config.stopOnError:
+            self.shouldStop = True
+
     def addSuccess(self, test):
         self.assertMyTest(test)
         self.plugins.addSuccess(self.test)
@@ -184,5 +195,10 @@ class ResultProxy(object):
                                """Tests that raised an exception""")
     failures = proxied_attribute('result', 'failures',
                                  """Tests that failed""")
+    expectedFailures = proxied_attribute('result', 'expectedFailures',
+                                         """Tests that failed as expected""")
+    unexpectedSuccesses = proxied_attribute('result', 'unexpectedSuccesses',
+                                            """Tests that passed
+                                            unexpectedly""")
     testsRun = proxied_attribute('result', 'testsRun',
                                  """Number of tests run""")

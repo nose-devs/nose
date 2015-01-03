@@ -12,6 +12,7 @@ class TestResultProxy(unittest.TestCase):
         proxy = ResultProxy(res, test=None)
 
         methods = [ 'addError', 'addFailure', 'addSuccess',
+                    'addExpectedFailure', 'addUnexpectedSuccess',
                     'startTest', 'stopTest', 'stop' ]
         for method in methods:
             m = getattr(proxy, method)
@@ -51,6 +52,8 @@ class TestResultProxy(unittest.TestCase):
         proxy.addError(test, err)
         proxy.addFailure(test, err)
         proxy.addSuccess(test)
+        proxy.addExpectedFailure(test, err)
+        proxy.addUnexpectedSuccess(test)
         proxy.startTest(test)
         proxy.stopTest(test)
         proxy.beforeTest(test)
@@ -58,6 +61,7 @@ class TestResultProxy(unittest.TestCase):
         proxy.stop()
         proxy.shouldStop = 'yes please'
         for method in ['addError', 'addFailure', 'addSuccess',
+                       'addExpectedFailure', 'addUnexpectedSuccess',
                        'startTest', 'stopTest', 'beforeTest', 'afterTest',
                        'stop']:
             assert method in res.called, "%s was not proxied"
@@ -68,6 +72,8 @@ class TestResultProxy(unittest.TestCase):
         proxy = ResultProxy(res, test=None)
         proxy.errors
         proxy.failures
+        proxy.expectedFailures
+        proxy.unexpectedSuccesses
         proxy.shouldStop
         proxy.testsRun
 
@@ -151,6 +157,21 @@ class TestResultProxy(unittest.TestCase):
         class TC(unittest.TestCase):
             def runTest(self):
                 raise Exception("Enough!")
+        conf = Config(stopOnError=True)
+        test = TC()
+        case = Test(test)
+        res = unittest.TestResult()
+        proxy = ResultProxy(res, case, config=conf)
+        case(proxy)
+        assert proxy.shouldStop
+        assert res.shouldStop
+
+    def test_stop_on_unexpected_success(self):
+        from nose.case import Test
+        class TC(unittest.TestCase):
+            @unittest.expectedFailure
+            def runTest(self):
+                pass
         conf = Config(stopOnError=True)
         test = TC()
         case = Test(test)
