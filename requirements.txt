@@ -1,2 +1,0 @@
-# note that this is currently only used for travis-ci
-coverage>=3.3

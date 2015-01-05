@@ -6,7 +6,10 @@ methods in ``unittest`` proper.
 
 """
 import re
-import unittest
+try:
+    import unittest2 as unittest
+except ImportError:
+    import unittest
 
 
 __all__ = ['ok_', 'eq_']

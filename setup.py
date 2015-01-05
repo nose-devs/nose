@@ -18,6 +18,8 @@ if sys.version_info >= (3,):
              'test_build_dir': 'build/tests',
              'pyversion_patching': True,
              }
+elif sys.version_info < (2, 6):
+    extra = {'install_requires': ['unittest2']}
 else:
     extra = {}
 
