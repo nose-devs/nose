@@ -1,9 +1,12 @@
 import sys
 import unittest
 from inspect import ismethod
+from nose import SkipTest
 from nose.config import Config
 from nose.proxy import ResultProxyFactory, ResultProxy
 from mock import RecordingPluginManager
+
+compat_27 = sys.version_info >= (2, 7)
 
 class TestResultProxy(unittest.TestCase):
 
@@ -52,18 +55,22 @@ class TestResultProxy(unittest.TestCase):
         proxy.addError(test, err)
         proxy.addFailure(test, err)
         proxy.addSuccess(test)
-        proxy.addExpectedFailure(test, err)
-        proxy.addUnexpectedSuccess(test)
+        if compat_27:
+            proxy.addExpectedFailure(test, err)
+            proxy.addUnexpectedSuccess(test)
         proxy.startTest(test)
         proxy.stopTest(test)
         proxy.beforeTest(test)
         proxy.afterTest(test)
         proxy.stop()
         proxy.shouldStop = 'yes please'
-        for method in ['addError', 'addFailure', 'addSuccess',
-                       'addExpectedFailure', 'addUnexpectedSuccess',
-                       'startTest', 'stopTest', 'beforeTest', 'afterTest',
-                       'stop']:
+
+        methods = ['addError', 'addFailure', 'addSuccess',
+                   'startTest', 'stopTest', 'beforeTest', 'afterTest',
+                   'stop']
+        if compat_27:
+            methods += ['addExpectedFailure', 'addUnexpectedSuccess']
+        for method in methods:
             assert method in res.called, "%s was not proxied"
         self.assertEqual(res.shouldStop, 'yes please')
 
@@ -72,8 +79,9 @@ class TestResultProxy(unittest.TestCase):
         proxy = ResultProxy(res, test=None)
         proxy.errors
         proxy.failures
-        proxy.expectedFailures
-        proxy.unexpectedSuccesses
+        if compat_27:
+            proxy.expectedFailures
+            proxy.unexpectedSuccesses
         proxy.shouldStop
         proxy.testsRun
 
@@ -167,6 +175,9 @@ class TestResultProxy(unittest.TestCase):
         assert res.shouldStop
 
     def test_stop_on_unexpected_success(self):
+        if not compat_27:
+            raise SkipTest('unexpected success not available in python<2.7')
+
         from nose.case import Test
         class TC(unittest.TestCase):
             @unittest.expectedFailure

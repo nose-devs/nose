@@ -135,9 +135,9 @@ class TextTestResult(_TextTestResult):
             summary['failures'] = len(self.failures)
         if len(self.errors):
             summary['errors'] = len(self.errors)
-        if len(self.expectedFailures):
+        if getattr(self, 'expectedFailures', False):
             summary['expectedFailures'] = len(self.expectedFailures)
-        if len(self.unexpectedSuccesses):
+        if getattr(self, 'unexpectedSuccesses', False):
             summary['unexpectedSuccesses'] = len(self.unexpectedSuccesses)
 
         if not self.wasSuccessful():
@@ -159,7 +159,9 @@ class TextTestResult(_TextTestResult):
         lists that are marked as errors and should cause a run to
         fail.
         """
-        if self.errors or self.failures or self.unexpectedSuccesses:
+        if self.errors or self.failures:
+            return False
+        if getattr(self, 'unexpectedSuccesses', False):
             return False
         for cls in self.errorClasses.keys():
             storage, label, isfail = self.errorClasses[cls]
