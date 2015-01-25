@@ -40,7 +40,12 @@ class TestCoveragePlugin(PluginTester, unittest.TestCase):
         super(TestCoveragePlugin, self).setUp()
 
     def runTest(self):
-        self.assertTrue("blah        4      3    25%   1" in self.output)
+        print(self.output)
+        self.assertTrue(
+                # Coverage < 4.0
+                ("blah        4      3    25%   1" in self.output) or
+                # Coverage >= 4.0
+                ("blah.py       4      3    25%   1, 5-6" in self.output))
         self.assertTrue("Ran 1 test in" in self.output)
         # Assert coverage html report exists
         self.assertTrue(os.path.exists(os.path.join(self.cover_html_dir,
