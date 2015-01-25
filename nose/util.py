@@ -221,11 +221,11 @@ def getfilename(package, relativeTo=None):
     if relativeTo is None:
         relativeTo = os.getcwd()
     path = os.path.join(relativeTo, os.sep.join(package.split('.')))
-    suffixes = ('/__init__.py', '.py')
-    for suffix in suffixes:
-        filename = path + suffix
-        if os.path.exists(filename):
-            return filename
+    if os.path.exists(path + '/__init__.py'):
+        return path
+    filename = path + '.py'
+    if os.path.exists(filename):
+        return filename
     return None
 
 

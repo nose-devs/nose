@@ -75,7 +75,7 @@ class TestNoseTestLoader(unittest.TestCase):
 
         assert not res.errors, res.errors
         assert not res.failures, res.failures
-        self.assertEqual(res.testsRun, 5)
+        self.assertEqual(res.testsRun, 6)
 
         # Expected order of calls
         expect = ['test_pak.setup',
@@ -84,6 +84,7 @@ class TestNoseTestLoader(unittest.TestCase):
                   'test_pak.test_mod.test_minus',
                   'test_pak.test_mod.teardown',
                   'test_pak.test_sub.setup',
+                  'test_pak.test_sub.test_sub_init',
                   'test_pak.test_sub.test_mod.setup',
                   'test_pak.test_sub.test_mod.TestMaths.setup_class',
                   'test_pak.test_sub.test_mod.TestMaths.setup',
@@ -414,8 +415,60 @@ class TestNoseTestLoader(unittest.TestCase):
         print res.errors
         self.assertEqual(len(res.errors), 1)
         assert 'raise Exception("pow")' in res.errors[0][1]
-        
-        
+
+    def test_load_from_file(self):
+        res = unittest.TestResult()
+        wd = os.path.join(support, 'package2')
+        l = loader.TestLoader(workingDir=wd)
+        suite = l.loadTestsFromName('test_pak/test_sub/__init__.py')
+        suite(res)
+
+        assert 'test_pak' in sys.modules, \
+               "Context did not load test_pak"
+        m = sys.modules['test_pak']
+        print "test pak state", m.state
+        expect = ['test_pak.setup',
+                  'test_pak.test_sub.setup',
+                  'test_pak.test_sub.test_sub_init',
+                  'test_pak.test_sub.teardown',
+                  'test_pak.teardown']
+        self.assertEqual(len(m.state), len(expect))
+        for item in m.state:
+            self.assertEqual(item, expect.pop(0))
+
+
+    def test_load_from_sub_package(self):
+        res = unittest.TestResult()
+        wd = os.path.join(support, 'package2')
+        l = loader.TestLoader(workingDir=wd)
+        suite = l.loadTestsFromName('test_pak.test_sub')
+        suite(res)
+
+        assert 'test_pak' in sys.modules, \
+               "Context did not load test_pak"
+        m = sys.modules['test_pak']
+        print "test pak state", m.state
+        expect = ['test_pak.setup',
+                  'test_pak.test_sub.setup',
+                  'test_pak.test_sub.test_sub_init',
+                  'test_pak.test_sub.test_mod.setup',
+                  'test_pak.test_sub.test_mod.TestMaths.setup_class',
+                  'test_pak.test_sub.test_mod.TestMaths.setup',
+                  'test_pak.test_sub.test_mod.TestMaths.test_div',
+                  'test_pak.test_sub.test_mod.TestMaths.teardown',
+                  'test_pak.test_sub.test_mod.TestMaths.setup',
+                  'test_pak.test_sub.test_mod.TestMaths.test_two_two',
+                  'test_pak.test_sub.test_mod.TestMaths.teardown',
+                  'test_pak.test_sub.test_mod.TestMaths.teardown_class',
+                  'test_pak.test_sub.test_mod.test',
+                  'test_pak.test_sub.test_mod.teardown',
+                  'test_pak.test_sub.teardown',
+                  'test_pak.teardown']
+        self.assertEqual(len(m.state), len(expect))
+        for item in m.state:
+            self.assertEqual(item, expect.pop(0))
+
+
 # used for comparing lists
 def diff(a, b):
     return '\n' + '\n'.join([ l for l in ndiff(a, b)

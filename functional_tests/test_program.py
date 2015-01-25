@@ -56,8 +56,8 @@ class TestTestProgram(unittest.TestCase):
                            exit=False)
         res = runner.result
         print stream.getvalue()
-        self.assertEqual(res.testsRun, 5,
-                         "Expected to run 5 tests, ran %s" % res.testsRun)
+        self.assertEqual(res.testsRun, 6,
+                         "Expected to run 6 tests, ran %s" % res.testsRun)
         assert res.wasSuccessful()
         assert not res.errors
         assert not res.failures
@@ -165,7 +165,7 @@ class TestTestProgram(unittest.TestCase):
                            exit=False)
         res = runner.result
         print stream.getvalue()
-        self.assertEqual(res.testsRun, 7)
+        self.assertEqual(res.testsRun, 8)
 
     def test_illegal_packages_not_selected(self):
         stream = StringIO()
