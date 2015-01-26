@@ -176,8 +176,8 @@ class TestId(Plugin):
         test addresses, if they are found in my dict of tests.
         """
         log.debug('ltfn %s %s', names, module)
+        fh = open(self.idfile, 'rb')
         try:
-            fh = open(self.idfile, 'rb')
             data = load(fh)
             if 'ids' in data:
                 self.ids = data['ids']
@@ -197,7 +197,6 @@ class TestId(Plugin):
                 'Loaded test ids %s tests %s failed %s sources %s from %s',
                 self.ids, self.tests, self.failed, self.source_names,
                 self.idfile)
-            fh.close()
         except ValueError, e:
             # load() may throw a ValueError when reading the ids file, if it
             # was generated with a newer version of Python than we are currently
@@ -205,6 +204,8 @@ class TestId(Plugin):
             log.debug('Error loading %s : %s', self.idfile, str(e))
         except IOError:
             log.debug('IO error reading %s', self.idfile)
+        finally:
+            fh.close()
 
         if self.loopOnFailed and self.failed:
             self.collecting = False
