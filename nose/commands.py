@@ -64,6 +64,7 @@ try:
 except ImportError:
     Command = nosetests = None
 else:
+    import os
     from nose.config import Config, option_blacklist, user_config_files, \
         flag, _bool
     from nose.core import TestProgram
@@ -86,9 +87,16 @@ else:
         return opt_list
 
 
+    def get_user_config_files():
+        if os.environ.get('NOSE_IGNORE_CONFIG_FILES', False):
+            return []
+        else:
+            return user_config_files()
+
+
     class nosetests(Command):
         description = "Run unit tests using nosetests"
-        __config = Config(files=user_config_files(),
+        __config = Config(files=get_user_config_files(),
                           plugins=DefaultPluginManager())
         __parser = __config.getParser()
         user_options = get_user_options(__parser)
