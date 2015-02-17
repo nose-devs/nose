@@ -1,3 +1,11 @@
+1.3.5
+
+- Fix #875: nose doesn't collect tests when subpackage is given as arg
+- Fix #809: tests not discovered for namespace packages on Windows
+- Fix #815: "ValueError: unsupported pickle protocol" with --with-id
+- Wrap the working dir path name in quotes when reporting an error.
+  Patch by Őry Máté.
+
 1.3.4
 
 - Recognize doctest options defined in other plugins
