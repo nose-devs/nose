@@ -161,11 +161,17 @@ class ResultProxy(object):
 
     def addExpectedFailure(self, test, err):
         self.assertMyTest(test)
+        self.plugins.addExpectedFailure(self.test, err)
         self.result.addExpectedFailure(self.test, self._prepareErr(err))
 
     def addUnexpectedSuccess(self, test):
         self.assertMyTest(test)
+        plugins = self.plugins
+        plugin_handled = plugins.handleUnexpectedSuccess(self.test)
+        if plugin_handled:
+            return
         self.test.passed = False
+        plugins.addUnexpectedSuccess(self.test)
         self.result.addUnexpectedSuccess(self.test)
         if self.config.stopOnError:
             self.shouldStop = True

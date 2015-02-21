@@ -3,6 +3,7 @@ import codecs
 import os
 import sys
 import unittest
+from nose import SkipTest
 from nose.plugins.capture import Capture
 from nose.plugins.xunit import Xunit
 from nose.plugins.skip import Skip
@@ -10,6 +11,7 @@ from nose.plugins import PluginTester
 
 support = os.path.join(os.path.dirname(__file__), 'support')
 xml_results_filename = os.path.join(support, "xunit.xml")
+xml_results_filename_2 = os.path.join(support, "xunit2.xml")
 
 # the plugin is tested better in unit tests.
 # this is just here for a sanity check
@@ -42,6 +44,35 @@ class TestXUnitPlugin(PluginTester, unittest.TestCase):
             assert ('<error type="%s.Exception" message="日本">' % (Exception.__module__,)) in result
         else:
             assert ('<error type="%s.Exception" message="日本">' % (Exception.__module__,)).decode('utf8') in result
+        assert '</testcase>' in result
+        assert '</testsuite>' in result
+
+
+class TestXUnitPluginExpectedFailure(PluginTester, unittest.TestCase):
+    activate = '--with-xunit'
+    args = ['-v', '--xunit-file=%s' % xml_results_filename_2]
+    plugins = [Xunit()]
+    suitepath = os.path.join(support, 'xunit_expected_failure')
+
+    def setUp(self):
+        super(TestXUnitPluginExpectedFailure, self).setUp()
+        if sys.version_info < (2, 7):
+            raise SkipTest('expected failure not available in python<2.7')
+
+    def runTest(self):
+        print str(self.output)
+
+        assert "test_expected_failure (test_xunit_expected_failure_as_suite.TestForXunit) ... expected failure" in self.output
+        assert "test_unexpected_success (test_xunit_expected_failure_as_suite.TestForXunit) ... unexpected success" in self.output
+        assert "XML: %s" % xml_results_filename_2 in self.output
+
+        f = codecs.open(xml_results_filename_2, 'r', encoding='utf8')
+        result = f.read()
+        f.close()
+        print result.encode('utf8', 'replace')
+
+        assert '<?xml version="1.0" encoding="UTF-8"?>' in result
+        assert '<testsuite name="nosetests" tests="2" errors="0" failures="1" skip="0">' in result
         assert '</testcase>' in result
         assert '</testsuite>' in result
 

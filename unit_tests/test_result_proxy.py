@@ -160,6 +160,39 @@ class TestResultProxy(unittest.TestCase):
         assert 'afterTest' in plugs.called
         plugs.reset()
 
+        if compat_27:
+            class TC2(unittest.TestCase):
+                @unittest.expectedFailure
+                def test_expected_failure(self):
+                    self.fail()
+
+                @unittest.expectedFailure
+                def test_unexpected_success(self):
+                    pass
+
+            factory = ResultProxyFactory(config=config)
+
+            case_x = Test(TC2('test_expected_failure'))
+            case_u = Test(TC2('test_unexpected_success'))
+
+            pres_x = factory(res, case_x)
+            case_x(pres_x)
+            assert 'beforeTest' in plugs.called
+            assert 'startTest' in plugs.called
+            assert 'addExpectedFailure' in plugs.called
+            assert 'stopTest' in plugs.called
+            assert 'afterTest' in plugs.called
+            plugs.reset()
+
+            pres_u = factory(res, case_u)
+            case_u(pres_u)
+            assert 'beforeTest' in plugs.called
+            assert 'startTest' in plugs.called
+            assert 'addUnexpectedSuccess' in plugs.called
+            assert 'stopTest' in plugs.called
+            assert 'afterTest' in plugs.called
+            plugs.reset()
+
     def test_stop_on_error(self):
         from nose.case import Test
         class TC(unittest.TestCase):

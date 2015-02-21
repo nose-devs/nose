@@ -18,8 +18,9 @@ class TestPluginInterfaces(unittest.TestCase):
         loadfuncs = [ f for f in dir(TestLoader)
                       if f.startswith('load') and not f in exclude ]
         
-        others = ['addDeprecated', 'addError', 'addFailure',
-                  'addSkip', 'addSuccess', 'startTest', 'stopTest',
+        others = ['addDeprecated', 'addError', 'addExpectedFailure',
+                  'addFailure', 'addSkip', 'addSuccess',
+                  'addUnexpectedSuccess', 'startTest', 'stopTest',
                   'prepareTest', 'begin', 'report'
                   ] 
 

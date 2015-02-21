@@ -162,6 +162,19 @@ class IPluginInterface(object):
         pass
     addError.changed = True
 
+    def addExpectedFailure(self, test, err):
+        """Called when a test fails as expected. DO NOT return a value unless
+        you want to stop other plugins from seeing that the test has failed
+        as expected.
+
+        :param test: the test case
+        :type test: :class:`nose.case.Test`
+        :param err: 3-tuple
+        :type err: sys.exc_info() tuple
+        """
+        pass
+    addExpectedFailure._new = True
+
     def addFailure(self, test, err):
         """Called when a test fails. DO NOT return a value unless you
         want to stop other plugins from seeing that the test has failed.
@@ -192,6 +205,17 @@ class IPluginInterface(object):
         """
         pass
     addSuccess.changed = True
+
+    def addUnexpectedSuccess(self, test):
+        """Called when a test unexpectedly passes. DO NOT return a value
+        unless you want to stop other plugins from seeing the unexpectedly
+        passing test.
+
+        :param test: the test case
+        :type test: :class:`nose.case.Test`
+        """
+        pass
+    addUnexpectedSuccess._new = True
 
     def afterContext(self):
         """Called after a context (generally a module) has been
@@ -375,6 +399,17 @@ class IPluginInterface(object):
         """
         pass
     handleFailure._new = True
+
+    def handleUnexpectedSuccess(self, test):
+        """Called on addUnexpectedSuccess. To handle the unexpected success
+        yourself and prevent normal processing of the unexpected success,
+        return a true value.
+
+        :param test: the test case
+        :type test: :class:`nose.case.Test`
+        """
+        pass
+    handleUnexpectedSuccess._new = True
 
     def loadTestsFromDir(self, path):
         """Return iterable of tests from a directory. May be a

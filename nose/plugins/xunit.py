@@ -302,6 +302,13 @@ class Xunit(Plugin):
              'systemerr': self._getCapturedStderr(),
              })
 
+    def addExpectedFailure(self, test, err):
+        """Add expected failure output to Xunit report.
+        """
+        # XUnit does not have special support for expected failures,
+        # so just treat it as an ordinary success.
+        return self.addSuccess(test)
+
     def addFailure(self, test, err, capt=None, tb_info=None):
         """Add failure output to Xunit report.
         """
@@ -336,6 +343,27 @@ class Xunit(Plugin):
             {'cls': self._quoteattr(id_split(id)[0]),
              'name': self._quoteattr(id_split(id)[-1]),
              'taken': taken,
+             'systemout': self._getCapturedStdout(),
+             'systemerr': self._getCapturedStderr(),
+             })
+
+    def addUnexpectedSuccess(self, test):
+        """Add unexpected success output to Xunit report.
+        """
+        # XUnit does not have special support for unexpected successes,
+        # so just treat it as an ordinary failure, but without the traceback.
+        taken = self._timeTaken()
+        self.stats['failures'] += 1
+        id = test.id()
+        self.errorlist.append(
+            u'<testcase classname=%(cls)s name=%(name)s time="%(taken).3f">'
+            u'<failure type=%(errtype)s>'
+            u'</failure>%(systemout)s%(systemerr)s</testcase>' %
+            {'cls': self._quoteattr(id_split(id)[0]),
+             'name': self._quoteattr(id_split(id)[-1]),
+             'taken': taken,
+             'errtype': self._quoteattr('unittest.case._UnexpectedSuccess'),
+             'message': self._quoteattr('unexpected success'),
              'systemout': self._getCapturedStdout(),
              'systemerr': self._getCapturedStderr(),
              })
