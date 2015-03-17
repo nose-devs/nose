@@ -91,6 +91,7 @@ class UnboundMethod:
         self.__self__ = UnboundSelf(cls)
         if sys.version_info < (3, 0):
             self.im_class = cls
+        self.__doc__ = getattr(func, '__doc__', None)
 
     def address(self):
         cls = self.__self__.cls
