@@ -29,6 +29,7 @@ class Coverage(Plugin):
     coverInstance = None
     coverErase = False
     coverMinPercentage = None
+    coverOmit = None
     score = 200
     status = {}
 
@@ -89,6 +90,12 @@ class Coverage(Plugin):
                           dest="cover_xml_file",
                           metavar="FILE",
                           help="Produce XML coverage information in file")
+        parser.add_option("--cover-omit", action="append",
+                          default=env.get('NOSE_COVER_OMIT'),
+                          dest="cover_omit",
+                          help="Omit files when their filename matches one of these "
+                          "patterns. Usually needs quoting on the command line.")
+
 
     def configure(self, options, conf):
         """
@@ -137,11 +144,12 @@ class Coverage(Plugin):
         if options.cover_xml:
             self.coverXmlFile = options.cover_xml_file
             log.debug('Will put XML coverage report in %s', self.coverXmlFile)
+        self.coverOmit = options.cover_omit
         if self.enabled:
             self.status['active'] = True
             self.coverInstance = coverage.coverage(auto_data=False,
                 branch=self.coverBranches, data_suffix=None,
-                source=self.coverPackages)
+                source=self.coverPackages, omit=self.coverOmit)
 
     def begin(self):
         """
