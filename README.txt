@@ -389,6 +389,10 @@ Options
 
    Produce XML coverage information in file
 
+--cover-config-file=DEFAULT
+
+   Location of coverage config file [NOSE_COVER_CONFIG_FILE]
+
 --pdb
 
    Drop into debugger on failures or errors
