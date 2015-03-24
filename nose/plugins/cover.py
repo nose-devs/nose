@@ -89,6 +89,10 @@ class Coverage(Plugin):
                           dest="cover_xml_file",
                           metavar="FILE",
                           help="Produce XML coverage information in file")
+        parser.add_option("--cover-config-file", action="store",
+                          default=env.get('NOSE_COVER_CONFIG_FILE', True),
+                          dest="cover_config_file",
+                          help="Location of coverage config file.")
 
     def configure(self, options, conf):
         """
@@ -137,11 +141,14 @@ class Coverage(Plugin):
         if options.cover_xml:
             self.coverXmlFile = options.cover_xml_file
             log.debug('Will put XML coverage report in %s', self.coverXmlFile)
+        self.coverConfigFile = True
+        if options.cover_config_file:
+            self.coverConfigFile = options.cover_config_file
         if self.enabled:
             self.status['active'] = True
             self.coverInstance = coverage.coverage(auto_data=False,
                 branch=self.coverBranches, data_suffix=None,
-                source=self.coverPackages)
+                source=self.coverPackages, config_file=self.coverConfigFile)
 
     def begin(self):
         """
