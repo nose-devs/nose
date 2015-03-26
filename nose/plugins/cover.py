@@ -90,9 +90,10 @@ class Coverage(Plugin):
                           metavar="FILE",
                           help="Produce XML coverage information in file")
         parser.add_option("--cover-config-file", action="store",
-                          default=env.get('NOSE_COVER_CONFIG_FILE', True),
+                          default=env.get('NOSE_COVER_CONFIG_FILE'),
                           dest="cover_config_file",
-                          help="Location of coverage config file.")
+                          help="Location of coverage config file "
+                          "[NOSE_COVER_CONFIG_FILE]")
 
     def configure(self, options, conf):
         """
@@ -116,8 +117,8 @@ class Coverage(Plugin):
                 self.enabled = False
                 return
         self.conf = conf
-        self.coverErase = options.cover_erase
-        self.coverTests = options.cover_tests
+        self.coverErase = True if options.cover_erase else False
+        self.coverTests = True if options.cover_tests else False
         self.coverPackages = []
         if options.cover_packages:
             if isinstance(options.cover_packages, (list, tuple)):
@@ -141,7 +142,7 @@ class Coverage(Plugin):
         if options.cover_xml:
             self.coverXmlFile = options.cover_xml_file
             log.debug('Will put XML coverage report in %s', self.coverXmlFile)
-        self.coverConfigFile = True
+        self.coverConfigFile = True # Coverage uses True to mean default
         if options.cover_config_file:
             self.coverConfigFile = options.cover_config_file
         if self.enabled:
