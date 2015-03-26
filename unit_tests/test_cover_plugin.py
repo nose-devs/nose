@@ -67,7 +67,7 @@ def _test_options_helper(arg_option, cover_option,
     if arg_value is None:
         args = arg_option
     else:
-        args = '{}={}'.format(arg_option, arg_value)
+        args = arg_option + "=" + arg_value
 
     options, _ = parser.parse_args(prefix_args + [args])
     c_arg_set.configure(options, Config())
