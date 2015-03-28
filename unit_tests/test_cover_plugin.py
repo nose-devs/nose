@@ -23,7 +23,7 @@ class TestCoveragePlugin(object):
                              True, False,
                              env_key='NOSE_COVER_TESTS')
 
-    def test_cover_config_file(self):
+    def test_cover_options_config_file(self):
         c1, c2 = _test_options_helper('--cover-config-file', 'coverConfigFile',
                                       'not_default_config_file', True,
                                       arg_value='not_default_config_file',
