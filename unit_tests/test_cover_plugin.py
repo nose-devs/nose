@@ -8,7 +8,7 @@ import unittest
 
 class TestCoveragePlugin(object):
 
-    def test_cover_options_package(self):
+    def test_cover_options_packages(self):
         _test_options_helper('--cover-package', 'coverPackages',
                              ['pkg1', 'pkg2', 'pkg3'], [],
                              'pkg1,pkg2,pkg3', 'NOSE_COVER_PACKAGE')
@@ -18,7 +18,7 @@ class TestCoveragePlugin(object):
                              True, False,
                              env_key='NOSE_COVER_ERASE')
 
-    def test_cover_tests(self):
+    def test_cover_options_tests(self):
         _test_options_helper('--cover-tests', 'coverTests',
                              True, False,
                              env_key='NOSE_COVER_TESTS')
