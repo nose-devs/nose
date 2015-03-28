@@ -117,8 +117,8 @@ class Coverage(Plugin):
                 self.enabled = False
                 return
         self.conf = conf
-        self.coverErase = True if options.cover_erase else False
-        self.coverTests = True if options.cover_tests else False
+        self.coverErase = bool(options.cover_erase)
+        self.coverTests = bool(options.cover_tests)
         self.coverPackages = []
         if options.cover_packages:
             if isinstance(options.cover_packages, (list, tuple)):
@@ -142,7 +142,8 @@ class Coverage(Plugin):
         if options.cover_xml:
             self.coverXmlFile = options.cover_xml_file
             log.debug('Will put XML coverage report in %s', self.coverXmlFile)
-        self.coverConfigFile = True # Coverage uses True to mean default
+        # Coverage uses True to mean default
+        self.coverConfigFile = True
         if options.cover_config_file:
             self.coverConfigFile = options.cover_config_file
         if self.enabled:

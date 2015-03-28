@@ -64,10 +64,9 @@ def _test_options_helper(arg_option, cover_option,
     c_arg_set = Coverage()
     c_arg_set.addOptions(parser)
 
-    if arg_value is None:
-        args = arg_option
-    else:
-        args = arg_option + "=" + arg_value
+    args = arg_option
+    if arg_value is not None:
+        args += '=' + arg_value
 
     options, _ = parser.parse_args(prefix_args + [args])
     c_arg_set.configure(options, Config())
@@ -75,9 +74,8 @@ def _test_options_helper(arg_option, cover_option,
 
     # If the option supports environment variables, check that too
     if env_key is not None:
-        if arg_value is None:
-            args = 'true'
-        else:
+        args = 'true'
+        if arg_value is not None:
             args = arg_value
 
         env = {env_key: args}
