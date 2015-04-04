@@ -5,6 +5,11 @@
 - Fix #815: "ValueError: unsupported pickle protocol" with --with-id
 - Wrap the working dir path name in quotes when reporting an error.
   Patch by Őry Máté.
+- Fix #887: Fix a discrepancy in test names between Python 2 and Python 3
+- Fix #131: Use os.stat() to check if file is executable
+  Patch by Arnon Yaari.
+- Fix #820 and #719: Fix coverage plugin with multiprocess
+  Patch by Nicolas Grasset.
 
 1.3.4
 
