@@ -149,13 +149,14 @@ class Coverage(Plugin):
         """
         log.debug("Coverage begin")
         self.skipModules = sys.modules.keys()[:]
-        if self.coverErase:
-            log.debug("Clearing previously collected coverage statistics")
-            self.coverInstance.combine()
-            self.coverInstance.erase()
-        self.coverInstance.exclude('#pragma[: ]+[nN][oO] [cC][oO][vV][eE][rR]')
-        self.coverInstance.load()
-        self.coverInstance.start()
+        if self.coverInstance:
+            if self.coverErase:
+                log.debug("Clearing previously collected coverage statistics")
+                self.coverInstance.combine()
+                self.coverInstance.erase()
+            self.coverInstance.exclude('#pragma[: ]+[nN][oO] [cC][oO][vV][eE][rR]')
+            self.coverInstance.load()
+            self.coverInstance.start()
 
     def report(self, stream):
         """
