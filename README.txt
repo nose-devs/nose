@@ -389,11 +389,6 @@ Options
 
    Produce XML coverage information in file
 
---cover-noreport
-
-   Disable coverage report output to stdout/stderr
-   [NOSE_COVER_NOREPORT]
-
 --pdb
 
    Drop into debugger on failures or errors
