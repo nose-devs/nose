@@ -3,6 +3,7 @@
 import inspect
 import itertools
 import logging
+import stat
 import os
 import re
 import sys
@@ -654,7 +655,14 @@ def safe_str(val, encoding='utf-8'):
                              for arg in val])
         return unicode(val).encode(encoding)
 
-    
+
+def is_executable(file):
+    if not os.path.exists(file):
+        return False
+    st = os.stat(file)
+    return bool(st.st_mode & (stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH))
+
+
 if __name__ == '__main__':
     import doctest
     doctest.testmod()

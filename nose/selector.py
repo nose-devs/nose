@@ -10,7 +10,7 @@ import logging
 import os
 import unittest
 from nose.config import Config
-from nose.util import split_test_name, src, getfilename, getpackage, ispackage
+from nose.util import split_test_name, src, getfilename, getpackage, ispackage, is_executable
 
 log = logging.getLogger(__name__)
 
@@ -120,7 +120,7 @@ class Selector(object):
             log.debug('%s matches ignoreFiles pattern; skipped',
                       base) 
             return False
-        if not self.config.includeExe and os.access(file, os.X_OK):
+        if not self.config.includeExe and is_executable(file):
             log.info('%s is executable; skipped', file)
             return False
         dummy, ext = op_splitext(base)
