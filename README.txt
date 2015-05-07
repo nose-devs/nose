@@ -293,6 +293,10 @@ Options
    Prevent nose from byte-compiling the source into .pyc files while
    nose is scanning for and running tests.
 
+--always-succeed
+
+   Return a success exit code even if tests failed
+
 -a=ATTR, --attr=ATTR
 
    Run only tests that have attributes specified by ATTR [NOSE_ATTR]
