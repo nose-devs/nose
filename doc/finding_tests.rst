@@ -8,6 +8,8 @@ nose, by default, follows a few simple rules for test discovery.
   expression, and those that match are considered tests. Any class that is a
   `unittest.TestCase` subclass is also collected, so long as it is inside of a
   module that looks like a test.
+
+* Files with the executable bit set are ignored.
    
 * Directories that don't look like tests and aren't packages are not
   inspected.
