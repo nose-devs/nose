@@ -215,6 +215,7 @@ class Config(object):
         self.firstPackageWins = False
         self.parserClass = OptionParser
         self.worker = False
+        self.alwaysSucceed = False
 
         self._default = self.__dict__.copy()
         self.update(kw)
@@ -340,6 +341,9 @@ class Config(object):
         if options.exclude:
             self.exclude = map(re.compile, tolist(options.exclude))
             log.info("Excluding tests matching %s", options.exclude)
+
+        if options.alwaysSucceed:
+            self.alwaysSucceed = options.alwaysSucceed
 
         # When listing plugins we don't want to run them
         if not options.showPlugins:
@@ -586,6 +590,10 @@ class Config(object):
             action="store_false", default=True, dest="byteCompile",
             help="Prevent nose from byte-compiling the source into .pyc files "
             "while nose is scanning for and running tests.")
+        parser.add_option(
+            "--always-succeed",
+            action="store_true", default=False, dest="alwaysSucceed",
+            help="Return a success exit code even if tests failed")
 
         self.plugins.loadPlugins()
         self.pluginOpts(parser)

@@ -1,6 +1,6 @@
 .\" Man page generated from reStructuredText.
 .
-.TH "NOSETESTS" "1" "April 04, 2015" "1.3" "nose"
+.TH "NOSETESTS" "1" "May 07, 2015" "1.3" "nose"
 .SH NAME
 nosetests \- Nicer testing for Python
 .
@@ -307,6 +307,11 @@ nose\(aqs importer will normally evict a package from sys.modules if it sees a p
 .TP
 .B \-\-no\-byte\-compile
 Prevent nose from byte\-compiling the source into .pyc files while nose is scanning for and running tests.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-\-always\-succeed
+Return a success exit code even if tests failed
 .UNINDENT
 .INDENT 0.0
 .TP
