@@ -57,11 +57,8 @@ class TextTestResult(_TextTestResult):
         error will be added to the list for that class, not errors.
         """
         ec, ev, tb = err
-        try:
-            exc_info = self._exc_info_to_string(err, test)
-        except TypeError:
-            # 2.3 compat
-            exc_info = self._exc_info_to_string(err)
+        exc_info = self._exc_info_to_string(err, test)
+
         for cls, (storage, label, isfail) in self.errorClasses.items():
             #if 'Skip' in cls.__name__ or 'Skip' in ec.__name__:
             #    from nose.tools import set_trace
@@ -166,11 +163,7 @@ class TextTestResult(_TextTestResult):
         return True
 
     def _addError(self, test, err):
-        try:
-            exc_info = self._exc_info_to_string(err, test)
-        except TypeError:
-            # 2.3: does not take test arg
-            exc_info = self._exc_info_to_string(err)
+        exc_info = self._exc_info_to_string(err, test)
         self.errors.append((test, exc_info))
         if self.showAll:
             self.stream.write('ERROR')
@@ -182,12 +175,7 @@ class TextTestResult(_TextTestResult):
         from nose.plugins.skip import SkipTest
         if isclass(err[0]) and issubclass(err[0], SkipTest):
             return str(err[1])
-        # 2.3/2.4 -- 2.4 passes test, 2.3 does not
-        try:
-            return _TextTestResult._exc_info_to_string(self, err, test)
-        except TypeError:
-            # 2.3: does not take test arg
-            return _TextTestResult._exc_info_to_string(self, err)
+        return _TextTestResult._exc_info_to_string(self, err, test)
 
 
 def ln(*arg, **kw):
