@@ -1,3 +1,8 @@
+1.3.7
+
+- Fix loading packages from capitalised package on Windows
+  Patch by Thomas Kluyver
+
 1.3.6
 
 - Re-release of 1.3.5 with wheels fixed.
