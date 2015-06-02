@@ -23,6 +23,21 @@ When running under setuptools, you can configure nose settings via the
 environment variables detailed in the nosetests script usage message,
 or the setup.cfg, ~/.noserc or ~/.nose.cfg config files.
 
+Here a snippet if you would like to 'force' the usage of 'nosetests':
+
+::
+
+  if "test" in sys.argv:
+      print("\nPlease use 'nosetests' instead of 'test' to cover all tests!\n")
+      print("e.g.:")
+      print("     $ ./setup.py nosetests\n")
+      sys.exit(-1)
+      
+  setup(
+      # ...
+  )
+  
+
 `nosetests` command
 -------------------
 
