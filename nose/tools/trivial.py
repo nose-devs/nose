@@ -9,7 +9,7 @@ import re
 import unittest
 
 
-__all__ = ['ok_', 'eq_']
+__all__ = ['ok_', 'nok_', 'eq_', 'neq_']
 
 # Use the same flag as unittest itself to prevent descent into these functions:
 __unittest = 1
@@ -21,12 +21,25 @@ def ok_(expr, msg=None):
     if not expr:
         raise AssertionError(msg)
 
+def nok_(expr, msg=None):
+    """Shorthand for assert not. Saves 6 whole characters!
+    """
+    if expr:
+        raise AssertionError(msg)
+
 
 def eq_(a, b, msg=None):
     """Shorthand for 'assert a == b, "%r != %r" % (a, b)
     """
     if not a == b:
         raise AssertionError(msg or "%r != %r" % (a, b))
+
+
+def neq_(a, b, msg=None):
+    """Shorthand for 'assert a != b, "%r == %r" % (a, b)
+    """
+    if a == b:
+        raise AssertionError(msg or "%r == %r" % (a, b))
 
 
 #

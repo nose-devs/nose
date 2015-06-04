@@ -16,6 +16,15 @@ class TestTools(unittest.TestCase):
         else:
             self.fail("ok_(False) did not raise assertion error")
 
+    def test_nok(self):
+        nok_(False)
+        try:
+            nok_(True, "message")
+        except AssertionError, e:
+            assert str(e) == "message"
+        else:
+            self.fail("ok_(False) did not raise assertion error")
+
     def test_eq(self):
         eq_(1, 1)
         try:
@@ -31,6 +40,21 @@ class TestTools(unittest.TestCase):
         else:
             self.fail("eq_(1, 0) did not raise assertion error")
 
+    def test_neq(self):
+        neq_(1, 0)
+        try:
+            neq_(1, 1, "message")
+        except AssertionError, e:
+            assert str(e) == "message"
+        else:
+            self.fail("neq_(1, 1) did not raise assertion error")
+        try:
+            neq_(1, 1)
+        except AssertionError, e:
+            assert str(e) == "1 == 1"
+        else:
+            self.fail("neq_(1, 1) did not raise assertion error")
+
     def test_eq_unittest_flag(self):
         """Make sure eq_() is in a namespace that has __unittest = 1.
 
@@ -38,6 +62,14 @@ class TestTools(unittest.TestCase):
 
         """
         assert '__unittest' in eq_.func_globals
+
+    def test_neq_unittest_flag(self):
+        """Make sure neq_() is in a namespace that has __unittest = 1.
+
+        This lets tracebacks refrain from descending into the neq_ frame.
+
+        """
+        assert '__unittest' in neq_.func_globals
 
     def test_istest_unittest_flag(self):
         """Make sure istest() is not in a namespace that has __unittest = 1.
