@@ -10,6 +10,7 @@ variable.
 
 .. _coverage: http://www.nedbatchelder.com/code/modules/coverage.html
 """
+import fnmatch
 import logging
 import re
 import sys
@@ -66,6 +67,11 @@ class Coverage(Plugin):
                           "discovering holes in test coverage if not all "
                           "files are imported by the test suite. "
                           "[NOSE_COVER_INCLUSIVE]")
+        parser.add_option('--cover-exclude-file', action='append',
+                          default=env.get('NOSE_COVER_EXCLUDE_FILE'),
+                          help='Exclude a Python file or files from being'
+                          ' included by --cover-inclusive.'
+                          ' [NOSE_COVER_EXCLUDE_FILE]')
         parser.add_option("--cover-html", action="store_true",
                           default=env.get('NOSE_COVER_HTML'),
                           dest='cover_html',
@@ -121,6 +127,14 @@ class Coverage(Plugin):
             for pkgs in [tolist(x) for x in cover_packages]:
                 self.coverPackages.extend(pkgs)
         self.coverInclusive = options.cover_inclusive
+        self.coverInclusiveExcludes = []
+        if options.cover_exclude_file:
+            if isinstance(options.cover_exclude_file, (list, tuple)):
+                cover_exclude_file = options.cover_exclude_file
+            else:
+                cover_exclude_file = [options.cover_exclude_file]
+            for pkgs in [tolist(x) for x in cover_exclude_file]:
+                self.coverInclusiveExcludes.extend(pkgs)
         if self.coverPackages:
             log.info("Coverage report will include only packages: %s",
                      self.coverPackages)
@@ -262,6 +276,10 @@ class Coverage(Plugin):
         """
         if self.coverInclusive:
             if file.endswith(".py"):
+                if self.coverInclusiveExcludes:
+                    for exclude_pattern in self.coverInclusiveExcludes:
+                        if fnmatch.fnmatch(file, '*' + exclude_pattern):
+                            return False
                 if package and self.coverPackages:
                     for want in self.coverPackages:
                         if package.startswith(want):
