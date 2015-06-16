@@ -73,7 +73,8 @@ class Importer(object):
             else:
                 part_fqname = "%s.%s" % (part_fqname, part)
             try:
-                acquire_lock()
+                if sys.version_info < (3, 4):
+                    acquire_lock()
                 log.debug("find module part %s (%s) in %s",
                           part, part_fqname, path)
                 fh, filename, desc = find_module(part, path)
@@ -83,9 +84,9 @@ class Importer(object):
                     # we get a fresh copy of anything we are trying to load
                     # from a new path
                     log.debug("sys.modules has %s as %s", part_fqname, old)
-                    if (self.sameModule(old, filename)
-                        or (self.config.firstPackageWins and
-                            getattr(old, '__path__', None))):
+                    if (self.sameModule(old, filename) or
+                            (self.config.firstPackageWins and
+                             getattr(old, '__path__', None))):
                         mod = old
                     else:
                         del sys.modules[part_fqname]
@@ -95,7 +96,8 @@ class Importer(object):
             finally:
                 if fh:
                     fh.close()
-                release_lock()
+                if sys.version_info < (3, 4):
+                    release_lock()
             if parent:
                 setattr(parent, part, mod)
             if hasattr(mod, '__path__'):
@@ -145,10 +147,10 @@ def add_path(path, config=None):
         return []
     added = []
     parent = os.path.dirname(path)
-    if (parent
-        and os.path.exists(os.path.join(path, '__init__.py'))):
+    if (parent and
+            os.path.exists(os.path.join(path, '__init__.py'))):
         added.extend(add_path(parent, config))
-    elif not path in sys.path:
+    elif path not in sys.path:
         log.debug("insert %s into sys.path", path)
         sys.path.insert(0, path)
         added.append(path)
