@@ -209,6 +209,7 @@ class Xunit(Plugin):
             self.errorlist = []
             self.error_report_file_name = os.path.realpath(options.xunit_file)
             self.xunit_testsuite_name = options.xunit_testsuite_name
+            self.show_docstrings = options.show_docstrings
 
     def report(self, stream):
         """Writes an Xunit-formatted XML file
