@@ -530,7 +530,7 @@ class ContextSuiteFactory(object):
                             break
                     if not found_common:
                         remain.append(test)
-                if common:
+                if len(common) > 1:
                     suite = self.makeSuite(common, ancestor)
                 tail = self.mixedSuites(remain)
         return [suite] + tail
