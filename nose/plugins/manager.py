@@ -416,7 +416,7 @@ class BuiltinPluginManager(PluginManager):
 
 try:
     import pkg_resources
-    class DefaultPluginManager(EntryPointPluginManager, BuiltinPluginManager):
+    class DefaultPluginManager(BuiltinPluginManager, EntryPointPluginManager):
         pass
 
 except ImportError:
