@@ -199,8 +199,6 @@ class ContextSuite(LazySuite):
         """
         # proxy the result for myself
         log.debug("suite %s (%s) run called, tests: %s", id(self), self, self._tests)
-        #import pdb
-        #pdb.set_trace()
         if self.resultProxy:
             result, orig = self.resultProxy(result, self), result
         else:
