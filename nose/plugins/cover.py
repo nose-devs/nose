@@ -89,6 +89,10 @@ class Coverage(Plugin):
                           dest="cover_xml_file",
                           metavar="FILE",
                           help="Produce XML coverage information in file")
+        parser.add_option("--omit-cover", action="store",
+                          default=env.get('NOSE_OMIT_COVER'),
+                          dest="omit_cover",
+                          help="List of files to be omitted from the coverage report.")
 
     def configure(self, options, conf):
         """
@@ -137,9 +141,12 @@ class Coverage(Plugin):
             log.debug('Will put XML coverage report in %s', self.coverXmlFile)
         if self.enabled:
             self.status['active'] = True
+            from coverage.cmdline import unshell_list
+            # Build the list of file patterns to omit from the coverage report
+            omit_patterns = unshell_list(options.omit_cover) if options.omit_cover else None
             self.coverInstance = coverage.coverage(auto_data=False,
                 branch=self.coverBranches, data_suffix=conf.worker,
-                source=self.coverPackages)
+                source=self.coverPackages, omit=omit_patterns)
             self.coverInstance._warn_no_data = False
             self.coverInstance.is_worker = conf.worker
             self.coverInstance.exclude('#pragma[: ]+[nN][oO] [cC][oO][vV][eE][rR]')
