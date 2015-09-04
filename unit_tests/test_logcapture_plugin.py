@@ -255,3 +255,21 @@ class TestLogCapturePlugin(object):
             assert msg in ev
         else:
             assert msg.encode('utf-8') in ev
+
+    def test_non_propagating_loggers_handled(self):
+        c = LogCapture()
+        parser = OptionParser()
+        c.addOptions(parser, {})
+        options, args = parser.parse_args([])
+        c.configure(options, Config())
+
+        logger = logging.getLogger('foo.yes')
+        logger.propagate = False
+
+        c.start()
+        logger.debug("test message")
+        c.end()
+
+        records = c.formatLogRecords()
+        eq_(1, len(records))
+        assert records[0].startswith('foo.yes:'), records[0]
