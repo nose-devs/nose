@@ -326,6 +326,8 @@ class MultiProcessTestRunner(TextTestRunner):
         currentaddr = Value('c',bytes_(''))
         currentstart = Value('d',time.time())
         keyboardCaught = Event()
+        is_subprocess = self.config.is_subprocess
+        self.config.is_subprocess = True
         p = Process(target=runner,
                    args=(iworker, testQueue,
                          resultQueue,
@@ -336,6 +338,7 @@ class MultiProcessTestRunner(TextTestRunner):
                          self.loaderClass,
                          result.__class__,
                          pickle.dumps(self.config)))
+        self.config.is_subprocess = is_subprocess
         p.currentaddr = currentaddr
         p.currentstart = currentstart
         p.keyboardCaught = keyboardCaught
