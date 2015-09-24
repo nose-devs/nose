@@ -239,6 +239,7 @@ class FunctionTestCase(TestBase):
         self.setUpFunc = setUp
         self.tearDownFunc = tearDown
         self.arg = arg
+        self.arg_repr = repr(self.arg)
         self.descriptor = descriptor
         TestBase.__init__(self)
 
@@ -282,7 +283,7 @@ class FunctionTestCase(TestBase):
         else:
             name = func.__name__
         name = "%s.%s" % (func.__module__, name)
-        if arg:
+        if not arg == '()':
             name = "%s%s" % (name, arg)
         # FIXME need to include the full dir path to disambiguate
         # in cases where test module of the same name was seen in
@@ -299,9 +300,9 @@ class FunctionTestCase(TestBase):
         are returned.
         """
         if self.descriptor:
-            return self.descriptor, self.arg
+            return self.descriptor, self.arg_repr
         else:
-            return self.test, self.arg
+            return self.test, self.arg_repr
 
 
 class MethodTestCase(TestBase):
@@ -338,6 +339,7 @@ class MethodTestCase(TestBase):
         self.method = method
         self.test = test
         self.arg = arg
+        self.arg_repr = repr(self.arg)
         self.descriptor = descriptor
         if isfunction(method):
             raise ValueError("Unbound methods must be wrapped using pyversion.unbound_method before passing to MethodTestCase")
@@ -357,7 +359,7 @@ class MethodTestCase(TestBase):
         name = "%s.%s.%s" % (self.cls.__module__,
                              self.cls.__name__,
                              name)
-        if arg:
+        if not arg == '()':
             name = "%s%s" % (name, arg)
         return name
     __repr__ = __str__
@@ -392,6 +394,6 @@ class MethodTestCase(TestBase):
         or function are returned.
         """
         if self.descriptor:
-            return self.descriptor, self.arg
+            return self.descriptor, self.arg_repr
         else:
-            return self.method, self.arg
+            return self.method, self.arg_repr
