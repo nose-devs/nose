@@ -147,7 +147,7 @@ class Config(object):
 
       self.env = env = kw.pop('env', {})
       self.args = ()
-      self.testMatch = re.compile(r'(?:\b|_)[Tt]est')
+      self.testMatch = re.compile(env.get('NOSE_TESTMATCH', r'(?:\b|_)[Tt]est'))
       self.addPaths = not env.get('NOSE_NOPATH', False)
       self.configSection = 'nosetests'
       self.debug = env.get('NOSE_DEBUG')
