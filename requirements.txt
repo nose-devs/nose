@@ -1,2 +1,4 @@
 # note that this is currently only used for travis-ci
-coverage>=3.3
+coverage>=3.3; python_version < '3.2'
+coverage>=3.3; python_version > '3.2'
+coverage>=3.3,<4.0; python_version == '3.2'
