@@ -43,11 +43,11 @@ imported, not the source modules.
     >>> run(argv=argv) # doctest: +REPORT_NDIFF
     package1 setup
     test (package1.test_module.TestCase) ... ok
-    package1.test_module.TestClass.test_class ... ok
+    package1.test_module:TestClass.test_class ... ok
     package1.test_module.test_function ... ok
     package2c setup
     test (package2c.test_module.TestCase) ... ok
-    package2c.test_module.TestClass.test_class ... ok
+    package2c.test_module:TestClass.test_class ... ok
     package2f setup
     package2f.test_module.test_function ... ok
     <BLANKLINE>
@@ -72,7 +72,7 @@ packages are executed.
     >>> run(argv=argv) # doctest: +REPORT_NDIFF
     package2c setup
     test (package2c.test_module.TestCase) ... ok
-    package2c.test_module.TestClass.test_class ... ok
+    package2c.test_module:TestClass.test_class ... ok
     <BLANKLINE>
     ----------------------------------------------------------------------
     Ran 2 tests in ...s
@@ -87,7 +87,7 @@ command-line.
     ...         ':TestClass.test_class']
     >>> run(argv=argv) # doctest: +REPORT_NDIFF
     package2c setup
-    package2c.test_module.TestClass.test_class ... ok
+    package2c.test_module:TestClass.test_class ... ok
     <BLANKLINE>
     ----------------------------------------------------------------------
     Ran 1 test in ...s

@@ -135,7 +135,7 @@ The module with shared fixtures passes.
 
     >>> run(argv=['nosetests', '-v', test_shared]) #doctest: +REPORT_NDIFF
     setup called
-    test_shared.TestMe.test_one ... ok
+    test_shared:TestMe.test_one ... ok
     test_shared.test_a ... ok
     test_shared.test_b ... ok
     teardown called
@@ -149,7 +149,7 @@ As does the module with no fixture annotations.
 
     >>> run(argv=['nosetests', '-v', test_not_shared]) #doctest: +REPORT_NDIFF
     setup called
-    test_not_shared.TestMe.test_one ... ok
+    test_not_shared:TestMe.test_one ... ok
     test_not_shared.test_a ... ok
     test_not_shared.test_b ... ok
     teardown called
@@ -163,7 +163,7 @@ And the module that marks its fixtures as re-entrant.
 
     >>> run(argv=['nosetests', '-v', test_can_split]) #doctest: +REPORT_NDIFF
     setup called
-    test_can_split.TestMe.test_one ... ok
+    test_can_split:TestMe.test_one ... ok
     test_can_split.test_a ... ok
     test_can_split.test_b ... ok
     teardown called
