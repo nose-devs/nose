@@ -176,7 +176,7 @@ class TestStaticMethod(AttributePluginTester):
     args = ["-a", "!slow"]
 
     def verify(self):
-        assert 'test.TestAttrib.test_static ... ok' in self.output
+        assert 'test:TestAttrib.test_static ... ok' in self.output
         assert 'Ran 1 test' in self.output
 
 
