@@ -118,6 +118,30 @@ class LazySuite(unittest.TestSuite):
                       "generator, so iteration may not be repeatable.")
 
 
+class ErrorHolder(Test):
+    def __init__(self, test, description):
+        super(ErrorHolder, self).__init__(test)
+        self.description = description
+
+    def run(self, result):
+        pass
+
+    def __call__(self, result):
+        return self.run(result)
+
+    def runTest(self, result):
+        return self.run(result)
+
+    def id(self):
+        return self.description
+
+    def shortDescription(self):
+        return None
+
+    def __str__(self):
+        return self.id()
+
+
 class ContextSuite(LazySuite):
     """A suite with context.
 
@@ -194,24 +218,61 @@ class ContextSuite(LazySuite):
 
         return e
 
+    def _determineSetupRoutine(self):
+        context = self.context
+        if isclass(context):
+            names = self.classSetup
+        else:
+            names = self.moduleSetup
+            if hasattr(context, '__path__'):
+                names = self.packageSetup + names
+        for name in names:
+            func = getattr(context, name, None)
+            if callable(func):
+                return func
+        return self.setUp
+
+    def _determineTeardownRoutine(self):
+        context = self.context
+        if isclass(context):
+            names = self.classTeardown
+        else:
+            names = self.moduleTeardown
+            if hasattr(context, '__path__'):
+                names = self.packageTeardown + names
+        for name in names:
+            func = getattr(context, name, None)
+            if callable(func):
+                return func
+        return self.tearDown
+
+    def _getName(self, obj):
+        return getattr(obj, '__name__', str(obj))
+
     def run(self, result):
         """Run tests in suite inside of suite fixtures.
         """
-        # proxy the result for myself
         log.debug("suite %s (%s) run called, tests: %s", id(self), self, self._tests)
-        #import pdb
-        #pdb.set_trace()
-        if self.resultProxy:
-            result, orig = self.resultProxy(result, self), result
-        else:
-            result, orig = result, result
+
+        # This here just in case an error occurs during the class/module level
+        # setup and teardown.  We'll use them to help formulate a useful error
+        # message to the user.
+        setupRoutine = self._determineSetupRoutine()
+        teardownRoutine = self._determineTeardownRoutine()
+
         try:
             self.setUp()
         except KeyboardInterrupt:
             raise
         except:
             self.error_context = 'setup'
-            result.addError(self, self._exc_info())
+            testCaseSetup = ErrorHolder(
+                    setupRoutine, '%s:%s' % (
+                        self._getName(self.context),
+                        self._getName(setupRoutine)))
+            if self.resultProxy:
+                result = self.resultProxy(result, testCaseSetup)
+            result.addError(testCaseSetup, self._exc_info())
             return
         try:
             for test in self._tests:
@@ -221,7 +282,7 @@ class ContextSuite(LazySuite):
                 # each nose.case.Test will create its own result proxy
                 # so the cases need the original result, to avoid proxy
                 # chains
-                test(orig)
+                test(result)
         finally:
             self.has_run = True
             try:
@@ -230,7 +291,13 @@ class ContextSuite(LazySuite):
                 raise
             except:
                 self.error_context = 'teardown'
-                result.addError(self, self._exc_info())
+                testCaseTeardown = ErrorHolder(
+                        teardownRoutine, '%s:%s' % (
+                            self._getName(self.context),
+                            self._getName(teardownRoutine)))
+                if self.resultProxy:
+                    result = self.resultProxy(result, testCaseTeardown)
+                result.addError(testCaseTeardown, self._exc_info())
 
     def hasFixtures(self, ctx_callback=None):
         context = self.context
