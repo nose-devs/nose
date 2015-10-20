@@ -21,7 +21,7 @@ from nose.config import Config
 from nose.importer import Importer, add_path, remove_path
 from nose.selector import defaultSelector, TestAddress
 from nose.util import func_lineno, getpackage, isclass, isgenerator, \
-    ispackage, regex_last_key, resolve_name, transplant_func, \
+    ispackage, regex_last_key, resolve_name, src, transplant_func, \
     transplant_class, test_address
 from nose.suite import ContextSuiteFactory, ContextList, LazySuite
 from nose.pyversion import sort_list, cmp_to_key
@@ -152,6 +152,8 @@ class TestLoader(unittest.TestLoader):
             # this hard-coded initial-dot test will be removed:
             # http://code.google.com/p/python-nose/issues/detail?id=82
             if entry.startswith('.'):
+                continue
+            if src(entry) == '__init__.py':
                 continue
             entry_path = op_abspath(op_join(path, entry))
             is_file = op_isfile(entry_path)
