@@ -5,6 +5,7 @@ from difflib import ndiff
 from cStringIO import StringIO
 
 from nose.config import Config
+from nose.plugins.allmodules import AllModules
 from nose.plugins.manager import PluginManager
 from nose.plugins.skip import Skip
 from nose import loader
@@ -64,9 +65,11 @@ class TestNoseTestLoader(unittest.TestCase):
         self.assertEqual(res.testsRun, 1)
 
     def test_fixture_context(self):
+        config = Config(ignoreFiles=[],
+                        plugins=PluginManager(plugins=[AllModules()]))
         res = unittest.TestResult()
         wd = os.path.join(support, 'package2')
-        l = loader.TestLoader(workingDir=wd)
+        l = loader.TestLoader(config=config, workingDir=wd)
         dir_suite = l.loadTestsFromName('.')
         dir_suite(res)
 
