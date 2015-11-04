@@ -9,7 +9,7 @@ Note to Users
 Nose has been in maintenance mode for the past several years and will likely
 cease without a new person/team to take over maintainership.  New projects
 should consider using `Nose2 <https://github.com/nose-devs/nose2>`_, `py.test
-<http://pytest.org/>`, or just plain unittest/unittest2.
+<http://pytest.org/>`_, or just plain unittest/unittest2.
 
 
 Installation and quick start
