@@ -255,3 +255,46 @@ class TestLogCapturePlugin(object):
             assert msg in ev
         else:
             assert msg.encode('utf-8') in ev
+
+    def test_capture_data(self):
+        c = LogCapture()
+        parser = OptionParser()
+        c.addOptions(parser, {})
+        options, args = parser.parse_args([])
+        c.configure(options, Config())
+        c.start()
+
+        def mktest():
+            class TC(unittest.TestCase):
+                def runTest(self):
+                    pass
+            test = TC()
+            return test
+        test = mktest()
+
+        c.beforeTest(test)
+
+        assert hasattr(test, 'logCaptureData')
+        eq_(test.logCaptureData.isFinished(), False)
+        eq_(test.logCaptureData.getText(), "")
+
+        log = logging.getLogger("foobar.something")
+        log.debug("ordinary string log")
+
+        eq_(test.logCaptureData.getText(),
+                "foobar.something: DEBUG: ordinary string log")
+        eq_(len(test.logCaptureData.getRecords()), 1)
+        eq_(test.logCaptureData.isFinished(), False)
+
+        c.afterTest(test)
+        
+        eq_(test.logCaptureData.isFinished(), True)
+
+        log.debug("NOT PRESENT")
+
+        eq_(test.logCaptureData.getText(),
+                "foobar.something: DEBUG: ordinary string log")
+        eq_(len(test.logCaptureData.getRecords()), 1)
+        eq_(test.logCaptureData._handler, None) # eh. whitebox.
+
+        c.end()

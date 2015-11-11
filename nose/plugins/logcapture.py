@@ -215,10 +215,13 @@ class LogCapture(Plugin):
         """Clear buffers and handlers before test.
         """
         self.setupLoghandler()
+        test.logCaptureData = DataContainer(self.handler)
 
     def afterTest(self, test):
         """Clear buffers after test.
         """
+        if hasattr(test, 'logCaptureData'):
+            test.logCaptureData.finish()
         self.handler.truncate()
 
     def formatFailure(self, test, err):
@@ -230,16 +233,73 @@ class LogCapture(Plugin):
         """Add captured log messages to error output.
         """
         # logic flow copied from Capture.formatError
-        test.capturedLogging = records = self.formatLogRecords()
+        if not hasattr(test, 'logCaptureData'):
+            return err
+        # TODO: deprecate capturedLogging in favor of test.logCaptureData?
+        test.capturedLogging = records = test.logCaptureData.finish()
         if not records:
+            return err
+        if not test.logCaptureData.editTestMessages:
             return err
         ec, ev, tb = err
         return (ec, self.addCaptureToErr(ev, records), tb)
 
     def formatLogRecords(self):
-        return map(safe_str, self.handler.buffer)
+        # This method is used heavily by tests.
+        return LogCapture._formatLogRecords(self.handler.buffer)
+
+    @staticmethod
+    def _formatLogRecords(records):
+        return map(safe_str, records)
 
     def addCaptureToErr(self, ev, records):
         return '\n'.join([safe_str(ev), ln('>> begin captured logging <<')] + \
                           records + \
                           [ln('>> end captured logging <<')])
+
+class DataContainer(object):
+    """A management object tacked onto test instances for the logcapture test.
+
+    Provides a programmatic access point for other plugins which wish to use the
+    captured log data.
+    """
+
+    def __init__(self, handler):
+        self._handler = handler
+        self._finished = False
+        self._records = None
+        self._text = None
+        self.editTestMessages = True # Other plugins can disable this
+
+    def getText(self):
+        """Returns the captured logging in text form"""
+        if self.isFinished():
+            return self._text
+        else:
+            return '\n'.join(LogCapture._formatLogRecords(self._handler.buffer))
+
+    def getRecords(self):
+        """Returns the captured logging as a list of strings""" 
+        if self.isFinished():
+            return self._records
+        else:
+            return list(self._handler.buffer)
+
+    def finish(self):
+        """Finishes the log capturing for the test and returns the records."""
+        if not self._finished:
+            self._records = list(self._handler.buffer)
+            self._text = self.getText()
+            self._finished = True
+            self._handler = None
+        return self._records
+
+    def isFinished(self):
+        """Returns True if log capture for the test has been completed.
+        
+        Generally, it's unnecessary to query this method, since the test
+        lifecycle makes it clear.  Tests are transitioned to finished during
+        formatError, formatFailure, and afterTest.
+        """
+        return self._finished
+
