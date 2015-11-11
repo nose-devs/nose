@@ -1,6 +1,6 @@
 .\" Man page generated from reStructuredText.
 .
-.TH "NOSETESTS" "1" "April 04, 2015" "1.3" "nose"
+.TH "NOSETESTS" "1" "November 11, 2015" "1.3" "nose"
 .SH NAME
 nosetests \- Nicer testing for Python
 .
@@ -43,7 +43,7 @@ nose collects tests automatically from python source files,
 directories and packages found in its working directory (which
 defaults to the current working directory). Any python source file,
 directory or package that matches the testMatch regular expression
-(by default: \fI(?:^|[b_.\-])[Tt]est)\fP will be collected as a test (or
+(by default: \fI(?:\eb|_)[Tt]est\fP will be collected as a test (or
 source for collection of tests). In addition, all other packages
 found in the working directory will be examined for python source files
 or directories that match testMatch. Package discovery descends all

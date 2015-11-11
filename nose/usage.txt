@@ -2,7 +2,7 @@ nose collects tests automatically from python source files,
 directories and packages found in its working directory (which
 defaults to the current working directory). Any python source file,
 directory or package that matches the testMatch regular expression
-(by default: `(?:^|[\b_\.-])[Tt]est)` will be collected as a test (or
+(by default: `(?:\\b|_)[Tt]est` will be collected as a test (or
 source for collection of tests). In addition, all other packages
 found in the working directory will be examined for python source files
 or directories that match testMatch. Package discovery descends all
