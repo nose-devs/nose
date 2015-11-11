@@ -157,6 +157,8 @@ class OptBucket(object):
         return self.doc.replace('%prog', self.prog).replace(':\n', '::\n')
     
     def add_option(self, *arg, **kw):
+        kw = {k: (v.replace('\\', '\\\\') if isinstance(v, str) else v)
+              for (k, v) in kw.items()}
         self.opts.append(Opt(*arg, **kw))
 
 

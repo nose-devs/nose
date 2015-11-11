@@ -216,8 +216,8 @@ Options
 -m=REGEX, --match=REGEX, --testmatch=REGEX
 
    Files, directories, function names, and class names that match this
-   regular expression are considered tests.  Default:
-   (?:\b|_)[Tt]est [NOSE_TESTMATCH]
+   regular expression are considered tests.  Default: (?:\b|_)[Tt]est
+   [NOSE_TESTMATCH]
 
 --tests=NAMES
 
