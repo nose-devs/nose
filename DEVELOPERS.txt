@@ -17,6 +17,21 @@ For a quick spot check of the tests you can test against a specific version
 like this::
 
   $ tox -e py26
+  
+Only run a portion of tests
+===========================
+
+To only run the xunit tests in one environment for example:
+
+  $ ./run_tests.sh -e py26 -- unit_tests/test_xunit.py
+
+TDD
+===
+
+For a fast feedback cycle on a specific area of nose, you can use [sniffer](https://pypi.python.org/pypi/sniffer).
+The following example watches your checkout and runs the xunit tests continuously:
+
+  $ sniffer -x unit_tests/test_xunit.py
 
 All Features Must Have Tests
 ============================
