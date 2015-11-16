@@ -50,7 +50,7 @@ class Selector(object):
         To match, a name must match config.testMatch OR config.include
         and it must not match config.exclude
         """
-        return ((self.match.search(name)
+        return ((self.match.match(name)
                  or (self.include and
                      filter(None,
                             [inc.search(name) for inc in self.include])))
