@@ -51,8 +51,8 @@ nose collects tests automatically from python source files,
 directories and packages found in its working directory (which
 defaults to the current working directory). Any python source file,
 directory or package that matches the testMatch regular expression (by
-default: *(?:^|[b_.-])[Tt]est)* will be collected as a test (or source
-for collection of tests). In addition, all other packages found in the
+default: *(?:\b|_)[Tt]est* will be collected as a test (or source for
+collection of tests). In addition, all other packages found in the
 working directory will be examined for python source files or
 directories that match testMatch. Package discovery descends all the
 way down the tree, so package.tests and package.sub.tests and
@@ -216,8 +216,8 @@ Options
 -m=REGEX, --match=REGEX, --testmatch=REGEX
 
    Files, directories, function names, and class names that match this
-   regular expression are considered tests.  Default:
-   (?:^|[b_./-])[Tt]est [NOSE_TESTMATCH]
+   regular expression are considered tests.  Default: (?:\b|_)[Tt]est
+   [NOSE_TESTMATCH]
 
 --tests=NAMES
 
