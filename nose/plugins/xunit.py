@@ -272,18 +272,9 @@ class Xunit(Plugin):
                         value)
         return ''
 
-    def addError(self, test, err, capt=None):
-        """Add error output to Xunit report.
+    def extendErrorList(self, test, err, taken, type):
+        """Simplify adding errors, or failures, or skipped test to xml
         """
-        taken = self._timeTaken()
-
-        if issubclass(err[0], SkipTest):
-            type = 'skipped'
-            self.stats['skipped'] += 1
-        else:
-            type = 'error'
-            self.stats['errors'] += 1
-
         tb = format_exception(err, self.encoding)
         id = test.id()
 
@@ -302,27 +293,33 @@ class Xunit(Plugin):
              'systemerr': self._getCapturedStderr(),
              })
 
+    def addError(self, test, err, capt=None):
+        """Add error output to Xunit report.
+        """
+        taken = self._timeTaken()
+
+        if issubclass(err[0], SkipTest):
+            type = 'skipped'
+            self.stats['skipped'] += 1
+        else:
+            type = 'error'
+            self.stats['errors'] += 1
+
+        self.extendErrorList(test, err, taken, type)
+
     def addFailure(self, test, err, capt=None, tb_info=None):
         """Add failure output to Xunit report.
         """
         taken = self._timeTaken()
-        tb = format_exception(err, self.encoding)
-        self.stats['failures'] += 1
-        id = test.id()
 
-        self.errorlist.append(
-            u'<testcase classname=%(cls)s name=%(name)s time="%(taken).3f">'
-            u'<failure type=%(errtype)s message=%(message)s><![CDATA[%(tb)s]]>'
-            u'</failure>%(systemout)s%(systemerr)s</testcase>' %
-            {'cls': self._quoteattr(id_split(id)[0]),
-             'name': self._quoteattr(id_split(id)[-1]),
-             'taken': taken,
-             'errtype': self._quoteattr(nice_classname(err[0])),
-             'message': self._quoteattr(exc_message(err)),
-             'tb': escape_cdata(tb),
-             'systemout': self._getCapturedStdout(),
-             'systemerr': self._getCapturedStderr(),
-             })
+        if issubclass(err[0], SkipTest):
+            type = 'skipped'
+            self.stats['skipped'] += 1
+        else:
+            type = 'failure'
+            self.stats['failures'] += 1
+
+        self.extendErrorList(test, err, taken, type)
 
     def addSuccess(self, test, capt=None):
         """Add success output to Xunit report.
