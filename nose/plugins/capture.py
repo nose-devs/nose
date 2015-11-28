@@ -95,8 +95,15 @@ class Capture(Plugin):
     def start(self):
         self.stdout.append(sys.stdout)
         self._buf = StringIO()
-        if not hasattr(self._buf, 'encoding'):
-            self._buf.encoding = sys.__stdout__.encoding
+        # Python 3's StringIO objects don't support setting encoding or errors
+        # directly and they're already set to None.  So if the attributes
+        # already exist, skip adding them.
+        if (not hasattr(self._buf, 'encoding') and
+                hasattr(sys.stdout, 'encoding')):
+            self._buf.encoding = sys.stdout.encoding
+        if (not hasattr(self._buf, 'errors') and
+                hasattr(sys.stdout, 'errors')):
+            self._buf.errors = sys.stdout.errors
         sys.stdout = self._buf
 
     def end(self):
