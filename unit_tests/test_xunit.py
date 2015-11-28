@@ -144,13 +144,8 @@ class BaseTestXMLOutputWithXML(unittest.TestCase):
 class TestXMLOutputWithXMLAndPrefix(BaseTestXMLOutputWithXML):
     def setUp(self):
         super(TestXMLOutputWithXMLAndPrefix, self).setUp()
-        self.configure([
-            "--with-xunit",
-            "--xunit-file=%s" % self.xmlfile,
-            "--xunit-prefix-with-testsuite-name"
-        ])
 
-    def test_addSuccess(self):
+    def _assert_testcase_classname(self, expected_classname):
         test = mktest()
         self.x.beforeTest(test)
         self.x.addSuccess(test, (None,None,None))
@@ -161,10 +156,32 @@ class TestXMLOutputWithXMLAndPrefix(BaseTestXMLOutputWithXML):
         if self.ET:
             tree = self.ET.fromstring(result)
             tc = tree.find("testcase")
-            eq_(tc.attrib['classname'], "nosetests.test_xunit.TC")
+            eq_(tc.attrib['classname'], expected_classname)
         else:
             # this is a dumb test for 2.4-
-            assert '<testcase classname="nosetests.test_xunit.TC" name="runTest"' in result
+            assert ('<testcase classname="%s" name="runTest"' % expected_classname) in result
+
+    def test_addSuccess_default(self):
+        self.configure([
+            "--with-xunit",
+            "--xunit-file=%s" % self.xmlfile,
+            "--xunit-prefix-with-testsuite-name"
+        ])
+
+        self._assert_testcase_classname('nosetests.test_xunit.TC')
+
+    def test_addSuccess_custom(self):
+        custom_testsuite_name = 'eartest'
+        self.configure([
+            "--with-xunit",
+            "--xunit-file=%s" % self.xmlfile,
+            "--xunit-testsuite-name=%s" % custom_testsuite_name,
+            "--xunit-prefix-with-testsuite-name"
+        ])
+
+        self._assert_testcase_classname("%s.test_xunit.TC" % custom_testsuite_name)
+
+
 
 class TestXMLOutputWithXML(BaseTestXMLOutputWithXML):
     def setUp(self):
