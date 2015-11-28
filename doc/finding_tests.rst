@@ -10,7 +10,7 @@ nose, by default, follows a few simple rules for test discovery.
   module that looks like a test.
 
 * Files with the executable bit set are ignored by default under Unix-style
-  operating systems--sse ``--exe`` to allow collection from them, but be careful
+  operating systems--use ``--exe`` to allow collection from them, but be careful
   that is safe to do so.  Under Windows, executable files will be picked up by
   default since there is no executable bit to test.
 
