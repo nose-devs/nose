@@ -96,5 +96,12 @@ class TestCapturePlugin(unittest.TestCase):
             err = sys.exc_info()
         formatted = c.formatError(d, err)
 
+    def test_captured_stdout_has_encoding_attribute(self):
+        c = Capture()
+        c.start()
+        self.assertNotEqual(sys.stdout, sys.__stdout__)
+        self.assertTrue(hasattr(sys.stdout, 'encoding'))
+        c.end()
+
 if __name__ == '__main__':
     unittest.main()
