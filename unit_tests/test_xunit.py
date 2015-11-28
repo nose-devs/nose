@@ -81,9 +81,18 @@ class TestTee(unittest.TestCase):
         self.assertTrue(hasattr(tee, 'errors'))
 
     def test_tee_works_with_distutils_log(self):
-        from distutils.log import Log, DEBUG
+        try:
+            from distutils.log import Log, DEBUG
+        except ImportError:
+            raise SkipTest("distutils.log not available; skipping")
+
         l = Log(DEBUG)
-        l.warn('Test')
+        try:
+            l.warn('Test')
+        except Exception, e:
+            self.fail(
+                "Exception raised while writing to distutils.log: %s" % (e,))
+
 
 class TestXMLOutputWithXML(unittest.TestCase):
 
