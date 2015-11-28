@@ -115,6 +115,46 @@ class TestNoseCases(unittest.TestCase):
         f(res)
         assert res.errors
 
+    def test_FunctionTestCase_repr_is_consistent_with_mutable_args(self):
+        class Foo(object):
+            def __init__(self):
+                self.bar = 'unmodified'
+            def __repr__(self):
+                return "Foo(%s)" % self.bar
+
+        def test_foo(foo):
+            pass
+
+        foo = Foo()
+        case = nose.case.FunctionTestCase(test_foo, arg=(foo,))
+        case_repr_before = case.__repr__()
+        foo.bar = "snafu'd!"
+        case_repr_after = case.__repr__()
+        assert case_repr_before == case_repr_after, (
+            "Modifying a mutable object arg during test case changed the test "
+            "case's __repr__")
+
+    def test_MethodTestCase_repr_is_consistent_with_mutable_args(self):
+        class Foo(object):
+            def __init__(self):
+                self.bar = 'unmodified'
+            def __repr__(self):
+                return "Foo(%s)" % self.bar
+
+        class FooTester(object):
+            def test_foo(self, foo):
+                pass
+
+        foo = Foo()
+        case = nose.case.FunctionTestCase(
+            unbound_method(FooTester, FooTester.test_foo), arg=(foo,))
+        case_repr_before = case.__repr__()
+        foo.bar = "snafu'd!"
+        case_repr_after = case.__repr__()
+        assert case_repr_before == case_repr_after, (
+            "Modifying a mutable object arg during test case changed the test "
+            "case's __repr__")
+
 
 class TestNoseTestWrapper(unittest.TestCase):
     def test_case_fixtures_called(self):
