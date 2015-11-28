@@ -178,31 +178,33 @@ class TestId(Plugin):
         log.debug('ltfn %s %s', names, module)
         try:
             fh = open(self.idfile, 'rb')
-            data = load(fh)
-            if 'ids' in data:
-                self.ids = data['ids']
-                self.failed = data['failed']
-                self.source_names = data['source_names']
-            else:
-                # old ids field
-                self.ids = data
-                self.failed = []
-                self.source_names = names
-            if self.ids:
-                self.id = max(self.ids) + 1
-                self.tests = dict(list(zip(list(self.ids.values()), list(self.ids.keys()))))
-            else:
-                self.id = 1
-            log.debug(
-                'Loaded test ids %s tests %s failed %s sources %s from %s',
-                self.ids, self.tests, self.failed, self.source_names,
-                self.idfile)
-            fh.close()
-        except ValueError, e:
-            # load() may throw a ValueError when reading the ids file, if it
-            # was generated with a newer version of Python than we are currently
-            # running.
-            log.debug('Error loading %s : %s', self.idfile, str(e))
+            try:
+                data = load(fh)
+                if 'ids' in data:
+                    self.ids = data['ids']
+                    self.failed = data['failed']
+                    self.source_names = data['source_names']
+                else:
+                    # old ids field
+                    self.ids = data
+                    self.failed = []
+                    self.source_names = names
+                if self.ids:
+                    self.id = max(self.ids) + 1
+                    self.tests = dict(list(zip(list(self.ids.values()), list(self.ids.keys()))))
+                else:
+                    self.id = 1
+                log.debug(
+                    'Loaded test ids %s tests %s failed %s sources %s from %s',
+                    self.ids, self.tests, self.failed, self.source_names,
+                    self.idfile)
+            except ValueError, e:
+                # load() may throw a ValueError when reading the ids file, if it
+                # was generated with a newer version of Python than we are currently
+                # running.
+                log.debug('Error loading %s : %s', self.idfile, str(e))
+            finally:
+                fh.close()
         except IOError:
             log.debug('IO error reading %s', self.idfile)
 
