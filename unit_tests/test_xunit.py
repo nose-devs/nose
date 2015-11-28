@@ -95,19 +95,32 @@ class TestTee(unittest.TestCase):
 
 
 class TestXMLOutputWithXML(unittest.TestCase):
+    def test_prefix_from_environ(self):
+        parser = optparse.OptionParser()
+        x = Xunit()
+        x.add_options(parser, env={'NOSE_XUNIT_PREFIX_WITH_TESTSUITE_NAME': 'true'})
+        (options, args) = parser.parse_args([])
+        eq_(options.xunit_prefix_class, True)
+
+    def test_prefix_from_opt(self):
+        parser = optparse.OptionParser()
+        x = Xunit()
+        x.add_options(parser, env={})
+        (options, args) = parser.parse_args(["--xunit-prefix-with-testsuite-name"])
+        eq_(options.xunit_prefix_class, True)
+
+class BaseTestXMLOutputWithXML(unittest.TestCase):
+    def configure(self, args):
+        parser = optparse.OptionParser()
+        self.x.add_options(parser, env={})
+        (options, args) = parser.parse_args(args)
+        self.x.configure(options, Config())
 
     def setUp(self):
         self.xmlfile = os.path.abspath(
             os.path.join(os.path.dirname(__file__),
                             'support', 'xunit.xml'))
-        parser = optparse.OptionParser()
         self.x = Xunit()
-        self.x.add_options(parser, env={})
-        (options, args) = parser.parse_args([
-            "--with-xunit",
-            "--xunit-file=%s" % self.xmlfile
-        ])
-        self.x.configure(options, Config())
 
         try:
             import xml.etree.ElementTree
@@ -127,6 +140,56 @@ class TestXMLOutputWithXML(unittest.TestCase):
         data = f.read()
         f.close()
         return data
+
+class TestXMLOutputWithXMLAndPrefix(BaseTestXMLOutputWithXML):
+    def setUp(self):
+        super(TestXMLOutputWithXMLAndPrefix, self).setUp()
+
+    def _assert_testcase_classname(self, expected_classname):
+        test = mktest()
+        self.x.beforeTest(test)
+        self.x.addSuccess(test, (None,None,None))
+
+        result = self.get_xml_report()
+        print result
+
+        if self.ET:
+            tree = self.ET.fromstring(result)
+            tc = tree.find("testcase")
+            eq_(tc.attrib['classname'], expected_classname)
+        else:
+            # this is a dumb test for 2.4-
+            assert ('<testcase classname="%s" name="runTest"' % expected_classname) in result
+
+    def test_addSuccess_default(self):
+        self.configure([
+            "--with-xunit",
+            "--xunit-file=%s" % self.xmlfile,
+            "--xunit-prefix-with-testsuite-name"
+        ])
+
+        self._assert_testcase_classname('nosetests.test_xunit.TC')
+
+    def test_addSuccess_custom(self):
+        custom_testsuite_name = 'eartest'
+        self.configure([
+            "--with-xunit",
+            "--xunit-file=%s" % self.xmlfile,
+            "--xunit-testsuite-name=%s" % custom_testsuite_name,
+            "--xunit-prefix-with-testsuite-name"
+        ])
+
+        self._assert_testcase_classname("%s.test_xunit.TC" % custom_testsuite_name)
+
+
+
+class TestXMLOutputWithXML(BaseTestXMLOutputWithXML):
+    def setUp(self):
+        super(TestXMLOutputWithXML, self).setUp()
+        self.configure([
+            "--with-xunit",
+            "--xunit-file=%s" % self.xmlfile
+        ])
 
     def test_addFailure(self):
         test = mktest()
