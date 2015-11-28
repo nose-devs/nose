@@ -1,3 +1,4 @@
+import os
 import sys
 from optparse import OptionParser
 from nose.config import Config
@@ -24,27 +25,43 @@ class TestCoveragePlugin(object):
                              env_key='NOSE_COVER_TESTS')
 
     def test_cover_options_config_file(self):
-        c1, c2 = _test_options_helper('--cover-config-file', 'coverConfigFile',
-                                      'not_default_config_file', True,
-                                      arg_value='not_default_config_file',
-                                      env_key='NOSE_COVER_CONFIG_FILE')
+        def get_sys_info(cov_inst):
+            # Older coverage uses sysinfo, while newer coverage uses sys_info.
+            if hasattr(cov_inst, 'sysinfo'):
+                return cov_inst.sysinfo()
+            else:
+                return cov_inst.sys_info()
 
-        cov_info = c1.coverInstance.sysinfo()
-        for key, value in cov_info:
-            if key == 'config_files':
-                eq_(value, ['.coveragerc'])
-                break
-        else:
-            assert False, "coverage did not load default config file"
+        def get_config_files(cov_info):
+            cov_info = dict(cov_info)
+            if 'config_files' in cov_info:
+                return cov_info['config_files']
+            return None
 
-        cov_info = c2.coverInstance.sysinfo()
-        for key, value in cov_info:
-            if key == 'config_files':
-                eq_(value, ['not_default_config_file'])
-                break
-        else:
-            assert False, "coverage did not load expected config file"
+        f = open('not_default_config_file', 'wb')
+        f.close()
+        try:
+            c1, c2 = _test_options_helper(
+                '--cover-config-file', 'coverConfigFile',
+                'not_default_config_file', True,
+                arg_value='not_default_config_file',
+                env_key='NOSE_COVER_CONFIG_FILE')
 
+            cov_info = get_sys_info(c1.coverInstance)
+            config_files = get_config_files(cov_info)
+            if config_files is not None:
+                assert '.coveragerc' in config_files
+            else:
+                assert False, "coverage did not load default config file"
+
+            cov_info = get_sys_info(c2.coverInstance)
+            config_files = get_config_files(cov_info)
+            if config_files is not None:
+                assert 'not_default_config_file' in config_files
+            else:
+                assert False, "coverage did not load expected config file"
+        finally:
+            os.unlink('not_default_config_file')
 
 def _test_options_helper(arg_option, cover_option,
                          expected_set, expected_not_set,
