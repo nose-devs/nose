@@ -8,7 +8,7 @@ from xml.sax import saxutils
 
 from nose.pyversion import UNICODE_STRINGS
 from nose.tools import eq_
-from nose.plugins.xunit import Xunit, escape_cdata, id_split
+from nose.plugins.xunit import Xunit, escape_cdata, id_split, Tee
 from nose.exc import SkipTest
 from nose.config import Config
 
@@ -67,11 +67,38 @@ class TestOptions(unittest.TestCase):
         (options, args) = parser.parse_args(["--xunit-file=blagojevich.xml"])
         eq_(options.xunit_file, "blagojevich.xml")
 
+class TestTee(unittest.TestCase):
+    def setUp(self):
+        self.orig_stderr = sys.stderr
+        sys.stderr = Tee('utf-8', self.orig_stderr)
+
+    def tearDown(self):
+        sys.stderr = self.orig_stderr
+
+    def test_tee_has_error_and_encoding_attributes(self):
+        tee = Tee('utf-8', sys.stdout)
+        self.assertTrue(hasattr(tee, 'encoding'))
+        self.assertTrue(hasattr(tee, 'errors'))
+
+    def test_tee_works_with_distutils_log(self):
+        try:
+            from distutils.log import Log, DEBUG
+        except ImportError:
+            raise SkipTest("distutils.log not available; skipping")
+
+        l = Log(DEBUG)
+        try:
+            l.warn('Test')
+        except Exception, e:
+            self.fail(
+                "Exception raised while writing to distutils.log: %s" % (e,))
+
+
 class TestXMLOutputWithXML(unittest.TestCase):
 
     def setUp(self):
         self.xmlfile = os.path.abspath(
-            os.path.join(os.path.dirname(__file__), 
+            os.path.join(os.path.dirname(__file__),
                             'support', 'xunit.xml'))
         parser = optparse.OptionParser()
         self.x = Xunit()
@@ -215,7 +242,7 @@ class TestXMLOutputWithXML(unittest.TestCase):
         test = mktest()
         self.x.beforeTest(test)
         try:
-            raise RuntimeError(chr(128)) # cannot encode as utf8 
+            raise RuntimeError(chr(128)) # cannot encode as utf8
         except RuntimeError:
             some_err = sys.exc_info()
         self.x.addError(test, some_err)
@@ -309,4 +336,3 @@ class TestXMLOutputWithXML(unittest.TestCase):
             assert '<?xml version="1.0" encoding="UTF-8"?>' in result
             assert ('<testcase classname="test_xunit.TC" '
                     'name="runTest" time="0') in result
-

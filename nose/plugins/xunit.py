@@ -120,11 +120,12 @@ def exc_message(exc_info):
 
 class Tee(object):
     def __init__(self, encoding, *args):
-        self._encoding = encoding
+        self.encoding = encoding
         self._streams = args
+        self.errors = None
 
     def write(self, data):
-        data = force_unicode(data, self._encoding)
+        data = force_unicode(data, self.encoding)
         for s in self._streams:
             s.write(data)
 
