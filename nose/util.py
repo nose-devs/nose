@@ -1,5 +1,6 @@
 """Utility functions and classes used by nose internally.
 """
+import importlib
 import inspect
 import itertools
 import logging
@@ -319,6 +320,8 @@ def resolve_name(name, module=None):
     obj = module
     log.debug("resolve: %s, %s, %s, %s", parts, name, obj, module)
     for part in parts:
+        if not hasattr(obj, part):
+            importlib.import_module(name)
         obj = getattr(obj, part)
     return obj
 
