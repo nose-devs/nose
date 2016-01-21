@@ -1,8 +1,5 @@
 """Tools not exempt from being descended into in tracebacks"""
 
-import time
-
-
 __all__ = ['make_decorator', 'raises', 'set_trace', 'timed', 'with_setup',
            'TimeExpired', 'istest', 'nottest']
 
@@ -83,22 +80,25 @@ def set_trace():
 
 
 def timed(limit):
+    import multiprocessing
+    from multiprocessing.pool import ThreadPool
+
     """Test must finish within specified time limit to pass.
-
     Example use::
-
       @timed(.1)
       def test_that_fails():
           time.sleep(.2)
     """
     def decorate(func):
         def newfunc(*arg, **kw):
-            start = time.time()
-            result = func(*arg, **kw)
-            end = time.time()
-            if end - start > limit:
+            pool = ThreadPool(1)
+            async_result = pool.apply_async(func, args=arg, kwds=kw)
+
+            try:
+                return async_result.get(timeout=limit)
+            except multiprocessing.TimeoutError:
                 raise TimeExpired("Time limit (%s) exceeded" % limit)
-            return result
+
         newfunc = make_decorator(func)(newfunc)
         return newfunc
     return decorate
