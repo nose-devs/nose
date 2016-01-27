@@ -393,6 +393,10 @@ Options
 
    Location of coverage config file [NOSE_COVER_CONFIG_FILE]
 
+--cover-no-print
+
+   Suppress printing of coverage information
+
 --pdb
 
    Drop into debugger on failures or errors
