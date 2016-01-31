@@ -29,6 +29,7 @@ class NoFixturePlug(Plugin):
                 pass
             def tearDown(self):
                 pass
+        Derived.__qualname__ = Derived.__name__
         # must use nose loader here because the default loader in 2.3
         # won't load tests from base classes
         l = loader.TestLoader()
