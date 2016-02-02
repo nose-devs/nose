@@ -643,6 +643,7 @@ def transplant_class(cls, module):
         pass
     C.__module__ = module
     C.__name__ = cls.__name__
+    C.__qualname__ = cls.__name__
     return C
 
 

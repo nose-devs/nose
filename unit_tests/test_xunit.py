@@ -16,6 +16,7 @@ def mktest():
     class TC(unittest.TestCase):
         def runTest(self):
             pass
+    TC.__qualname__ = TC.__name__
     test = TC()
     return test
 
