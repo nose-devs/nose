@@ -1,9 +1,12 @@
 import sys
 import unittest
 from inspect import ismethod
+from nose import SkipTest
 from nose.config import Config
 from nose.proxy import ResultProxyFactory, ResultProxy
 from mock import RecordingPluginManager
+
+compat_27 = sys.version_info >= (2, 7)
 
 class TestResultProxy(unittest.TestCase):
 
@@ -12,6 +15,7 @@ class TestResultProxy(unittest.TestCase):
         proxy = ResultProxy(res, test=None)
 
         methods = [ 'addError', 'addFailure', 'addSuccess',
+                    'addExpectedFailure', 'addUnexpectedSuccess',
                     'startTest', 'stopTest', 'stop' ]
         for method in methods:
             m = getattr(proxy, method)
@@ -51,15 +55,22 @@ class TestResultProxy(unittest.TestCase):
         proxy.addError(test, err)
         proxy.addFailure(test, err)
         proxy.addSuccess(test)
+        if compat_27:
+            proxy.addExpectedFailure(test, err)
+            proxy.addUnexpectedSuccess(test)
         proxy.startTest(test)
         proxy.stopTest(test)
         proxy.beforeTest(test)
         proxy.afterTest(test)
         proxy.stop()
         proxy.shouldStop = 'yes please'
-        for method in ['addError', 'addFailure', 'addSuccess',
-                       'startTest', 'stopTest', 'beforeTest', 'afterTest',
-                       'stop']:
+
+        methods = ['addError', 'addFailure', 'addSuccess',
+                   'startTest', 'stopTest', 'beforeTest', 'afterTest',
+                   'stop']
+        if compat_27:
+            methods += ['addExpectedFailure', 'addUnexpectedSuccess']
+        for method in methods:
             assert method in res.called, "%s was not proxied"
         self.assertEqual(res.shouldStop, 'yes please')
 
@@ -68,6 +79,9 @@ class TestResultProxy(unittest.TestCase):
         proxy = ResultProxy(res, test=None)
         proxy.errors
         proxy.failures
+        if compat_27:
+            proxy.expectedFailures
+            proxy.unexpectedSuccesses
         proxy.shouldStop
         proxy.testsRun
 
@@ -146,11 +160,62 @@ class TestResultProxy(unittest.TestCase):
         assert 'afterTest' in plugs.called
         plugs.reset()
 
+        if compat_27:
+            class TC2(unittest.TestCase):
+                @unittest.expectedFailure
+                def test_expected_failure(self):
+                    self.fail()
+
+                @unittest.expectedFailure
+                def test_unexpected_success(self):
+                    pass
+
+            factory = ResultProxyFactory(config=config)
+
+            case_x = Test(TC2('test_expected_failure'))
+            case_u = Test(TC2('test_unexpected_success'))
+
+            pres_x = factory(res, case_x)
+            case_x(pres_x)
+            assert 'beforeTest' in plugs.called
+            assert 'startTest' in plugs.called
+            assert 'addExpectedFailure' in plugs.called
+            assert 'stopTest' in plugs.called
+            assert 'afterTest' in plugs.called
+            plugs.reset()
+
+            pres_u = factory(res, case_u)
+            case_u(pres_u)
+            assert 'beforeTest' in plugs.called
+            assert 'startTest' in plugs.called
+            assert 'addUnexpectedSuccess' in plugs.called
+            assert 'stopTest' in plugs.called
+            assert 'afterTest' in plugs.called
+            plugs.reset()
+
     def test_stop_on_error(self):
         from nose.case import Test
         class TC(unittest.TestCase):
             def runTest(self):
                 raise Exception("Enough!")
+        conf = Config(stopOnError=True)
+        test = TC()
+        case = Test(test)
+        res = unittest.TestResult()
+        proxy = ResultProxy(res, case, config=conf)
+        case(proxy)
+        assert proxy.shouldStop
+        assert res.shouldStop
+
+    def test_stop_on_unexpected_success(self):
+        if not compat_27:
+            raise SkipTest('unexpected success not available in python<2.7')
+
+        from nose.case import Test
+        class TC(unittest.TestCase):
+            @unittest.expectedFailure
+            def runTest(self):
+                pass
         conf = Config(stopOnError=True)
         test = TC()
         case = Test(test)

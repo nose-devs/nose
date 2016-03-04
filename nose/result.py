@@ -135,6 +135,10 @@ class TextTestResult(_TextTestResult):
             summary['failures'] = len(self.failures)
         if len(self.errors):
             summary['errors'] = len(self.errors)
+        if getattr(self, 'expectedFailures', False):
+            summary['expectedFailures'] = len(self.expectedFailures)
+        if getattr(self, 'unexpectedSuccesses', False):
+            summary['unexpectedSuccesses'] = len(self.unexpectedSuccesses)
 
         if not self.wasSuccessful():
             write("FAILED")
@@ -156,6 +160,8 @@ class TextTestResult(_TextTestResult):
         fail.
         """
         if self.errors or self.failures:
+            return False
+        if getattr(self, 'unexpectedSuccesses', False):
             return False
         for cls in self.errorClasses.keys():
             storage, label, isfail = self.errorClasses[cls]

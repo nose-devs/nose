@@ -12,6 +12,7 @@ example.cfg
 .coverage
 nosetests.xml
 xunit.xml
+xunit2.xml
 _env
 doc/.build
 dist
