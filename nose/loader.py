@@ -13,6 +13,7 @@ import os
 import sys
 import unittest
 import types
+import re
 from inspect import isfunction
 from nose.pyversion import unbound_method, ismethod
 from nose.case import FunctionTestCase, MethodTestCase
@@ -252,6 +253,12 @@ class TestLoader(unittest.TestLoader):
             try:
                 for test in g():
                     test_func, arg = self.parseGeneratedTest(test)
+                    try:
+                        if self.config.generatorTests and \
+                           not any([re.match(i,test_func.description) for i in self.config.generatorTests]):
+                            continue
+                    except re.error:
+                        continue
                     if not callable(test_func):
                         test_func = getattr(m, test_func)
                     yield FunctionTestCase(test_func, arg=arg, descriptor=g)
