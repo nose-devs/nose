@@ -10,7 +10,15 @@ units = os.path.normpath(os.path.join(here, '..', 'unit_tests'))
 
 if units not in sys.path:
     sys.path.insert(0, units)
-from mock import RecordingPluginManager
+from mock import RecordingPluginManager, MockManagedValue, MockEvent
+
+from helpers import SelfReferencePickleConfig
+from Queue import Queue
+from nose.plugins.multiprocess import runner
+import time
+from nose.loader import defaultTestLoader
+from nose.result import TextTestResult
+import pickle
 
 
 class TestPluginCalls(unittest.TestCase):
@@ -64,6 +72,36 @@ class TestPluginCalls(unittest.TestCase):
              'testName', 'addSuccess', 'stopTest', 'afterTest', 'stopContext',
              'afterContext', 'loadTestsFromDir', 'afterDirectory',
              'report', 'finalize'])
+    
+    def test_plugin_calls_package1_multiprocess_runner(self):
+        
+        wdir = os.path.join(support, 'package1')
+        man = RecordingPluginManager()
+        conf = SelfReferencePickleConfig(plugins=man, stream=sys.stdout)
+        iq = Queue()
+        oq = Queue()
+        curraddr = MockManagedValue('')
+        currstart = MockManagedValue(time.time())
+        iq.put((wdir, None))
+        iq.put('STOP')
+        man.reset()
+        runner(1, iq, oq, curraddr, currstart, MockEvent(), MockEvent(),
+               defaultTestLoader, TextTestResult, pickle.dumps(conf))
+        print man.calls()
+        assert man.called
+        
+        self.assertEqual(man.calls(),
+                         ['configure', 'begin', 'prepareTestResult',
+                          'loadTestsFromNames', 'loadTestsFromName',
+                          'beforeDirectory', 'wantFile', 'wantDirectory',
+                          'beforeContext', 'beforeImport', 'afterImport',
+                          'wantModule', 'wantClass', 'wantFunction',
+                          'makeTest', 'wantMethod', 'loadTestsFromTestClass',
+                          'loadTestsFromTestCase', 'loadTestsFromModule',
+                          'startContext', 'beforeTest', 'prepareTestCase',
+                          'startTest', 'addSuccess', 'stopTest', 'afterTest',
+                          'stopContext', 'afterContext', 'loadTestsFromDir',
+                          'afterDirectory', 'stopWorker'])
 
 
 
