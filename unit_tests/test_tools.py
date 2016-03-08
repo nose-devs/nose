@@ -91,8 +91,9 @@ class TestTools(unittest.TestCase):
         def check_result():
             return 42
         check_result = timed(.2)(check_result)
+        result = check_result()
 
-        assert 42 == check_result()
+        assert 42 == result, result
 
         quick()
         try:
