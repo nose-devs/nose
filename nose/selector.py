@@ -171,7 +171,7 @@ class Selector(object):
         if declared is not None:
             wanted = declared
         else:
-            wanted = self.matches(method_name)
+            wanted = self.matches(str(method))
         plug_wants = self.plugins.wantMethod(method)
         if plug_wants is not None:
             wanted = plug_wants
