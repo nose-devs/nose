@@ -640,7 +640,19 @@ def all_config_files():
     user = user_config_files()
     if os.path.exists('setup.cfg'):
         return user + ['setup.cfg']
-    return user
+    else:
+        def _parents(d):
+            current_set = d.split(os.path.sep)
+            while current_set:
+                yield(os.path.sep.join(current_set))
+                current_set.pop()
+        parents = _parents(os.getcwd())
+        possible_config_files = [
+            os.path.sep.join((pdir, os.path.basename(config_file)))
+            for config_file in config_files
+            for pdir in parents]
+
+        return user + filter(os.path.exists, possible_config_files)
 
 
 # used when parsing config files
