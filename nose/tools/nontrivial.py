@@ -49,25 +49,51 @@ def raises(*exceptions):
       def test_that_fails_by_passing():
           pass
 
-    If you want to test many assertions about exceptions in a single test,
-    you may want to use `assert_raises` instead.
-    """
-    valid = ' or '.join([e.__name__ for e in exceptions])
-    def decorate(func):
-        name = func.__name__
-        def newfunc(*arg, **kw):
-            try:
-                func(*arg, **kw)
-            except exceptions:
+    It also works as a context manager::
+
+        def test_that_passes():
+            with raises(KeyError):
+                raise KeyError
+
+        def test_that_fails():
+            with raises(KeyError):
                 pass
-            except:
-                raise
-            else:
-                message = "%s() did not raise %s" % (name, valid)
-                raise AssertionError(message)
-        newfunc = make_decorator(func)(newfunc)
-        return newfunc
-    return decorate
+
+    If you want to test many assertions about exceptions in a single test,
+    you can use `raises` context manager or `assert_raises`.
+    """
+    return RaisesHandler(exceptions)
+
+
+class RaisesHandler(object):
+    def __init__(self, exceptions):
+        self.exceptions = exceptions
+        self.valid = ' or '.join([e.__name__ for e in exceptions])
+
+    def __call__(self, func):
+        def decorate(func):
+            name = func.__name__
+            def newfunc(*arg, **kw):
+                try:
+                    func(*arg, **kw)
+                except self.exceptions:
+                    pass
+                except:
+                    raise
+                else:
+                    message = "%s() did not raise %s" % (name, self.valid)
+                    raise AssertionError(message)
+            newfunc = make_decorator(func)(newfunc)
+            return newfunc
+        return decorate(func)
+
+    def __enter__(self):
+        pass
+
+    def __exit__(self, type_, value, tb):
+        if not value or not isinstance(value, self.exceptions):
+            raise AssertionError("Block did not raise %s" % (self.valid,))
+        return True
 
 
 def set_trace():
