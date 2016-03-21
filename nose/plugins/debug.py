@@ -6,6 +6,9 @@ drop into pdb on failure, use ``--pdb-failures``.
 
 import pdb
 from nose.plugins.base import Plugin
+from nose.util import isclass
+from nose.plugins.skip import SkipTest
+from nose.plugins.deprecated import DeprecatedTest
 
 class Pdb(Plugin):
     """
@@ -42,9 +45,17 @@ class Pdb(Plugin):
         self.enabled_for_failures = options.debugFailures or options.debugBoth
         self.enabled = self.enabled_for_failures or self.enabled_for_errors
 
+    def _filterError(self, err):
+        if isinstance(err, tuple) and isclass(err[0]):
+            if issubclass(err[0], SkipTest) or issubclass(err[0], DeprecatedTest):
+                return True
+        return False
+
     def addError(self, test, err):
         """Enter pdb if configured to debug errors.
         """
+        if self._filterError(err):
+            return
         if not self.enabled_for_errors:
             return
         self.debug(err)
@@ -52,6 +63,8 @@ class Pdb(Plugin):
     def addFailure(self, test, err):
         """Enter pdb if configured to debug failures.
         """
+        if self._filterError(err):
+            return
         if not self.enabled_for_failures:
             return
         self.debug(err)
