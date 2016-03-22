@@ -54,6 +54,31 @@ class TestDiscoveryMode(PluginTester, unittest.TestCase):
         assert ids.values()
 
 
+class TestEmptyIdFileDoesErrorSuite(PluginTester, unittest.TestCase):
+    """When running a test suite with --failed an empty .noseids file
+    should not raise an EOFError, but run the tests as if the file
+    did not exist.
+    """
+    _empty_idfile = tempfile.mktemp()
+    fh = open(_empty_idfile, 'w')
+    fh.truncate()
+    fh.close()
+
+    activate = '--failed'
+    plugins = [TestId()]
+    args = ['-v', '--id-file=%s' % _empty_idfile]
+    suitepath = os.path.join(support, 'idp')
+
+    def setUp(self):
+        pass
+
+    def test_empty_idfile_runs_full_suite(self):
+        try:
+            PluginTester.setUp(self)
+            assert 'Ran 15 tests' in self.output
+        except EOFError:
+            assert False, "Should not fail with an EOFError"
+
 class TestLoadNamesMode(PluginTester, unittest.TestCase):
     """NOTE that this test passing requires the previous test case to
     be run! (Otherwise the ids file will not exist)
