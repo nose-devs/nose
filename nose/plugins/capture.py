@@ -12,6 +12,7 @@ the options ``-s`` or ``--nocapture``.
 import logging
 import os
 import sys
+import traceback
 from nose.plugins.base import Plugin
 from nose.pyversion import exc_to_unicode, force_unicode
 from nose.util import ln
@@ -71,26 +72,56 @@ class Capture(Plugin):
     def formatError(self, test, err):
         """Add captured output to error report.
         """
-        test.capturedOutput = output = self.buffer
+        test.capturedOutput = output = ''
+        output_exc_info = None
+        try:
+            test.capturedOutput = output = self.buffer
+        except UnicodeError:
+            # python2's StringIO.StringIO [1] class has this warning:
+            #
+            #     The StringIO object can accept either Unicode or 8-bit strings,
+            #     but mixing the two may take some care. If both are used, 8-bit
+            #     strings that cannot be interpreted as 7-bit ASCII (that use the
+            #     8th bit) will cause a UnicodeError to be raised when getvalue()
+            #     is called.
+            #
+            # This exception handler is a protection against issue #816 [2].
+            # Capturing the exception info allows us to display it back to the
+            # user.
+            #
+            # [1] <https://github.com/python/cpython/blob/2.7/Lib/StringIO.py#L258>
+            # [2] <https://github.com/nose-devs/nose/issues/816>
+            output_exc_info = sys.exc_info()
         self._buf = None
-        if not output:
+        if (not output) and (not output_exc_info):
             # Don't return None as that will prevent other
             # formatters from formatting and remove earlier formatters
             # formats, instead return the err we got
             return err
         ec, ev, tb = err
-        return (ec, self.addCaptureToErr(ev, output), tb)
+        return (ec, self.addCaptureToErr(ev, output, output_exc_info=output_exc_info), tb)
 
     def formatFailure(self, test, err):
         """Add captured output to failure report.
         """
         return self.formatError(test, err)
 
-    def addCaptureToErr(self, ev, output):
+    def addCaptureToErr(self, ev, output, output_exc_info=None):
+        # If given, output_exc_info should be a 3-tuple from sys.exc_info(),
+        # from an exception raised while trying to get the captured output.
         ev = exc_to_unicode(ev)
         output = force_unicode(output)
-        return u'\n'.join([ev, ln(u'>> begin captured stdout <<'),
-                           output, ln(u'>> end captured stdout <<')])
+        error_text = [ev, ln(u'>> begin captured stdout <<'),
+                      output, ln(u'>> end captured stdout <<')]
+        if output_exc_info:
+            error_text.extend([u'OUTPUT ERROR: Could not get captured output.',
+                               # <https://github.com/python/cpython/blob/2.7/Lib/StringIO.py#L258>
+                               # <https://github.com/nose-devs/nose/issues/816>
+                               u"The test might've printed both 'unicode' strings and non-ASCII 8-bit 'str' strings.",
+                               ln(u'>> begin captured stdout exception traceback <<'),
+                               u''.join(traceback.format_exception(*output_exc_info)),
+                               ln(u'>> end captured stdout exception traceback <<')])
+        return u'\n'.join(error_text)
 
     def start(self):
         self.stdout.append(sys.stdout)
