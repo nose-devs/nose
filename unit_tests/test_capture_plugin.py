@@ -4,6 +4,12 @@ import unittest
 from optparse import OptionParser
 from nose.config import Config
 from nose.plugins.capture import Capture
+from nose.pyversion import force_unicode
+
+if sys.version_info[0] == 2:
+    py2 = True
+else:
+    py2 = False
 
 class TestCapturePlugin(unittest.TestCase):
 
@@ -61,6 +67,35 @@ class TestCapturePlugin(unittest.TestCase):
         print "test 日本"
         c.end()
         self.assertEqual(c.buffer, "test 日本\n")
+
+    def test_does_not_crash_with_mixed_unicode_and_nonascii_str(self):
+        class Dummy:
+            pass
+        d = Dummy()
+        c = Capture()
+        c.start()
+        printed_nonascii_str = force_unicode("test 日本").encode('utf-8')
+        printed_unicode = force_unicode("Hello")
+        print printed_nonascii_str
+        print printed_unicode
+        try:
+            raise Exception("boom")
+        except:
+            err = sys.exc_info()
+        formatted = c.formatError(d, err)
+        _, fev, _ = formatted
+
+        if py2:
+            for string in [force_unicode(printed_nonascii_str, encoding='utf-8'), printed_unicode]:
+                assert string not in fev, "Output unexpectedly found in error message"
+            assert d.capturedOutput == '', "capturedOutput unexpectedly non-empty"
+            assert "OUTPUT ERROR" in fev
+            assert "captured stdout exception traceback" in fev
+            assert "UnicodeDecodeError" in fev
+        else:
+            for string in [repr(printed_nonascii_str), printed_unicode]:
+                assert string in fev, "Output not found in error message"
+                assert string in d.capturedOutput, "Output not attached to test"
 
     def test_format_error(self):
         class Dummy:
