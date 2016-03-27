@@ -19,7 +19,7 @@ config_files = [
     "~/.noserc",
     # Windows users will prefer this
     "~/nose.cfg"
-    ]
+]
 
 # plaforms on which the exe check defaults to off
 # Windows and IronPython
@@ -256,7 +256,7 @@ class Config(object):
     def _parseArgs(self, argv, cfg_files):
         def warn_sometimes(msg, name=None, filename=None):
             if (hasattr(self.plugins, 'excludedOption') and
-                self.plugins.excludedOption(name)):
+                    self.plugins.excludedOption(name)):
                 msg = ("Option %r in config file %r ignored: "
                        "excluded by runtime environment" %
                        (name, filename))
@@ -348,8 +348,8 @@ class Config(object):
     def configureLogging(self):
         """Configure logging for nose, or optionally other packages. Any logger
         name may be set with the debug option, and that logger will be set to
-        debug level and be assigned the same handler as the nose loggers, unless
-        it already has a handler.
+        debug level and be assigned the same handler as the nose loggers, 
+        unless it already has a handler.
         """
         if self.loggingConfig:
             from logging.config import fileConfig
@@ -420,7 +420,7 @@ class Config(object):
                 log.info("Set working dir to %s", abs_path)
                 self.workingDir = abs_path
                 if self.addPaths and \
-                       os.path.exists(os.path.join(abs_path, '__init__.py')):
+                        os.path.exists(os.path.join(abs_path, '__init__.py')):
                     log.info("Working directory %s is a package; "
                              "adding to sys.path" % abs_path)
                     add_path(abs_path)
@@ -445,10 +445,9 @@ class Config(object):
         """
         if self.parser:
             return self.parser
-        env = self.env
         parser = self.parserClass(doc)
         parser.add_option(
-            "-V","--version", action="store_true",
+            "-V", "--version", action="store_true",
             dest="version", default=False,
             help="Output nose version and exit")
         parser.add_option(
@@ -464,7 +463,7 @@ class Config(object):
         parser.add_option(
             "--verbosity", action="store", dest="verbosity",
             metavar='VERBOSITY',
-            type="int", help="Set verbosity; --verbosity=2 is "
+            type=int, help="Set verbosity; --verbosity=2 is "
             "the same as -v")
         parser.add_option(
             "-q", "--quiet", action="store_const", const=0, dest="verbosity",
@@ -482,8 +481,7 @@ class Config(object):
             "May be specified multiple times. The first directory passed "
             "will be used as the working directory, in place of the current "
             "working directory, which is the default. Others will be added "
-            "to the list of tests to execute. [NOSE_WHERE]"
-            )
+            "to the list of tests to execute. [NOSE_WHERE]")
         parser.add_option(
             "--py3where", action="append", dest="py3where",
             metavar="PY3WHERE",
@@ -492,8 +490,7 @@ class Config(object):
             "Python 3.x or above.  Note that, if present under 3.x, this "
             "option completely replaces any directories specified with "
             "'where', so the 'where' option becomes ineffective. "
-            "[NOSE_PY3WHERE]"
-            )
+            "[NOSE_PY3WHERE]")
         parser.add_option(
             "-m", "--match", "--testmatch", action="store",
             dest="testMatch", metavar="REGEX",
