@@ -7,8 +7,8 @@ python:
   - 3.4
   - 3.5
   - pypy
-install:
+cache: pip
+before_install:
   - pip uninstall -y nose
-  - pip install -r requirements.txt --use-mirrors
 script:
   - python setup.py build_tests || python setup.py egg_info; python selftest.py
