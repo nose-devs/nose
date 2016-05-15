@@ -1,5 +1,7 @@
 """Tools not exempt from being descended into in tracebacks"""
 
+from __future__ import with_statement
+
 import time
 
 
@@ -36,7 +38,7 @@ def make_decorator(func):
     return decorate
 
 
-def raises(*exceptions):
+class raises(object):
     """Test must raise one of expected exceptions to pass.
 
     Example use::
@@ -49,25 +51,60 @@ def raises(*exceptions):
       def test_that_fails_by_passing():
           pass
 
-    If you want to test many assertions about exceptions in a single test,
-    you may want to use `assert_raises` instead.
+
+      def check_value_error(e):
+          assert e.args == ("ouch!",)
+
+      with raises(ValueError, checker=check_value_error):
+          raise ValueError("ouch!")
+
+      @raises(ValueError, checker=check_value_error)
+      def test_for_ouch_typeerror():
+          raise ValueError("ouch!")
+
+
+      @raises(ValueError, TypeError, name="test_custom")
+      def test_custom_with_long_name():
+          raise TypeError
+
+    If you wish to test many assertions about exceptions in a single test,
+    you maybe need to use `assert_raises` instead of this.
     """
-    valid = ' or '.join([e.__name__ for e in exceptions])
-    def decorate(func):
-        name = func.__name__
+
+    def __init__(self, *exceptions, **kwargs):
+        self.exceptions = exceptions
+        self.name = kwargs.pop("name", None)
+        self.checker = kwargs.pop("checker", None)
+
+    def __call__(self, func):
+        """Work as a decorator."""
         def newfunc(*arg, **kw):
-            try:
+            self.name = self.name or func.__name__
+            with self:
                 func(*arg, **kw)
-            except exceptions:
-                pass
-            except:
-                raise
-            else:
-                message = "%s() did not raise %s" % (name, valid)
-                raise AssertionError(message)
         newfunc = make_decorator(func)(newfunc)
         return newfunc
-    return decorate
+
+    def __enter__(self):
+        self.name = self.name or "context"
+        return self
+
+    def __exit__(self, error_type, error, traceback):
+        if not error:
+            valid = ' or '.join([e.__name__ for e in self.exceptions])
+            message = "%s() did not raise %s" % (self.name, valid)
+            raise AssertionError(message)
+        elif error_type in self.exceptions:
+            self.check_exception(error)
+            return True
+        else:
+            return None  # raise it
+
+    def check_exception(self, error):
+        """Checks a exception if the check exist."""
+        if self.checker:
+            do_check = self.checker
+            do_check(error)
 
 
 def set_trace():
