@@ -140,7 +140,7 @@ class Doctest(Plugin):
     suiteClass = DoctestSuite
     
     def options(self, parser, env):
-        """Register commmandline options.
+        """Register commandline options.
         """
         Plugin.options(self, parser, env)
         parser.add_option('--doctest-tests', action='store_true',
@@ -382,7 +382,7 @@ class DocTestCase(doctest.DocTestCase):
     
     # doctests loaded via find(obj) omit the module name
     # so we need to override id, __repr__ and shortDescription
-    # bonus: this will squash a 2.3 vs 2.4 incompatiblity
+    # bonus: this will squash a 2.3 vs 2.4 incompatibility
     def id(self):
         name = self._dt_test.name
         filename = self._dt_test.filename

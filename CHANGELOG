@@ -170,7 +170,7 @@
 - Fixed an ugly traceback when a test class was imported from another module,
   but was missing a method. (#595)
   Patch by Michael Williamson.
-- Fix formatFailure expection if missing tb in exc_info. (#603)
+- Fix formatFailure exception if missing tb in exc_info. (#603)
   Patch by Sascha Peilicke.
 - Taught the test suite to skip coverage tests if the coverage module is not
   available. (#597)
@@ -238,7 +238,7 @@
   Andrey Golovizin.
 - Add --cover-min-percentage flag to force test runs without sufficient
   coverage to fail (#540). Patch by Domen Kožar.
-- Add travis-ci configuraion (#545). Patch by Domen Kožar.
+- Add travis-ci configuration (#545). Patch by Domen Kožar.
 - Call reactor.stop from twisted thread (#301). Patch by Adi Roiban.
 
 
@@ -455,7 +455,7 @@
 - Fixed bug in capture plugin that caused it to record captured output
   on the test in the wrong attribute (#113).
 - Fixed bug in result proxy that caused tests to fail if they accessed
-  certain result attibutes directly (#114). Thanks to Neilen Marais
+  certain result attributes directly (#114). Thanks to Neilen Marais
   for the bug report.
 - Fixed bug in capture plugin that caused other error formatters
   changes to be lost if no output was captured (#124). Thanks to
@@ -511,7 +511,7 @@
   Lee for many bug reports.
 - Fixed bugs in rpm generation (Issue #96). Thanks to Mike Verdone for
   the bug report and http://bugs.python.org/issue644744 for the fix.
-- Fixed inconsisent use of os.environ in plugin testing
+- Fixed inconsistent use of os.environ in plugin testing
   utilities. Thanks to John J Lee for the bug report and patch (Issue
   #97).
 - Fixed bug in test_address that prevented use of nose.case.Test in
@@ -638,7 +638,7 @@
 - Fixed bug in handling of options from setup.cfg. Thanks to Kumar McMillan for
   the patch.
 - Fixed bug in generator methods, where a generator method using an inline
-  funciton would result in an AttributeError. Thanks to Antoine Pitrou for the
+  function would result in an AttributeError. Thanks to Antoine Pitrou for the
   bug report.
 - Updated coverage plugin to ignore lines tagged with #pragma: no cover,
   matching the behavior of coverage.py on the command line. Thanks to Bill
@@ -815,7 +815,7 @@
 - Fix bug where sys.path would not be set up correctly when running some
   tests, producing spurious import errors (Thanks to Titus Brown and Mike
   Thomson for the bug reports)
-- For test classses not derived from unittest.TestCase, output (module.Class)
+- For test classes not derived from unittest.TestCase, output (module.Class)
   "doc string" as test description, when method doc string is available
   (Thanks to David Keeney for the suggestion, even if this isn't quite what he
   meant)

@@ -36,7 +36,7 @@ def waitForKillFile(killfile):
 runner = os.path.join(support, 'fake_nosetest.py')
 def keyboardinterrupt(case):
     #os.setsid would create a process group so signals sent to the
-    #parent process will propogates to all children processes
+    #parent process will propagates to all children processes
     if not hasattr(os, 'setsid') or not hasattr(os, 'killpg'):
         raise SkipTest("OS does not support os.setsid or os.killpg")
 

@@ -452,7 +452,7 @@ class Patch(object):
 
   def can_patch(self, filename):
     """ Check if specified filename can be patched. Returns None if file can
-    not be found among source filenames. False if patch can not be applied
+    not be found among source filenames. False if patch cannot be applied
     clearly. True otherwise.
 
     :returns: True, False or None
@@ -636,4 +636,4 @@ if __name__ == "__main__":
   patch.apply()
 
   # todo: document and test line ends handling logic - patch.py detects proper line-endings
-  #       for inserted hunks and issues a warning if patched file has incosistent line ends
+  #       for inserted hunks and issues a warning if patched file has inconsistent line ends

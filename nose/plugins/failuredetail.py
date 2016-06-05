@@ -17,7 +17,7 @@ class FailureDetail(Plugin):
     score = 1600 # before capture
     
     def options(self, parser, env):
-        """Register commmandline options.
+        """Register commandline options.
         """
         parser.add_option(
             "-d", "--detailed-errors", "--failure-detail",
