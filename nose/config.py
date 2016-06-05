@@ -21,7 +21,7 @@ config_files = [
     "~/nose.cfg"
     ]
 
-# plaforms on which the exe check defaults to off
+# platforms on which the exe check defaults to off
 # Windows and IronPython
 exe_allowed_platforms = ('win32', 'cli')
 

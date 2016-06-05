@@ -4,7 +4,7 @@ Overview
 
 The multiprocess plugin enables you to distribute your test run among a set of
 worker processes that run tests in parallel. This can speed up CPU-bound test
-runs (as long as the number of work processeses is around the number of
+runs (as long as the number of work processes is around the number of
 processors or cores available), but is mainly useful for IO-bound tests that
 spend most of their time waiting for data to arrive from someplace else.
 
@@ -447,7 +447,7 @@ class MultiProcessTestRunner(TextTestRunner):
                                           iworker,worker_addr)
                                 w.currentaddr.value = bytes_('')
                                 # If the process is in C++ code, sending a SIGILL
-                                # might not send a python KeybordInterrupt exception
+                                # might not send a python KeyboardInterrupt exception
                                 # therefore, send multiple signals until an
                                 # exception is caught. If this takes too long, then
                                 # terminate the process

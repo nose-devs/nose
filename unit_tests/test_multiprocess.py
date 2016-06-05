@@ -46,7 +46,7 @@ class T(unittest.TestCase):
         pass
 
 def test_mp_process_args_pickleable():
-    # TODO(Kumar) this test needs to be more succint.
+    # TODO(Kumar) this test needs to be more succinct.
     # If you start seeing it timeout then perhaps we need to skip it again.
     # raise SkipTest('this currently gets stuck in poll() 90% of the time')
     test = case.Test(T('runTest'))
