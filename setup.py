@@ -97,7 +97,7 @@ setup(
     coverage and profiling, flexible attribute-based test selection,
     output capture and more. More information about writing plugins may be
     found on in the nose API documentation, here:
-    http://readthedocs.org/docs/nose/
+    https://nose.readthedocs.io/
 
     If you have recently reported a bug marked as fixed, or have a craving for
     the very latest, you may want the development version instead:
@@ -105,7 +105,7 @@ setup(
     """,
     license = 'GNU LGPL',
     keywords = 'test unittest doctest automatic discovery',
-    url = 'http://readthedocs.org/docs/nose/',
+    url = 'https://nose.readthedocs.io/',
     data_files = [('man/man1', ['nosetests.1'])],
     package_data = {'': ['*.txt',
                          'examples/*.py',
