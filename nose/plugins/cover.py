@@ -202,7 +202,7 @@ class Coverage(Plugin):
                    if self.wantModuleCoverage(name, module)]
         log.debug("Coverage report will cover modules: %s", modules)
         if self.coverPrint:
-            self.coverInstance.report(modules, file=stream)
+            self.coverInstance.report(modules, file=stream, show_missing=True)
 
         import coverage
         if self.coverHtmlDir:
@@ -222,7 +222,7 @@ class Coverage(Plugin):
         # make sure we have minimum required coverage
         if self.coverMinPercentage:
             f = StringIO.StringIO()
-            self.coverInstance.report(modules, file=f)
+            self.coverInstance.report(modules, file=f, show_missing=True)
 
             multiPackageRe = (r'-------\s\w+\s+\d+\s+\d+(?:\s+\d+\s+\d+)?'
                               r'\s+(\d+)%\s+\d*\s{0,1}$')
