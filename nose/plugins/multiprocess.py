@@ -122,8 +122,9 @@ try:
 except ImportError:
     import StringIO
 
-# this is a list of plugin classes that will be checked for and created inside 
-# each worker process
+# This list is no longer used. You should be able to pass plugins
+# as you do it in the singlethreaded mode, but still constructors
+# of your plugins must be trivial (without arguments).
 _instantiate_plugins = None
 
 log = logging.getLogger(__name__)
@@ -660,11 +661,6 @@ def __runner(ix, testQueue, resultQueue, currentaddr, currentstart,
 
     config = pickle.loads(config)
     dummy_parser = config.parserClass()
-    if _instantiate_plugins is not None:
-        for pluginclass in _instantiate_plugins:
-            plugin = pluginclass()
-            plugin.addOptions(dummy_parser,{})
-            config.plugins.addPlugin(plugin)
     config.plugins.configure(config.options,config)
     config.plugins.begin()
     log.debug("Worker %s executing, pid=%d", ix,os.getpid())

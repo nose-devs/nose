@@ -227,20 +227,38 @@ class Config(object):
         del state['env']
         del state['logStream']
         # FIXME remove plugins, have only plugin manager class
-        state['plugins'] = self.plugins.__class__
+        state['plugin_manager'] = self.plugins.__class__
+        if not isinstance(state['plugins'], NoPlugins):
+            state['plugins'] = [plugin.__class__ for plugin in state['plugins']]
+        else:
+            state['plugins'] = []
         return state
 
     def __setstate__(self, state):
-        plugincls = state.pop('plugins')
+        plugin_manager = state.pop('plugin_manager')
+        plugins = state.pop('plugins')
         self.update(state)
         self.worker = True
         # FIXME won't work for static plugin lists
-        self.plugins = plugincls()
+        self.plugins = plugin_manager()
         self.plugins.loadPlugins()
         # needed so .can_configure gets set appropriately
         dummy_parser = self.parserClass()
         self.plugins.addOptions(dummy_parser, {})
         self.plugins.configure(self.options, self)
+
+        if not isinstance(self.plugins, NoPlugins):
+            plugins = set(plugins)
+            for plugin in self.plugins:
+                plugins.discard(plugin.__class__)
+
+            from plugins.multiprocess import MultiProcess
+            plugins.discard(MultiProcess)
+
+            for plugincls in plugins:
+                plugin = plugincls()
+                plugin.addOptions(dummy_parser,{})
+                self.plugins.addPlugin(plugin)
 
     def __repr__(self):
         d = self.__dict__.copy()
