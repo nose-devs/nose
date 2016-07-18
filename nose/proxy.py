@@ -91,7 +91,10 @@ class ResultProxy(object):
             # Plugins do all sorts of crazy things with exception values.
             # Convert it to a custom subclass of Exception with the same
             # name as the actual exception to make it print correctly.
-            value = type(err[0].__name__, (Exception,), {})(err[1])
+            base_class = Exception
+            if issubclass(err[0], SyntaxError):
+                base_class = SyntaxError
+            value = type(err[0].__name__, (base_class,), {})(err[1])
             err = (err[0], value, err[2])
         return err
 
