@@ -92,7 +92,7 @@ class Bucket(object):
         self.__dict__['d'].update(kw)
         
     def __getattr__(self, attr):
-        if not self.__dict__.has_key('d'):
+        if not 'd' in self.__dict__:
             return None
         return self.__dict__['d'].get(attr)
 
