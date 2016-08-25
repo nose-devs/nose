@@ -234,6 +234,14 @@ latex_documents = [
 # If false, no module index is generated.
 #latex_use_modindex = True
 
+texinfo_documents = [
+  (master_doc, 'nose', 'nose Documentation',
+   'Jason Pellerin',
+   'nose',
+   'nose extends unittest to make testing easier',
+   'Programming',
+   1),
+]
 
 # Example configuration for intersphinx: refer to the Python standard library.
 intersphinx_mapping = {'http://docs.python.org/dev': None}
