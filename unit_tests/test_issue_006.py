@@ -15,12 +15,12 @@ class TestIssue006(unittest.TestCase):
 
         testcase = iter(testmod).next()
         expect = [
-            ['tests.Test1.test_nested_generator'],
-            ['tests.Test1.test_nested_generator_mult(1,)',
-             'tests.Test1.test_nested_generator_mult(2,)',
-             'tests.Test1.test_nested_generator_mult(3,)'],
-            ['tests.Test1.test_normal_generator(1,)',
-             'tests.Test1.test_normal_generator(2,)']
+            ['tests:Test1.test_nested_generator'],
+            ['tests:Test1.test_nested_generator_mult(1,)',
+             'tests:Test1.test_nested_generator_mult(2,)',
+             'tests:Test1.test_nested_generator_mult(3,)'],
+            ['tests:Test1.test_normal_generator(1,)',
+             'tests:Test1.test_normal_generator(2,)']
             ]
         for test in testcase:
             tests = map(str, test)
