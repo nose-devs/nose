@@ -583,9 +583,10 @@ class TestLoader(unittest.TestLoader):
                 else:
                     return MethodTestCase(obj)
         elif isfunction(obj):
+            isgen = isgenerator(obj)
             if parent and obj.__module__ != parent.__name__:
                 obj = transplant_func(obj, parent.__name__)
-            if isgenerator(obj):
+            if isgen:
                 return self.loadTestsFromGenerator(obj, parent)
             else:
                 return FunctionTestCase(obj)
