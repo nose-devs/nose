@@ -281,6 +281,51 @@ class TestAttribPlugin(unittest.TestCase):
         assert plug.wantMethod(unbound_method(TestP, TestP.h)) is not False
         assert plug.wantFunction(i) is False
         
+
+    def test_class_and_method_iter_attr(self):
+        class TestP(object):
+            foo = ['a']
+
+            def h(self):
+                pass
+            h.foo = ['b']
+
+        def i():
+            pass
+        i.foo = ['a']
+
+        plug = AttributeSelector()
+        plug.attribs = [[('foo', 'a'), ('foo', 'b')]]
+        assert plug.wantMethod(unbound_method(TestP, TestP.h)) is not False
+        assert plug.wantFunction(i) is False
+
+        plug.attribs = [[('foo', 'b')]]
+        assert plug.wantMethod(unbound_method(TestP, TestP.h)) is not False
+        assert plug.wantFunction(i) is False
+
+
+    def test_class_and_method_str_attr(self):
+        class TestP(object):
+            foo = 'a'
+
+            def h(self):
+                pass
+            h.foo = 'b'
+
+        def i():
+            pass
+        i.foo = 'a'
+
+        plug = AttributeSelector()
+        plug.attribs = [[('foo', 'a'), ('foo', 'b')]]
+        assert plug.wantMethod(unbound_method(TestP, TestP.h)) is not False
+        assert plug.wantFunction(i) is False
+
+        plug.attribs = [[('foo', 'b')]]
+        assert plug.wantMethod(unbound_method(TestP, TestP.h)) is not False
+        assert plug.wantFunction(i) is False
+
+
     def test_eval_attr(self):
         if not compat_24:
             warn("No support for eval attributes in python versions older"
