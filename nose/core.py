@@ -23,6 +23,12 @@ compat_24 = sys.version_info >= (2, 4)
 __all__ = ['TestProgram', 'main', 'run', 'run_exit', 'runmodule', 'collector',
            'TextTestRunner']
 
+# State of runner:
+# * normal - regular business
+# * looping - running tests in main loop
+# * exiting - running final teardown
+NOSE = {'state': 'normal'}
+
 
 class TextTestRunner(unittest.TextTestRunner):
     """Test runner that uses nose's TextTestResult to enable errorClasses,
@@ -204,11 +210,117 @@ class TestProgram(unittest.TestProgram):
         plug_runner = self.config.plugins.prepareTestRunner(self.testRunner)
         if plug_runner is not None:
             self.testRunner = plug_runner
-        result = self.testRunner.run(self.test)
-        self.success = result.wasSuccessful()
+
+        self._selectRunMode()
+
         if self.exit:
             sys.exit(not self.success)
         return self.success
+
+    def _runTestSuite(self):
+        """Run the test suite.
+        """
+        result = self.testRunner.run(self.test)
+        self.success = result.wasSuccessful()
+
+    def _selectRunMode(self):
+        """Select running mode for tests.
+        """
+        try:
+            if not self.config.options.enable_plugin_loop:
+                raise AttributeError('Loop plugin not enabled')
+        except AttributeError:
+            # Run in normal mode.
+            self._runTestSuite()
+        else:
+            # Run in loop mode.
+            try:
+                NOSE['state'] = 'looping'
+                self._loopTests()
+            except KeyboardInterrupt:
+                pass
+            finally:
+                print "Leaving loop..."
+                # Fake that teardown was run, so we do a final teardown
+                # with special attributes.
+                NOSE['state'] = 'exiting'
+                self.test.was_torndown = False
+                self.test.factory.was_torndown = {}
+                self.test.tearDown()
+                self.success = 0
+
+    def _loopTests(self):
+        """Loop tests waiting for changes.
+        """
+        have_changes = False
+        before_state = []
+        run_tests = True
+        exit = False
+        while run_tests and not exit:
+            after_state = self.getTestModules(self.test)
+            if not after_state:
+                have_changes = True
+                run_tests = False
+            elif self.wereTestsChanged(before_state, after_state):
+                for test in before_state:
+                    reload(test[0].context)
+
+                # Create a new suite so that we will reload setup
+                # and teardown.
+                from nose.suite import ContextSuiteFactory
+                self.testLoader.suiteClass = ContextSuiteFactory(
+                    config=self.testLoader.config)
+                self.createTests()
+                before_state = after_state
+                have_changes = True
+            else:
+                have_changes = False
+
+            if not have_changes:
+                print "Waiting for changes... (Ctr+C to quit)"
+                time.sleep(1)
+                continue
+
+            print "Starting new tests..."
+            self._runTestSuite()
+
+    def getTestModules(self, test):
+        """Return a list of all test modules and their source paths.
+        """
+        import inspect
+        from types import ModuleType
+        from nose.suite import ContextSuite
+        result = []
+        for candidate in test._get_tests():
+            context = candidate.context
+            if not context:
+                continue
+
+            if not isinstance(context, ModuleType):
+                continue
+
+            if isinstance(candidate, ContextSuite):
+                result.extend(self.getTestModules(candidate))
+            try:
+                path = inspect.getsourcefile(context)
+            except TypeError:
+                # No source for this module.
+                continue
+            modified_time = os.stat(path).st_mtime
+            result.append((candidate, modified_time))
+
+        return result
+
+    def wereTestsChanged(self, before_state, after_state):
+        """Return True if tests were changed.
+        """
+        if len(before_state) != len(after_state):
+            return True
+
+        for before_test, after_test in zip(before_state, after_state):
+            if before_test[1] != after_test[1]:
+                return True
+        return False
 
     def showPlugins(self):
         """Print list of available plugins.
