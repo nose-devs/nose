@@ -1,4 +1,4 @@
-"""Use the Doctest plugin with ``--with-doctest`` or the NOSE_WITH_DOCTEST
+"""Use the Doctest plugin with ``--with-doctest`` or the NOSE_WITH_DOCTESTS
 environment variable to enable collection and execution of :mod:`doctests
 <doctest>`.  Because doctests are usually included in the tested package
 (instead of being grouped into packages or modules of their own), nose only
