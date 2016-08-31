@@ -122,11 +122,11 @@ try:
 except ImportError:
     import StringIO
 
-# this is a list of plugin classes that will be checked for and created inside 
+log = logging.getLogger(__name__)
+
+# this is a list of plugin classes that will be checked for and created inside
 # each worker process
 _instantiate_plugins = None
-
-log = logging.getLogger(__name__)
 
 Process = Queue = Pool = Event = Value = Array = None
 
@@ -141,7 +141,7 @@ def _import_mp():
     global Process, Queue, Pool, Event, Value, Array
     try:
         from multiprocessing import Manager, Process
-        #prevent the server process created in the manager which holds Python 
+        #prevent the server process created in the manager which holds Python
         #objects and allows other processes to manipulate them using proxies
         #to interrupt on SIGINT (keyboardinterrupt) so that the communication
         #channel between subprocesses and main process is still usable after
@@ -482,7 +482,7 @@ class MultiProcessTestRunner(TextTestRunner):
             log.info('parent received ctrl-c when waiting for test results')
             thrownError = e
             #resultQueue.get(False)
-                
+
             result.addError(test, sys.exc_info())
 
         try:
