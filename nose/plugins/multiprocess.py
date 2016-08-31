@@ -99,7 +99,6 @@ import sys
 import time
 import traceback
 import unittest
-import pickle
 import signal
 import nose.case
 from nose.core import TextTestRunner
@@ -335,7 +334,7 @@ class MultiProcessTestRunner(TextTestRunner):
                          shouldStop,
                          self.loaderClass,
                          result.__class__,
-                         pickle.dumps(self.config)))
+                         self.config))
         p.currentaddr = currentaddr
         p.currentstart = currentstart
         p.keyboardCaught = keyboardCaught
@@ -658,7 +657,6 @@ def runner(ix, testQueue, resultQueue, currentaddr, currentstart,
 def __runner(ix, testQueue, resultQueue, currentaddr, currentstart,
            keyboardCaught, shouldStop, loaderClass, resultClass, config):
 
-    config = pickle.loads(config)
     dummy_parser = config.parserClass()
     if _instantiate_plugins is not None:
         for pluginclass in _instantiate_plugins:
