@@ -16,6 +16,8 @@ from nose.result import TextTestResult
 from nose.suite import FinalizingSuiteWrapper
 from nose.util import isclass, tolist
 
+# added to disable reading/writing of python bytecode
+sys.dont_write_bytecode = True
 
 log = logging.getLogger('nose.core')
 compat_24 = sys.version_info >= (2, 4)
