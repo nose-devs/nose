@@ -44,7 +44,7 @@ class Dummy(unittest.TestCase):
 _t = Dummy('nop')
 
 for at in [ at for at in dir(_t)
-            if at.startswith('assert') and not '_' in at ]:
+            if re.match(r'assert|fail([A-Z]|$)', at) and not '_' in at ]:
     pepd = pep8(at)
     vars()[pepd] = getattr(_t, at)
     __all__.append(pepd)
