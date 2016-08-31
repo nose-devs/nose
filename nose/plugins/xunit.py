@@ -133,7 +133,8 @@ class Tee(object):
     def write(self, data):
         data = force_unicode(data, self.encoding)
         for s in self._streams:
-            s.write(data)
+            if not isinstance(s, Tee):
+                s.write(data)
 
     def writelines(self, lines):
         for line in lines:
