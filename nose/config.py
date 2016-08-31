@@ -175,6 +175,7 @@ class Config(object):
       self.where = ()
       self.py3where = ()
       self.workingDir = None
+      self.is_subprocess = False
     """
 
     def __init__(self, **kw):
@@ -214,6 +215,7 @@ class Config(object):
         self.firstPackageWins = False
         self.parserClass = OptionParser
         self.worker = False
+        self.is_subprocess = False
 
         self._default = self.__dict__.copy()
         self.update(kw)
