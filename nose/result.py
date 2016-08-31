@@ -113,14 +113,24 @@ class TextTestResult(_TextTestResult):
         """Called by the test runner to print the final summary of test
         run results.
         """
+        def to_time_for_human(seconds):
+            """Convert seconds to nb day(s) hour(s) minute(s) second(s) """
+            dd_hh_mm_ss = [0] * 4           # days_hours_minutes_seconds
+            divs = (24*3600, 3600, 60, 1)
+            for idx, div in enumerate(divs):
+                dd_hh_mm_ss[idx], seconds = divmod(seconds, div)
+                if seconds == 0:            # break asap
+                    break
+            return "%dd %dh %dm %ds"%tuple(dd_hh_mm_ss)
+
         write = self.stream.write
         writeln = self.stream.writeln
-        taken = float(stop - start)
+        taken = to_time_for_human(int(stop - start))
         run = self.testsRun
         plural = run != 1 and "s" or ""
 
         writeln(self.separator2)
-        writeln("Ran %s test%s in %.3fs" % (run, plural, taken))
+        writeln("Ran %s test%s in %s" % (run, plural, taken))
         writeln()
 
         summary = {}
