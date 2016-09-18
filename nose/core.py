@@ -306,7 +306,7 @@ def runmodule(name='__main__', **kw):
     tests in __main__. Additional arguments to TestProgram may be passed
     as keyword arguments.
     """
-    main(defaultTest=name, **kw)
+    return main(defaultTest=name, **kw)
 
 
 def collector():
