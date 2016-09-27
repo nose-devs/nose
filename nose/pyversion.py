@@ -55,6 +55,7 @@ def cmp_to_key(mycmp):
             return mycmp(self.obj, other.obj) > 0
         def __eq__(self, other):
             return mycmp(self.obj, other.obj) == 0
+        __hash__ = None
     return Key
 
 # Python 2.3 also does not support list-sorting by key, so we need to convert
