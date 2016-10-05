@@ -173,7 +173,7 @@ class MultiProcessFile(object):
 try:
     from multiprocessing import Manager
     Buffer = MultiProcessFile
-except ImportError:
+except (ImportError, TypeError):
     Buffer = StringIO
 
 class PluginTester(object):
