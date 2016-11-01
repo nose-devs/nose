@@ -176,8 +176,8 @@ See any builtin plugin or example plugin in the examples_ directory in
 the nose source distribution. There is a list of third-party plugins
 `on jottit`_.
 
-.. _examples/html_plugin/htmlplug.py: http://python-nose.googlecode.com/svn/trunk/examples/html_plugin/htmlplug.py
-.. _examples: http://python-nose.googlecode.com/svn/trunk/examples
+.. _examples/html_plugin/htmlplug.py: https://github.com/nose-devs/nose/blob/master/examples/html_plugin/htmlplug.py
+.. _examples: https://github.com/nose-devs/nose/tree/master/examples
 .. _on jottit: http://nose-plugins.jottit.com/
 
 """
