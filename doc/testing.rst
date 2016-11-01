@@ -37,8 +37,7 @@ scheme, or it doesn't suit the layout of your project, or you need reports in
 a format different from the unittest standard, or you need to collect some
 additional information about tests (like code coverage or profiling data), you
 can write a plugin to make nose do what you want. See the section on
-:doc:`plugins/writing` for more.  There are also many 
-`third-party nose plugins <http://nose-plugins.jottit.com/>`_ available.
+:doc:`plugins/writing` for more.
 
 Details
 -------
@@ -51,5 +50,4 @@ Details
    finding_tests
    testing_tools
    plugins/builtin
-   plugins/other
    setuptools_integration
