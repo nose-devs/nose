@@ -173,12 +173,10 @@ More Examples
 =============
 
 See any builtin plugin or example plugin in the examples_ directory in
-the nose source distribution. There is a list of third-party plugins
-`on jottit`_.
+the nose source distribution.
 
 .. _examples/html_plugin/htmlplug.py: https://github.com/nose-devs/nose/blob/master/examples/html_plugin/htmlplug.py
 .. _examples: https://github.com/nose-devs/nose/tree/master/examples
-.. _on jottit: http://nose-plugins.jottit.com/
 
 """
 from nose.plugins.base import Plugin
