@@ -98,7 +98,7 @@ class MyMemoryHandler(Handler):
 
 class LogCapture(Plugin):
     """
-    Log capture plugin. Enabled by default. Disable with --nologcapture.
+    Log capture plugin. Enabled by default. Disable with ``--nologcapture``.
     This plugin captures logging statements issued during test execution,
     appending any output captured to the error or failure output,
     should the test fail or raise an error.
