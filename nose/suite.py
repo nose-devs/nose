@@ -92,8 +92,10 @@ class LazySuite(unittest.TestSuite):
 
     def _get_tests(self):
         log.debug("precache is %s", self._precache)
-        for test in self._precache:
-            yield test
+        while self._precache:
+            # because the precache holds test cases, it is important 
+            # to remove them so that memory can be freed for longer tests
+            yield self._precache.pop(0)
         if self.test_generator is None:
             return
         for test in self.test_generator:
