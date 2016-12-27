@@ -419,7 +419,7 @@ try:
     class DefaultPluginManager(BuiltinPluginManager, EntryPointPluginManager):
         pass
 
-except ImportError:
+except ImportError, AttributeError:
     class DefaultPluginManager(BuiltinPluginManager):
         pass
 

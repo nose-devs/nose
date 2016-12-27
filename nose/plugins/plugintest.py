@@ -106,7 +106,14 @@ except ImportError:
 
 __all__ = ['PluginTester', 'run']
 
-from os import getpid
+try:
+    from os import getpid
+    # if we fail to import getpid, just return a 'static' ineger
+except ImportError:
+    import random
+    def getpid(rv=[random.randint(0, 9999999),]):
+        return rv[0]
+
 class MultiProcessFile(object):
     """
     helper for testing multiprocessing
@@ -173,6 +180,7 @@ class MultiProcessFile(object):
 try:
     from multiprocessing import Manager
     Buffer = MultiProcessFile
+    # IronPython raises a TypeError trying to import multiprocessing
 except (ImportError, TypeError):
     Buffer = StringIO
 
