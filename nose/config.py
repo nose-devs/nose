@@ -139,7 +139,7 @@ class ConfiguredDefaultsOptionParser(object):
 
 
 class Config(object):
-    """nose configuration.
+    r"""nose configuration.
 
     Instances of Config are used throughout nose to configure
     behavior, including plugin lists. Here are the default values for
