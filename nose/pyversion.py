@@ -213,3 +213,24 @@ def format_exception(exc_info, encoding='UTF-8'):
         return force_unicode(
                 ''.join(traceback.format_exception(*exc_info)),
                 encoding)
+
+if sys.version_info >= (3, 3):
+    def new_str(test):
+        test_class = test.__class__
+        method_name = test._testMethodName
+        return "%s (%s:%s.%s)" % (
+            method_name,
+            test_class.__module__,
+            test_class.__qualname__,
+            method_name,
+        )
+else:
+    def new_str(test):
+        test_class = test.__class__
+        method_name = test._testMethodName
+        return "%s (%s:%s.%s)" % (
+            method_name,
+            test_class.__module__,
+            test_class.__name__,
+            method_name,
+        )

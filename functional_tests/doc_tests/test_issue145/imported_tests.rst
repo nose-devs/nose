@@ -42,11 +42,11 @@ imported, not the source modules.
     >>> argv = [__file__, '-v', support]
     >>> run(argv=argv) # doctest: +REPORT_NDIFF
     package1 setup
-    test (package1.test_module.TestCase) ... ok
+    test (package1.test_module:TestCase.test) ... ok
     package1.test_module.TestClass.test_class ... ok
     package1.test_module.test_function ... ok
     package2c setup
-    test (package2c.test_module.TestCase) ... ok
+    test (package2c.test_module:TestCase.test) ... ok
     package2c.test_module.TestClass.test_class ... ok
     package2f setup
     package2f.test_module.test_function ... ok
@@ -71,7 +71,7 @@ packages are executed.
     >>> argv = [__file__, '-v', os.path.join(support, 'package2c')]
     >>> run(argv=argv) # doctest: +REPORT_NDIFF
     package2c setup
-    test (package2c.test_module.TestCase) ... ok
+    test (package2c.test_module:TestCase.test) ... ok
     package2c.test_module.TestClass.test_class ... ok
     <BLANKLINE>
     ----------------------------------------------------------------------
@@ -98,7 +98,7 @@ command-line.
     ...         ':TestCase.test']
     >>> run(argv=argv) # doctest: +REPORT_NDIFF
     package2c setup
-    test (package2c.test_module.TestCase) ... ok
+    test (package2c.test_module:TestCase.test) ... ok
     <BLANKLINE>
     ----------------------------------------------------------------------
     Ran 1 test in ...s

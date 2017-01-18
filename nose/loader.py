@@ -24,7 +24,7 @@ from nose.util import func_lineno, getpackage, isclass, isgenerator, \
     ispackage, regex_last_key, resolve_name, src, transplant_func, \
     transplant_class, test_address
 from nose.suite import ContextSuiteFactory, ContextList, LazySuite
-from nose.pyversion import sort_list, cmp_to_key
+from nose.pyversion import sort_list, cmp_to_key, new_str
 
 
 log = logging.getLogger(__name__)
@@ -569,6 +569,7 @@ class TestLoader(unittest.TestLoader):
             if parent and obj.__module__ != parent.__name__:
                 obj = transplant_class(obj, parent.__name__)
             if issubclass(obj, unittest.TestCase):
+                obj.__str__ = new_str
                 return self.loadTestsFromTestCase(obj)
             else:
                 return self.loadTestsFromTestClass(obj)
@@ -576,6 +577,7 @@ class TestLoader(unittest.TestLoader):
             if parent is None:
                 parent = obj.__class__
             if issubclass(parent, unittest.TestCase):
+                parent.__str__ = new_str
                 return parent(obj.__name__)
             else:
                 if isgenerator(obj):

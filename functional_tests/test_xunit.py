@@ -25,7 +25,7 @@ class TestXUnitPlugin(PluginTester, unittest.TestCase):
         
         assert "ERROR: test_error" in self.output
         assert "FAIL: test_fail" in self.output
-        assert "test_skip (test_xunit_as_suite.TestForXunit) ... SKIP: skipit" in self.output
+        assert "test_skip (test_xunit_as_suite:TestForXunit.test_skip) ... SKIP: skipit" in self.output
         assert "XML: %s" % xml_results_filename in self.output
         
         f = codecs.open(xml_results_filename,'r', encoding='utf8')
