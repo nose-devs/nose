@@ -45,8 +45,8 @@ class TestLoadTestsFromTestCaseHook(PluginTester, unittest.TestCase):
 
     def runTest(self):
         expect = [
-            'test_value (%s.Derived) ... ERROR' % __name__,
-            'test_value (tests.Tests) ... ok']
+            'test_value (%s:Derived.test_value) ... ERROR' % __name__,
+            'test_value (tests:Tests.test_value) ... ok']
         print str(self.output)
         for line in self.output:
             if expect:

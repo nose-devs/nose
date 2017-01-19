@@ -108,10 +108,10 @@ Now we can execute a test run using the custom selector, and the
 project's tests will be collected.
 
     >>> run(argv=argv, plugins=[UseMySelector()])
-    test_add (basic.TestBasicMath) ... ok
-    test_sub (basic.TestBasicMath) ... ok
-    test_tuple_groups (my_function.MyFunction) ... ok
-    test_cat (cat.StringsCat) ... ok
+    test_add (basic:TestBasicMath.test_add) ... ok
+    test_sub (basic:TestBasicMath.test_sub) ... ok
+    test_tuple_groups (my_function:MyFunction.test_tuple_groups) ... ok
+    test_cat (cat:StringsCat.test_cat) ... ok
     <BLANKLINE>
     ----------------------------------------------------------------------
     Ran 4 tests in ...s
