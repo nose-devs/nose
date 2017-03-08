@@ -697,7 +697,7 @@ def __runner(ix, testQueue, resultQueue, currentaddr, currentstart,
             errorClasses)
     for test_addr, arg in iter(get, 'STOP'):
         if shouldStop.is_set():
-            log.exception('Worker %d STOPPED',ix)
+            log.error('Worker %d STOPPED',ix)
             break
         result = makeResult()
         loader = loaderClass(config=config)
