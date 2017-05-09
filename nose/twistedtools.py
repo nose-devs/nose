@@ -72,7 +72,7 @@ def stop_reactor():
     global _twisted_thread
 
     def stop_reactor():
-        '''Helper for calling stop from withing the thread.'''
+        '''Helper for calling stop from within the thread.'''
         reactor.stop()
 
     reactor.callFromThread(stop_reactor)
@@ -92,7 +92,7 @@ def deferred(timeout=None):
     The optional timeout parameter specifies the maximum duration of the test.
     The difference with timed() is that timed() will still wait for the test
     to end, while deferred() will stop the test when its timeout has expired.
-    The latter is more desireable when dealing with network tests, because
+    The latter is more desirable when dealing with network tests, because
     the result may actually never arrive.
 
     If the callback is triggered, the test has passed.

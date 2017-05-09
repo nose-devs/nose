@@ -156,7 +156,7 @@ else:
     try:
         from compiler.consts import CO_GENERATOR
     except ImportError:
-        # IronPython doesn't have a complier module
+        # IronPython doesn't have a compiler module
         CO_GENERATOR=0x20
 
     def isgenerator(func):

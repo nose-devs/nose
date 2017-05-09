@@ -7,7 +7,7 @@ the most part, if an object's name matches the ``testMatch`` regular
 expression defined in the active `nose.config.Config` instance, the
 object is selected as a test. 
 
-This behavior is fine for new projects, but may be undesireable for
+This behavior is fine for new projects, but may be undesirable for
 older projects with a different test naming scheme. Fortunately, you
 can easily override this behavior by providing a custom selector using
 a plugin.

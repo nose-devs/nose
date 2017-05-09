@@ -116,7 +116,7 @@ def absfile(path, where=None):
     if path is None or not os.path.exists(path):
         return None
     if os.path.isdir(path):
-        # might want an __init__.py from pacakge
+        # might want an __init__.py from package
         init = os.path.join(path,'__init__.py')
         if os.path.isfile(init):
             return init
