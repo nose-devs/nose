@@ -4,7 +4,7 @@ is the selector useful? can it die, if we assume a more directed loading
 approach?
 
 The loader is the heart of the discovery system. It should be simple, clear,
-and close to unittest's loader whereever possible. The complication comes from
+and close to unittest's loader wherever possible. The complication comes from
 supporting proper fixture setup and teardown when the test name requested is a
 or is inside of a dotted module. Say we run like this:
 

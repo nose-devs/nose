@@ -110,7 +110,7 @@ class Plugin(object):
             return textwrap.dedent(self.__class__.__doc__)
         return "(no help available)"
 
-    # Compatiblity shim
+    # Compatibility shim
     def tolist(self, val):
         warn("Plugin.tolist is deprecated. Use nose.util.tolist instead",
              DeprecationWarning)
