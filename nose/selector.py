@@ -46,7 +46,6 @@ class Selector(object):
         self.matchMethod = config.testMethodMatch
         self.matchDefault = re.compile(config.testMatchPat)
 
-
     def matchRegex(self, regex, name):
         return ((regex.search(name)
                or (self.include and
