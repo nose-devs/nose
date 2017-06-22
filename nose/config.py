@@ -147,7 +147,7 @@ class Config(object):
 
       self.env = env = kw.pop('env', {})
       self.args = ()
-      self.testMatch = re.compile(env.get('NOSE_TESTMATCH', r'(?:\b|_)[Tt]est'))
+      self.testMatch = re.compile(r'(?:^|[\\b_\\.%s-])[Tt]est' % os.sep)
       self.addPaths = not env.get('NOSE_NOPATH', False)
       self.configSection = 'nosetests'
       self.debug = env.get('NOSE_DEBUG')
@@ -180,8 +180,10 @@ class Config(object):
     def __init__(self, **kw):
         self.env = env = kw.pop('env', {})
         self.args = ()
-        self.testMatchPat = env.get('NOSE_TESTMATCH', r'(?:\b|_)[Tt]est')
+        self.testMatchPat = env.get('NOSE_TESTMATCH',
+                                    r'(?:^|[\b_\.%s-])[Tt]est' % os.sep)
         self.testMatch = re.compile(self.testMatchPat)
+        self.testMethodMatch = re.compile(self.testMatchPat)
         self.addPaths = not env.get('NOSE_NOPATH', False)
         self.configSection = 'nosetests'
         self.debug = env.get('NOSE_DEBUG')
@@ -325,6 +327,9 @@ class Config(object):
 
         if options.testMatch:
             self.testMatch = re.compile(options.testMatch)
+
+        if options.testMethodMatch:
+            self.testMethodMatch = re.compile(options.testMethodMatch)
 
         if options.ignoreFiles:
             self.ignoreFiles = map(re.compile, tolist(options.ignoreFiles))
@@ -501,6 +506,14 @@ class Config(object):
             "that match this regular expression are considered tests.  "
             "Default: %s [NOSE_TESTMATCH]" % self.testMatchPat,
             default=self.testMatchPat)
+
+        parser.add_option(
+          "--matchMethod", action="store",
+          dest="testMethodMatch", metavar="REGEX",
+          help="method/function names that match this regular expression are considered tests.  "
+               "Default: %s [NOSE_TESTMATCH]" % self.testMatchPat,
+          default=self.testMatchPat)
+
         parser.add_option(
             "--tests", action="store", dest="testNames", default=None,
             metavar='NAMES',
