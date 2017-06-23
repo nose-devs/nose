@@ -47,6 +47,7 @@ class Selector(object):
         self.matchDefault = re.compile(config.testMatchPat)
 
     def matchRegex(self, regex, name):
+        """ Does given name matches the given match expression """
         return ((regex.search(name)
                or (self.include and
                    filter(None,
@@ -65,12 +66,12 @@ class Selector(object):
         return self.matchRegex(self.match, name)
 
     def matchesMethod(self, name):
-      """Does the name match my requirements?
+      """Does the method name match my requirements?
 
       To match, a name must match config.testMatch OR config.include
       and it must not match config.exclude
       """
-      if self.match != self.matchDefault:   #if user gave match option as well along with match-method
+      if self.match != self.matchDefault:   #if user gave match option as well along with matchMethod
           match = self.match
       if self.matchMethod != self.matchDefault:
           match = self.matchMethod
