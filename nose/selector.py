@@ -11,7 +11,7 @@ import os
 import unittest
 from nose.config import Config
 from nose.util import split_test_name, src, getfilename, getpackage, ispackage, is_executable
-
+import re
 log = logging.getLogger(__name__)
 
 __all__ = ['Selector', 'defaultSelector', 'TestAddress']
@@ -43,22 +43,42 @@ class Selector(object):
         self.include = config.include
         self.plugins = config.plugins
         self.match = config.testMatch
-        
+        self.matchMethod = config.testMethodMatch
+        self.matchDefault = re.compile(config.testMatchPat)
+
+    def matchRegex(self, regex, name):
+        """ Does given name matches the given match expression """
+        return ((regex.search(name)
+               or (self.include and
+                   filter(None,
+                          [inc.search(name) for inc in self.include])))
+              and ((not self.exclude)
+                   or not filter(None,
+                                 [exc.search(name) for exc in self.exclude])
+                   ))
+
     def matches(self, name):
         """Does the name match my requirements?
 
         To match, a name must match config.testMatch OR config.include
         and it must not match config.exclude
         """
-        return ((self.match.search(name)
-                 or (self.include and
-                     filter(None,
-                            [inc.search(name) for inc in self.include])))
-                and ((not self.exclude)
-                     or not filter(None,
-                                   [exc.search(name) for exc in self.exclude])
-                 ))
-    
+        return self.matchRegex(self.match, name)
+
+    def matchesMethod(self, name):
+      """Does the method name match my requirements?
+
+      To match, a name must match config.testMatch OR config.include
+      and it must not match config.exclude
+      """
+      match = self.matchDefault
+      if self.match != self.matchDefault:   #if user gave match option as well along with matchMethod
+          match = self.match
+      if self.matchMethod != self.matchDefault:
+          match = self.matchMethod
+
+      return self.matchRegex(match, name)
+
     def wantClass(self, cls):
         """Is the class a wanted test class?
 
@@ -72,8 +92,8 @@ class Selector(object):
             wanted = (not cls.__name__.startswith('_')
                       and (issubclass(cls, unittest.TestCase)
                            or self.matches(cls.__name__)))
-        
-        plug_wants = self.plugins.wantClass(cls)        
+
+        plug_wants = self.plugins.wantClass(cls)
         if plug_wants is not None:
             log.debug("Plugin setting selection of %s to %s", cls, plug_wants)
             wanted = plug_wants
@@ -83,7 +103,7 @@ class Selector(object):
     def wantDirectory(self, dirname):
         """Is the directory a wanted test directory?
 
-        All package directories match, so long as they do not match exclude. 
+        All package directories match, so long as they do not match exclude.
         All other directories must match test requirements.
         """
         tail = op_basename(dirname)
@@ -103,7 +123,7 @@ class Selector(object):
             wanted = plug_wants
         log.debug("wantDirectory %s? %s", dirname, wanted)
         return wanted
-    
+
     def wantFile(self, file):
         """Is the file a wanted test file?
 
@@ -118,7 +138,7 @@ class Selector(object):
                            if ignore_this.search(base) ]
         if ignore_matches:
             log.debug('%s matches ignoreFiles pattern; skipped',
-                      base) 
+                      base)
             return False
         if not self.config.includeExe and is_executable(file):
             log.info('%s is executable; skipped', file)
@@ -126,7 +146,7 @@ class Selector(object):
         dummy, ext = op_splitext(base)
         pysrc = ext == '.py'
 
-        wanted = pysrc and self.matches(base) 
+        wanted = pysrc and self.matches(base)
         plug_wants = self.plugins.wantFile(file)
         if plug_wants is not None:
             log.debug("plugin setting want %s to %s", file, plug_wants)
@@ -149,7 +169,7 @@ class Selector(object):
         if declared is not None:
             wanted = declared
         else:
-            wanted = not funcname.startswith('_') and self.matches(funcname)
+            wanted = not funcname.startswith('_') and self.matchesMethod(funcname)
         plug_wants = self.plugins.wantFunction(function)
         if plug_wants is not None:
             wanted = plug_wants
@@ -171,13 +191,13 @@ class Selector(object):
         if declared is not None:
             wanted = declared
         else:
-            wanted = self.matches(method_name)
+            wanted = self.matchesMethod(method_name)
         plug_wants = self.plugins.wantMethod(method)
         if plug_wants is not None:
             wanted = plug_wants
         log.debug("wantMethod %s? %s", method, wanted)
         return wanted
-    
+
     def wantModule(self, module):
         """Is the module a test module?
 
@@ -195,8 +215,8 @@ class Selector(object):
             wanted = plug_wants
         log.debug("wantModule %s? %s", module, wanted)
         return wanted
-        
-defaultSelector = Selector        
+
+defaultSelector = Selector
 
 
 class TestAddress(object):
@@ -242,7 +262,7 @@ class TestAddress(object):
 
     def totuple(self):
         return (self.filename, self.module, self.call)
-        
+
     def __str__(self):
         return self.name
 
