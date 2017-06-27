@@ -71,6 +71,7 @@ class Selector(object):
       To match, a name must match config.testMatch OR config.include
       and it must not match config.exclude
       """
+      match = self.matchDefault
       if self.match != self.matchDefault:   #if user gave match option as well along with matchMethod
           match = self.match
       if self.matchMethod != self.matchDefault:
