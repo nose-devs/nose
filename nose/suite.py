@@ -66,6 +66,7 @@ class LazySuite(unittest.TestSuite):
 
     def addTest(self, test):
         self._precache.append(test)
+        self._had_precache = True
 
     # added to bypass run changes in 2.7's unittest
     def run(self, result):
@@ -79,21 +80,21 @@ class LazySuite(unittest.TestSuite):
         log.debug("tests in %s?", id(self))
         if self._precache:
             return True
-        if self.test_generator is None:
-            return False
-        try:
-            test = self.test_generator.next()
-            if test is not None:
-                self._precache.append(test)
-                return True
-        except StopIteration:
-            pass
-        return False
+        if self.test_generator is not None:
+            try:
+                test = self.test_generator.next()
+                if test is not None:
+                    self.addTest(test)
+                    return True
+            except StopIteration:
+                pass
+
+        return self._had_precache
 
     def _get_tests(self):
         log.debug("precache is %s", self._precache)
-        for test in self._precache:
-            yield test
+        while self._precache:
+            yield self._precache.pop(0)
         if self.test_generator is None:
             return
         for test in self.test_generator:
@@ -101,6 +102,7 @@ class LazySuite(unittest.TestSuite):
 
     def _set_tests(self, tests):
         self._precache = []
+        self._had_precache = False
         is_suite = isinstance(tests, unittest.TestSuite)
         if callable(tests) and not is_suite:
             self.test_generator = tests()
