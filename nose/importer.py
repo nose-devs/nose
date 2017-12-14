@@ -110,7 +110,7 @@ class Importer(object):
         if os.path.isdir(filename):
             return filename
         else:
-            return os.path.dirname(filename)
+            return os.path.dirname(os.path.abspath(filename))
 
     def sameModule(self, mod, filename):
         mod_paths = []
