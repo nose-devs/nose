@@ -1,6 +1,6 @@
 """
 This plugin bypasses the actual execution of tests, and instead just collects
-test names. Fixtures are also bypassed, so running nosetests with the 
+test names. Fixtures are also bypassed, so running nosetests with the
 collection plugin enabled should be very quick.
 
 This plugin is useful in combination with the testid plugin (``--with-id``).
@@ -12,6 +12,7 @@ people watching your demo think all of your tests pass.
 """
 from nose.plugins.base import Plugin
 from nose.case import Test
+from nose.failure import Failure
 import logging
 import unittest
 
@@ -54,8 +55,13 @@ class CollectOnly(Plugin):
             # a result proxy, due to using a stripped-down test suite
             self.conf.plugins.startTest(test)
             result.startTest(test)
-            self.conf.plugins.addSuccess(test)
-            result.addSuccess(test)
+            if test.context is Failure:
+                error = (test.test.exc_class, test.test.exc_val, test.test.tb)
+                self.conf.plugins.addFailure(test, err=error)
+                result.addFailure(test, err=error)
+            else:
+                self.conf.plugins.addSuccess(test)
+                result.addSuccess(test)
             self.conf.plugins.stopTest(test)
             result.stopTest(test)
         return run
