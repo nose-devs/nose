@@ -9,6 +9,6 @@ python:
   - pypy
 install:
   - pip uninstall -y nose
-  - pip install -r requirements.txt --use-mirrors
+  - pip install -r requirements.txt
 script:
   - python setup.py build_tests || python setup.py egg_info; python selftest.py
