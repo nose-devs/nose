@@ -529,8 +529,8 @@ class Config(object):
         parser.add_option(
             "-I", "--ignore-files", action="append", dest="ignoreFiles",
             metavar="REGEX",
-            help="Completely ignore any file that matches this regular "
-            "expression. Takes precedence over any other settings or "
+            help="Completely ignore any file with a basename matching this "
+            "regular expression. Takes precedence over any other settings or "
             "plugins. "
             "Specifying this option will replace the default setting. "
             "Specify this option multiple times "
