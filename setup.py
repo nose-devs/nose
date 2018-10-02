@@ -38,6 +38,8 @@ try:
         },
         test_suite = 'nose.collector',
         )
+    if sys.version_info[0] == 3:
+         addl_args['entry_points']['console_scripts'].append('nosetests3 = nose:run_exit')
     addl_args.update(extra)
 
     # This is required by multiprocess plugin; on Windows, if
