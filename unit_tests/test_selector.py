@@ -133,6 +133,8 @@ class TestSelector(unittest.TestCase):
         assert not s.wantFile('test_data.txt')
         assert not s.wantFile('data.text')
         assert not s.wantFile('bar/baz/__init__.py')
+
+        assert not s.wantFile('fifo.py')
         
     def test_want_function(self):
         def foo():
