@@ -7,6 +7,7 @@ appropriate selector method for each object it encounters that it
 thinks may be a test.
 """
 import logging
+import stat
 import os
 import unittest
 from nose.config import Config
@@ -123,6 +124,11 @@ class Selector(object):
         if not self.config.includeExe and is_executable(file):
             log.info('%s is executable; skipped', file)
             return False
+
+        if os.path.exists(file) and not stat.S_ISREG((os.stat(file)).st_mode):
+            log.info('%s is not a regular file; skipped', file)
+            return False
+
         dummy, ext = op_splitext(base)
         pysrc = ext == '.py'
 
