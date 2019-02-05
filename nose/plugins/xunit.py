@@ -237,7 +237,7 @@ class Xunit(Plugin):
             u'<?xml version="1.0" encoding="%(encoding)s"?>'
             u'<testsuite name="%(testsuite_name)s" tests="%(total)d" '
             u'errors="%(errors)d" failures="%(failures)d" '
-            u'skip="%(skipped)d">' % self.stats)
+            u'skipped="%(skipped)d">' % self.stats)
         self.error_report_file.write(u''.join([force_unicode(e, self.encoding)
                                                for e in self.errorlist]))
         self.error_report_file.write(u'</testsuite>')
