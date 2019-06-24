@@ -449,16 +449,35 @@ def try_run(obj, names):
             if type(obj) == types.ModuleType:
                 # py.test compatibility
                 if isinstance(func, types.FunctionType):
-                    args, varargs, varkw, defaults = \
-                        inspect.getargspec(func)
+                    try:
+                        sig = inspect.signature(func)
+                        bl = set([inspect.Parameter.VAR_KEYWORD,
+                                  inspect.Parameter.VAR_POSITIONAL,
+                                  inspect.Parameter.KEYWORD_ONLY])
+                        args = [k for k, v in sig.parameters.items()
+                                if v.kind not in bl]
+                    except AttributeError:
+                        args, varargs, varkw, defaults = \
+                          inspect.getargspec(func)
+
                 else:
                     # Not a function. If it's callable, call it anyway
                     if hasattr(func, '__call__') and not inspect.ismethod(func):
                         func = func.__call__
                     try:
-                        args, varargs, varkw, defaults = \
-                            inspect.getargspec(func)
-                        args.pop(0) # pop the self off
+                        try:
+                            sig = inspect.signature(func)
+                            bl = set([inspect.Parameter.VAR_KEYWORD,
+                                      inspect.Parameter.VAR_POSITIONAL,
+                                      inspect.Parameter.KEYWORD_ONLY])
+                            args = [k for k, v in sig.parameters.items()
+                                    if v.kind not in bl]
+
+                        except AttributeError:
+                            args, varargs, varkw, defaults = \
+                                inspect.getargspec(func)
+                            # signature never returns it
+                            args.pop(0)  # pop the self off
                     except TypeError:
                         raise TypeError("Attribute %s of %r is not a python "
                                         "function. Only functions or callables"
