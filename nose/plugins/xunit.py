@@ -135,6 +135,10 @@ class Tee(object):
         self._streams = args
         self.errors = None
 
+    @property
+    def closed(self):
+        return all((stream.closed for stream in self._streams))
+
     def write(self, data):
         data = force_unicode(data, self.encoding)
         for s in self._streams:
