@@ -46,12 +46,11 @@ Here is an abbreviated version of what an XML test report might look like::
 
 """
 import codecs
-import doctest
+import doctest  # noqa: F401
+import inspect
 import os
 import sys
-import traceback
 import re
-import inspect
 from StringIO import StringIO
 from time import time
 from xml.sax import saxutils
@@ -65,13 +64,16 @@ CONTROL_CHARACTERS = re.compile(r"[\000-\010\013\014\016-\037]")
 
 TEST_ID = re.compile(r'^(.*?)(\(.*\))$')
 
+
 def xml_safe(value):
     """Replaces invalid XML characters with '?'."""
     return CONTROL_CHARACTERS.sub('?', value)
 
+
 def escape_cdata(cdata):
     """Escape a string for an XML CDATA section."""
     return xml_safe(cdata).replace(']]>', ']]>]]&gt;<![CDATA[')
+
 
 def id_split(idval):
     m = TEST_ID.match(idval)
@@ -81,6 +83,7 @@ def id_split(idval):
         return [head, tail+fargs]
     else:
         return idval.rsplit(".", 1)
+
 
 def nice_classname(obj):
     """Returns a nice name for class object or class instance.
@@ -105,6 +108,7 @@ def nice_classname(obj):
     else:
         return cls_name
 
+
 def exc_message(exc_info):
     """Return the exception's message."""
     exc = exc_info[1]
@@ -123,6 +127,7 @@ def exc_message(exc_info):
                 result = exc.args[0]
     result = force_unicode(result, 'UTF-8')
     return xml_safe(result)
+
 
 class Tee(object):
     def __init__(self, encoding, *args):
