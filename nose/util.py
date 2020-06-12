@@ -355,7 +355,7 @@ def split_test_name(test):
             if file_like(fn):
                 # must be a funny path
                 file_or_mod, fn = test, None
-        except ValueError:
+        except ValueError as e:
             # more than one : in the test
             # this is a case like c:\some\path.py:a_test
             parts = test.split(':')
@@ -365,7 +365,7 @@ def split_test_name(test):
                 # nonsense like foo:bar:baz
                 raise ValueError("Test name '%s' could not be parsed. Please "
                                  "format test names as path:callable or "
-                                 "module:callable." % (test,))
+                                 "module:callable." % (test,)) from e
     elif not tail:
         # this is a case like 'foo:bar/'
         # : must be part of the file path, so ignore it
@@ -459,11 +459,11 @@ def try_run(obj, names):
                         args, varargs, varkw, defaults = \
                             inspect.getargspec(func)
                         args.pop(0) # pop the self off
-                    except TypeError:
+                    except TypeError as e:
                         raise TypeError("Attribute %s of %r is not a python "
                                         "function. Only functions or callables"
                                         " may be used as fixtures." %
-                                        (name, obj))
+                                        (name, obj)) from e
                 if len(args):
                     log.debug("call fixture %s.%s(%s)", obj, name, obj)
                     return func(obj)
