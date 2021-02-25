@@ -100,6 +100,10 @@ class Coverage(Plugin):
                           default=env.get('NOSE_COVER_NO_PRINT'),
                           dest="cover_no_print",
                           help="Suppress printing of coverage information")
+        parser.add_option("--cover-data-file", action="store",
+                          default=None,
+                          dest="cover_data_file",
+                          help="Set the base name of the data file to use (default .coverage)")
 
     def configure(self, options, conf):
         """
@@ -153,7 +157,9 @@ class Coverage(Plugin):
         self.coverPrint = not options.cover_no_print
         if self.enabled:
             self.status['active'] = True
-            self.coverInstance = coverage.coverage(auto_data=False,
+            self.coverInstance = coverage.coverage(
+                data_file=options.cover_data_file,
+                auto_data=False,
                 branch=self.coverBranches, data_suffix=conf.worker,
                 source=self.coverPackages, config_file=self.coverConfigFile)
             self.coverInstance._warn_no_data = False
