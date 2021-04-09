@@ -1,3 +1,4 @@
+os: linux
 language: python
 python:
   - "2.7"
@@ -13,4 +14,5 @@ install:
   - pip uninstall -y nose
   - pip install -r requirements.txt
 script:
-  - python setup.py test || python setup.py egg_info; python selftest.py
+  - python setup.py test || python setup.py egg_info
+  - python selftest.py
