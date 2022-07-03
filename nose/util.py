@@ -476,7 +476,6 @@ def try_run(obj, names):
                         except AttributeError:
                             args, varargs, varkw, defaults = \
                                 inspect.getargspec(func)
-                            # signature never returns it
                             args.pop(0)  # pop the self off
                     except TypeError:
                         raise TypeError("Attribute %s of %r is not a python "
