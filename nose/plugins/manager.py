@@ -104,8 +104,19 @@ class PluginProxy(object):
         """
         meth = getattr(plugin, call, None)
         if meth is not None:
-            if call == 'loadTestsFromModule' and \
-                    len(inspect.getargspec(meth)[0]) == 2:
+            try:
+                sig = inspect.signature(meth)
+                bl = set([inspect.Parameter.VAR_KEYWORD,
+                          inspect.Parameter.VAR_POSITIONAL,
+                          inspect.Parameter.KEYWORD_ONLY])
+                args = [k for k, v in sig.parameters.items()
+                        if v.kind not in bl]
+                arg_len = len(args)
+                if hasattr(meth, '__self__'):
+                    arg_len += 1
+            except AttributeError:
+                arg_len = len(inspect.getargspec(meth)[0])
+            if call == 'loadTestsFromModule' and arg_len == 2:
                 orig_meth = meth
                 meth = lambda module, path, **kwargs: orig_meth(module)
             self.plugins.append((plugin, meth))
@@ -153,6 +164,7 @@ class PluginProxy(object):
                 if result is not None:
                     for r in result:
                         yield r
+
             except (KeyboardInterrupt, SystemExit):
                 raise
             except:
