@@ -20,3 +20,4 @@ build
 .tox
 .*.sw[nop]
 cover
+*.bak
