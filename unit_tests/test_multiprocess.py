@@ -24,7 +24,7 @@ class ArgChecker:
         try:
             testQueue = args[1]
             testQueue.get(timeout=0)
-        except:
+        except Exception:
             pass # ok if queue is empty
     def start(self,*args):
         pass

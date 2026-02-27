@@ -19,7 +19,7 @@ class AllFail(Plugin):
         try:
             try:
                 assert False, "I want to fail!"
-            except:
+            except Exception:
                 result.addFailure(self.test, sys.exc_info())
         finally:
             result.stopTest(self.test)

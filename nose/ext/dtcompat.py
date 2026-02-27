@@ -1185,7 +1185,7 @@ class DocTestRunner:
                 exception = None
             except KeyboardInterrupt:
                 raise
-            except:
+            except Exception:
                 exception = sys.exc_info()
                 self.debugger.set_continue() # ==== Example Finished ====
 
@@ -2246,7 +2246,7 @@ def debug_script(src, pm=False, globs=None):
         if pm:
             try:
                 execfile(srcfilename, globs, globs)
-            except:
+            except Exception:
                 print sys.exc_info()[1]
                 pdb.post_mortem(sys.exc_info()[2])
         else:

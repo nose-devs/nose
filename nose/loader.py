@@ -204,7 +204,7 @@ class TestLoader(unittest.TestLoader):
                 yield self.suiteClass(tests)
         except (KeyboardInterrupt, SystemExit):
             raise
-        except:
+        except Exception:
             yield self.suiteClass([Failure(*sys.exc_info())])
 
         # pop paths
@@ -235,7 +235,7 @@ class TestLoader(unittest.TestLoader):
                                  % filename)
         except (KeyboardInterrupt, SystemExit):
             raise
-        except:
+        except Exception:
             exc = sys.exc_info()
             return self.suiteClass(
                 [Failure(exc[0], exc[1], exc[2],
@@ -257,7 +257,7 @@ class TestLoader(unittest.TestLoader):
                     yield FunctionTestCase(test_func, arg=arg, descriptor=g)
             except KeyboardInterrupt:
                 raise
-            except:
+            except Exception:
                 exc = sys.exc_info()
                 yield Failure(exc[0], exc[1], exc[2],
                               address=test_address(generator))
@@ -301,7 +301,7 @@ class TestLoader(unittest.TestLoader):
                             "%s is not a callable or method" % test_func)
             except KeyboardInterrupt:
                 raise
-            except:
+            except Exception:
                 exc = sys.exc_info()
                 yield Failure(exc[0], exc[1], exc[2],
                               address=test_address(generator))
@@ -423,7 +423,7 @@ class TestLoader(unittest.TestLoader):
                                 addr.filename, addr.module)
                 except (KeyboardInterrupt, SystemExit):
                     raise
-                except:
+                except Exception:
                     exc = sys.exc_info()
                     return suite([Failure(exc[0], exc[1], exc[2],
                                           address=addr.totuple())])
@@ -525,13 +525,13 @@ class TestLoader(unittest.TestLoader):
             return self._makeTest(obj, parent)
         except (KeyboardInterrupt, SystemExit):
             raise
-        except:
+        except Exception:
             exc = sys.exc_info()
             try:
                 addr = test_address(obj)
             except KeyboardInterrupt:
                 raise
-            except:
+            except Exception:
                 addr = None
             return Failure(exc[0], exc[1], exc[2], address=addr)
 
@@ -544,7 +544,7 @@ class TestLoader(unittest.TestLoader):
             addr = test_address(obj)
         except KeyboardInterrupt:
             raise
-        except:
+        except Exception:
             addr = None
         for test in self.config.plugins.makeTest(obj, parent):
             plug_tests.append(test)
@@ -554,7 +554,7 @@ class TestLoader(unittest.TestLoader):
                 return self.suiteClass(plug_tests)
         except (KeyboardInterrupt, SystemExit):
             raise
-        except:
+        except Exception:
             exc = sys.exc_info()
             return Failure(exc[0], exc[1], exc[2], address=addr)
 

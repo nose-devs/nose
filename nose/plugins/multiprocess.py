@@ -303,7 +303,7 @@ class MultiProcessTestRunner(TextTestRunner):
                     case.setUp()
                 except (KeyboardInterrupt, SystemExit):
                     raise
-                except:
+                except Exception:
                     log.debug("%s setup failed", sys.exc_info())
                     result.addError(case, sys.exc_info())
                 else:
@@ -492,7 +492,7 @@ class MultiProcessTestRunner(TextTestRunner):
                     case.tearDown()
                 except (KeyboardInterrupt, SystemExit):
                     raise
-                except:
+                except Exception:
                     result.addError(case, sys.exc_info())
 
             stop = time.time()
@@ -741,7 +741,7 @@ def __runner(ix, testQueue, resultQueue, currentaddr, currentstart,
             currentaddr.value = bytes_('')
             log.exception('Worker %s system exit',ix)
             raise
-        except:
+        except Exception:
             currentaddr.value = bytes_('')
             log.exception("Worker %s error running test or returning "
                             "results",ix)
@@ -788,7 +788,7 @@ class NoSharedFixtureContextSuite(ContextSuite):
             self.setUp()
         except KeyboardInterrupt:
             raise
-        except:
+        except Exception:
             self.error_context = 'setup'
             result.addError(self, self._exc_info())
             return
@@ -830,6 +830,6 @@ class NoSharedFixtureContextSuite(ContextSuite):
                 self.tearDown()
             except KeyboardInterrupt:
                 raise
-            except:
+            except Exception:
                 self.error_context = 'teardown'
                 result.addError(self, self._exc_info())

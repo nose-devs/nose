@@ -60,7 +60,7 @@ def raises(*exceptions):
                 func(*arg, **kw)
             except exceptions:
                 pass
-            except:
+            except Exception:
                 raise
             else:
                 message = "%s() did not raise %s" % (name, valid)

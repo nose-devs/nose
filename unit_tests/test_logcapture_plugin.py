@@ -247,7 +247,7 @@ class TestLogCapturePlugin(object):
         test = Dummy() 
         try:
             raise Exception(msg)
-        except:
+        except Exception:
             err = sys.exc_info()
         (ec, ev, tb) = c.formatError(test, err)
         print ev

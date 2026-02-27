@@ -71,7 +71,7 @@ class TestCapturePlugin(unittest.TestCase):
         try:
             print "Oh my!"
             raise Exception("boom")
-        except:
+        except Exception:
             err = sys.exc_info()
         formatted = c.formatError(d, err)
         ec, ev, tb = err
@@ -92,7 +92,7 @@ class TestCapturePlugin(unittest.TestCase):
         try:
             print "debug 日本"
             raise AssertionError(u'response does not contain 名')
-        except:
+        except Exception:
             err = sys.exc_info()
         formatted = c.formatError(d, err)
 

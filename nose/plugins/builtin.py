@@ -26,7 +26,7 @@ for module, cls in builtins:
         plugmod = __import__(module, globals(), locals(), [cls])
     except KeyboardInterrupt:
         raise
-    except:
+    except Exception:
         continue
     plug = getattr(plugmod, cls)
     plugins.append(plug)

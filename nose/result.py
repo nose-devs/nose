@@ -24,7 +24,7 @@ def _exception_detail(exc):
     # this is what stdlib module traceback does
     try:
         return str(exc)
-    except:
+    except Exception:
         return '<unprintable %s object>' % type(exc).__name__
 
 

@@ -207,7 +207,7 @@ class ContextSuite(LazySuite):
             self.setUp()
         except KeyboardInterrupt:
             raise
-        except:
+        except Exception:
             self.error_context = 'setup'
             result.addError(self, self._exc_info())
             return
@@ -226,7 +226,7 @@ class ContextSuite(LazySuite):
                 self.tearDown()
             except KeyboardInterrupt:
                 raise
-            except:
+            except Exception:
                 self.error_context = 'teardown'
                 result.addError(self, self._exc_info())
 

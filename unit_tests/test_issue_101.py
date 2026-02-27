@@ -20,7 +20,7 @@ class TestErrorClassWithStringException(unittest.TestCase):
         try:
 
             raise "oh no!"
-        except:
+        except Exception:
             exc = sys.exc_info()
         
         ep = EP()

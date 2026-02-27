@@ -33,7 +33,7 @@ class TestPdbPlugin(unittest.TestCase):
 
         try:
             raise Exception("oops")
-        except:
+        except Exception:
             err = sys.exc_info()
     
         p.enabled = True
@@ -106,7 +106,7 @@ class TestPdbPlugin(unittest.TestCase):
 
         try:
             raise Exception("oops")
-        except:
+        except Exception:
             err = sys.exc_info()
     
         p.addError(None, err)    

@@ -42,7 +42,7 @@ class TestResultProxy(unittest.TestCase):
                 pass
         try:
             raise Exception("exception")
-        except:
+        except Exception:
             err = sys.exc_info()
         test = TC()
         case = Test(test)
@@ -176,7 +176,7 @@ class TestResultProxy(unittest.TestCase):
         res = unittest.TestResult()
         try:
             raise CustomException("the error", 2, 3)
-        except:
+        except Exception:
             etype, val, tb = sys.exc_info()
         val = str(val) # simulate plugin shenanigans
         proxy = ResultProxy(res, test=case)

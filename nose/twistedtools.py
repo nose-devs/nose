@@ -141,7 +141,7 @@ def deferred(timeout=None):
                 # Retrieve and save full exception info
                 try:
                     failure.raiseException()
-                except:
+                except Exception:
                     q.put(sys.exc_info())
             def g():
                 try:
@@ -155,7 +155,7 @@ def deferred(timeout=None):
                                         "from your test case!")
                 # Catch exceptions raised in the test body (from the
                 # Twisted thread)
-                except:
+                except Exception:
                     q.put(sys.exc_info())
             reactor.callFromThread(g)
             try:
