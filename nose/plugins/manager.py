@@ -61,11 +61,11 @@ from nose.pyversion import sort_list
 
 try:
     import cPickle as pickle
-except:
+except ImportError:
     import pickle
 try:
     from cStringIO import StringIO
-except:
+except ImportError:
     from StringIO import StringIO
 
 
@@ -155,7 +155,7 @@ class PluginProxy(object):
                         yield r
             except (KeyboardInterrupt, SystemExit):
                 raise
-            except:
+            except Exception:
                 exc = sys.exc_info()
                 yield Failure(*exc)
                 continue
